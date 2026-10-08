@@ -102,8 +102,71 @@
             android:layout_height="48dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="/apkbuilder"
+            android:text="Debug APK"
             android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/releaseApk"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_weight="1"
+            android:text="Release Signing"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/cancelBuild"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="Cancel Build"
+            android:textSize="11sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/buildStages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@color/z_surface"
+        android:fontFamily="monospace"
+        android:padding="10dp"
+        android:text="BUILD WORKFLOW\nValidation: IDLE\nDependencies: IDLE\nBuild: IDLE\nPackaging: IDLE"
+        android:textColor="@color/z_muted"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:id="@+id/artifactActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/openArtifact"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="Open APK"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/shareArtifact"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="Share APK"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <EditText
