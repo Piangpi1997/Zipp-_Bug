@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.R
 import com.zipbug.base.databinding.ActivitySettingsBinding
 import com.zipbug.base.security.SecretBackup
 import com.zipbug.base.security.SecretStore
@@ -78,6 +79,20 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.languageOptions.check(
+            if (AppLanguage.selected(this) == AppLanguage.BURMESE) {
+                R.id.languageBurmese
+            } else {
+                R.id.languageEnglish
+            }
+        )
+        binding.languageOptions.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.languageEnglish -> AppLanguage.set(this, AppLanguage.ENGLISH)
+                R.id.languageBurmese -> AppLanguage.set(this, AppLanguage.BURMESE)
+            }
+        }
 
         secrets = SecretStore(this)
         val prefs = getSharedPreferences(

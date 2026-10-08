@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="App Creator"
+            android:text="@string/ui_34c17649da"
             android:textColor="@color/z_text"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -21,15 +21,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:text="Generate a real Kotlin/XML Android source project ZIP."
+            android:text="@string/ui_e8a3b9e600"
             android:textColor="@color/z_muted" />
 
         <EditText
             android:id="@+id/appName"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="App name"
-            android:text="My ZipBug App"
+            android:hint="@string/ui_c877cbb0e8"
+            android:text="@string/ui_c5d4a34842"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -37,8 +37,8 @@
             android:id="@+id/packageName"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Package name"
-            android:text="com.example.zipbugapp"
+            android:hint="@string/ui_d6406a8838"
+            android:text="@string/ui_1aa364b2df"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="140dp"
             android:gravity="top"
-            android:hint="What should this app become?"
+            android:hint="@string/ui_cbaba8f67d"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -55,14 +55,14 @@
             android:id="@+id/createAndroid"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="Create Kotlin/XML Android ZIP" />
+            android:text="@string/ui_a5dbb4caba" />
 
         <Button
             android:id="@+id/createWeb"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="Create HTML/JS/JSON Mini-App ZIP" />
+            android:text="@string/ui_c9aeb2e77b" />
 
         <TextView
             android:id="@+id/result"
@@ -72,7 +72,7 @@
             android:background="@color/z_surface"
             android:fontFamily="monospace"
             android:padding="14dp"
-            android:text="No project generated yet."
+            android:text="@string/ui_f3f0e40c70"
             android:textColor="@color/z_green"
             android:textIsSelectable="true" />
 
@@ -90,7 +90,7 @@
                 android:layout_height="48dp"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:text="Open ZIP" />
+                android:text="@string/ui_b6c14496c7" />
 
             <Button
                 android:id="@+id/shareExport"
@@ -98,7 +98,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:text="Share ZIP" />
+                android:text="@string/ui_9aa942bf6b" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

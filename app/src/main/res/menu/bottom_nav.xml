@@ -2,21 +2,21 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_menu_view"
-        android:title="Home" />
+        android:title="@string/ui_70f8bb9a8a" />
     <item
         android:id="@+id/nav_studio"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="Studio" />
+        android:title="@string/ui_5b23bd71b3" />
     <item
         android:id="@+id/nav_ai"
         android:icon="@android:drawable/ic_menu_send"
-        android:title="AI" />
+        android:title="@string/ui_560040c54a" />
     <item
         android:id="@+id/nav_terminal"
         android:icon="@android:drawable/ic_menu_manage"
-        android:title="Terminal" />
+        android:title="@string/ui_a1f52cdcb3" />
     <item
         android:id="@+id/nav_projects"
         android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Projects" />
+        android:title="@string/ui_53e890d5f0" />
 </menu>

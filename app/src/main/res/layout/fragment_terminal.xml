@@ -7,7 +7,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Termux Build Engine"
+        android:text="@string/ui_aedff2a425"
         android:textColor="@color/z_text"
         android:textSize="26sp"
         android:textStyle="bold" />
@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="ENGINE • IDLE"
+        android:text="@string/ui_aef68539da"
         android:textColor="@color/z_green"
         android:textStyle="bold" />
 
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="COMMAND TEST PANEL"
+        android:text="@string/ui_c2bb2f1d2a"
         android:textColor="@color/z_muted"
         android:textSize="11sp"
         android:textStyle="bold" />
@@ -42,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:text="Python"
+            android:text="@string/ui_6e3604888c"
             android:textSize="12sp" />
 
         <Button
@@ -51,7 +51,7 @@
             android:layout_height="44dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="Java"
+            android:text="@string/ui_e027e57610"
             android:textSize="12sp" />
 
         <Button
@@ -60,7 +60,7 @@
             android:layout_height="44dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="Gradle"
+            android:text="@string/ui_f426be61bd"
             android:textSize="12sp" />
 
         <Button
@@ -69,7 +69,7 @@
             android:layout_height="44dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="ffmpeg"
+            android:text="@string/ui_037917f6f7"
             android:textSize="12sp" />
 
         <Button
@@ -78,7 +78,7 @@
             android:layout_height="44dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="aapt2"
+            android:text="@string/ui_a37566242d"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -93,7 +93,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="Device Proof &amp; Checks"
+            android:text="@string/ui_db106a25c3"
             android:textSize="12sp" />
 
         <Button
@@ -102,7 +102,7 @@
             android:layout_height="48dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="Debug APK"
+            android:text="@string/ui_e25f95a8e8"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -117,7 +117,7 @@
             android:layout_width="0dp"
             android:layout_height="46dp"
             android:layout_weight="1"
-            android:text="Release Signing"
+            android:text="@string/ui_05ab059a2b"
             android:textSize="11sp" />
 
         <Button
@@ -126,7 +126,7 @@
             android:layout_height="46dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="Cancel Build"
+            android:text="@string/ui_a58b61b399"
             android:textSize="11sp"
             android:visibility="gone" />
     </LinearLayout>
@@ -139,7 +139,7 @@
         android:background="@color/z_surface"
         android:fontFamily="monospace"
         android:padding="10dp"
-        android:text="BUILD WORKFLOW\nValidation: IDLE\nDependencies: IDLE\nBuild: IDLE\nPackaging: IDLE"
+        android:text="@string/ui_5a00511859"
         android:textColor="@color/z_muted"
         android:textSize="11sp" />
 
@@ -156,7 +156,7 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:text="Open APK"
+            android:text="@string/ui_64e6758c6f"
             android:textSize="11sp" />
 
         <Button
@@ -165,7 +165,7 @@
             android:layout_height="44dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="Share APK"
+            android:text="@string/ui_addb5ae9df"
             android:textSize="11sp" />
     </LinearLayout>
 
@@ -174,7 +174,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="6dp"
-        android:hint="/termux [tool] [args]"
+        android:hint="@string/ui_519e4f8b69"
         android:singleLine="true"
         android:textColor="@color/z_text"
         android:textColorHint="@color/z_muted"
@@ -185,7 +185,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="4dp"
-        android:text="Run Command" />
+        android:text="@string/ui_0bc4731fb1" />
 
     <TextView
         android:id="@+id/output"
@@ -196,7 +196,7 @@
         android:background="#101010"
         android:fontFamily="monospace"
         android:padding="12dp"
-        android:text="Real stdout / stderr / exitCode will appear here."
+        android:text="@string/ui_9f1f4fa6ef"
         android:textColor="@color/z_green"
         android:textIsSelectable="true"
         android:textSize="13sp" />
@@ -207,7 +207,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="6dp"
         android:backgroundTint="@color/z_orange"
-        android:text="Fix Error with AI"
+        android:text="@string/ui_b04389cd2a"
         android:textColor="#111111"
         android:visibility="gone" />
 </LinearLayout>

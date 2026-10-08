@@ -15,7 +15,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ZIP_BUG // ANTIGRAVITY"
+            android:text="@string/ui_68adb21369"
             android:textColor="@color/z_text"
             android:textStyle="bold" />
 
@@ -24,7 +24,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@android:color/transparent"
-            android:contentDescription="Settings"
+            android:contentDescription="@string/ui_c7f73bb54d"
             android:src="@android:drawable/ic_menu_preferences" />
     </LinearLayout>
 

@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TTS Studio"
+            android:text="@string/ui_82dad51824"
             android:textColor="@color/z_text"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="TTS • IDLE"
+            android:text="@string/ui_96f5001ad5"
             android:textColor="@color/z_green"
             android:textStyle="bold" />
 
@@ -32,7 +32,7 @@
             android:layout_height="180dp"
             android:layout_marginTop="12dp"
             android:gravity="top"
-            android:hint="Myanmar text…"
+            android:hint="@string/ui_b2e98317a1"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -46,23 +46,23 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Nilar • Female" />
+                android:text="@string/ui_6e8b1bbf13" />
 
             <Button
                 android:id="@+id/maleVoice"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Thiha • Male" />
+                android:text="@string/ui_adfbb02a9c" />
         </LinearLayout>
 
         <EditText
             android:id="@+id/voice"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Edge voice"
+            android:hint="@string/ui_2743a089d5"
             android:singleLine="true"
-            android:text="my-MM-NilarNeural"
+            android:text="@string/ui_e813a5888f"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -70,9 +70,9 @@
             android:id="@+id/outputPath"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Output MP3 path"
+            android:hint="@string/ui_2f41a09bae"
             android:singleLine="true"
-            android:text="/storage/emulated/0/Download/Zip_Bug_TTS.mp3"
+            android:text="@string/ui_d6b2a3fad2"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -80,14 +80,14 @@
             android:id="@+id/installEdgeTts"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="Setup / Upgrade edge-tts in Termux" />
+            android:text="@string/ui_46399ec612" />
 
         <Button
             android:id="@+id/generate"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="Generate Real MP3" />
+            android:text="@string/ui_89f9365bae" />
 
         <TextView
             android:id="@+id/log"
@@ -97,7 +97,7 @@
             android:background="#101010"
             android:fontFamily="monospace"
             android:padding="12dp"
-            android:text="Real Termux stdout / stderr appears here."
+            android:text="@string/ui_e152cc7a78"
             android:textColor="@color/z_green"
             android:textIsSelectable="true" />
     </LinearLayout>

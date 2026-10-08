@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zip_Bug Studio"
+            android:text="@string/ui_c0e96bcc8e"
             android:textColor="@color/z_text"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Build, design, media, and developer tools in one workspace."
+            android:text="@string/ui_4522a05a0e"
             android:textColor="@color/z_muted"
             android:textSize="15sp" />
 
@@ -31,7 +31,7 @@
             android:layout_marginTop="20dp"
             android:background="@color/z_surface"
             android:padding="16dp"
-            android:text="ENGINE&#10;127.0.0.1:3131 • sandboxed web runtime&#10;Termux bridge • allow-listed tools&#10;Encrypted BYO API keys"
+            android:text="@string/ui_fdb18f439b"
             android:textColor="@color/z_green"
             android:textSize="14sp" />
 
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:text="BUILD"
+            android:text="@string/ui_9b8dfdff73"
             android:textColor="@color/z_orange"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -48,12 +48,12 @@
             android:id="@+id/appCreator"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="App Creator  •  /appcreator" />
+            android:text="@string/ui_6cf2e5e831" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Example: /appcreator   • legacy alias: /apcreator"
+            android:text="@string/ui_5cf05677c9"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -62,12 +62,12 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="APK Builder  •  /apkbuilder" />
+            android:text="@string/ui_c9d4072e89" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Example: /apkbuilder"
+            android:text="@string/ui_3aaa2ae8f1"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -75,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="DESIGN"
+            android:text="@string/ui_8d2fccfa70"
             android:textColor="@color/z_orange"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -84,12 +84,12 @@
             android:id="@+id/studio"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="UI Screen Lab  •  /likefigma" />
+            android:text="@string/ui_09cfea6df8" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Example: /likefigma"
+            android:text="@string/ui_c1c43dc3fa"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -98,12 +98,12 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="AI App Creator  •  /aicreator" />
+            android:text="@string/ui_46cc6b4e9f" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Example: /aicreator"
+            android:text="@string/ui_5c04db4781"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -111,7 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="MEDIA"
+            android:text="@string/ui_b85fa29e83"
             android:textColor="@color/z_orange"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -120,20 +120,20 @@
             android:id="@+id/ttsStudio"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="Myanmar TTS  •  /tts" />
+            android:text="@string/ui_6f804fd7a2" />
 
         <Button
             android:id="@+id/mediaRecap"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="Social Recap  •  /socialrecap" />
+            android:text="@string/ui_2c65b1e39d" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="TOOLS"
+            android:text="@string/ui_9d0e510bd5"
             android:textColor="@color/z_orange"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -142,12 +142,12 @@
             android:id="@+id/terminal"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="Termux Bridge  •  /termux" />
+            android:text="@string/ui_c7f5e022ca" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Example: /termux python --version"
+            android:text="@string/ui_8b7daa21ee"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -156,14 +156,14 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="Command Help / Search  •  /help" />
+            android:text="@string/ui_8d162006ff" />
 
         <Button
             android:id="@+id/projects"
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:layout_marginTop="8dp"
-            android:text="Projects &amp; Artifacts  •  /projects" />
+            android:text="@string/ui_d1dc718b37" />
 
         <TextView
             android:layout_width="match_parent"
@@ -171,7 +171,7 @@
             android:layout_marginTop="14dp"
             android:background="@color/z_surface"
             android:padding="12dp"
-            android:text="/aizipper is reserved but not implemented yet. Use /appcreator or /projects."
+            android:text="@string/ui_e164709b6d"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
