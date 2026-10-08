@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.zipbug.base.databinding.FragmentHomeBinding
 import com.zipbug.base.ui.MediaRecapActivity
+import com.zipbug.base.ui.AppCreatorActivity
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -26,6 +27,12 @@ class HomeFragment : Fragment() {
         binding.mediaRecap.setOnClickListener {
             startActivity(
                 Intent(requireContext(), MediaRecapActivity::class.java)
+            )
+        }
+
+        binding.appCreator.setOnClickListener {
+            startActivity(
+                Intent(requireContext(), AppCreatorActivity::class.java)
             )
         }
     }
