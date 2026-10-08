@@ -35,13 +35,17 @@
 - [ ] Compiler feedback -> AI repair loop.
 - [ ] Full slash-command routing: /apcreator /likefigma /aizipper /aicreator.
 
-## Phase D — Media Lab
-- Authorized URL/media ingest.
-- yt-dlp/ffmpeg handoff through Termux.
-- Transcription pipeline.
-- Recap / Recap+Dialogue / Dub.
-- 1–18 clip timeline, freeze+zoom and transitions.
-- Subtitle and TTS output.
+## Phase D — Media Lab — ACTIVE
+- [x] Authorized URL field and explicit authorization notice.
+- [x] Real yt-dlp/ffmpeg audio-preparation job through Termux.
+- [x] Real media stdout/stderr/exit-code UI.
+- [x] Recap / Recap+Dialogue / Dub prompt builder.
+- [x] Real Edge-TTS Termux setup and generation jobs.
+- [x] Burmese Nilar/Thiha neural voice presets.
+- [ ] Transcription pipeline.
+- [ ] Transcript -> configured AI Provider one-tap recap.
+- [ ] 1–18 clip timeline, freeze+zoom and transitions.
+- [ ] Subtitle generation and final dub mux.
 
 ## Phase E — Professional Release
 Plugin SDK, git workspaces, signed release profiles, tests, migrations, backup/restore, crash logs, accessibility, localization and release checklist.
