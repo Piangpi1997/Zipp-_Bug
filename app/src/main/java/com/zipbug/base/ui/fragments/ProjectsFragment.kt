@@ -21,7 +21,11 @@ import com.zipbug.base.databinding.FragmentProjectsBinding
 import com.zipbug.base.engine.EngineManager
 import com.zipbug.base.project.ZipImporter
 import com.zipbug.base.ui.ApkDetailBottomSheetDialogFragment
+import com.zipbug.base.ui.SigningDiagnosticsActivity
 import com.zipbug.base.ui.WebRuntimeActivity
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Locale
@@ -122,6 +126,10 @@ class ProjectsFragment : Fragment() {
             }
         }
 
+        binding.btnSigningDiag.setOnClickListener {
+            startActivity(Intent(requireContext(), SigningDiagnosticsActivity::class.java))
+        }
+
         binding.btnScanApks.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 Snackbar.make(binding.root, "Scanning Gradle output directories for APKs…", Snackbar.LENGTH_SHORT).show()
@@ -149,12 +157,138 @@ class ProjectsFragment : Fragment() {
             val app = requireActivity().application as ZipBugApp
             val projects = app.database.projectDao().listAll()
 
-            binding.projects.text = if (projects.isEmpty()) {
-                "No projects yet. Import a ZIP or scaffold using AI App Creator."
-            } else {
-                projects.joinToString("\n\n") {
-                    "${it.name}\n${it.kind} • ${it.entryFile}"
+            binding.projectsContainer.removeAllViews()
+
+            if (projects.isEmpty()) {
+                val emptyTv = TextView(requireContext()).apply {
+                    text = "No projects yet. Import a ZIP or scaffold using AI App Creator."
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.z_muted))
+                    setPadding(12, 12, 12, 12)
+                    textSize = 13f
                 }
+                binding.projectsContainer.addView(emptyTv)
+                return@launch
+            }
+
+            for (p in projects) {
+                binding.projectsContainer.addView(createProjectCard(p))
+            }
+        }
+    }
+
+    private fun createProjectCard(project: com.zipbug.base.data.ProjectEntity): View {
+        val card = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(ContextCompat.getColor(context, R.color.z_surface))
+            setPadding(16, 16, 16, 16)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = 12
+            }
+        }
+
+        val nameTv = TextView(requireContext()).apply {
+            text = project.name
+            setTextColor(ContextCompat.getColor(context, R.color.z_text))
+            textSize = 15f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+        card.addView(nameTv)
+
+        val metaTv = TextView(requireContext()).apply {
+            text = "${project.kind} • ${project.rootPath}"
+            setTextColor(ContextCompat.getColor(context, R.color.z_muted))
+            textSize = 12f
+            setPadding(0, 4, 0, 8)
+        }
+        card.addView(metaTv)
+
+        val btnRow = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
+        val btnBuild = Button(requireContext()).apply {
+            text = "Build APK"
+            setBackgroundColor(ContextCompat.getColor(context, R.color.z_orange))
+            setTextColor(0xFF111111.toInt())
+            layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
+                marginEnd = 6
+            }
+            setOnClickListener {
+                buildAndInspectProject(project)
+            }
+        }
+        btnRow.addView(btnBuild)
+
+        val btnRun = Button(requireContext()).apply {
+            text = "Run :3131"
+            setBackgroundColor(0xFF2D2D2D.toInt())
+            setTextColor(ContextCompat.getColor(context, R.color.z_text))
+            layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
+                marginStart = 6
+            }
+            setOnClickListener {
+                val entry = File(project.entryFile)
+                val webRoot = File(project.rootPath, entry.parent ?: "www")
+                EngineManager.run(webRoot)
+                startActivity(
+                    Intent(requireContext(), WebRuntimeActivity::class.java).putExtra(
+                        "url",
+                        "http://127.0.0.1:3131/${entry.name}"
+                    )
+                )
+            }
+        }
+        btnRow.addView(btnRun)
+
+        card.addView(btnRow)
+        return card
+    }
+
+    private fun buildAndInspectProject(project: com.zipbug.base.data.ProjectEntity) {
+        val app = requireActivity().application as ZipBugApp
+        Snackbar.make(binding.root, "Queuing Gradle build for '${project.name}'…", Snackbar.LENGTH_SHORT).show()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val req = com.zipbug.base.termux.TermuxBridge.Request(
+                tool = "gradle",
+                args = listOf("--no-daemon", "assembleDebug"),
+                workDir = project.rootPath,
+                label = "Build ${project.name}"
+            )
+
+            val sendResult = com.zipbug.base.termux.TermuxBridge.send(requireContext(), req)
+            if (sendResult.isFailure) {
+                Snackbar.make(binding.root, "Build failed before dispatch: ${sendResult.exceptionOrNull()?.message}", Snackbar.LENGTH_LONG).show()
+                return@launch
+            }
+
+            val jobId = sendResult.getOrThrow()
+            Snackbar.make(binding.root, "Build running (jobId: $jobId)… Waiting for output", Snackbar.LENGTH_LONG).show()
+
+            val job = app.database.buildJobDao().observe(jobId)
+                .filterNotNull()
+                .filter { it.status != com.zipbug.base.data.BuildJobEntity.RUNNING }
+                .first()
+
+            if (job.status == com.zipbug.base.data.BuildJobEntity.SUCCESS) {
+                // Discover and inspect newest APK
+                ApkArtifactScanner.scanAndPersist(requireContext(), listOf(File(project.rootPath)))
+                val artifacts = app.database.apkArtifactDao().listAll()
+                val newestApk = artifacts.firstOrNull { it.filePath.startsWith(project.rootPath) }
+                    ?: artifacts.firstOrNull()
+
+                if (newestApk != null) {
+                    ApkDetailBottomSheetDialogFragment.newInstance(newestApk.filePath)
+                        .show(parentFragmentManager, ApkDetailBottomSheetDialogFragment.TAG)
+                } else {
+                    Snackbar.make(binding.root, "Build succeeded, but no APK artifact found in output directory", Snackbar.LENGTH_LONG).show()
+                }
+                renderArtifacts()
+            } else {
+                Snackbar.make(binding.root, "Build failed (exit ${job.exitCode}). Tap Terminal to fix with AI.", Snackbar.LENGTH_LONG).show()
             }
         }
     }
