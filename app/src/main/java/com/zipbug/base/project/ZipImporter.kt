@@ -11,7 +11,7 @@ import java.util.UUID
 import java.util.zip.ZipInputStream
 
 class ZipImporter(private val context: Context) {
-    suspend fun import(uri: Uri): ProjectEntity {
+    suspend fun importZip(uri: Uri): ProjectEntity {
         val id = UUID.randomUUID().toString()
         val root = File(context.filesDir, "projects/$id").apply { mkdirs() }
         val canonicalRoot = root.canonicalFile
