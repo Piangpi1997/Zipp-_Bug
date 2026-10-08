@@ -21,15 +21,20 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         // One-time convenience migration for users who pasted an
-        // OpenRouter key into the old OpenAI-only field.
-        val savedOpenAi = secrets.get("openai")
+        // OpenRouter key into any old provider field.
         val savedOpenRouter = secrets.get("openrouter")
-        if (
-            savedOpenRouter.isBlank() &&
-            savedOpenAi.startsWith("sk-or-")
-        ) {
-            secrets.put("openrouter", savedOpenAi)
-            secrets.put("openai", "")
+        if (savedOpenRouter.isBlank()) {
+            listOf("openai", "gemini", "anthropic")
+                .firstOrNull {
+                    secrets.get(it).startsWith("sk-or-")
+                }
+                ?.let { oldField ->
+                    secrets.put(
+                        "openrouter",
+                        secrets.get(oldField)
+                    )
+                    secrets.put(oldField, "")
+                }
         }
 
         binding.openrouter.setText(secrets.get("openrouter"))
