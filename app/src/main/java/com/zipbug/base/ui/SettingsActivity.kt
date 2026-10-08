@@ -48,12 +48,20 @@ class SettingsActivity : AppCompatActivity() {
         )!!
 
         binding.termuxHome.setText(home)
-        binding.projectRoot.setText(
-            prefs.getString(
-                "projectRoot",
-                "$home/OpenDots/Zip_Bug"
-            )
-        )
+
+        val savedProjectRoot = prefs.getString(
+            "projectRoot",
+            "$home/OpenDots/Zip_Bug_Antigravity"
+        )!!
+
+        val migratedProjectRoot =
+            if (savedProjectRoot == "$home/OpenDots/Zip_Bug") {
+                "$home/OpenDots/Zip_Bug_Antigravity"
+            } else {
+                savedProjectRoot
+            }
+
+        binding.projectRoot.setText(migratedProjectRoot)
         binding.artifactExportPath.setText(
             prefs.getString(
                 "artifactExportPath",
