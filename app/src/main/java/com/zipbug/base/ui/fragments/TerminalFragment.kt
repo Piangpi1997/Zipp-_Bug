@@ -195,13 +195,32 @@ class TerminalFragment : Fragment() {
                 app.database.buildJobDao()
                     .observeLatest()
                     .collect { job ->
-                        if (job != null && _binding != null) {
+                        if (job == null || _binding == null) {
+                            return@collect
+                        }
+
+                        val activeId = activeBuildJobId
+                        if (
+                            activeId == null ||
+                            activeId == job.id
+                        ) {
                             render(job)
-                            if (job.status == BuildJobEntity.SUCCESS && (job.tool == "gradle" || job.argsJson.contains("assemble"))) {
-                                launch {
-                                    runCatching {
-                                        com.zipbug.base.artifact.ApkArtifactScanner.scanAndPersist(requireContext())
-                                    }
+                        }
+
+                        if (
+                            job.status == BuildJobEntity.SUCCESS &&
+                            (
+                                isControlledBuildJob(job) ||
+                                    job.tool == "gradle" ||
+                                    job.argsJson.contains("assemble")
+                                )
+                        ) {
+                            launch {
+                                runCatching {
+                                    com.zipbug.base.artifact.ApkArtifactScanner
+                                        .scanAndPersist(
+                                            requireContext()
+                                        )
                                 }
                             }
                         }
@@ -210,13 +229,69 @@ class TerminalFragment : Fragment() {
         }
     }
 
+    private fun observeBuildJob(jobId: String) {
+        buildObserver?.cancel()
+        val app = requireActivity().application as ZipBugApp
+
+        buildObserver = viewLifecycleOwner.lifecycleScope.launch {
+            app.database.buildJobDao()
+                .observe(jobId)
+                .collect { job ->
+                    if (job == null || _binding == null) {
+                        return@collect
+                    }
+
+                    render(job)
+
+                    if (
+                        job.status != BuildJobEntity.QUEUED &&
+                        job.status != BuildJobEntity.RUNNING
+                    ) {
+                        activeBuildJobId = null
+                        activeBuildCancelPath = null
+                        activeBuildWorkDir = null
+                        binding.cancelBuild.visibility = View.GONE
+
+                        if (
+                            job.status == BuildJobEntity.SUCCESS
+                        ) {
+                            launch {
+                                runCatching {
+                                    com.zipbug.base.artifact.ApkArtifactScanner
+                                        .scanAndPersist(
+                                            requireContext()
+                                        )
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
     private fun render(job: BuildJobEntity) {
-        val isFailed = job.status == BuildJobEntity.FAILED || (job.exitCode != null && job.exitCode != 0)
+        if (isControlledBuildJob(job)) {
+            renderControlledBuild(job)
+            return
+        }
+
+        binding.cancelBuild.visibility = View.GONE
+        binding.artifactActions.visibility = View.GONE
+
+        val isFailed =
+            job.status == BuildJobEntity.FAILED ||
+                (
+                    job.exitCode != null &&
+                        job.exitCode != 0
+                    )
+
         if (isFailed) {
             lastFailedJob = job
-            binding.btnFixErrorWithAi.visibility = View.VISIBLE
+            binding.btnFixErrorWithAi.visibility =
+                View.VISIBLE
         } else {
-            binding.btnFixErrorWithAi.visibility = View.GONE
+            binding.btnFixErrorWithAi.visibility =
+                View.GONE
         }
 
         val exit = job.exitCode?.let {
@@ -227,14 +302,21 @@ class TerminalFragment : Fragment() {
             "\ntermuxError: $it"
         }.orEmpty()
 
-        val duration = if (job.startedAt != null && job.finishedAt != null) {
-            "\nduration: ${job.finishedAt - job.startedAt}ms"
-        } else {
-            ""
-        }
+        val duration =
+            if (
+                job.startedAt != null &&
+                job.finishedAt != null
+            ) {
+                "\nduration: ${job.finishedAt - job.startedAt}ms"
+            } else {
+                ""
+            }
 
         binding.engineState.text =
-            if (job.tool == "cp" && job.status == BuildJobEntity.SUCCESS) {
+            if (
+                job.tool == "cp" &&
+                job.status == BuildJobEntity.SUCCESS
+            ) {
                 "APK EXPORTED • COPY EXIT 0"
             } else {
                 "ENGINE • ${job.status} • ${job.tool}"
@@ -266,6 +348,252 @@ class TerminalFragment : Fragment() {
             }
         }
     }
+
+    private fun renderControlledBuild(
+        job: BuildJobEntity
+    ) {
+        val snapshot =
+            BuildWorkflowParser.parse(job.stdout)
+
+        val running =
+            job.status == BuildJobEntity.QUEUED ||
+                job.status == BuildJobEntity.RUNNING
+
+        binding.cancelBuild.visibility =
+            if (running) View.VISIBLE else View.GONE
+
+        binding.btnFixErrorWithAi.visibility =
+            if (
+                job.status == BuildJobEntity.FAILED ||
+                (
+                    job.exitCode != null &&
+                        job.exitCode != 0
+                    )
+            ) {
+                lastFailedJob = job
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+        val validation =
+            snapshot.stage("VALIDATION")
+        val dependencies =
+            snapshot.stage("DEPENDENCIES")
+        val build =
+            snapshot.stage("BUILD")
+        val packaging =
+            snapshot.stage("PACKAGING")
+        val signing =
+            snapshot.stage("SIGNING")
+
+        binding.buildStages.text = buildString {
+            append("BUILD WORKFLOW • DEBUG\n")
+            appendStageLine(
+                "Validation",
+                validation,
+                running
+            )
+            appendStageLine(
+                "Dependencies",
+                dependencies,
+                running
+            )
+            appendStageLine(
+                "Build",
+                build,
+                running
+            )
+            appendStageLine(
+                "Packaging",
+                packaging,
+                running
+            )
+
+            if (signing != null) {
+                append("Release signing: ")
+                append(signing.state)
+                append(" — ")
+                append(signing.detail)
+                append("\n")
+            } else {
+                append(
+                    "Release signing: NOT TOUCHED " +
+                        "(explicit configuration required)\n"
+                )
+            }
+        }
+
+        val timedOut =
+            job.exitCode == 124 ||
+                build?.state == "TIMEOUT"
+        val cancelled =
+            job.exitCode == 130 ||
+                build?.state == "CANCELLED"
+
+        val artifact = snapshot.artifact
+        val proofComplete =
+            job.status == BuildJobEntity.SUCCESS &&
+                job.exitCode == 0 &&
+                snapshot.result == "SUCCESS" &&
+                packaging?.state == "PASS" &&
+                artifact != null
+
+        binding.engineState.text = when {
+            running ->
+                "BUILD • RUNNING • DEBUG"
+
+            timedOut ->
+                "BUILD • TIMEOUT"
+
+            cancelled ->
+                "BUILD • CANCELLED"
+
+            proofComplete ->
+                "BUILD • SUCCESS • APK VALIDATED"
+
+            job.status == BuildJobEntity.SUCCESS ->
+                "BUILD • INCOMPLETE ARTIFACT PROOF"
+
+            else ->
+                "BUILD • FAILED • exit ${job.exitCode ?: "?"}"
+        }
+
+        if (proofComplete && artifact != null) {
+            lastArtifact = artifact
+            verifyArtifactForActions(artifact)
+        } else {
+            lastArtifact = null
+            binding.artifactActions.visibility =
+                View.GONE
+        }
+
+        binding.output.text = buildString {
+            append("job: ${job.id}\n")
+            append("mode: DEBUG\n")
+            append("workdir: ${job.workDir}\n")
+            append("status: ${job.status}\n")
+            append("exitCode: ${job.exitCode ?: "pending"}\n")
+
+            if (artifact != null) {
+                append("\nARTIFACT PROOF\n")
+                append("name: ")
+                    .append(File(artifact.path).name)
+                    .append("\n")
+                append("size: ")
+                    .append(formatBytes(artifact.sizeBytes))
+                    .append(" (")
+                    .append(artifact.sizeBytes)
+                    .append(" bytes)\n")
+                append("path: ")
+                    .append(artifact.path)
+                    .append("\n")
+                append("sha256: ")
+                    .append(artifact.sha256)
+                    .append("\n")
+                append("signature verify: ")
+                    .append(
+                        artifact.signatureVerification
+                    )
+                    .append("\n")
+            }
+
+            if (
+                job.status == BuildJobEntity.FAILED ||
+                timedOut ||
+                cancelled
+            ) {
+                append("\nSAFE NEXT STEP\n")
+                append(
+                    buildSafeNextStep(
+                        validation,
+                        dependencies,
+                        build,
+                        packaging,
+                        timedOut,
+                        cancelled
+                    )
+                )
+                append("\n")
+            }
+
+            if (job.stdout.isNotBlank()) {
+                append("\nSTDOUT\n")
+                append(job.stdout)
+            }
+
+            if (job.stderr.isNotBlank()) {
+                append("\n\nSTDERR\n")
+                append(job.stderr)
+            }
+
+            if (job.errorMessage.isNotBlank()) {
+                append("\n\nERROR\n")
+                append(job.errorMessage)
+            }
+        }
+    }
+
+    private fun StringBuilder.appendStageLine(
+        label: String,
+        stage: com.zipbug.base.build.BuildStageStatus?,
+        running: Boolean
+    ) {
+        append(label)
+        append(": ")
+
+        if (stage != null) {
+            append(stage.state)
+            if (stage.detail.isNotBlank()) {
+                append(" — ")
+                append(stage.detail)
+            }
+        } else if (running) {
+            append("WAITING / RUNNING")
+        } else {
+            append("NOT REPORTED")
+        }
+
+        append("\n")
+    }
+
+    private fun buildSafeNextStep(
+        validation: com.zipbug.base.build.BuildStageStatus?,
+        dependencies: com.zipbug.base.build.BuildStageStatus?,
+        build: com.zipbug.base.build.BuildStageStatus?,
+        packaging: com.zipbug.base.build.BuildStageStatus?,
+        timedOut: Boolean,
+        cancelled: Boolean
+    ): String = when {
+        cancelled ->
+            "Build cancellation was requested. Review the log before starting another build."
+
+        timedOut ->
+            "The controlled 20-minute timeout was reached. Check for a stalled Gradle dependency or reduce the project workload before retrying."
+
+        validation?.state == "FAIL" ->
+            "Check the configured project root and required Gradle files, then retry."
+
+        dependencies?.state == "FAIL" ->
+            "Run Device Proof / Engine Doctor and fix the reported Java, SDK, Gradle, or aapt2 dependency."
+
+        build?.state == "FAIL" ->
+            "Use Fix Error with AI with this real stderr/stdout, or correct the Gradle error manually."
+
+        packaging?.state == "FAIL" ->
+            "Check shared-storage access, APK output path, and APK validation tools before retrying."
+
+        else ->
+            "Inspect stdout/stderr and retry only after the reported cause is fixed."
+    }
+
+    private fun isControlledBuildJob(
+        job: BuildJobEntity
+    ): Boolean =
+        job.tool == "bash" &&
+            job.argsJson.contains(
+                "scripts/build-termux.sh"
+            )
 
     private fun runDoctor() {
         val home = requireContext()
