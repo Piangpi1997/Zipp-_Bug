@@ -20,7 +20,7 @@ const canvas = document.querySelector('#canvas');
 function setStatus(message, kind) {
   const status = document.querySelector('#save-status');
   if (!status) return;
-  status.textContent = message;
+  status.textContent = window.zipBugTranslate ? window.zipBugTranslate(message) : message;
   status.className = kind || '';
 }
 
@@ -129,7 +129,10 @@ function updateInspector() {
   const visibilityButton = document.querySelector('#visibility-button');
   if (visibilityButton) {
     visibilityButton.disabled = !node;
-    visibilityButton.textContent = node && node.visible === false ? 'Show' : 'Hide';
+    const visibilityLabel = node && node.visible === false ? 'Show' : 'Hide';
+    visibilityButton.textContent = window.zipBugTranslate
+      ? window.zipBugTranslate(visibilityLabel)
+      : visibilityLabel;
   }
   if (!node) return;
   const values = {
@@ -422,7 +425,9 @@ function switchScreen(id) {
 }
 
 function newScreen() {
-  const name = window.prompt('New screen name:', 'Screen ' + (project.screens.length + 1));
+  const translate = window.zipBugTranslate || ((value) => value);
+  const screenPrefix = window.zipBugLanguage === 'my' ? 'မျက်နှာပြင် ' : 'Screen ';
+  const name = window.prompt(translate('New screen name:'), screenPrefix + (project.screens.length + 1));
   if (!name || !name.trim()) return;
   beginMutation();
   const id = 'screen_' + Date.now() + '_' + (project.screens.length + 1);
@@ -435,7 +440,8 @@ function newScreen() {
 
 function renameScreen() {
   const active = getActiveScreen();
-  const name = window.prompt('Rename screen:', active.name);
+  const translate = window.zipBugTranslate || ((value) => value);
+  const name = window.prompt(translate('Rename screen:'), active.name);
   if (!name || !name.trim() || name.trim() === active.name) return;
   beginMutation();
   active.name = name.trim().slice(0, 80);
@@ -460,7 +466,8 @@ function deleteScreen() {
     setStatus('Cannot delete the only screen in the project.', 'error');
     return;
   }
-  if (!window.confirm('Delete the current screen and its layers?')) return;
+  const translate = window.zipBugTranslate || ((value) => value);
+  if (!window.confirm(translate('Delete the current screen and its layers?'))) return;
   beginMutation();
   project.screens = project.screens.filter((screen) => screen.id !== project.currentScreenId);
   project.currentScreenId = project.screens[0].id;

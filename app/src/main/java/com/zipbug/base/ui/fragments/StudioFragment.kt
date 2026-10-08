@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import androidx.fragment.app.Fragment
 import com.zipbug.base.databinding.FragmentStudioBinding
+import com.zipbug.base.ui.AppLanguage
 import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
@@ -38,7 +39,7 @@ class StudioFragment : Fragment() {
             "ZipBug"
         )
         binding.web.loadUrl(
-            "file:///android_asset/studio/index.html"
+            "file:///android_asset/studio/index.html?lang=${AppLanguage.selected(requireContext())}"
         )
     }
 

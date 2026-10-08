@@ -11,7 +11,7 @@
         android:id="@+id/patchTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="AI Repair • Proposed Patch"
+        android:text="@string/ui_87fd80b7e4"
         android:textColor="@color/z_orange"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Original Snippet (-)"
+        android:text="@string/ui_5675237bfd"
         android:textColor="@color/z_red"
         android:textSize="12sp"
         android:textStyle="bold" />
@@ -60,7 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Replacement Snippet (+)"
+        android:text="@string/ui_13df113a0f"
         android:textColor="@color/z_green"
         android:textSize="12sp"
         android:textStyle="bold" />
@@ -90,7 +90,7 @@
             android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:backgroundTint="@color/z_surface"
-            android:text="Cancel"
+            android:text="@string/ui_77dfd2135f"
             android:textColor="@color/z_muted" />
 
         <Button
@@ -100,7 +100,7 @@
             android:layout_marginStart="6dp"
             android:layout_weight="1"
             android:backgroundTint="@color/z_green"
-            android:text="Apply &amp; Rebuild"
+            android:text="@string/ui_0c054b1887"
             android:textColor="#111111" />
     </LinearLayout>
 </LinearLayout>

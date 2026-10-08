@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="APK Artifact Inspection"
+            android:text="@string/ui_023f5d2431"
             android:textColor="@color/z_text"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -30,7 +30,7 @@
             android:background="#2E382E"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
-            android:text="UNKNOWN"
+            android:text="@string/ui_25ba44ec3b"
             android:textColor="@color/z_green"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -43,7 +43,7 @@
         android:layout_marginTop="12dp"
         android:background="#33FF4D4D"
         android:padding="10dp"
-        android:text="Same package name is already installed but signed with a different key."
+        android:text="@string/ui_02aee09d81"
         android:textColor="@color/z_red"
         android:textSize="13sp"
         android:textStyle="bold"
@@ -79,7 +79,7 @@
             android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:backgroundTint="@color/z_surface"
-            android:text="Cancel"
+            android:text="@string/ui_77dfd2135f"
             android:textColor="@color/z_muted" />
 
         <Button
@@ -89,7 +89,7 @@
             android:layout_marginStart="6dp"
             android:layout_weight="1"
             android:backgroundTint="#2D2D2D"
-            android:text="App Info"
+            android:text="@string/ui_1f80e11865"
             android:textColor="@color/z_text"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -108,7 +108,7 @@
             android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:backgroundTint="@color/z_red"
-            android:text="Uninstall Existing"
+            android:text="@string/ui_a5a409475d"
             android:textColor="#FFFFFF"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -120,7 +120,7 @@
             android:layout_marginStart="6dp"
             android:layout_weight="1"
             android:backgroundTint="@color/z_green"
-            android:text="Install APK"
+            android:text="@string/ui_319e7e6af3"
             android:textColor="#111111" />
     </LinearLayout>
 </LinearLayout>

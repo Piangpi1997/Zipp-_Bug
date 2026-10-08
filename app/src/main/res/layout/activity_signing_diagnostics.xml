@@ -22,7 +22,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Signing Diagnostics"
+                android:text="@string/ui_2152a18cc2"
                 android:textColor="@color/z_text"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -34,7 +34,7 @@
                 android:background="#2E382E"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="4dp"
-                android:text="ANALYZING"
+                android:text="@string/ui_8f861a87d6"
                 android:textColor="@color/z_green"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Diagnostic comparison of installed package certificate vs build artifact signature."
+            android:text="@string/ui_22c873d399"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -55,7 +55,7 @@
             android:layout_marginTop="12dp"
             android:background="#33FF4D4D"
             android:padding="12dp"
-            android:text="Signer Mismatch Detected: The APK was signed with a different key than the installed package."
+            android:text="@string/ui_812cd1d6cb"
             android:textColor="@color/z_red"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -66,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="1. Installed Application Signer"
+            android:text="@string/ui_36fd26ef41"
             android:textColor="@color/z_orange"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -87,7 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="2. Latest Build Artifact Signer"
+            android:text="@string/ui_5db93f6617"
             android:textColor="@color/z_orange"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -117,7 +117,7 @@
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
                 android:backgroundTint="#2D2D2D"
-                android:text="App Info"
+                android:text="@string/ui_1f80e11865"
                 android:textColor="@color/z_text"
                 android:textSize="12sp" />
 
@@ -128,7 +128,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/z_red"
-                android:text="Uninstall Conflicting"
+                android:text="@string/ui_1745ca4d92"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -139,7 +139,7 @@
             android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/z_orange"
-            android:text="Inspect &amp; Install APK"
+            android:text="@string/ui_eae093a482"
             android:textColor="#111111"
             android:textSize="12sp" />
     </LinearLayout>

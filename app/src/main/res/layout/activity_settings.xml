@@ -12,7 +12,44 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AI Provider Keys"
+            android:text="@string/language_title"
+            android:textColor="@color/z_text"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/language_description"
+            android:textColor="@color/z_muted" />
+
+        <RadioGroup
+            android:id="@+id/languageOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/languageEnglish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_english"
+                android:textColor="@color/z_text" />
+
+            <RadioButton
+                android:id="@+id/languageBurmese"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_burmese"
+                android:textColor="@color/z_text" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_74a0809945"
             android:textColor="@color/z_text"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -21,14 +58,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:text="Keys are encrypted locally with Android Keystore. Copy/reveal only when needed."
+            android:text="@string/ui_a5fa75a0bf"
             android:textColor="@color/z_muted" />
 
         <EditText
             android:id="@+id/openrouter"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="OpenRouter API key (sk-or-...)"
+            android:hint="@string/ui_8b71ad2c77"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -43,7 +80,7 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Reveal" />
+                android:text="@string/ui_90c0c2eb98" />
 
             <Button
                 android:id="@+id/openrouterCopy"
@@ -51,7 +88,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Copy" />
+                android:text="@string/ui_af74f7c536" />
         </LinearLayout>
 
         <EditText
@@ -59,7 +96,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
-            android:hint="OpenAI API key"
+            android:hint="@string/ui_a210cfc794"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -74,7 +111,7 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Reveal" />
+                android:text="@string/ui_90c0c2eb98" />
 
             <Button
                 android:id="@+id/openaiCopy"
@@ -82,7 +119,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Copy" />
+                android:text="@string/ui_af74f7c536" />
         </LinearLayout>
 
         <EditText
@@ -90,7 +127,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
-            android:hint="Gemini API key"
+            android:hint="@string/ui_ef66ea16d7"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -105,7 +142,7 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Reveal" />
+                android:text="@string/ui_90c0c2eb98" />
 
             <Button
                 android:id="@+id/geminiCopy"
@@ -113,7 +150,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Copy" />
+                android:text="@string/ui_af74f7c536" />
         </LinearLayout>
 
         <EditText
@@ -121,7 +158,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="8dp"
-            android:hint="Claude API key"
+            android:hint="@string/ui_4daacf467b"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -136,7 +173,7 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Reveal" />
+                android:text="@string/ui_90c0c2eb98" />
 
             <Button
                 android:id="@+id/anthropicCopy"
@@ -144,7 +181,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Copy" />
+                android:text="@string/ui_af74f7c536" />
         </LinearLayout>
 
         <Button
@@ -152,20 +189,20 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="16dp"
-            android:text="Encrypted backup API keys" />
+            android:text="@string/ui_83db78c040" />
 
         <Button
             android:id="@+id/restoreKeys"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="8dp"
-            android:text="Restore API keys" />
+            android:text="@string/ui_0b1306a97d" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Backup files are encrypted with a passphrase you choose. The passphrase is never stored by Zip_Bug."
+            android:text="@string/ui_cbda7c58ee"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
@@ -173,7 +210,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Termux Engine"
+            android:text="@string/ui_cd235eca31"
             android:textColor="@color/z_text"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -182,7 +219,7 @@
             android:id="@+id/termuxHome"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Termux home"
+            android:hint="@string/ui_c0b3407607"
             android:singleLine="true"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -191,7 +228,7 @@
             android:id="@+id/projectRoot"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Default Android project root"
+            android:hint="@string/ui_16bdca9c1c"
             android:singleLine="true"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -200,7 +237,7 @@
             android:id="@+id/artifactExportPath"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="APK export path"
+            android:hint="@string/ui_d9fe29a097"
             android:singleLine="true"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -210,6 +247,6 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="12dp"
-            android:text="Save encrypted settings" />
+            android:text="@string/ui_b727524800" />
     </LinearLayout>
 </ScrollView>

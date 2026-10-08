@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Apps / Runtime"
+            android:text="@string/ui_835ed47213"
             android:textColor="@color/z_text"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -29,7 +29,7 @@
                 android:layout_height="48dp"
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:text="Import ZIP" />
+                android:text="@string/ui_5d556e4d82" />
 
             <Button
                 android:id="@+id/runLatest"
@@ -37,14 +37,14 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
-                android:text="Run :3131" />
+                android:text="@string/ui_45aa3704e3" />
         </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Projects"
+            android:text="@string/ui_53e890d5f0"
             android:textColor="@color/z_orange"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -67,7 +67,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Build Artifacts (APKs)"
+                android:text="@string/ui_c25d3a71be"
                 android:textColor="@color/z_orange"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -76,7 +76,7 @@
                 android:id="@+id/btnScanApks"
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
-                android:text="Scan"
+                android:text="@string/ui_28cba55d2a"
                 android:textSize="11sp" />
 
             <Button
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
                 android:layout_marginStart="4dp"
-                android:text="Signers"
+                android:text="@string/ui_e01e922d6a"
                 android:textSize="11sp" />
 
             <Button
@@ -92,7 +92,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="38dp"
                 android:layout_marginStart="4dp"
-                android:text="Inspect..."
+                android:text="@string/ui_49993a071a"
                 android:textSize="11sp" />
         </LinearLayout>
 

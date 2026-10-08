@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Social Recap Lab"
+            android:text="@string/ui_49bc076f9c"
             android:textColor="@color/z_text"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -21,14 +21,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="Process only media you own or are authorized to access."
+            android:text="@string/ui_8acc35a0ff"
             android:textColor="@color/z_muted" />
 
         <EditText
             android:id="@+id/url"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Movie / social link"
+            android:hint="@string/ui_dbe9624278"
             android:inputType="textUri"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
@@ -37,21 +37,21 @@
             android:id="@+id/language"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="Myanmar"
+            android:text="@string/ui_928b7c48a6"
             android:textColor="@color/z_text" />
 
         <Button
             android:id="@+id/prepareMedia"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="Prepare Audio with yt-dlp + ffmpeg" />
+            android:text="@string/ui_5772e40861" />
 
         <TextView
             android:id="@+id/mediaStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="MEDIA • IDLE"
+            android:text="@string/ui_3922138d93"
             android:textColor="@color/z_green"
             android:textStyle="bold" />
 
@@ -72,7 +72,7 @@
             android:background="#101010"
             android:fontFamily="monospace"
             android:padding="10dp"
-            android:text="Real yt-dlp stdout / stderr appears here."
+            android:text="@string/ui_4530bfa65c"
             android:textColor="@color/z_green"
             android:textIsSelectable="true" />
 
@@ -87,21 +87,21 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Recap Prompt" />
+                android:text="@string/ui_58c93e7703" />
 
             <Button
                 android:id="@+id/dialogue"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="+Dialogue" />
+                android:text="@string/ui_bdf335bf9d" />
 
             <Button
                 android:id="@+id/dub"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Dub Prompt" />
+                android:text="@string/ui_983c249226" />
         </LinearLayout>
 
         <EditText
@@ -109,7 +109,7 @@
             android:layout_width="match_parent"
             android:layout_height="220dp"
             android:gravity="top"
-            android:hint="Generated AI prompt appears here."
+            android:hint="@string/ui_470685cf71"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
     </LinearLayout>
