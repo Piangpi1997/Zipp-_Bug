@@ -283,8 +283,119 @@ class TerminalFragment : Fragment() {
             return
         }
 
-        if (parts.isEmpty()) return
+        if (parts.isEmpty()) {
+            binding.output.text = "Enter a slash command. Use /help to browse commands."
+            return
+        }
 
+        val spec = CommandRegistry.resolve(parts[0])
+        if (spec == null) {
+            val query = parts[0]
+                .removePrefix("/")
+                .trim()
+            val suggestions = CommandRegistry.search(query)
+                .filter { it.available }
+                .take(3)
+                .joinToString(", ") { it.command }
+
+            binding.output.text = buildString {
+                append("Unknown command: ")
+                append(parts[0])
+                append("\n\nUse /help to search supported commands.")
+                if (suggestions.isNotBlank()) {
+                    append("\nPossible matches: ")
+                    append(suggestions)
+                }
+            }
+            return
+        }
+
+        if (!spec.available) {
+            binding.output.text = buildString {
+                append(spec.command)
+                append(" is currently unavailable.\n\n")
+                append(spec.unavailableReason)
+                append("\n\nUse /help for working alternatives.")
+            }
+            return
+        }
+
+        when (spec.command) {
+            "/help" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        CommandHelpActivity::class.java
+                    )
+                )
+            }
+
+            "/appcreator" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        AppCreatorActivity::class.java
+                    )
+                )
+            }
+
+            "/likefigma" -> {
+                (requireActivity() as? MainActivity)
+                    ?.navigateToStudio()
+            }
+
+            "/aicreator" -> {
+                (requireActivity() as? MainActivity)
+                    ?.navigateToAiWithPrompt(
+                        "",
+                        AiMode.APP_CREATOR
+                    )
+            }
+
+            "/tts" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        TtsStudioActivity::class.java
+                    )
+                )
+            }
+
+            "/socialrecap" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        MediaRecapActivity::class.java
+                    )
+                )
+            }
+
+            "/projects" -> {
+                (requireActivity() as? MainActivity)
+                    ?.navigateToProjects()
+            }
+
+            "/termux",
+            "/apkbuilder" -> {
+                withTermuxPermission {
+                    runTermuxCommand(
+                        parts,
+                        spec.command
+                    )
+                }
+            }
+
+            else -> {
+                binding.output.text =
+                    "Command is registered but has no executable action. Use /help."
+            }
+        }
+    }
+
+    private fun runTermuxCommand(
+        parts: List<String>,
+        canonicalCommand: String
+    ) {
         val prefs = requireContext()
             .getSharedPreferences("zipbug.settings", 0)
 
@@ -305,11 +416,11 @@ class TerminalFragment : Fragment() {
                 savedProjectRoot
             }
 
-        val request = when (parts[0]) {
+        val request = when (canonicalCommand) {
             "/termux" -> {
                 if (parts.size < 2) {
                     binding.output.text =
-                        "Use /termux <approved-tool> [args]"
+                        "Usage: /termux <approved-tool> [args]\nExample: /termux python --version"
                     return
                 }
 
@@ -337,11 +448,7 @@ class TerminalFragment : Fragment() {
                 )
             }
 
-            else -> {
-                binding.output.text =
-                    "Supported now: /termux, /apkbuilder"
-                return
-            }
+            else -> return
         }
 
         binding.engineState.text = "ENGINE • QUEUING"
@@ -355,7 +462,7 @@ class TerminalFragment : Fragment() {
             result.onSuccess { id ->
                 binding.output.text =
                     "Queued real Termux job:\n$id\n\n" +
-                    "Waiting for Termux result callback…"
+                        "Waiting for Termux result callback…"
             }.onFailure {
                 binding.output.text =
                     "Command failed before execution:\n${it.message}"
