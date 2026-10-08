@@ -146,7 +146,7 @@ class TerminalFragment : Fragment() {
         }
     }
 
-$marker
+    private fun runCommand(raw: String) {
         val parts = runCatching {
             CommandLineParser.parse(raw)
         }.getOrElse {
