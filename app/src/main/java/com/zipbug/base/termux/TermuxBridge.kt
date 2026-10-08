@@ -5,12 +5,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ZipBugDatabase
 import org.json.JSONArray
 import java.util.UUID
 
 object TermuxBridge {
+    const val PERMISSION_RUN_COMMAND = "com.termux.permission.RUN_COMMAND"
     private const val PREFIX = "/data/data/com.termux/files/usr/bin/"
 
     private const val EXTRA_PENDING_INTENT =
@@ -29,6 +32,12 @@ object TermuxBridge {
         "cp" to "cp",
         "edge-tts" to "edge-tts"
     )
+
+    fun hasPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            PERMISSION_RUN_COMMAND
+        ) == PackageManager.PERMISSION_GRANTED
 
     data class Request(
         val tool: String,
@@ -56,6 +65,10 @@ object TermuxBridge {
         dao.upsert(job)
 
         return runCatching {
+            require(hasPermission(appContext)) {
+                "Run commands in Termux environment permission is not granted"
+            }
+
             val binary = tools[request.tool]
                 ?: error("Tool not allowed: ${request.tool}")
 
