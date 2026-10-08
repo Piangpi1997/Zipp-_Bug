@@ -36,10 +36,17 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/mediaRecap"
+            android:id="@+id/appCreator"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="22dp"
+            android:text="App Creator • Kotlin/XML Source ZIP" />
+
+        <Button
+            android:id="@+id/mediaRecap"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
             android:text="Movie / Link → Social Recap" />
 
         <TextView
