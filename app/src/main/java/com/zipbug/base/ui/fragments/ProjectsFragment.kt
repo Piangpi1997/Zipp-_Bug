@@ -27,7 +27,7 @@ class ProjectsFragment : Fragment() {
         if (uri != null) {
             viewLifecycleOwner.lifecycleScope.launch {
                 runCatching {
-                    ZipImporter(requireContext()).import(uri)
+                    ZipImporter(requireContext()).importZip(uri)
                 }.onSuccess { project ->
                     val app = requireActivity().application as ZipBugApp
                     app.database.projectDao().upsert(project)
