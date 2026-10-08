@@ -82,10 +82,29 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 val result = AppProjectGenerator.generate(requireContext(), spec)
                 result.onSuccess { proj ->
                     generatedProject = proj
-                    binding.btnBuildProject.isEnabled = true
+
+                    val termuxAccessible =
+                        proj.rootPath.startsWith(
+                            "/data/data/com.termux/files/"
+                        )
+
+                    binding.btnBuildProject.isEnabled =
+                        termuxAccessible
+
+                    binding.btnBuildProject.text =
+                        if (termuxAccessible) {
+                            "Build Debug APK"
+                        } else {
+                            "Move to Termux First"
+                        }
+
                     Snackbar.make(
                         binding.root,
-                        "Generated project '${proj.name}' in Projects",
+                        if (termuxAccessible) {
+                            "Generated '${proj.name}'. Ready for controlled debug build."
+                        } else {
+                            "Generated '${proj.name}' safely in app storage. Export/move the source to a Termux workspace before building."
+                        },
                         Snackbar.LENGTH_LONG
                     ).show()
                 }.onFailure { e ->
@@ -100,29 +119,28 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
 
         binding.btnBuildProject.setOnClickListener {
-            val proj = generatedProject ?: return@setOnClickListener
-            viewLifecycleOwner.lifecycleScope.launch {
-                val req = TermuxBridge.Request(
-                    tool = "gradle",
-                    args = listOf("--no-daemon", "assembleDebug"),
-                    workDir = proj.rootPath,
-                    label = "Build ${proj.name}"
+            val proj =
+                generatedProject
+                    ?: return@setOnClickListener
+
+            if (
+                !proj.rootPath.startsWith(
+                    "/data/data/com.termux/files/"
                 )
-                TermuxBridge.send(requireContext(), req).onSuccess { jobId ->
-                    Snackbar.make(
-                        binding.root,
-                        "Queued build job: $jobId",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                    dismiss()
-                }.onFailure { err ->
-                    Snackbar.make(
-                        binding.root,
-                        "Build failed: ${err.message}",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+            ) {
+                Snackbar.make(
+                    binding.root,
+                    "Build not started: project is not in a Termux workspace. No fake build was queued.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
             }
+
+            Snackbar.make(
+                binding.root,
+                "Use /apkbuilder --debug with this Termux project root so validation, timeout, packaging, and APK verification are enforced.",
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
