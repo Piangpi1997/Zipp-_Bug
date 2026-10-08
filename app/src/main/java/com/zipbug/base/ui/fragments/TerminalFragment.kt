@@ -205,10 +205,17 @@ class TerminalFragment : Fragment() {
             "/data/data/com.termux/files/home"
         )!!
 
-        val projectRoot = prefs.getString(
+        val savedProjectRoot = prefs.getString(
             "projectRoot",
-            "$home/OpenDots/Zip_Bug"
+            "$home/OpenDots/Zip_Bug_Antigravity"
         )!!
+
+        val projectRoot =
+            if (savedProjectRoot == "$home/OpenDots/Zip_Bug") {
+                "$home/OpenDots/Zip_Bug_Antigravity"
+            } else {
+                savedProjectRoot
+            }
 
         val request = when (parts[0]) {
             "/termux" -> {
