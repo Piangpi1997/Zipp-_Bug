@@ -1,0 +1,72 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="App Creator"
+            android:textColor="@color/z_text"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:text="Generate a real Kotlin/XML Android source project ZIP."
+            android:textColor="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/appName"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="App name"
+            android:text="My ZipBug App"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/packageName"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Package name"
+            android:text="com.example.zipbugapp"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/goal"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:gravity="top"
+            android:hint="What should this app become?"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <Button
+            android:id="@+id/create"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="Create Source ZIP" />
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/z_surface"
+            android:fontFamily="monospace"
+            android:padding="14dp"
+            android:text="No project generated yet."
+            android:textColor="@color/z_green"
+            android:textIsSelectable="true" />
+    </LinearLayout>
+</ScrollView>
