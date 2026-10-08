@@ -20,20 +20,36 @@ class AiFragment : Fragment() {
     private val binding get() = _binding!!
     private val repository = AiRepository()
 
+    private var lastProvider = AiProvider.OPENROUTER
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAiBinding.inflate(inflater, container, false)
+        _binding = FragmentAiBinding.inflate(
+            inflater,
+            container,
+            false
+        )
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
         binding.provider.adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
             AiProvider.values().map { it.label }
+        )
+
+        binding.provider.setSelection(
+            AiProvider.OPENROUTER.ordinal
+        )
+        binding.model.setText(
+            AiProvider.OPENROUTER.defaultModel
         )
 
         binding.provider.onItemSelectedListener =
@@ -44,14 +60,25 @@ class AiFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    val provider = AiProvider.values()[position]
+                    val selected = AiProvider.values()[position]
+                    val currentModel =
+                        binding.model.text.toString().trim()
 
-                    if (
-                        provider == AiProvider.OPENROUTER &&
-                        binding.model.text.isNullOrBlank()
-                    ) {
-                        binding.model.setText("openrouter/free")
+                    val looksLikePreviousDefault =
+                        currentModel.isBlank() ||
+                            currentModel == lastProvider.defaultModel ||
+                            (
+                                currentModel.startsWith("openrouter/") &&
+                                    selected != AiProvider.OPENROUTER
+                            )
+
+                    if (looksLikePreviousDefault) {
+                        binding.model.setText(
+                            selected.defaultModel
+                        )
                     }
+
+                    lastProvider = selected
                 }
 
                 override fun onNothingSelected(
@@ -60,31 +87,102 @@ class AiFragment : Fragment() {
             }
 
         binding.send.setOnClickListener {
-            val provider = AiProvider.values()[
-                binding.provider.selectedItemPosition
-            ]
+            sendPrompt()
+        }
+    }
 
-            val key = SecretStore(requireContext())
-                .get(provider.name.lowercase())
+    private fun sendPrompt() {
+        val store = SecretStore(requireContext())
 
-            val request = AiRequest(
-                provider = provider,
-                apiKey = key,
-                model = binding.model.text.toString().trim(),
-                system = "You are Zip_Bug AI Creator. Produce precise implementation plans and code-safe output.",
-                prompt = binding.prompt.text.toString().trim()
-            )
+        val selected = AiProvider.values()[
+            binding.provider.selectedItemPosition
+        ]
 
-            binding.output.setText(
-                "Connecting to ${provider.label}…"
-            )
+        var model = binding.model.text
+            .toString()
+            .trim()
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                val result = repository.complete(request)
-                binding.output.setText(
-                    result.getOrElse { "Error: ${it.message}" }
-                )
+        // Common typo seen during testing.
+        if (model == "openrouter/tree") {
+            model = "openrouter/free"
+            binding.model.setText(model)
+        }
+
+        val effectiveProvider =
+            if (model.startsWith("openrouter/")) {
+                AiProvider.OPENROUTER
+            } else {
+                selected
             }
+
+        if (effectiveProvider != selected) {
+            binding.provider.setSelection(
+                effectiveProvider.ordinal
+            )
+        }
+
+        val key = store.get(
+            effectiveProvider.name.lowercase()
+        )
+
+        if (key.isBlank()) {
+            binding.output.setText(
+                "No ${effectiveProvider.label} API key saved.\n\n" +
+                    "Tap the wrench icon → Settings → " +
+                    "enter the correct key → Save encrypted settings."
+            )
+            return
+        }
+
+        if (
+            effectiveProvider != AiProvider.OPENROUTER &&
+            key.startsWith("sk-or-")
+        ) {
+            binding.output.setText(
+                "This is an OpenRouter key, but " +
+                    "${effectiveProvider.label} is selected.\n\n" +
+                    "Select OpenRouter • Free and use model " +
+                    "openrouter/free."
+            )
+            return
+        }
+
+        val prompt = binding.prompt.text
+            .toString()
+            .trim()
+
+        if (prompt.isBlank()) {
+            binding.output.setText(
+                "Enter a prompt first."
+            )
+            return
+        }
+
+        val request = AiRequest(
+            provider = effectiveProvider,
+            apiKey = key,
+            model = model.ifBlank {
+                effectiveProvider.defaultModel
+            },
+            system =
+                "You are Zip_Bug AI Creator. " +
+                "Produce precise implementation plans " +
+                "and code-safe output.",
+            prompt = prompt
+        )
+
+        binding.output.setText(
+            "Connecting to ${effectiveProvider.label}…\n" +
+                "Model: ${request.model}"
+        )
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = repository.complete(request)
+            binding.output.setText(
+                result.getOrElse {
+                    "Error: ${it.message}"
+                }
+            )
         }
     }
 
