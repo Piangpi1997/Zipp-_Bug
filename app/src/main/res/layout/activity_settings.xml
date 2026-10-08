@@ -25,6 +25,15 @@
             android:textColor="@color/z_muted" />
 
         <EditText
+            android:id="@+id/openrouter"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="OpenRouter API key (sk-or-...)"
+            android:inputType="textPassword"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
             android:id="@+id/openai"
             android:layout_width="match_parent"
             android:layout_height="56dp"
