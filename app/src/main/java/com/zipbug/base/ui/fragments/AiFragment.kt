@@ -1,13 +1,19 @@
 package com.zipbug.base.ui.fragments
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.ai.AiMode
 import com.zipbug.base.ai.AiProvider
 import com.zipbug.base.ai.AiRepository
 import com.zipbug.base.ai.AiRequest
@@ -52,6 +58,12 @@ class AiFragment : Fragment() {
             AiProvider.OPENROUTER.defaultModel
         )
 
+        binding.mode.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            AiMode.values().map { it.title }
+        )
+
         binding.provider.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
@@ -86,8 +98,38 @@ class AiFragment : Fragment() {
                 ) = Unit
             }
 
+        binding.mode.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val mode = AiMode.values()[position]
+                    when (mode) {
+                        AiMode.APP_CREATOR -> binding.prompt.hint = "Describe the app to generate structured JSON spec…"
+                        AiMode.TTS_SCRIPT -> binding.prompt.hint = "Describe the Myanmar or English voiceover script…"
+                        AiMode.FIX_ERROR -> binding.prompt.hint = "Paste compiler errors or build failure log…"
+                        AiMode.SOCIAL_RECAP -> binding.prompt.hint = "Paste video transcript for social recap timeline…"
+                        else -> binding.prompt.hint = "Describe the task, code, or architecture…"
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            }
+
         binding.send.setOnClickListener {
             sendPrompt()
+        }
+
+        binding.copy.setOnClickListener {
+            val text = binding.output.text.toString()
+            if (text.isNotBlank()) {
+                val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.setPrimaryClip(ClipData.newPlainText("AI Output", text))
+                Snackbar.make(binding.root, "Copied to clipboard", Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -96,6 +138,9 @@ class AiFragment : Fragment() {
 
         val selected = AiProvider.values()[
             binding.provider.selectedItemPosition
+        ]
+        val selectedMode = AiMode.values()[
+            binding.mode.selectedItemPosition
         ]
 
         var model = binding.model.text
@@ -164,15 +209,14 @@ class AiFragment : Fragment() {
             model = model.ifBlank {
                 effectiveProvider.defaultModel
             },
-            system =
-                "You are Zip_Bug AI Creator. " +
-                "Produce precise implementation plans " +
-                "and code-safe output.",
-            prompt = prompt
+            system = selectedMode.systemPrompt,
+            prompt = prompt,
+            mode = selectedMode
         )
 
         binding.output.setText(
             "Connecting to ${effectiveProvider.label}…\n" +
+                "Mode: ${selectedMode.title}\n" +
                 "Model: ${request.model}"
         )
 

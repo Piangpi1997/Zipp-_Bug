@@ -4,15 +4,31 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Antigravity AI"
+        android:textColor="@color/z_text"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
     <Spinner
         android:id="@+id/provider"
         android:layout_width="match_parent"
-        android:layout_height="48dp" />
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp" />
+
+    <Spinner
+        android:id="@+id/mode"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp" />
 
     <EditText
         android:id="@+id/model"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_marginTop="4dp"
         android:hint="Model (optional)"
         android:textColor="@color/z_text"
         android:textColorHint="@color/z_muted" />
@@ -20,24 +36,50 @@
     <EditText
         android:id="@+id/prompt"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="4dp"
         android:gravity="top"
         android:hint="Describe the app, screen, logic, code or recap you want…"
         android:textColor="@color/z_text"
         android:textColorHint="@color/z_muted" />
 
-    <Button
-        android:id="@+id/send"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="Generate with my API key" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/send"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="Generate" />
+
+        <Button
+            android:id="@+id/copy"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:text="Copy" />
+
+        <Button
+            android:id="@+id/createProject"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:text="Create"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <EditText
         android:id="@+id/output"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="8dp"
         android:background="@color/z_surface"
+        android:fontFamily="monospace"
         android:gravity="top"
         android:padding="12dp"
         android:textColor="@color/z_text" />

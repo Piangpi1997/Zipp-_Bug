@@ -27,5 +27,6 @@ data class AiRequest(
     val apiKey: String,
     val model: String,
     val system: String,
-    val prompt: String
+    val prompt: String,
+    val mode: AiMode = AiMode.CHAT
 )
