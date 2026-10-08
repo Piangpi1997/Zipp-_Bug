@@ -30,8 +30,18 @@ object TermuxBridge {
         "zipalign" to "zipalign",
         "apksigner" to "apksigner",
         "cp" to "cp",
-        "edge-tts" to "edge-tts"
+        "edge-tts" to "edge-tts",
+        "sh" to "sh",
+        "bash" to "bash"
     )
+
+    fun isTermuxInstalled(context: Context): Boolean =
+        try {
+            context.packageManager.getPackageInfo("com.termux", 0)
+            true
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
+        }
 
     fun hasPermission(context: Context): Boolean =
         ContextCompat.checkSelfPermission(
@@ -65,8 +75,11 @@ object TermuxBridge {
         dao.upsert(job)
 
         return runCatching {
+            require(isTermuxInstalled(appContext)) {
+                "Termux package (com.termux) is not installed on this device"
+            }
             require(hasPermission(appContext)) {
-                "Run commands in Termux environment permission is not granted"
+                "Run commands in Termux environment permission (com.termux.permission.RUN_COMMAND) is not granted"
             }
 
             val binary = tools[request.tool]
