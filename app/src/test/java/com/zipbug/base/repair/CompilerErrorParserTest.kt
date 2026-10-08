@@ -82,6 +82,11 @@ class CompilerErrorParserTest {
             assertTrue(applyResult.isSuccess)
             val updated = mainFile.readText()
             assertTrue(updated.contains("val a = 2"))
+
+            // Verify backup file was created
+            val backupFiles = srcDir.listFiles { _, name -> name.startsWith("Main.kt.bak_") }
+            assertTrue(backupFiles != null && backupFiles.isNotEmpty())
+            assertTrue(backupFiles!![0].readText().contains("val a = 1"))
         } finally {
             tempDir.deleteRecursively()
         }

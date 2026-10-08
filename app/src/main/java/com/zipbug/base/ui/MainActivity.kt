@@ -38,6 +38,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun navigateToAiWithPrompt(prompt: String, mode: com.zipbug.base.ai.AiMode = com.zipbug.base.ai.AiMode.FIX_ERROR) {
+        val fragment = AiFragment.newInstance(prompt, mode)
+        binding.bottomNav.selectedItemId = R.id.nav_ai
+        show(fragment)
+    }
+
     private fun show(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentHost, fragment)

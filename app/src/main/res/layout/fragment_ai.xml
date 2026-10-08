@@ -18,6 +18,47 @@
         android:layout_height="48dp"
         android:layout_marginTop="8dp" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnHealthCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:backgroundTint="#2D2D2D"
+            android:text="Health Check"
+            android:textColor="@color/z_text"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/providerHealthBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="#202020"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="NOT TESTED"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/maskedKeyPreview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:singleLine="true"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp" />
+    </LinearLayout>
+
     <Spinner
         android:id="@+id/mode"
         android:layout_width="match_parent"

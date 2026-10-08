@@ -102,6 +102,10 @@ Analyze the compiler errors and provide a targeted patch proposal in JSON format
                 throw IllegalStateException("Original snippet not found in ${targetFile.name}")
             }
 
+            // Create automatic backup before modifying
+            val backupFile = java.io.File(targetFile.parentFile, "${targetFile.name}.bak_${System.currentTimeMillis()}")
+            targetFile.copyTo(backupFile, overwrite = true)
+
             val newContent = content.replace(patch.originalSnippet, patch.replacementSnippet)
             targetFile.writeText(newContent, Charsets.UTF_8)
             targetFile

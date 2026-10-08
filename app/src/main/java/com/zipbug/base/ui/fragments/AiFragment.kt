@@ -28,6 +28,20 @@ class AiFragment : Fragment() {
 
     private var lastProvider = AiProvider.OPENROUTER
 
+    companion object {
+        const val ARG_INITIAL_PROMPT = "arg_initial_prompt"
+        const val ARG_INITIAL_MODE = "arg_initial_mode"
+
+        fun newInstance(prompt: String = "", mode: AiMode = AiMode.CHAT): AiFragment {
+            return AiFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_INITIAL_PROMPT, prompt)
+                    putString(ARG_INITIAL_MODE, mode.name)
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,6 +59,9 @@ class AiFragment : Fragment() {
         view: View,
         savedInstanceState: Bundle?
     ) {
+        val initialModeName = arguments?.getString(ARG_INITIAL_MODE)
+        val initialPrompt = arguments?.getString(ARG_INITIAL_PROMPT)
+
         binding.provider.adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
@@ -63,6 +80,15 @@ class AiFragment : Fragment() {
             android.R.layout.simple_spinner_dropdown_item,
             AiMode.values().map { it.title }
         )
+
+        if (!initialModeName.isNullOrBlank()) {
+            val modeEnum = runCatching { AiMode.valueOf(initialModeName) }.getOrDefault(AiMode.CHAT)
+            binding.mode.setSelection(modeEnum.ordinal)
+        }
+
+        if (!initialPrompt.isNullOrBlank()) {
+            binding.prompt.setText(initialPrompt)
+        }
 
         binding.provider.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -91,12 +117,19 @@ class AiFragment : Fragment() {
                     }
 
                     lastProvider = selected
+                    updateKeyPreview()
                 }
 
                 override fun onNothingSelected(
                     parent: AdapterView<*>?
                 ) = Unit
             }
+
+        binding.btnHealthCheck.setOnClickListener {
+            runHealthCheck()
+        }
+
+        updateKeyPreview()
 
         binding.mode.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -130,6 +163,63 @@ class AiFragment : Fragment() {
                 cm.setPrimaryClip(ClipData.newPlainText("AI Output", text))
                 Snackbar.make(binding.root, "Copied to clipboard", Snackbar.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun updateKeyPreview() {
+        val store = SecretStore(requireContext())
+        val selected = AiProvider.values()[binding.provider.selectedItemPosition]
+        val key = store.get(selected.name.lowercase())
+        binding.maskedKeyPreview.text = "Key: ${AiRepository.maskApiKey(key)}"
+    }
+
+    private fun runHealthCheck() {
+        val store = SecretStore(requireContext())
+        val selected = AiProvider.values()[binding.provider.selectedItemPosition]
+        val key = store.get(selected.name.lowercase())
+        val model = binding.model.text.toString().trim()
+
+        binding.providerHealthBadge.text = "CONNECTING"
+        binding.providerHealthBadge.setTextColor(0xFFFF6B00.toInt())
+        binding.output.setText("Testing provider health for ${selected.label}…")
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = repository.checkHealth(selected, key, model)
+            binding.providerHealthBadge.text = result.status.label
+            when (result.status) {
+                com.zipbug.base.ai.HealthStatus.READY -> {
+                    binding.providerHealthBadge.setTextColor(0xFF39D98A.toInt())
+                }
+                com.zipbug.base.ai.HealthStatus.NOT_CONFIGURED -> {
+                    binding.providerHealthBadge.setTextColor(0xFFA9A29D.toInt())
+                }
+                else -> {
+                    binding.providerHealthBadge.setTextColor(0xFFFF4D4D.toInt())
+                }
+            }
+
+            binding.output.setText(buildString {
+                append("PROVIDER HEALTH CHECK:\n")
+                append("Provider: ${result.provider.label}\n")
+                append("Status: ${result.status.label}\n")
+                append("Masked Key: ${result.maskedKey}\n")
+                append("Detail: ${result.message}\n\n")
+                if (result.status != com.zipbug.base.ai.HealthStatus.READY) {
+                    append("FIX:\n")
+                    when (result.status) {
+                        com.zipbug.base.ai.HealthStatus.NOT_CONFIGURED ->
+                            append("Tap the Settings icon, configure your API key, and tap Save.")
+                        com.zipbug.base.ai.HealthStatus.AUTH_ERROR ->
+                            append("Verify your API key is active and has valid billing/permissions.")
+                        com.zipbug.base.ai.HealthStatus.RATE_LIMITED ->
+                            append("Provider is rate limited. Wait a few moments or switch models.")
+                        com.zipbug.base.ai.HealthStatus.MODEL_ERROR ->
+                            append("Verify the specified model name is supported by this provider.")
+                        else ->
+                            append("Check internet connection and endpoint availability.")
+                    }
+                }
+            })
         }
     }
 
