@@ -1,0 +1,116 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Social Recap Lab"
+            android:textColor="@color/z_text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Process only media you own or are authorized to access."
+            android:textColor="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/url"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Movie / social link"
+            android:inputType="textUri"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/language"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Myanmar"
+            android:textColor="@color/z_text" />
+
+        <Button
+            android:id="@+id/prepareMedia"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Prepare Audio with yt-dlp + ffmpeg" />
+
+        <TextView
+            android:id="@+id/mediaStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="MEDIA • IDLE"
+            android:textColor="@color/z_green"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/pipelineContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="10dp" />
+
+        <TextView
+            android:id="@+id/mediaLog"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="6dp"
+            android:background="#101010"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:text="Real yt-dlp stdout / stderr appears here."
+            android:textColor="@color/z_green"
+            android:textIsSelectable="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/recap"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Recap Prompt" />
+
+            <Button
+                android:id="@+id/dialogue"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="+Dialogue" />
+
+            <Button
+                android:id="@+id/dub"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Dub Prompt" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/output"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:gravity="top"
+            android:hint="Generated AI prompt appears here."
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+    </LinearLayout>
+</ScrollView>

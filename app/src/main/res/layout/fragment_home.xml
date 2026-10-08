@@ -1,0 +1,179 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zip_Bug Studio"
+            android:textColor="@color/z_text"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Build, design, media, and developer tools in one workspace."
+            android:textColor="@color/z_muted"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@color/z_surface"
+            android:padding="16dp"
+            android:text="ENGINE&#10;127.0.0.1:3131 • sandboxed web runtime&#10;Termux bridge • allow-listed tools&#10;Encrypted BYO API keys"
+            android:textColor="@color/z_green"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="BUILD"
+            android:textColor="@color/z_orange"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/appCreator"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="App Creator  •  /appcreator" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Example: /appcreator   • legacy alias: /apcreator"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/apkBuilder"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="APK Builder  •  /apkbuilder" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Example: /apkbuilder"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="DESIGN"
+            android:textColor="@color/z_orange"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/studio"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="UI Screen Lab  •  /likefigma" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Example: /likefigma"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/aiCreator"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="AI App Creator  •  /aicreator" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Example: /aicreator"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="MEDIA"
+            android:textColor="@color/z_orange"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/ttsStudio"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="Myanmar TTS  •  /tts" />
+
+        <Button
+            android:id="@+id/mediaRecap"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="Social Recap  •  /socialrecap" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="TOOLS"
+            android:textColor="@color/z_orange"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/terminal"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="Termux Bridge  •  /termux" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Example: /termux python --version"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/commandHelp"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="Command Help / Search  •  /help" />
+
+        <Button
+            android:id="@+id/projects"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="Projects &amp; Artifacts  •  /projects" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@color/z_surface"
+            android:padding="12dp"
+            android:text="/aizipper is reserved but not implemented yet. Use /appcreator or /projects."
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</ScrollView>

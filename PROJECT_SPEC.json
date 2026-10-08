@@ -1,0 +1,43 @@
+{
+  "project": "Zip_Bug",
+  "packageName": "com.zipbug.base",
+  "targetSdk": 34,
+  "minSdk": 24,
+  "java": 17,
+  "gradle": "8.9",
+  "ui": "Material 3",
+  "theme": {
+    "primary": "#FF6B00",
+    "background": "#121212",
+    "success": "#39D98A"
+  },
+  "modules": [
+    "ai-provider",
+    "app-creator",
+    "likefigma",
+    "ai-zipper",
+    "local-runtime",
+    "termux-engine",
+    "apk-builder",
+    "social-recap",
+    "projects",
+    "logs",
+    "settings"
+  ],
+  "commands": [
+    "/apkbuilder",
+    "/apcreator",
+    "/likefigma",
+    "/aizipper",
+    "/aicreator",
+    "/termux"
+  ],
+  "principles": [
+    "no-fake-install",
+    "no-fake-build",
+    "no-fake-certification",
+    "real-logs",
+    "real-exit-codes",
+    "byo-api-keys"
+  ]
+}

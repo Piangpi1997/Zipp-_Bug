@@ -1,0 +1,127 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Antigravity AI"
+        android:textColor="@color/z_text"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/provider"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnHealthCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:backgroundTint="#2D2D2D"
+            android:text="Health Check"
+            android:textColor="@color/z_text"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/providerHealthBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="#202020"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="NOT TESTED"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/maskedKeyPreview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:singleLine="true"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <Spinner
+        android:id="@+id/mode"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp" />
+
+    <EditText
+        android:id="@+id/model"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp"
+        android:hint="Model (optional)"
+        android:textColor="@color/z_text"
+        android:textColorHint="@color/z_muted" />
+
+    <EditText
+        android:id="@+id/prompt"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginTop="4dp"
+        android:gravity="top"
+        android:hint="Describe the app, screen, logic, code or recap you want…"
+        android:textColor="@color/z_text"
+        android:textColorHint="@color/z_muted" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/send"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="Generate" />
+
+        <Button
+            android:id="@+id/copy"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:text="Copy" />
+
+        <Button
+            android:id="@+id/reviewAction"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:text="Review Spec"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/output"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:background="@color/z_surface"
+        android:fontFamily="monospace"
+        android:gravity="top"
+        android:padding="12dp"
+        android:textColor="@color/z_text" />
+</LinearLayout>

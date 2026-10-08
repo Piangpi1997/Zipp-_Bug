@@ -1,0 +1,10 @@
+<resources>
+    <color name="z_bg">#121212</color>
+    <color name="z_surface">#1B1B1B</color>
+    <color name="z_orange">#FF6B00</color>
+    <color name="z_green">#39D98A</color>
+    <color name="z_red">#FF4D4D</color>
+    <color name="z_blue">#3399FF</color>
+    <color name="z_text">#F7F3EF</color>
+    <color name="z_muted">#A9A29D</color>
+</resources>

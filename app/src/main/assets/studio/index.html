@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header>
+    <b>ZIP_BUG // LIKEFIGMA STUDIO</b>
+    <button class="btn-tool" onclick="undo()" title="Undo">↩ Undo</button>
+    <button class="btn-tool" onclick="redo()" title="Redo">↪ Redo</button>
+    <button class="btn-export" onclick="exportXml()">Export XML</button>
+    <button class="btn-export" onclick="exportCompose()">Export Compose</button>
+    <button class="btn-save" onclick="save()">Save</button>
+  </header>
+  <div class="screen-bar">
+    <label style="color:#aaa;font-size:11px">Screen:</label>
+    <select id="screen-select" onchange="switchScreen(this.value)"></select>
+    <button class="btn-small" onclick="newScreen()">+ Screen</button>
+    <button class="btn-small" onclick="renameScreen()">Rename</button>
+    <button class="btn-small" onclick="duplicateScreen()">Duplicate</button>
+    <button class="btn-small" onclick="deleteScreen()" style="background:#442222;color:#ff8888">Delete</button>
+  </div>
+  <div class="toolbar">
+    <button onclick="add('Text')">+ Text</button>
+    <button onclick="add('Button')">+ Button</button>
+    <button onclick="add('Input')">+ Input</button>
+    <button onclick="add('Card')">+ Card</button>
+    <button onclick="add('Image')">+ Image</button>
+    <span class="sep"></span>
+    <button onclick="duplicateSelected()">Duplicate</button>
+    <button onclick="deleteSelected()" style="background:#ff4d4d;color:#fff">Delete</button>
+  </div>
+  <main>
+    <section id="canvas-wrapper">
+      <div id="canvas" class="phone"></div>
+    </section>
+    <aside>
+      <h3>Layers</h3>
+      <div id="layers-list"></div>
+
+      <h3>Inspector</h3>
+      <div class="field">
+        <label>Text / Content</label>
+        <input id="label" placeholder="Text" oninput="applyChanges()">
+      </div>
+      <div class="field-row">
+        <div>
+          <label>W</label>
+          <input id="prop-w" type="number" min="20" max="600" oninput="applyChanges()">
+        </div>
+        <div>
+          <label>H</label>
+          <input id="prop-h" type="number" min="20" max="800" oninput="applyChanges()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Font Size</label>
+          <input id="prop-font" type="number" min="8" max="48" oninput="applyChanges()">
+        </div>
+        <div>
+          <label>Radius</label>
+          <input id="radius" type="range" min="0" max="32" value="12" oninput="applyChanges()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label>Fill</label>
+          <input id="color" type="color" value="#ff6b00" oninput="applyChanges()">
+        </div>
+        <div>
+          <label>Text Color</label>
+          <input id="text-color" type="color" value="#ffffff" oninput="applyChanges()">
+        </div>
+      </div>
+      <div class="field-row">
+        <button class="btn-small" onclick="bringForward()">Bring Up</button>
+        <button class="btn-small" onclick="sendBackward()">Send Down</button>
+      </div>
+
+      <h3>Schema JSON</h3>
+      <pre id="schema"></pre>
+    </aside>
+  </main>
+  <script src="studio.js"></script>
+</body>
+</html>
