@@ -1,38 +1,50 @@
 # Zip_Bug Professional Build Plan
 
-## Phase A — Foundation
-1. Material 3 dark Zippy UI.
-2. Room project catalog.
-3. Encrypted BYO AI keys.
-4. Safe ZIP import and app manifest validation.
-5. Local web runtime on :3131.
-6. Termux allow-list bridge.
-7. Basic Figma-like visual editor.
-8. Social Recap workspace.
+## Phase A — Foundation — DONE
+- Material 3 Zippy UI.
+- Room project catalog.
+- Encrypted BYO AI keys.
+- Safe ZIP import and app manifest validation.
+- Local web runtime on :3131.
+- Termux allow-list bridge.
+- Figma-like visual editor foundation.
+- Social Recap workspace.
 
-## Phase B — Real Build Engine
-1. Environment doctor for Java 17 / Gradle 8.9 / SDK 34 / aapt2.
-2. Termux result PendingIntent integration.
-3. Live stdout/stderr and exit code.
-4. Build jobs persisted in Room.
-5. APK artifact discovery, signing verification and install handoff.
-6. No UI state may claim success unless the underlying command exits successfully.
+## Phase B — Real Build Engine — ACTIVE
+- [x] Environment doctor for Java 17 / Gradle 8.9 / SDK 34 / aapt2.
+- [x] Termux result PendingIntent integration.
+- [x] Real stdout/stderr/internal error/exit-code capture.
+- [x] Build jobs persisted in Room.
+- [x] Real `/apkbuilder` command.
+- [x] Post-build APK copy job to configured shared storage.
+- [ ] APK artifact discovery for nonstandard module/output names.
+- [ ] On-device APK signature verification before install handoff.
+- [ ] Install handoff with package/version/signature comparison.
+- [ ] Build cancellation, timeout and job history UI.
 
-## Phase C — App Creator
-1. INDEX -> app specification.
-2. Schema -> file plan.
-3. Kotlin/XML, Java/XML, HTML/JS generators.
-4. File tree/editor and diff preview.
-5. Compile/fix loop using actual compiler output.
-6. Slash commands: /apkbuilder /apcreator /likefigma /aizipper /aicreator /termux.
+## Phase C — App Creator — ACTIVE
+- [x] Native Kotlin/XML starter source generator.
+- [x] HTML/CSS/JavaScript + JSON mini-app generator.
+- [x] Source ZIP export through Android Storage Access Framework.
+- [x] Generator and command-parser unit tests.
+- [ ] INDEX -> formal app specification.
+- [ ] AI spec -> reviewed file plan.
+- [ ] Java/XML target.
+- [ ] Jetpack Compose target.
+- [ ] File tree/editor and diff preview.
+- [ ] Compiler feedback -> AI repair loop.
+- [ ] Full slash-command routing: /apcreator /likefigma /aizipper /aicreator.
 
 ## Phase D — Media Lab
-1. Authorized URL/media ingest.
-2. yt-dlp/ffmpeg handoff through Termux.
-3. Transcription pipeline.
-4. Recap / Recap+Dialogue / Dub.
-5. 1–18 clip timeline, freeze+zoom, transition recipes.
-6. Subtitle and TTS output.
+- Authorized URL/media ingest.
+- yt-dlp/ffmpeg handoff through Termux.
+- Transcription pipeline.
+- Recap / Recap+Dialogue / Dub.
+- 1–18 clip timeline, freeze+zoom and transitions.
+- Subtitle and TTS output.
 
 ## Phase E — Professional Release
-Plugin SDK, git workspace, backup/migrations, signed release profiles, accessibility, localization, CI test matrix, crash logging and release checklist.
+Plugin SDK, git workspaces, signed release profiles, tests, migrations, backup/restore, crash logs, accessibility, localization and release checklist.
+
+## Engineering rule
+UI state must be evidence-driven. `SUCCESS` is only emitted after a real provider response or process exit result proves success.
