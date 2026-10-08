@@ -38,10 +38,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun navigateToAiWithPrompt(prompt: String, mode: com.zipbug.base.ai.AiMode = com.zipbug.base.ai.AiMode.FIX_ERROR) {
+    fun navigateToAiWithPrompt(
+        prompt: String,
+        mode: com.zipbug.base.ai.AiMode = com.zipbug.base.ai.AiMode.FIX_ERROR
+    ) {
         val fragment = AiFragment.newInstance(prompt, mode)
         binding.bottomNav.selectedItemId = R.id.nav_ai
         show(fragment)
+    }
+
+    fun navigateToStudio() {
+        binding.bottomNav.selectedItemId = R.id.nav_studio
+        show(StudioFragment())
+    }
+
+    fun navigateToProjects() {
+        binding.bottomNav.selectedItemId = R.id.nav_projects
+        show(ProjectsFragment())
+    }
+
+    fun navigateToTerminal(command: String = "") {
+        binding.bottomNav.selectedItemId = R.id.nav_terminal
+        show(TerminalFragment.newInstance(command))
     }
 
     private fun show(fragment: Fragment) {
