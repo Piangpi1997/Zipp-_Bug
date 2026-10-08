@@ -1,177 +1,143 @@
-# Zip_Bug // Antigravity Studio — On-Device Termux Verification Guide
+# Zip_Bug // Antigravity Studio — On-Device Physical Proof Guide
 
-This document details the exact, reproducible testing procedure to verify Zip_Bug Antigravity on a physical Android device paired with Termux.
+This document contains the exact, linear sequence to verify Zip_Bug Antigravity on a physical Android phone running Termux.
 
 ---
 
-## 1. Prerequisites & Termux Environment Setup
+## 1. Linear On-Device Execution Sequence
 
-### 1.1 Install Termux
-Install the official Termux release from **F-Droid** or the **Termux GitHub repository** (Google Play versions are obsolete and restricted).
-
-### 1.2 Enable External App Commands
-Zip_Bug communicates with Termux using `com.termux.permission.RUN_COMMAND`. For third-party apps to dispatch commands, external execution must be explicitly allowed.
-
-Inside Termux, execute:
+### Phase A: Update Repository
+Inside Termux:
 ```bash
-mkdir -p ~/.termux
-grep -q "allow-external-apps=true" ~/.termux/termux.properties 2>/dev/null || echo "allow-external-apps=true" >> ~/.termux/termux.properties
-termux-reload-settings
+cd ~/OpenDots/Zip_Bug_Antigravity
+git fetch origin
+git checkout feat/antigravity-studio-v2
+git pull --ff-only origin feat/antigravity-studio-v2
+git log -1 --oneline
 ```
+*Expected Commit*: Matches latest commit on `feat/antigravity-studio-v2`.
 
-### 1.3 Configure Android SDK Environment
-Ensure `ANDROID_HOME` points to the mobile Android SDK root:
+---
+
+### Phase B: Configure Termux Environment
+Inside Termux:
 ```bash
+# 1. Allow external app command execution
+mkdir -p ~/.termux
+grep -q '^allow-external-apps=true' ~/.termux/termux.properties 2>/dev/null || echo 'allow-external-apps=true' >> ~/.termux/termux.properties
+termux-reload-settings
+
+# 2. Configure Android SDK 34 environment
 echo 'export ANDROID_HOME=$HOME/android-sdk' >> ~/.bashrc
 echo 'export ANDROID_SDK_ROOT=$ANDROID_HOME' >> ~/.bashrc
 echo 'export PATH=$PATH:$ANDROID_HOME/platform-tools' >> ~/.bashrc
 source ~/.bashrc
-```
 
-Verify that the Android 34 platform jar exists:
-```bash
-ls -la $ANDROID_HOME/platforms/android-34/android.jar
-```
-
-### 1.4 Install Native Packages
-Install the required compilation and media packages:
-```bash
-pkg update -y
-pkg install -y git python openjdk-17 gradle ffmpeg aapt2
-```
-
-### 1.5 Install Python Audio / Video Packages
-Install Edge-TTS and yt-dlp:
-```bash
-pip install --upgrade yt-dlp edge-tts
-```
-
-### 1.6 Storage Permission
-Grant Termux access to shared Android storage:
-```bash
+# 3. Grant shared storage access
 termux-setup-storage
 ```
 
 ---
 
-## 2. Canonical Repository Clone
-
-Clone or synchronize the project at the standard location:
+### Phase C: Verify Native Tools
+Ensure all native dependencies are installed and available in `$PATH`:
 ```bash
-mkdir -p ~/OpenDots
-cd ~/OpenDots
-git clone -b feat/antigravity-studio-v2 https://github.com/Piangpi1997/Zipp-_Bug.git Zip_Bug_Antigravity
-cd Zip_Bug_Antigravity
+command -v python
+command -v java
+command -v gradle
+command -v ffmpeg
+command -v aapt2
+command -v yt-dlp
+command -v edge-tts
 ```
-
-Verify the working branch and commit:
+If any tool is missing, install it:
 ```bash
-git branch --show-current
-git log -1 --oneline
+pkg update -y
+pkg install -y python openjdk-17 gradle ffmpeg aapt2
+pip install --upgrade yt-dlp edge-tts
 ```
-Expected output:
-- Branch: `feat/antigravity-studio-v2`
-- Commit HEAD: `77112c7` (or newer)
 
 ---
 
-## 3. The 5-Step Command Proof Suite
-
-Run each command manually or trigger them via **Zip_Bug → Terminal → Device & Engine Proof → Run Guided 5-Step Proof**.
-
-### Test 1: Python
-```bash
-python --version
-```
-- **PASS**: `Python 3.11.x` or `Python 3.12.x` (exit code `0`)
-- **FAIL**: `bash: command not found: python` (exit code `127`)
-- *Resolution*: `pkg install python`
-
-### Test 2: Java
-```bash
-java -version
-```
-- **PASS**:
-  ```text
-  openjdk version "17.0.x" ...
-  OpenJDK Runtime Environment ...
-  ```
-  (exit code `0`)
-- **FAIL**: `bash: java: command not found` or version `< 17`
-- *Resolution*: `pkg install openjdk-17`
-
-### Test 3: Gradle
-```bash
-gradle --version
-```
-- **PASS**:
-  ```text
-  ------------------------------------------------------------
-  Gradle 8.9 (or newer)
-  ------------------------------------------------------------
-  ```
-  (exit code `0`)
-- **FAIL**: `bash: gradle: command not found`
-- *Resolution*: `pkg install gradle`
-
-### Test 4: FFmpeg
-```bash
-ffmpeg -version
-```
-- **PASS**: `ffmpeg version 6.x` or `7.x ...` (exit code `0`)
-- **FAIL**: `bash: ffmpeg: command not found`
-- *Resolution*: `pkg install ffmpeg`
-
-### Test 5: aapt2 Native Binary
-```bash
-aapt2 version
-```
-- **PASS**: `Android Asset Packaging Tool (aapt) 2.19-...` (exit code `0`)
-- **FAIL**: `bash: aapt2: command not found`
-- *Resolution*: `pkg install aapt2` and ensure `~/.gradle/gradle.properties` contains:
-  ```properties
-  android.aapt2FromMavenOverride=/data/data/com.termux/files/usr/bin/aapt2
-  ```
-
----
-
-## 4. On-Device APK Build Procedure
-
-From within `~/OpenDots/Zip_Bug_Antigravity`, execute the automated build script:
+### Phase D: Build RC APK on Device
+From `~/OpenDots/Zip_Bug_Antigravity`:
 ```bash
 chmod +x scripts/build-termux.sh
 ./scripts/build-termux.sh
 ```
-
-### Expected Successful Output:
-```text
-=== ZIP_BUG ANTIGRAVITY ON-DEVICE TERMUX BUILD ===
-Project root: /data/data/com.termux/files/home/OpenDots/Zip_Bug_Antigravity
-Detected ANDROID_HOME at /data/data/com.termux/files/home/android-sdk
-Configured aapt2 override: /data/data/com.termux/files/usr/bin/aapt2
-Starting Gradle clean assembleDebug...
-...
-BUILD SUCCESSFUL in ...
-Build SUCCEEDED!
-APK Artifact: app/build/outputs/apk/debug/app-debug.apk (6999640 bytes)
-APK SHA-256: ...
-Successfully exported APK to: /storage/emulated/0/Download/Zip_Bug-Antigravity-RC.apk
-=== BUILD COMPLETE ===
-```
+*Expected Output*:
+- `BUILD SUCCESSFUL`
+- Output APK created at `app/build/outputs/apk/debug/app-debug.apk`
+- Exported copy at `/storage/emulated/0/Download/Zip_Bug-Antigravity-RC.apk`
+- Real APK SHA-256 and byte size printed to console.
 
 ---
 
-## 5. In-App Verification Screens
+### Phase E: Install & Screen Navigation Check
+1. Open your Android File Manager or Downloads app.
+2. Install `/storage/emulated/0/Download/Zip_Bug-Antigravity-RC.apk`.
+3. Launch **Zip_Bug Antigravity Studio**.
+4. When prompted, grant **com.termux.permission.RUN_COMMAND** (*Allow Zip_Bug to run commands in Termux*). If denied, verify the app shows `FAIL` rather than `READY`.
+5. Navigate through all app screens:
+   - **Home**: System overview & stats.
+   - **AI**: Provider selection & health check.
+   - **Studio**: LikeFigma canvas, multi-screen navigation, export XML & Compose.
+   - **Terminal**: Terminal log view & command buttons.
+   - **Projects**: Project listing, APK scanner, Signing Diagnostics.
+   - **Settings**: Termux home, project root, encrypted API key storage.
+   - **Device & Engine Proof**: Pre-flight status and 5-step guided tests.
+   - **Signing Diagnostics**: Compare installed APK against newest build artifact.
 
-1. **Device & Engine Proof**:
-   - Navigate to **Terminal** tab → Tap **Device & Engine Proof**.
-   - Check pre-flight table (15 checks).
-   - Tap **Run Guided 5-Step Proof**: All 5 tests must display `PASS` and `ALL 5 TESTS PASSED`.
-   - Tap **Copy Log** to export verification output to clipboard.
-2. **Signing Diagnostics**:
-   - Navigate to **Projects** tab → Tap **Signing Diagnostics**.
-   - If previous installation exists with identical key: `SAFE UPDATE (MATCH)`.
-   - If debug keystores differ: `SIGNER CONFLICT` with clear explanation.
-3. **AI Health Check**:
-   - Navigate to **AI Studio** tab → Provider `OpenRouter • Free` → Model `openrouter/free`.
-   - Tap **Health Check**: Badge must transition to `READY` or report clear categorized HTTP status.
+---
+
+### Phase F: In-App 5-Step Guided Proof
+1. Open **Terminal** tab → Tap **Device & Engine Proof**.
+2. Tap **Run Guided 5-Step Proof**:
+   - `TEST 1: Python` (`python --version`) → `PASS`
+   - `TEST 2: Java` (`java -version`) → `PASS`
+   - `TEST 3: Gradle` (`gradle --version`) → `PASS`
+   - `TEST 4: FFmpeg` (`ffmpeg -version`) → `PASS`
+   - `TEST 5: aapt2` (`aapt2 version`) → `PASS`
+3. Tap **Copy Log** to copy the formatted execution report to your clipboard.
+
+---
+
+### Phase G: OpenRouter Physical Test
+1. Navigate to **AI** tab.
+2. Provider: select `OpenRouter • Free`.
+3. Model: enter or confirm `openrouter/free`.
+4. Ensure your OpenRouter API key is saved in Settings (stored in hardware-backed Android Keystore).
+5. Tap **Health Check**:
+   - Verify status transitions to `READY`.
+6. Set Mode to `Chat`, enter prompt:
+   ```text
+   Return exactly:
+   ZIP_BUG_OPENROUTER_OK
+   ```
+7. Tap **Send** and confirm the exact response from the OpenRouter endpoint.
+
+---
+
+### Phase H: App Creator Physical Flow
+1. In the **AI** tab, switch Mode to **App Creator**.
+2. Enter prompt:
+   ```text
+   Create a simple Android Kotlin/XML app with one screen, a title, one orange button, and dark background.
+   ```
+3. Tap **Send**.
+4. Verify complete workflow stages:
+   - `STAGE 1 (AI Response)`: Receives structured JSON spec.
+   - `STAGE 2 (Validation)`: AppCreatorParser validates JSON.
+   - `STAGE 3 (App Spec Review)`: Review sheet opens with permissions, dependencies, and file list.
+   - `STAGE 4 (Generate Project)`: Tap **Generate Project**; verifies project is saved in Room database and disk directory.
+   - `STAGE 5 (Build Project)`: Tap **Build APK**; dispatches `./gradlew assembleDebug` via Termux bridge.
+   - `STAGE 6 (Artifact Inspection)`: Inspects newly built APK SHA-256 and signer diagnostics.
+
+---
+
+## 2. Evidence to Return
+
+To complete RC1 certification, paste the following real outputs from your phone:
+1. **Device Verification Log** (from the **Copy Log** button in Device & Engine Proof).
+2. **Terminal Build Output** from `./scripts/build-termux.sh`.
+3. **OpenRouter Response** (`ZIP_BUG_OPENROUTER_OK`).

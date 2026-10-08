@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -38,6 +39,8 @@ data class CommandProofTest(
     var exitCode: Int? = null,
     var durationMs: Long? = null,
     var timestamp: Long? = null,
+    var startedAt: Long? = null,
+    var finishedAt: Long? = null,
     var stdout: String = "",
     var stderr: String = "",
     var outputSnippet: String = ""
@@ -58,11 +61,33 @@ class DeviceVerificationActivity : AppCompatActivity() {
     )
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    private val detailDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        EngineDiagnostics.evaluateLocalChecks(this, diagnosticChecks)
+        renderPreflight()
+        if (isGranted) {
+            Snackbar.make(binding.root, "RUN_COMMAND permission granted", Snackbar.LENGTH_SHORT).show()
+        } else {
+            Snackbar.make(
+                binding.root,
+                "RUN_COMMAND permission DENIED. Cannot dispatch commands to Termux.",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDeviceVerificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Check if RUN_COMMAND is missing and request it
+        if (ContextCompat.checkSelfPermission(this, TermuxBridge.PERMISSION_RUN_COMMAND) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(TermuxBridge.PERMISSION_RUN_COMMAND)
+        }
 
         EngineDiagnostics.evaluateLocalChecks(this, diagnosticChecks)
         renderPreflight()
@@ -173,8 +198,8 @@ class DeviceVerificationActivity : AppCompatActivity() {
                 orientation = LinearLayout.HORIZONTAL
             }
 
-            val timeInfo = if (test.timestamp != null) {
-                " • ${dateFormat.format(Date(test.timestamp!!))}"
+            val timeInfo = if (test.startedAt != null) {
+                " • ${dateFormat.format(Date(test.startedAt!!))}"
             } else ""
 
             val runInfo = if (test.durationMs != null) {
@@ -247,7 +272,8 @@ class DeviceVerificationActivity : AppCompatActivity() {
 
             for (test in proofTests) {
                 test.status = "RUNNING"
-                test.timestamp = System.currentTimeMillis()
+                test.startedAt = System.currentTimeMillis()
+                test.timestamp = test.startedAt
                 renderTestsList()
 
                 logBuilder.append(">>> DISPATCHING: ${test.label}\n")
@@ -264,6 +290,7 @@ class DeviceVerificationActivity : AppCompatActivity() {
                 val sendResult = TermuxBridge.send(this@DeviceVerificationActivity, req)
                 if (sendResult.isFailure) {
                     test.status = "FAIL"
+                    test.finishedAt = System.currentTimeMillis()
                     test.outputSnippet = sendResult.exceptionOrNull()?.message ?: "Failed to dispatch"
                     logBuilder.append("DISPATCH ERROR: ${test.outputSnippet}\n\n")
                     allPassed = false
@@ -280,9 +307,10 @@ class DeviceVerificationActivity : AppCompatActivity() {
                     .filterNotNull()
                     .first { it.status != BuildJobEntity.RUNNING }
 
+                test.finishedAt = finalJob.finishedAt ?: System.currentTimeMillis()
                 val duration = if (finalJob.startedAt != null && finalJob.finishedAt != null) {
                     finalJob.finishedAt - finalJob.startedAt
-                } else null
+                } else (test.finishedAt!! - test.startedAt!!)
 
                 test.exitCode = finalJob.exitCode
                 test.durationMs = duration
@@ -292,7 +320,7 @@ class DeviceVerificationActivity : AppCompatActivity() {
 
                 if (finalJob.exitCode == 0 && finalJob.status == BuildJobEntity.SUCCESS) {
                     test.status = "PASS"
-                    logBuilder.append("RESULT: PASS (exit 0, duration ${duration ?: 0}ms)\n")
+                    logBuilder.append("RESULT: PASS (exit 0, duration ${duration}ms)\n")
                     if (test.outputSnippet.isNotBlank()) {
                         logBuilder.append("STDOUT: ").append(test.outputSnippet.take(300)).append("\n")
                     }
@@ -403,21 +431,35 @@ class DeviceVerificationActivity : AppCompatActivity() {
 
     private fun copyLogToClipboard() {
         val text = buildString {
-            append("=== ZIP_BUG ANTIGRAVITY DEVICE VERIFICATION LOG ===\n")
-            append("Overall: ").append(binding.overallBadge.text).append("\n")
-            append("Timestamp: ").append(dateFormat.format(Date())).append("\n\n")
-            append("--- PREFLIGHT CHECKS ---\n")
+            append("=== ZIP_BUG ANTIGRAVITY PHYSICAL DEVICE PROOF ===\n")
+            append("Overall Status: ").append(binding.overallBadge.text).append("\n")
+            append("Timestamp: ").append(detailDateFormat.format(Date())).append("\n\n")
+
+            append("--- 1. PRE-FLIGHT ENVIRONMENT (15 CHECKS) ---\n")
             diagnosticChecks.forEach {
-                append("[${it.status}] ${it.name} - ${it.detail}\n")
+                append("[${it.status}] ${it.name}\n")
+                if (it.detail.isNotBlank()) append("  Detail: ${it.detail}\n")
             }
-            append("\n--- COMMAND PROOFS ---\n")
-            proofTests.forEach {
-                append("[${it.status}] ${it.label} (cmd: ${it.command}, exit: ${it.exitCode}, dur: ${it.durationMs}ms)\n")
-                if (it.outputSnippet.isNotBlank()) {
-                    append("Output: ").append(it.outputSnippet.take(200)).append("\n")
+
+            append("\n--- 2. COMMAND EXECUTION PROOFS ---\n")
+            proofTests.forEach { test ->
+                append("${test.label}\n")
+                append("  Command: ${test.command}\n")
+                append("  Status: ${test.status}\n")
+                append("  Start: ${test.startedAt?.let { detailDateFormat.format(Date(it)) } ?: "N/A"}\n")
+                append("  End: ${test.finishedAt?.let { detailDateFormat.format(Date(it)) } ?: "N/A"}\n")
+                append("  Duration: ${test.durationMs?.let { "${it}ms" } ?: "N/A"}\n")
+                append("  Exit Code: ${test.exitCode ?: "N/A"}\n")
+                if (test.stdout.isNotBlank()) {
+                    append("  STDOUT:\n${test.stdout.trim().lines().joinToString("\n") { "    $it" }}\n")
                 }
+                if (test.stderr.isNotBlank()) {
+                    append("  STDERR:\n${test.stderr.trim().lines().joinToString("\n") { "    $it" }}\n")
+                }
+                append("\n")
             }
-            append("\n--- LOG CONSOLE ---\n")
+
+            append("--- 3. RAW CONSOLE LOG ---\n")
             append(binding.proofLog.text)
         }
 
@@ -431,6 +473,8 @@ class DeviceVerificationActivity : AppCompatActivity() {
             it.status = "UNKNOWN"
             it.exitCode = null
             it.durationMs = null
+            it.startedAt = null
+            it.finishedAt = null
             it.outputSnippet = ""
             it.stdout = ""
             it.stderr = ""
