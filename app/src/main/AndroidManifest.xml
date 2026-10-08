@@ -9,6 +9,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_z"
         android:label="Zip_Bug Studio"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.ZipBug">
         <activity android:name=".ui.WebRuntimeActivity" android:exported="false" />
