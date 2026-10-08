@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header>
+    <b>LIKEFIGMA / SCREEN LAB</b>
+    <button onclick="save()">SAVE</button>
+  </header>
+  <div class="toolbar">
+    <button onclick="add('Text')">Text</button>
+    <button onclick="add('Button')">Button</button>
+    <button onclick="add('Input')">Input</button>
+    <button onclick="add('Card')">Card</button>
+    <button onclick="add('Image')">Image</button>
+  </div>
+  <main>
+    <section id="canvas" class="phone"></section>
+    <aside>
+      <h3>Inspector</h3>
+      <input id="label" placeholder="Label">
+      <input id="color" type="color" value="#ff6b00">
+      <input id="radius" type="range" min="0" max="32" value="12">
+      <button onclick="applyChanges()">Apply</button>
+      <pre id="schema"></pre>
+    </aside>
+  </main>
+  <script src="studio.js"></script>
+</body>
+</html>
