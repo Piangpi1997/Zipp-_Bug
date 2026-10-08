@@ -17,9 +17,12 @@ import com.zipbug.base.R
 import com.zipbug.base.ZipBugApp
 import com.zipbug.base.artifact.ApkArtifactScanner
 import com.zipbug.base.data.ApkArtifactEntity
+import com.zipbug.base.data.BuildJobEntity
+import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.FragmentProjectsBinding
 import com.zipbug.base.engine.EngineManager
 import com.zipbug.base.project.ZipImporter
+import com.zipbug.base.termux.TermuxBridge
 import com.zipbug.base.ui.ApkDetailBottomSheetDialogFragment
 import com.zipbug.base.ui.SigningDiagnosticsActivity
 import com.zipbug.base.ui.WebRuntimeActivity
