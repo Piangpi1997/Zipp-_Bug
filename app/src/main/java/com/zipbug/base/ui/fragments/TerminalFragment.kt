@@ -88,7 +88,11 @@ class TerminalFragment : Fragment() {
         }.orEmpty()
 
         binding.engineState.text =
-            "ENGINE • ${job.status} • ${job.tool}"
+            if (job.tool == "cp" && job.status == BuildJobEntity.SUCCESS) {
+                "APK EXPORTED • VERIFIED BY COPY EXIT 0"
+            } else {
+                "ENGINE • ${job.status} • ${job.tool}"
+            }
 
         binding.output.text = buildString {
             append("job: ${job.id}\n")
