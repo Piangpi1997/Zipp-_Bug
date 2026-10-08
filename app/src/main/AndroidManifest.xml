@@ -30,6 +30,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <activity android:name=".ui.CommandHelpActivity" android:exported="false" />
         <activity android:name=".ui.TtsStudioActivity" android:exported="false" />
         <activity android:name=".ui.AppCreatorActivity" android:exported="false" />
         <activity android:name=".ui.WebRuntimeActivity" android:exported="false" />
