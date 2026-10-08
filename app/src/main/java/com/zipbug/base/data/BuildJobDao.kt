@@ -11,6 +11,9 @@ interface BuildJobDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(job: BuildJobEntity)
 
+    @Query("SELECT * FROM build_jobs ORDER BY createdAt DESC")
+    fun getAllJobs(): Flow<List<BuildJobEntity>>
+
     @Query("SELECT * FROM build_jobs ORDER BY createdAt DESC LIMIT 1")
     fun observeLatest(): Flow<BuildJobEntity?>
 
