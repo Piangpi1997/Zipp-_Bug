@@ -18,7 +18,19 @@ class AiRepository {
     suspend fun complete(req: AiRequest): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
             require(req.apiKey.isNotBlank()) { "API key is empty" }
+
+            if (
+                req.provider == AiProvider.OPENAI &&
+                req.apiKey.startsWith("sk-or-")
+            ) {
+                error(
+                    "This looks like an OpenRouter key. " +
+                        "Select OpenRouter • Free instead of OpenAI."
+                )
+            }
+
             when (req.provider) {
+                AiProvider.OPENROUTER -> openRouter(req)
                 AiProvider.OPENAI -> openAi(req)
                 AiProvider.GEMINI -> gemini(req)
                 AiProvider.ANTHROPIC -> anthropic(req)
@@ -43,23 +55,64 @@ class AiRepository {
         client.newCall(request).execute().use { response ->
             val text = response.body?.string().orEmpty()
             if (!response.isSuccessful) {
-                error("HTTP ${response.code}: ${text.take(800)}")
+                val clean = runCatching {
+                    JSONObject(text)
+                        .optJSONObject("error")
+                        ?.optString("message")
+                        ?.takeIf { it.isNotBlank() }
+                }.getOrNull()
+
+                error(
+                    clean?.let { "HTTP ${response.code}: $it" }
+                        ?: "HTTP ${response.code}: request failed"
+                )
             }
             return JSONObject(text)
         }
     }
 
-    private fun openAi(r: AiRequest): String {
-        val messages = JSONArray()
-            .put(JSONObject().put("role", "system").put("content", r.system))
-            .put(JSONObject().put("role", "user").put("content", r.prompt))
+    private fun messages(r: AiRequest): JSONArray =
+        JSONArray()
+            .put(
+                JSONObject()
+                    .put("role", "system")
+                    .put("content", r.system)
+            )
+            .put(
+                JSONObject()
+                    .put("role", "user")
+                    .put("content", r.prompt)
+            )
 
+    private fun openRouter(r: AiRequest): String {
+        val json = post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            mapOf(
+                "Authorization" to "Bearer ${r.apiKey}",
+                "HTTP-Referer" to "https://github.com/Piangpi1997/Zipp-_Bug",
+                "X-Title" to "Zip_Bug Antigravity"
+            ),
+            JSONObject()
+                .put(
+                    "model",
+                    r.model.ifBlank { "openrouter/free" }
+                )
+                .put("messages", messages(r))
+        )
+
+        return json.getJSONArray("choices")
+            .getJSONObject(0)
+            .getJSONObject("message")
+            .getString("content")
+    }
+
+    private fun openAi(r: AiRequest): String {
         val json = post(
             "https://api.openai.com/v1/chat/completions",
             mapOf("Authorization" to "Bearer ${r.apiKey}"),
             JSONObject()
                 .put("model", r.model.ifBlank { "gpt-4.1-mini" })
-                .put("messages", messages)
+                .put("messages", messages(r))
         )
 
         return json.getJSONArray("choices")
@@ -76,7 +129,10 @@ class AiRepository {
                 .put(
                     "parts",
                     JSONArray().put(
-                        JSONObject().put("text", r.system + "\n\n" + r.prompt)
+                        JSONObject().put(
+                            "text",
+                            r.system + "\n\n" + r.prompt
+                        )
                     )
                 )
         )
@@ -96,12 +152,6 @@ class AiRepository {
     }
 
     private fun anthropic(r: AiRequest): String {
-        val messages = JSONArray().put(
-            JSONObject()
-                .put("role", "user")
-                .put("content", r.prompt)
-        )
-
         val json = post(
             "https://api.anthropic.com/v1/messages",
             mapOf(
@@ -112,7 +162,14 @@ class AiRepository {
                 .put("model", r.model.ifBlank { "claude-sonnet-4-5" })
                 .put("max_tokens", 4096)
                 .put("system", r.system)
-                .put("messages", messages)
+                .put(
+                    "messages",
+                    JSONArray().put(
+                        JSONObject()
+                            .put("role", "user")
+                            .put("content", r.prompt)
+                    )
+                )
         )
 
         return json.getJSONArray("content")
