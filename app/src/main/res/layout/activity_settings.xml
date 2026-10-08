@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:text="Keys are encrypted locally with Android Keystore."
+            android:text="Keys are encrypted locally with Android Keystore. Copy/reveal only when needed."
             android:textColor="@color/z_muted" />
 
         <EditText
@@ -33,32 +33,141 @@
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/openrouterReveal"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Reveal" />
+
+            <Button
+                android:id="@+id/openrouterCopy"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Copy" />
+        </LinearLayout>
+
         <EditText
             android:id="@+id/openai"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginTop="8dp"
             android:hint="OpenAI API key"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/openaiReveal"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Reveal" />
+
+            <Button
+                android:id="@+id/openaiCopy"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Copy" />
+        </LinearLayout>
+
         <EditText
             android:id="@+id/gemini"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginTop="8dp"
             android:hint="Gemini API key"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/geminiReveal"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Reveal" />
+
+            <Button
+                android:id="@+id/geminiCopy"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Copy" />
+        </LinearLayout>
+
         <EditText
             android:id="@+id/anthropic"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginTop="8dp"
             android:hint="Claude API key"
             android:inputType="textPassword"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/anthropicReveal"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Reveal" />
+
+            <Button
+                android:id="@+id/anthropicCopy"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Copy" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/backupKeys"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:text="Encrypted backup API keys" />
+
+        <Button
+            android:id="@+id/restoreKeys"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="8dp"
+            android:text="Restore API keys" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Backup files are encrypted with a passphrase you choose. The passphrase is never stored by Zip_Bug."
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
 
         <TextView
             android:layout_width="wrap_content"
