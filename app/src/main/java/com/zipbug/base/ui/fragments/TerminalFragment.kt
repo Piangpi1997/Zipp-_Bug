@@ -199,10 +199,19 @@ class TerminalFragment : Fragment() {
                             return@collect
                         }
 
+                        val isCancelTokenJob =
+                            job.tool == "cp" &&
+                                job.argsJson.contains(
+                                    ".zipbug-cancel-"
+                                )
+
                         val activeId = activeBuildJobId
                         if (
-                            activeId == null ||
-                            activeId == job.id
+                            !isCancelTokenJob &&
+                            (
+                                activeId == null ||
+                                    activeId == job.id
+                                )
                         ) {
                             render(job)
                         }
@@ -251,6 +260,7 @@ class TerminalFragment : Fragment() {
                         activeBuildCancelPath = null
                         activeBuildWorkDir = null
                         binding.cancelBuild.visibility = View.GONE
+                        binding.cancelBuild.isEnabled = true
 
                         if (
                             job.status == BuildJobEntity.SUCCESS
@@ -1062,6 +1072,7 @@ class TerminalFragment : Fragment() {
                     View.GONE
                 binding.cancelBuild.visibility =
                     View.VISIBLE
+                binding.cancelBuild.isEnabled = true
                 binding.buildStages.text =
                     "BUILD WORKFLOW • DEBUG\n" +
                         "Validation: QUEUED\n" +
@@ -1133,6 +1144,9 @@ class TerminalFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        buildObserver?.cancel()
+        buildObserver = null
+        pendingPermissionAction = null
         super.onDestroyView()
         _binding = null
     }
