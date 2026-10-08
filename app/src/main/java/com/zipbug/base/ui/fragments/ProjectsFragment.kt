@@ -106,26 +106,18 @@ class ProjectsFragment : Fragment() {
                 val app = requireActivity().application as ZipBugApp
                 val project = app.database.projectDao()
                     .listAll()
-                    .firstOrNull()
-                    ?: return@launch
+                    .firstOrNull(::isWebProject)
 
-                val entry = File(project.entryFile)
-                val webRoot = File(
-                    project.rootPath,
-                    entry.parent ?: "www"
-                )
+                if (project == null) {
+                    Snackbar.make(
+                        binding.root,
+                        "No runnable web mini-app project found.",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
 
-                EngineManager.run(webRoot)
-
-                startActivity(
-                    Intent(
-                        requireContext(),
-                        WebRuntimeActivity::class.java
-                    ).putExtra(
-                        "url",
-                        "http://127.0.0.1:3131/${entry.name}"
-                    )
-                )
+                runWebProject(project)
             }
         }
 
