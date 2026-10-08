@@ -16,7 +16,8 @@ Zip_Bug is a **real Android development/runtime studio**. It is not a fake demo 
 - **APK Builder** — `/apkbuilder` invokes real `gradle --no-daemon assembleDebug`; only exit code 0 is success.
 - **APK export** — after a successful build, Termux performs a separate real copy job to the configured shared-storage destination.
 - **Termux Doctor** — checks Java, Gradle, Python, aapt2, SDK 34, ffmpeg and yt-dlp using a real Python process in Termux.
-- **Social Recap Lab** — foundation for authorized media/link transcript, recap, dialogue and dub workflows.
+- **Social Recap Lab** — real authorized yt-dlp/ffmpeg audio-preparation job with captured logs, plus recap/dialogue/dub prompt workflow.
+- **TTS Studio** — real Termux Edge-TTS setup/generation jobs with Burmese Nilar/Thiha voice presets and factual exit-code status.
 - **CI** — Java 17 + Gradle 8.9 + SDK 34 unit tests, APK build and APK signature verification.
 
 ## Command surface
