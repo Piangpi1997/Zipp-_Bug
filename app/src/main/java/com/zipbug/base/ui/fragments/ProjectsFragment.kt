@@ -205,35 +205,38 @@ class ProjectsFragment : Fragment() {
         }
 
         val btnBuild = Button(requireContext()).apply {
-            text = "Build APK"
+            val termuxAccessible = project.rootPath.startsWith("/data/data/com.termux/files/")
+            text = if (termuxAccessible) "Build APK" else "Needs Termux workspace"
+            visibility = if (isAndroidProject(project)) View.VISIBLE else View.GONE
             setBackgroundColor(ContextCompat.getColor(context, R.color.z_orange))
             setTextColor(0xFF111111.toInt())
             layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
                 marginEnd = 6
             }
             setOnClickListener {
-                buildAndInspectProject(project)
+                if (termuxAccessible) {
+                    buildAndInspectProject(project)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "This Android project is inside the Zip_Bug sandbox. Transfer it to a Termux workspace before a real Gradle build.",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
         }
         btnRow.addView(btnBuild)
 
         val btnRun = Button(requireContext()).apply {
             text = "Run :3131"
+            visibility = if (isWebProject(project)) View.VISIBLE else View.GONE
             setBackgroundColor(0xFF2D2D2D.toInt())
             setTextColor(ContextCompat.getColor(context, R.color.z_text))
             layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
                 marginStart = 6
             }
             setOnClickListener {
-                val entry = File(project.entryFile)
-                val webRoot = File(project.rootPath, entry.parent ?: "www")
-                EngineManager.run(webRoot)
-                startActivity(
-                    Intent(requireContext(), WebRuntimeActivity::class.java).putExtra(
-                        "url",
-                        "http://127.0.0.1:3131/${entry.name}"
-                    )
-                )
+                runWebProject(project)
             }
         }
         btnRow.addView(btnRun)
