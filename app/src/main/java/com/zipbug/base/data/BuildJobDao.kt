@@ -17,6 +17,9 @@ interface BuildJobDao {
     @Query("SELECT * FROM build_jobs WHERE id = :id LIMIT 1")
     suspend fun get(id: String): BuildJobEntity?
 
+    @Query("SELECT * FROM build_jobs WHERE id = :id LIMIT 1")
+    fun observe(id: String): Flow<BuildJobEntity?>
+
     @Query(
         """
         UPDATE build_jobs
