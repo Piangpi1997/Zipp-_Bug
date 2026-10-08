@@ -1,12 +1,14 @@
 package com.zipbug.base.ui.fragments
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,6 +16,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zipbug.base.ZipBugApp
 import com.zipbug.base.ai.AiMode
 import com.zipbug.base.command.CommandRegistry
+import com.zipbug.base.build.BuildArtifactProof
+import com.zipbug.base.build.BuildWorkflowParser
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.databinding.FragmentTerminalBinding
 import com.zipbug.base.termux.CommandLineParser
@@ -26,7 +30,11 @@ import com.zipbug.base.ui.CommandHelpActivity
 import com.zipbug.base.ui.MainActivity
 import com.zipbug.base.ui.MediaRecapActivity
 import com.zipbug.base.ui.TtsStudioActivity
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
+import java.util.Locale
+import java.util.UUID
 
 class TerminalFragment : Fragment() {
     companion object {
@@ -44,6 +52,11 @@ class TerminalFragment : Fragment() {
     private val binding get() = _binding!!
     private var pendingPermissionAction: (() -> Unit)? = null
     private var lastFailedJob: BuildJobEntity? = null
+    private var activeBuildJobId: String? = null
+    private var activeBuildCancelPath: String? = null
+    private var activeBuildWorkDir: String? = null
+    private var buildObserver: Job? = null
+    private var lastArtifact: BuildArtifactProof? = null
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -116,10 +129,24 @@ class TerminalFragment : Fragment() {
         }
 
         binding.buildApk.setOnClickListener {
-            binding.command.setText("/apkbuilder")
-            withTermuxPermission {
-                runCommand("/apkbuilder")
-            }
+            binding.command.setText("/apkbuilder --debug")
+            runCommand("/apkbuilder --debug")
+        }
+
+        binding.releaseApk.setOnClickListener {
+            showReleaseSigningBoundary()
+        }
+
+        binding.cancelBuild.setOnClickListener {
+            requestCancelBuild()
+        }
+
+        binding.openArtifact.setOnClickListener {
+            lastArtifact?.let { openApk(it) }
+        }
+
+        binding.shareArtifact.setOnClickListener {
+            lastArtifact?.let { shareApk(it) }
         }
 
         binding.btnDeviceProof.setOnClickListener {
