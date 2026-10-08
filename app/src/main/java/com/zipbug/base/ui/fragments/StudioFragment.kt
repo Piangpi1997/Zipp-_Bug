@@ -66,6 +66,36 @@ class StudioFragment : Fragment() {
                 ).show()
             }
         }
+
+        @JavascriptInterface
+        fun exportXml(name: String, xmlContent: String) {
+            val safeName = name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            val dir = File(requireContext().filesDir, "studio").apply { mkdirs() }
+            File(dir, "$safeName.xml").writeText(xmlContent)
+
+            requireActivity().runOnUiThread {
+                Snackbar.make(
+                    binding.root,
+                    "Exported Android XML ($safeName.xml)",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        @JavascriptInterface
+        fun exportCompose(name: String, composeContent: String) {
+            val safeName = name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            val dir = File(requireContext().filesDir, "studio").apply { mkdirs() }
+            File(dir, "$safeName.kt").writeText(composeContent)
+
+            requireActivity().runOnUiThread {
+                Snackbar.make(
+                    binding.root,
+                    "Exported Jetpack Compose ($safeName.kt)",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     override fun onDestroyView() {

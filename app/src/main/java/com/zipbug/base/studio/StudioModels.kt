@@ -140,4 +140,96 @@ data class StudioProject(
         sb.append("</androidx.constraintlayout.widget.ConstraintLayout>\n")
         return sb.toString()
     }
+
+    fun exportToJetpackCompose(screen: StudioScreen): String {
+        val sb = StringBuilder()
+        sb.append("package com.zipbug.generated.ui\n\n")
+        sb.append("import androidx.compose.foundation.background\n")
+        sb.append("import androidx.compose.foundation.layout.*\n")
+        sb.append("import androidx.compose.foundation.shape.RoundedCornerShape\n")
+        sb.append("import androidx.compose.material3.*\n")
+        sb.append("import androidx.compose.runtime.Composable\n")
+        sb.append("import androidx.compose.ui.Modifier\n")
+        sb.append("import androidx.compose.ui.graphics.Color\n")
+        sb.append("import androidx.compose.ui.unit.dp\n")
+        sb.append("import androidx.compose.ui.unit.sp\n\n")
+
+        val screenFunName = screen.name.replace(Regex("[^a-zA-Z0-9]"), "")
+            .ifBlank { "Main" } + "Screen"
+
+        sb.append("@Composable\n")
+        sb.append("fun $screenFunName() {\n")
+        sb.append("    Box(\n")
+        sb.append("        modifier = Modifier\n")
+        sb.append("            .fillMaxSize()\n")
+        sb.append("            .background(Color(0xFF121212))\n")
+        sb.append("    ) {\n")
+
+        for (c in screen.components) {
+            if (!c.isVisible) continue
+            val colorHex = c.textColor.replace("#", "").let {
+                if (it.length == 6) "0xFF$it" else "0xFFFFFFFF"
+            }
+            val fillHex = c.fillColor.replace("#", "").let {
+                if (it.length == 6) "0xFF$it" else "0xFF1E1E1E"
+            }
+            when (c.type) {
+                "Text" -> {
+                    sb.append("        Text(\n")
+                    sb.append("            text = \"${c.text.ifBlank { c.name }}\",\n")
+                    sb.append("            color = Color($colorHex),\n")
+                    sb.append("            fontSize = ${c.fontSize.toInt()}.sp,\n")
+                    sb.append("            modifier = Modifier\n")
+                    sb.append("                .offset(x = ${c.x.toInt()}.dp, y = ${c.y.toInt()}.dp)\n")
+                    sb.append("                .size(width = ${c.width.toInt()}.dp, height = ${c.height.toInt()}.dp)\n")
+                    sb.append("        )\n\n")
+                }
+                "Button" -> {
+                    sb.append("        Button(\n")
+                    sb.append("            onClick = { /* TODO */ },\n")
+                    sb.append("            shape = RoundedCornerShape(${c.cornerRadius.toInt()}.dp),\n")
+                    sb.append("            colors = ButtonDefaults.buttonColors(containerColor = Color($fillHex)),\n")
+                    sb.append("            modifier = Modifier\n")
+                    sb.append("                .offset(x = ${c.x.toInt()}.dp, y = ${c.y.toInt()}.dp)\n")
+                    sb.append("                .size(width = ${c.width.toInt()}.dp, height = ${c.height.toInt()}.dp)\n")
+                    sb.append("        ) {\n")
+                    sb.append("            Text(text = \"${c.text.ifBlank { c.name }}\", color = Color($colorHex))\n")
+                    sb.append("        }\n\n")
+                }
+                "Input" -> {
+                    sb.append("        OutlinedTextField(\n")
+                    sb.append("            value = \"\",\n")
+                    sb.append("            onValueChange = {},\n")
+                    sb.append("            placeholder = { Text(\"${c.text.ifBlank { "Enter text…" }}\") },\n")
+                    sb.append("            shape = RoundedCornerShape(${c.cornerRadius.toInt()}.dp),\n")
+                    sb.append("            modifier = Modifier\n")
+                    sb.append("                .offset(x = ${c.x.toInt()}.dp, y = ${c.y.toInt()}.dp)\n")
+                    sb.append("                .size(width = ${c.width.toInt()}.dp, height = ${c.height.toInt()}.dp)\n")
+                    sb.append("        )\n\n")
+                }
+                "Card" -> {
+                    sb.append("        Card(\n")
+                    sb.append("            shape = RoundedCornerShape(${c.cornerRadius.toInt()}.dp),\n")
+                    sb.append("            colors = CardDefaults.cardColors(containerColor = Color($fillHex)),\n")
+                    sb.append("            modifier = Modifier\n")
+                    sb.append("                .offset(x = ${c.x.toInt()}.dp, y = ${c.y.toInt()}.dp)\n")
+                    sb.append("                .size(width = ${c.width.toInt()}.dp, height = ${c.height.toInt()}.dp)\n")
+                    sb.append("        ) {\n")
+                    sb.append("            // Card Content\n")
+                    sb.append("        }\n\n")
+                }
+                else -> {
+                    sb.append("        Box(\n")
+                    sb.append("            modifier = Modifier\n")
+                    sb.append("                .offset(x = ${c.x.toInt()}.dp, y = ${c.y.toInt()}.dp)\n")
+                    sb.append("                .size(width = ${c.width.toInt()}.dp, height = ${c.height.toInt()}.dp)\n")
+                    sb.append("                .background(Color($fillHex), RoundedCornerShape(${c.cornerRadius.toInt()}.dp))\n")
+                    sb.append("        )\n\n")
+                }
+            }
+        }
+        sb.append("    }\n")
+        sb.append("}\n")
+        return sb.toString()
+    }
 }
