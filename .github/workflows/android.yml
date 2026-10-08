@@ -35,6 +35,9 @@ jobs:
       - name: Validate project
         run: python verify-project.py
 
+      - name: Unit tests
+        run: gradle --no-daemon testDebugUnitTest
+
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
