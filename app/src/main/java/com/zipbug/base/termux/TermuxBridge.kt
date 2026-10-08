@@ -25,7 +25,8 @@ object TermuxBridge {
         "git" to "git",
         "aapt2" to "aapt2",
         "zipalign" to "zipalign",
-        "apksigner" to "apksigner"
+        "apksigner" to "apksigner",
+        "cp" to "cp"
     )
 
     data class Request(
