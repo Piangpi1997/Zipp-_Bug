@@ -245,7 +245,49 @@ class ProjectsFragment : Fragment() {
         return card
     }
 
-    private fun buildAndInspectProject(project: com.zipbug.base.data.ProjectEntity) {
+    private fun runWebProject(project: ProjectEntity) {
+        runCatching {
+            val root = File(project.rootPath).canonicalFile
+            val entry = File(root, project.entryFile).canonicalFile
+            val prefix = root.path + File.separator
+
+            require(entry.path.startsWith(prefix) && entry.isFile) {
+                "Project entry is outside the sandbox or missing."
+            }
+
+            val webRoot = entry.parentFile
+                ?: error("Project entry has no parent directory")
+
+            EngineManager.run(webRoot)
+
+            startActivity(
+                Intent(
+                    requireContext(),
+                    WebRuntimeActivity::class.java
+                ).putExtra(
+                    "url",
+                    "http://127.0.0.1:3131/${entry.name}"
+                )
+            )
+        }.onFailure {
+            Snackbar.make(
+                binding.root,
+                it.message ?: "Unable to run mini-app",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun isWebProject(project: ProjectEntity): Boolean =
+        project.kind.equals("web-mini-app", ignoreCase = true) ||
+            project.entryFile.endsWith(".html", ignoreCase = true)
+
+    private fun isAndroidProject(project: ProjectEntity): Boolean =
+        project.kind.contains("ANDROID", ignoreCase = true) ||
+            File(project.rootPath, "settings.gradle.kts").isFile ||
+            File(project.rootPath, "settings.gradle").isFile
+
+    private fun buildAndInspectProject(project: ProjectEntity) {
         val app = requireActivity().application as ZipBugApp
         Snackbar.make(binding.root, "Queuing Gradle build for '${project.name}'…", Snackbar.LENGTH_SHORT).show()
 
@@ -271,12 +313,13 @@ class ProjectsFragment : Fragment() {
                 .filter { it.status != com.zipbug.base.data.BuildJobEntity.RUNNING }
                 .first()
 
-            if (job.status == com.zipbug.base.data.BuildJobEntity.SUCCESS) {
+            if (job.status == BuildJobEntity.SUCCESS && job.exitCode == 0) {
                 // Discover and inspect newest APK
                 ApkArtifactScanner.scanAndPersist(requireContext(), listOf(File(project.rootPath)))
                 val artifacts = app.database.apkArtifactDao().listAll()
-                val newestApk = artifacts.firstOrNull { it.filePath.startsWith(project.rootPath) }
-                    ?: artifacts.firstOrNull()
+                val newestApk = artifacts.firstOrNull {
+                    it.filePath.startsWith(project.rootPath)
+                }
 
                 if (newestApk != null) {
                     ApkDetailBottomSheetDialogFragment.newInstance(newestApk.filePath)
