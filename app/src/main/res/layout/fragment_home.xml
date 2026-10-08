@@ -43,6 +43,13 @@
             android:text="App Creator • Kotlin/XML Source ZIP" />
 
         <Button
+            android:id="@+id/ttsStudio"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:text="TTS Studio • Myanmar Edge-TTS" />
+
+        <Button
             android:id="@+id/mediaRecap"
             android:layout_width="match_parent"
             android:layout_height="56dp"
