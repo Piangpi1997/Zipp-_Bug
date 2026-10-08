@@ -595,6 +595,222 @@ class TerminalFragment : Fragment() {
                 "scripts/build-termux.sh"
             )
 
+    private fun showReleaseSigningBoundary() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Release signing is separate")
+            .setMessage(
+                "Debug APK builds use /apkbuilder --debug.\n\n" +
+                    "Zip_Bug will not create, overwrite, or guess release keystores or passwords. " +
+                    "A release build must use signing credentials that you explicitly configure and review in the Android project first."
+            )
+            .setPositiveButton("Close", null)
+            .show()
+
+        binding.buildStages.text =
+            "BUILD WORKFLOW • RELEASE\n" +
+                "Validation: NOT STARTED\n" +
+                "Dependencies: NOT STARTED\n" +
+                "Build: NOT STARTED\n" +
+                "Packaging: NOT STARTED\n" +
+                "Release signing: BLOCKED until explicitly configured"
+
+        binding.output.text =
+            "RELEASE SIGNING • NOT EXECUTED\n\n" +
+                "No keystore was created or overwritten.\n" +
+                "Configure signingConfig explicitly in the project before adding a controlled release workflow."
+    }
+
+    private fun requestCancelBuild() {
+        val cancelPath = activeBuildCancelPath
+        val workDir = activeBuildWorkDir
+
+        if (
+            activeBuildJobId == null ||
+            cancelPath.isNullOrBlank() ||
+            workDir.isNullOrBlank()
+        ) {
+            Snackbar.make(
+                binding.root,
+                "No controlled build is currently running.",
+                Snackbar.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        binding.cancelBuild.isEnabled = false
+        binding.engineState.text =
+            "BUILD • CANCELLATION REQUESTED"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            TermuxBridge.send(
+                requireContext(),
+                TermuxBridge.Request(
+                    tool = "cp",
+                    args = listOf(
+                        "/dev/null",
+                        cancelPath
+                    ),
+                    workDir = workDir,
+                    label = "Zip_Bug Build Cancel Token"
+                )
+            ).onSuccess {
+                Snackbar.make(
+                    binding.root,
+                    "Cancellation token sent. Waiting for the controlled build script to stop Gradle.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }.onFailure { error ->
+                binding.cancelBuild.isEnabled = true
+                Snackbar.make(
+                    binding.root,
+                    "Cancel request failed: ${error.message}",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun verifyArtifactForActions(
+        artifact: BuildArtifactProof
+    ) {
+        val file = File(artifact.path)
+
+        if (!file.isFile) {
+            binding.artifactActions.visibility =
+                View.GONE
+            return
+        }
+
+        val inspected =
+            com.zipbug.base.artifact.ApkArtifactInspector
+                .inspect(
+                    requireContext(),
+                    file
+                )
+
+        inspected.onSuccess { metadata ->
+            val matchesProof =
+                metadata.sizeBytes == artifact.sizeBytes &&
+                    metadata.sha256.equals(
+                        artifact.sha256,
+                        ignoreCase = true
+                    )
+
+            binding.artifactActions.visibility =
+                if (matchesProof) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+
+            if (!matchesProof) {
+                binding.engineState.text =
+                    "BUILD • ARTIFACT VERIFY FAILED"
+            }
+        }.onFailure {
+            binding.artifactActions.visibility =
+                View.GONE
+        }
+    }
+
+    private fun openApk(
+        artifact: BuildArtifactProof
+    ) {
+        val file = File(artifact.path)
+
+        runCatching {
+            require(file.isFile) {
+                "APK is no longer accessible at ${artifact.path}"
+            }
+
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                file
+            )
+
+            startActivity(
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(
+                        uri,
+                        "application/vnd.android.package-archive"
+                    )
+                    addFlags(
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
+            )
+        }.onFailure {
+            Snackbar.make(
+                binding.root,
+                "Unable to open APK: ${it.message}",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun shareApk(
+        artifact: BuildArtifactProof
+    ) {
+        val file = File(artifact.path)
+
+        runCatching {
+            require(file.isFile) {
+                "APK is no longer accessible at ${artifact.path}"
+            }
+
+            val uri: Uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                file
+            )
+
+            startActivity(
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).apply {
+                        type =
+                            "application/vnd.android.package-archive"
+                        putExtra(
+                            Intent.EXTRA_STREAM,
+                            uri
+                        )
+                        addFlags(
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    },
+                    "Share APK"
+                )
+            )
+        }.onFailure {
+            Snackbar.make(
+                binding.root,
+                "Unable to share APK: ${it.message}",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun formatBytes(bytes: Long): String {
+        if (bytes < 1024) {
+            return "$bytes B"
+        }
+
+        val kb = bytes / 1024.0
+        if (kb < 1024) {
+            return String.format(
+                Locale.US,
+                "%.1f KB",
+                kb
+            )
+        }
+
+        return String.format(
+            Locale.US,
+            "%.2f MB",
+            kb / 1024.0
+        )
+    }
+
     private fun runDoctor() {
         val home = requireContext()
             .getSharedPreferences("zipbug.settings", 0)
