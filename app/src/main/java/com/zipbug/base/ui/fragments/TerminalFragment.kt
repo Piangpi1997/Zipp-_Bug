@@ -4,15 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zipbug.base.ZipBugApp
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.databinding.FragmentTerminalBinding
 import com.zipbug.base.termux.CommandLineParser
+import com.zipbug.base.termux.DiagnosticStatus
+import com.zipbug.base.termux.EngineDiagnostics
 import com.zipbug.base.termux.EngineDoctor
 import com.zipbug.base.termux.TermuxBridge
 import kotlinx.coroutines.launch
@@ -64,16 +67,30 @@ class TerminalFragment : Fragment() {
             }
         }
 
-        binding.ffmpeg.setOnClickListener {
-            binding.command.setText("/termux ffmpeg -version")
-        }
-
-        binding.python.setOnClickListener {
+        // Test Panel
+        binding.testPython.setOnClickListener {
             binding.command.setText("/termux python --version")
+            withTermuxPermission { runCommand("/termux python --version") }
         }
 
-        binding.gradle.setOnClickListener {
+        binding.testJava.setOnClickListener {
+            binding.command.setText("/termux java -version")
+            withTermuxPermission { runCommand("/termux java -version") }
+        }
+
+        binding.testGradle.setOnClickListener {
             binding.command.setText("/termux gradle --version")
+            withTermuxPermission { runCommand("/termux gradle --version") }
+        }
+
+        binding.testFfmpeg.setOnClickListener {
+            binding.command.setText("/termux ffmpeg -version")
+            withTermuxPermission { runCommand("/termux ffmpeg -version") }
+        }
+
+        binding.testAapt2.setOnClickListener {
+            binding.command.setText("/termux aapt2 version")
+            withTermuxPermission { runCommand("/termux aapt2 version") }
         }
 
         binding.buildApk.setOnClickListener {
@@ -97,13 +114,12 @@ class TerminalFragment : Fragment() {
     ) {
         if (TermuxBridge.hasPermission(requireContext())) {
             action()
-            return
+        } else {
+            pendingPermissionAction = action
+            permissionLauncher.launch(
+                TermuxBridge.PERMISSION_RUN_COMMAND
+            )
         }
-
-        pendingPermissionAction = action
-        permissionLauncher.launch(
-            TermuxBridge.PERMISSION_RUN_COMMAND
-        )
     }
 
     private fun observeLatestJob() {
@@ -133,6 +149,12 @@ class TerminalFragment : Fragment() {
             "\ntermuxError: $it"
         }.orEmpty()
 
+        val duration = if (job.startedAt != null && job.finishedAt != null) {
+            "\nduration: ${job.finishedAt - job.startedAt}ms"
+        } else {
+            ""
+        }
+
         binding.engineState.text =
             if (job.tool == "cp" && job.status == BuildJobEntity.SUCCESS) {
                 "APK EXPORTED • COPY EXIT 0"
@@ -147,6 +169,8 @@ class TerminalFragment : Fragment() {
             append("status: ${job.status}")
             append(exit)
             append(err)
+            append(duration)
+            append("\ntimestamp: ${job.createdAt}")
 
             if (job.stdout.isNotBlank()) {
                 append("\n\nSTDOUT\n")
@@ -173,16 +197,29 @@ class TerminalFragment : Fragment() {
                 "/data/data/com.termux/files/home"
             )!!
 
-        binding.engineState.text = "ENGINE • DOCTOR RUNNING"
+        val checks = EngineDiagnostics.createInitialChecks()
+        EngineDiagnostics.evaluateLocalChecks(requireContext(), checks)
+
+        binding.engineState.text = "ENGINE • DIAGNOSTICS DISPATCHING"
+        binding.output.text = "Evaluating local checks & dispatching Termux diagnostics…"
 
         viewLifecycleOwner.lifecycleScope.launch {
-            TermuxBridge.send(
-                requireContext(),
-                EngineDoctor.request(home)
-            ).onFailure {
-                binding.output.text =
-                    "Doctor failed before execution:\n" +
-                    (it.message ?: it.javaClass.simpleName)
+            val req = EngineDoctor.request(home)
+            TermuxBridge.send(requireContext(), req).onSuccess { jobId ->
+                binding.output.text = buildString {
+                    append("Dispatched Diagnostics Job: $jobId\n\n")
+                    append("LOCAL PRE-FLIGHT CHECKS:\n")
+                    checks.take(2).forEach { c ->
+                        append("[${c.status}] ${c.name}: ${c.detail}\n")
+                        if (c.status == DiagnosticStatus.FAIL) {
+                            append("  Fix: ${c.fixInstruction}\n")
+                        }
+                    }
+                    append("\nWaiting for Termux job callback to evaluate remaining 13 checks…")
+                }
+            }.onFailure { err ->
+                binding.engineState.text = "ENGINE • DIAGNOSTICS FAILED"
+                binding.output.text = "Diagnostics dispatch failed:\n${err.message}"
             }
         }
     }
@@ -229,7 +266,7 @@ class TerminalFragment : Fragment() {
                     tool = parts[1],
                     args = parts.drop(2),
                     workDir = home,
-                    label = "Zip_Bug /termux"
+                    label = "Zip_Bug /termux ${parts[1]}"
                 )
             }
 
@@ -251,8 +288,7 @@ class TerminalFragment : Fragment() {
 
             else -> {
                 binding.output.text =
-                    "Supported now: /termux, /apkbuilder\n" +
-                    "Planned: /apcreator /likefigma /aizipper /aicreator"
+                    "Supported now: /termux, /apkbuilder"
                 return
             }
         }
