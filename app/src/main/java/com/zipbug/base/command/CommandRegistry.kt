@@ -26,8 +26,8 @@ object CommandRegistry {
         CommandSpec(
             command = "/apkbuilder",
             group = "Build",
-            description = "Build the configured Android project with the real Termux Gradle bridge.",
-            example = "/apkbuilder"
+            description = "Run the controlled debug APK workflow: validation, dependencies, Gradle build, packaging, and verification. Release signing is separate.",
+            example = "/apkbuilder --debug"
         ),
         CommandSpec(
             command = "/likefigma",
