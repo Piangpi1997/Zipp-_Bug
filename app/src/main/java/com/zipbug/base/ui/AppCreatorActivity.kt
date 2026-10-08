@@ -7,6 +7,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.creator.AppScaffolder
 import com.zipbug.base.creator.AppSpec
 import com.zipbug.base.creator.ProjectZipWriter
+import com.zipbug.base.creator.WebMiniAppScaffolder
 import com.zipbug.base.databinding.ActivityAppCreatorBinding
 
 class AppCreatorActivity : AppCompatActivity() {
@@ -25,10 +26,11 @@ class AppCreatorActivity : AppCompatActivity() {
             ProjectZipWriter(this).write(uri, files)
         }.onSuccess {
             binding.result.text =
-                "PROJECT ZIP CREATED\n" +
+                "SOURCE ZIP CREATED\n" +
                     uri.toString() +
-                    "\n\nThis is source output, not a fake APK. " +
-                    "Extract it in Termux and run /apkbuilder."
+                    "\n\nFiles: " +
+                    files.size +
+                    "\nThis is real source output, not a fake APK."
         }.onFailure {
             Snackbar.make(
                 binding.root,
@@ -43,12 +45,16 @@ class AppCreatorActivity : AppCompatActivity() {
         binding = ActivityAppCreatorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.create.setOnClickListener {
-            createProject()
+        binding.createAndroid.setOnClickListener {
+            createAndroidProject()
+        }
+
+        binding.createWeb.setOnClickListener {
+            createWebMiniApp()
         }
     }
 
-    private fun createProject() {
+    private fun createAndroidProject() {
         val spec = AppSpec(
             name = binding.appName.text.toString().trim(),
             packageName = binding.packageName.text.toString().trim(),
@@ -58,22 +64,56 @@ class AppCreatorActivity : AppCompatActivity() {
         runCatching {
             AppScaffolder.files(spec)
         }.onSuccess { files ->
-            pendingFiles = files
-
-            val filename = spec.name
-                .replace(
-                    Regex("[^a-zA-Z0-9._-]"),
-                    "_"
-                )
-                .ifBlank { "ZipBugProject" } + ".zip"
-
-            saveZip.launch(filename)
+            export(
+                files,
+                safeFilename(spec.name) + "-android.zip"
+            )
         }.onFailure {
-            Snackbar.make(
-                binding.root,
-                it.message ?: "Invalid project",
-                Snackbar.LENGTH_LONG
-            ).show()
+            showError(it)
         }
+    }
+
+    private fun createWebMiniApp() {
+        val name = binding.appName.text.toString().trim()
+        val goal = binding.goal.text.toString().trim()
+
+        runCatching {
+            WebMiniAppScaffolder.files(
+                name = name,
+                goal = goal
+            )
+        }.onSuccess { files ->
+            export(
+                files,
+                safeFilename(name) + "-mini-app.zip"
+            )
+        }.onFailure {
+            showError(it)
+        }
+    }
+
+    private fun export(
+        files: Map<String, String>,
+        filename: String
+    ) {
+        pendingFiles = files
+        binding.result.text =
+            "Prepared " + files.size +
+                " source files. Choose a save location."
+        saveZip.launch(filename)
+    }
+
+    private fun safeFilename(value: String): String =
+        value.replace(
+            Regex("[^a-zA-Z0-9._-]"),
+            "_"
+        ).ifBlank { "ZipBugProject" }
+
+    private fun showError(error: Throwable) {
+        Snackbar.make(
+            binding.root,
+            error.message ?: "Invalid project",
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 }
