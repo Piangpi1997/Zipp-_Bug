@@ -136,5 +136,45 @@
             android:textColor="@color/z_green"
             android:textIsSelectable="true"
             android:textSize="11sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnCopyLog"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="Copy Log"
+                android:textColor="@color/z_text"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btnRetry"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="Retry"
+                android:textColor="@color/z_text"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btnOpenTermuxHelp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="Termux Help"
+                android:textColor="@color/z_orange"
+                android:textSize="11sp" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
