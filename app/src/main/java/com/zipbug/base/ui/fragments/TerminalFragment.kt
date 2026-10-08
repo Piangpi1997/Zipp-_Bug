@@ -1,5 +1,6 @@
 package com.zipbug.base.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zipbug.base.ZipBugApp
+import com.zipbug.base.ai.AiMode
+import com.zipbug.base.command.CommandRegistry
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.databinding.FragmentTerminalBinding
 import com.zipbug.base.termux.CommandLineParser
@@ -18,9 +21,25 @@ import com.zipbug.base.termux.DiagnosticStatus
 import com.zipbug.base.termux.EngineDiagnostics
 import com.zipbug.base.termux.EngineDoctor
 import com.zipbug.base.termux.TermuxBridge
+import com.zipbug.base.ui.AppCreatorActivity
+import com.zipbug.base.ui.CommandHelpActivity
+import com.zipbug.base.ui.MainActivity
+import com.zipbug.base.ui.MediaRecapActivity
+import com.zipbug.base.ui.TtsStudioActivity
 import kotlinx.coroutines.launch
 
 class TerminalFragment : Fragment() {
+    companion object {
+        private const val ARG_INITIAL_COMMAND = "arg_initial_command"
+
+        fun newInstance(command: String = ""): TerminalFragment =
+            TerminalFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_INITIAL_COMMAND, command)
+                }
+            }
+    }
+
     private var _binding: FragmentTerminalBinding? = null
     private val binding get() = _binding!!
     private var pendingPermissionAction: (() -> Unit)? = null
@@ -63,10 +82,12 @@ class TerminalFragment : Fragment() {
         savedInstanceState: Bundle?
     ) {
         binding.run.setOnClickListener {
-            withTermuxPermission {
-                runCommand(binding.command.text.toString())
-            }
+            runCommand(binding.command.text.toString())
         }
+
+        arguments?.getString(ARG_INITIAL_COMMAND)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { binding.command.setText(it) }
 
         // Test Panel
         binding.testPython.setOnClickListener {
