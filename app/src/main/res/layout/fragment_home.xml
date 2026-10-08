@@ -1,0 +1,53 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Antigravity Studio"
+            android:textColor="@color/z_text"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="AI + UI/UX + local runtime + Termux build engine"
+            android:textColor="@color/z_muted"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@color/z_surface"
+            android:padding="18dp"
+            android:text="ENGINE&#10;127.0.0.1:3131 • sandboxed web runtime&#10;Termux bridge • allow-listed tools&#10;Encrypted BYO API keys"
+            android:textColor="@color/z_green"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/mediaRecap"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="22dp"
+            android:text="Movie / Link → Social Recap" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Core commands&#10;/apkbuilder  /apcreator  /likefigma&#10;/aizipper  /aicreator  /termux"
+            android:textColor="@color/z_text"
+            android:textSize="16sp" />
+    </LinearLayout>
+</ScrollView>
