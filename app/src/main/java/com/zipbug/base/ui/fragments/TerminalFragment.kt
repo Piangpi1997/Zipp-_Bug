@@ -12,6 +12,7 @@ import com.zipbug.base.ZipBugApp
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.databinding.FragmentTerminalBinding
 import com.zipbug.base.termux.CommandLineParser
+import com.zipbug.base.termux.EngineDoctor
 import com.zipbug.base.termux.TermuxBridge
 import kotlinx.coroutines.launch
 
@@ -55,6 +56,10 @@ class TerminalFragment : Fragment() {
         binding.buildApk.setOnClickListener {
             binding.command.setText("/apkbuilder")
             runCommand("/apkbuilder")
+        }
+
+        binding.doctor.setOnClickListener {
+            runDoctor()
         }
 
         observeLatestJob()
@@ -119,7 +124,29 @@ class TerminalFragment : Fragment() {
         }
     }
 
-    private fun runCommand(raw: String) {
+    private fun runDoctor() {
+        val home = requireContext()
+            .getSharedPreferences("zipbug.settings", 0)
+            .getString(
+                "termuxHome",
+                "/data/data/com.termux/files/home"
+            )!!
+
+        binding.engineState.text = "ENGINE • DOCTOR RUNNING"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            TermuxBridge.send(
+                requireContext(),
+                EngineDoctor.request(home)
+            ).onFailure {
+                binding.output.text =
+                    "Doctor failed before execution:\n" +
+                    (it.message ?: it.javaClass.simpleName)
+            }
+        }
+    }
+
+$marker
         val parts = runCatching {
             CommandLineParser.parse(raw)
         }.getOrElse {
