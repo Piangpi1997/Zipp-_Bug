@@ -771,11 +771,15 @@ class TerminalFragment : Fragment() {
                 savedProjectRoot
             }
 
+        var buildCancelPath: String? = null
+        var buildWorkDir: String? = null
+
         val request = when (canonicalCommand) {
             "/termux" -> {
                 if (parts.size < 2) {
                     binding.output.text =
-                        "Usage: /termux <approved-tool> [args]\nExample: /termux python --version"
+                        "Usage: /termux <approved-tool> [args]\n" +
+                            "Example: /termux python --version"
                     return
                 }
 
@@ -788,18 +792,82 @@ class TerminalFragment : Fragment() {
             }
 
             "/apkbuilder" -> {
-                val workDir = parts.getOrNull(1)
-                    ?.takeIf { it.startsWith("/") }
+                val options = parts.drop(1)
+
+                if (
+                    options.any {
+                        it.equals(
+                            "--release",
+                            ignoreCase = true
+                        )
+                    }
+                ) {
+                    showReleaseSigningBoundary()
+                    return
+                }
+
+                val unsupported = options
+                    .filter {
+                        it.startsWith("--") &&
+                            it != "--debug"
+                    }
+
+                if (unsupported.isNotEmpty()) {
+                    binding.output.text =
+                        "Unsupported /apkbuilder option: " +
+                            unsupported.joinToString() +
+                            "\n\nUsage: /apkbuilder --debug [absolute-project-root]\n" +
+                            "Release signing is a separate explicit workflow."
+                    return
+                }
+
+                val workDir = options
+                    .firstOrNull {
+                        it.startsWith("/")
+                    }
                     ?: projectRoot
 
+                val exportPath = prefs.getString(
+                    "artifactExportPath",
+                    "/storage/emulated/0/Download/Zip_Bug-debug.apk"
+                )!!
+
+                val cancelPath =
+                    "$workDir/.zipbug-cancel-" +
+                        UUID.randomUUID()
+                            .toString()
+                            .replace("-", "")
+
+                buildCancelPath = cancelPath
+                buildWorkDir = workDir
+
+                lastArtifact = null
+                binding.artifactActions.visibility =
+                    View.GONE
+                binding.cancelBuild.visibility =
+                    View.VISIBLE
+                binding.buildStages.text =
+                    "BUILD WORKFLOW • DEBUG\n" +
+                        "Validation: QUEUED\n" +
+                        "Dependencies: QUEUED\n" +
+                        "Build: QUEUED\n" +
+                        "Packaging: QUEUED\n" +
+                        "Release signing: NOT TOUCHED"
+
                 TermuxBridge.Request(
-                    tool = "gradle",
+                    tool = "bash",
                     args = listOf(
-                        "--no-daemon",
-                        "assembleDebug"
+                        "$workDir/scripts/build-termux.sh",
+                        "--debug",
+                        "--export",
+                        exportPath,
+                        "--cancel-file",
+                        cancelPath,
+                        "--timeout-seconds",
+                        "1200"
                     ),
                     workDir = workDir,
-                    label = "Zip_Bug APK Builder"
+                    label = "Zip_Bug Controlled Debug APK Build"
                 )
             }
 
@@ -815,10 +883,33 @@ class TerminalFragment : Fragment() {
             )
 
             result.onSuccess { id ->
-                binding.output.text =
-                    "Queued real Termux job:\n$id\n\n" +
-                        "Waiting for Termux result callback…"
+                if (canonicalCommand == "/apkbuilder") {
+                    activeBuildJobId = id
+                    activeBuildCancelPath =
+                        buildCancelPath
+                    activeBuildWorkDir =
+                        buildWorkDir
+                    observeBuildJob(id)
+
+                    binding.output.text =
+                        "Queued controlled debug build:\n$id\n\n" +
+                            "Timeout: 1200 seconds\n" +
+                            "Release signing: untouched\n" +
+                            "Waiting for the Termux result callback…"
+                } else {
+                    binding.output.text =
+                        "Queued real Termux job:\n$id\n\n" +
+                            "Waiting for Termux result callback…"
+                }
             }.onFailure {
+                if (canonicalCommand == "/apkbuilder") {
+                    activeBuildJobId = null
+                    activeBuildCancelPath = null
+                    activeBuildWorkDir = null
+                    binding.cancelBuild.visibility =
+                        View.GONE
+                }
+
                 binding.output.text =
                     "Command failed before execution:\n${it.message}"
             }
