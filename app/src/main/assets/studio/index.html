@@ -13,6 +13,14 @@
     <button class="btn-export" onclick="exportCompose()">Export Compose</button>
     <button class="btn-save" onclick="save()">Save</button>
   </header>
+  <div class="screen-bar">
+    <label style="color:#aaa;font-size:11px">Screen:</label>
+    <select id="screen-select" onchange="switchScreen(this.value)"></select>
+    <button class="btn-small" onclick="newScreen()">+ Screen</button>
+    <button class="btn-small" onclick="renameScreen()">Rename</button>
+    <button class="btn-small" onclick="duplicateScreen()">Duplicate</button>
+    <button class="btn-small" onclick="deleteScreen()" style="background:#442222;color:#ff8888">Delete</button>
+  </div>
   <div class="toolbar">
     <button onclick="add('Text')">+ Text</button>
     <button onclick="add('Button')">+ Button</button>

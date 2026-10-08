@@ -1,30 +1,156 @@
-let nodes = [];
+let project = {
+  id: 'proj_studio',
+  name: 'ZipBug Studio',
+  screens: [
+    { id: 'screen_main', name: 'Main', nodes: [] }
+  ],
+  currentScreenId: 'screen_main'
+};
+
 let selected = null;
 let sequence = 0;
 const canvas = document.querySelector('#canvas');
 const undoStack = [];
 const redoStack = [];
 
+function getActiveScreen() {
+  let screen = project.screens.find(s => s.id === project.currentScreenId);
+  if (!screen) {
+    if (project.screens.length === 0) {
+      project.screens.push({ id: 'screen_1', name: 'Main', nodes: [] });
+    }
+    project.currentScreenId = project.screens[0].id;
+    screen = project.screens[0];
+  }
+  return screen;
+}
+
+function getActiveNodes() {
+  return getActiveScreen().nodes;
+}
+
+function persistProject() {
+  try {
+    localStorage.setItem('zipbug_studio_project', JSON.stringify(project));
+  } catch (e) {
+    console.warn('LocalStorage save failed:', e);
+  }
+}
+
+function loadPersistedProject() {
+  try {
+    const raw = localStorage.getItem('zipbug_studio_project');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.screens) && parsed.screens.length > 0) {
+        project = parsed;
+        // update sequence counter to avoid collision
+        let maxSeq = 0;
+        project.screens.forEach(s => {
+          s.nodes.forEach(n => {
+            const num = parseInt((n.id || '').replace(/\D/g, ''), 10);
+            if (!isNaN(num) && num > maxSeq) maxSeq = num;
+          });
+        });
+        sequence = maxSeq;
+      }
+    }
+  } catch (e) {
+    console.warn('LocalStorage load failed:', e);
+  }
+}
+
 function pushState() {
-  undoStack.push(JSON.stringify(nodes));
+  undoStack.push(JSON.stringify(project));
   if (undoStack.length > 30) undoStack.shift();
   redoStack.length = 0;
+  persistProject();
 }
 
 function undo() {
   if (undoStack.length === 0) return;
-  redoStack.push(JSON.stringify(nodes));
-  const prev = undoStack.pop();
-  nodes = JSON.parse(prev);
-  if (!nodes.find(n => n.id === selected)) selected = null;
+  redoStack.push(JSON.stringify(project));
+  project = JSON.parse(undoStack.pop());
+  const activeNodes = getActiveNodes();
+  if (!activeNodes.find(n => n.id === selected)) selected = null;
+  renderScreenSelect();
   render();
 }
 
 function redo() {
   if (redoStack.length === 0) return;
-  undoStack.push(JSON.stringify(nodes));
-  const next = redoStack.pop();
-  nodes = JSON.parse(next);
+  undoStack.push(JSON.stringify(project));
+  project = JSON.parse(redoStack.pop());
+  renderScreenSelect();
+  render();
+}
+
+function renderScreenSelect() {
+  const sel = document.querySelector('#screen-select');
+  if (!sel) return;
+  sel.innerHTML = '';
+  project.screens.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    if (s.id === project.currentScreenId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function switchScreen(id) {
+  project.currentScreenId = id;
+  selected = null;
+  persistProject();
+  render();
+}
+
+function newScreen() {
+  const name = prompt('New Screen Name:', 'Screen ' + (project.screens.length + 1));
+  if (!name) return;
+  pushState();
+  const id = 'screen_' + Date.now();
+  project.screens.push({ id: id, name: name.trim(), nodes: [] });
+  project.currentScreenId = id;
+  selected = null;
+  renderScreenSelect();
+  render();
+}
+
+function renameScreen() {
+  const active = getActiveScreen();
+  const newName = prompt('Rename Screen:', active.name);
+  if (!newName || !newName.trim()) return;
+  pushState();
+  active.name = newName.trim();
+  renderScreenSelect();
+  render();
+}
+
+function duplicateScreen() {
+  const active = getActiveScreen();
+  pushState();
+  const copy = JSON.parse(JSON.stringify(active));
+  copy.id = 'screen_' + Date.now();
+  copy.name = active.name + ' (copy)';
+  project.screens.push(copy);
+  project.currentScreenId = copy.id;
+  selected = null;
+  renderScreenSelect();
+  render();
+}
+
+function deleteScreen() {
+  if (project.screens.length <= 1) {
+    alert('Cannot delete the only screen in the project.');
+    return;
+  }
+  if (!confirm('Delete current screen?')) return;
+  pushState();
+  project.screens = project.screens.filter(s => s.id !== project.currentScreenId);
+  project.currentScreenId = project.screens[0].id;
+  selected = null;
+  renderScreenSelect();
   render();
 }
 
@@ -64,12 +190,13 @@ function add(type) {
     zIndex: sequence
   };
 
-  nodes.push(node);
+  getActiveNodes().push(node);
   selected = node.id;
   render();
 }
 
 function duplicateSelected() {
+  const nodes = getActiveNodes();
   const current = nodes.find(n => n.id === selected);
   if (!current) return;
   pushState();
@@ -88,12 +215,14 @@ function duplicateSelected() {
 function deleteSelected() {
   if (!selected) return;
   pushState();
-  nodes = nodes.filter(n => n.id !== selected);
+  const screen = getActiveScreen();
+  screen.nodes = screen.nodes.filter(n => n.id !== selected);
   selected = null;
   render();
 }
 
 function bringForward() {
+  const nodes = getActiveNodes();
   const idx = nodes.findIndex(n => n.id === selected);
   if (idx < 0 || idx >= nodes.length - 1) return;
   pushState();
@@ -104,6 +233,7 @@ function bringForward() {
 }
 
 function sendBackward() {
+  const nodes = getActiveNodes();
   const idx = nodes.findIndex(n => n.id === selected);
   if (idx <= 0) return;
   pushState();
@@ -115,6 +245,7 @@ function sendBackward() {
 
 function render() {
   canvas.innerHTML = '';
+  const nodes = getActiveNodes();
 
   nodes.forEach(function(node, index) {
     const el = document.createElement('div');
@@ -149,7 +280,7 @@ function render() {
     // Drag to move
     let startX = 0, startY = 0, origX = 0, origY = 0;
     el.onpointerdown = function(e) {
-      if (e.target === handle) return; // handled by resize
+      if (e.target === handle) return;
       el.setPointerCapture(e.pointerId);
       startX = e.clientX;
       startY = e.clientY;
@@ -169,6 +300,7 @@ function render() {
     el.onpointerup = function(e) {
       if (el.hasPointerCapture(e.pointerId)) {
         el.releasePointerCapture(e.pointerId);
+        persistProject();
         updateInspector();
       }
     };
@@ -195,6 +327,7 @@ function render() {
     handle.onpointerup = function(e) {
       if (handle.hasPointerCapture(e.pointerId)) {
         handle.releasePointerCapture(e.pointerId);
+        persistProject();
         updateInspector();
       }
     };
@@ -204,10 +337,12 @@ function render() {
 
   renderLayers();
   updateInspector();
+  persistProject();
 }
 
 function selectNode(id) {
   selected = id;
+  const nodes = getActiveNodes();
   const node = nodes.find(n => n.id === id);
   if (node) {
     document.querySelector('#label').value = node.label;
@@ -223,8 +358,9 @@ function selectNode(id) {
 
 function renderLayers() {
   const container = document.querySelector('#layers-list');
+  if (!container) return;
   container.innerHTML = '';
-  // Top layer first
+  const nodes = getActiveNodes();
   for (let i = nodes.length - 1; i >= 0; i--) {
     const n = nodes[i];
     const row = document.createElement('div');
@@ -238,10 +374,14 @@ function renderLayers() {
 }
 
 function updateInspector() {
-  document.querySelector('#schema').textContent = JSON.stringify(nodes, null, 2);
+  const schemaEl = document.querySelector('#schema');
+  if (schemaEl) {
+    schemaEl.textContent = JSON.stringify(project, null, 2);
+  }
 }
 
 function applyChanges() {
+  const nodes = getActiveNodes();
   const node = nodes.find(n => n.id === selected);
   if (!node) return;
 
@@ -257,6 +397,7 @@ function applyChanges() {
 }
 
 function exportXml() {
+  const active = getActiveScreen();
   let xml = '<?xml version="1.0" encoding="utf-8"?>\n' +
     '<androidx.constraintlayout.widget.ConstraintLayout\n' +
     '    xmlns:android="http://schemas.android.com/apk/res/android"\n' +
@@ -265,7 +406,7 @@ function exportXml() {
     '    android:layout_height="match_parent"\n' +
     '    android:background="#121212">\n\n';
 
-  nodes.forEach(function(n) {
+  active.nodes.forEach(function(n) {
     if (n.type === 'Text') {
       xml += '    <TextView\n' +
         '        android:id="@+id/' + n.id + '"\n' +
@@ -305,31 +446,45 @@ function exportXml() {
   xml += '</androidx.constraintlayout.widget.ConstraintLayout>';
 
   if (window.ZipBug && window.ZipBug.exportXml) {
-    window.ZipBug.exportXml('Screen', xml);
+    window.ZipBug.exportXml(active.name, xml);
   } else {
-    alert('Exported XML:\n' + xml.slice(0, 300) + '…');
+    alert('Exported XML for ' + active.name + ':\n' + xml.slice(0, 300) + '…');
   }
 }
 
 function exportCompose() {
-  let comp = '@Composable\nfun Screen() {\n    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {\n';
-  nodes.forEach(function(n) {
-    comp += '        // ' + n.type + ' (' + n.label + ')\n' +
-      '        Box(modifier = Modifier.offset(x = ' + Math.round(n.x) + '.dp, y = ' + Math.round(n.y) + '.dp)' +
-      '.size(width = ' + Math.round(n.width) + '.dp, height = ' + Math.round(n.height) + '.dp))\n';
+  let comp = 'package com.zipbug.generated.ui\n\n' +
+    'import androidx.compose.foundation.background\n' +
+    'import androidx.compose.foundation.layout.*\n' +
+    'import androidx.compose.material3.*\n' +
+    'import androidx.compose.runtime.Composable\n' +
+    'import androidx.compose.ui.Modifier\n' +
+    'import androidx.compose.ui.graphics.Color\n' +
+    'import androidx.compose.ui.unit.dp\n\n';
+
+  project.screens.forEach(s => {
+    const fnName = s.name.replace(/[^a-zA-Z0-9]/g, '') || 'Screen';
+    comp += '@Composable\nfun ' + fnName + 'Screen() {\n' +
+      '    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {\n';
+    s.nodes.forEach(n => {
+      comp += '        // ' + n.type + ' (' + n.label + ')\n' +
+        '        Box(modifier = Modifier.offset(x = ' + Math.round(n.x) + '.dp, y = ' + Math.round(n.y) + '.dp)' +
+        '.size(width = ' + Math.round(n.width) + '.dp, height = ' + Math.round(n.height) + '.dp))\n';
+    });
+    comp += '    }\n}\n\n';
   });
-  comp += '    }\n}';
 
   if (window.ZipBug && window.ZipBug.exportCompose) {
-    window.ZipBug.exportCompose('Screen', comp);
+    window.ZipBug.exportCompose(getActiveScreen().name, comp);
   } else {
     alert('Exported Compose:\n' + comp);
   }
 }
 
 function save() {
+  const active = getActiveScreen();
   let html = '<main style="position:relative;width:360px;min-height:640px;background:#1a1a1a">';
-  nodes.forEach(function(node) {
+  active.nodes.forEach(function(node) {
     html += '<div style="position:absolute;left:' +
       node.x + 'px;top:' + node.y +
       'px;width:' + node.width +
@@ -343,14 +498,22 @@ function save() {
   });
   html += '</main>';
 
+  persistProject();
+
   if (window.ZipBug) {
     ZipBug.save(
-      'screen-' + Date.now(),
-      JSON.stringify(nodes),
+      active.name,
+      JSON.stringify(project),
       html
     );
   }
 }
 
-// Initial node
-add('Button');
+// Initial setup: load from persistence or add default node
+loadPersistedProject();
+renderScreenSelect();
+if (getActiveNodes().length === 0) {
+  add('Button');
+} else {
+  render();
+}

@@ -51,13 +51,16 @@ class StudioModelsTest {
 
     @Test
     fun studioProjectToJsonSerializesCorrectly() {
-        val screen = StudioScreen(id = "s1", name = "Main")
-        val project = StudioProject(id = "p1", name = "TestProject", screens = mutableListOf(screen))
+        val screen1 = StudioScreen(id = "s1", name = "Main")
+        val screen2 = StudioScreen(id = "s2", name = "Settings")
+        val project = StudioProject(id = "p1", name = "TestProject", screens = mutableListOf(screen1, screen2))
 
         val json = project.toJson()
         assertEquals("p1", json.getString("id"))
         assertEquals("TestProject", json.getString("name"))
-        assertEquals(1, json.getJSONArray("screens").length())
+        assertEquals(2, json.getJSONArray("screens").length())
+        assertEquals("s1", json.getJSONArray("screens").getJSONObject(0).getString("id"))
+        assertEquals("s2", json.getJSONArray("screens").getJSONObject(1).getString("id"))
     }
 
     @Test

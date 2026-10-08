@@ -17,15 +17,21 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-enum class PipelineStage(val title: String) {
-    SOURCE("1. SOURCE"),
-    DOWNLOAD("2. DOWNLOAD"),
-    AUDIO("3. AUDIO (ffmpeg)"),
-    TRANSCRIBE("4. TRANSCRIBE"),
-    AI_RECAP("5. AI RECAP"),
-    TTS("6. TTS (Edge-TTS)"),
-    SUBTITLE("7. SUBTITLE"),
-    RENDER("8. RENDER")
+enum class StageMaturity(val label: String) {
+    IMPLEMENTED("REAL TOOL"),
+    PARTIAL("PARTIAL"),
+    NOT_IMPLEMENTED("NOT IMPLEMENTED")
+}
+
+enum class PipelineStage(val title: String, val maturity: StageMaturity) {
+    SOURCE("1. SOURCE", StageMaturity.IMPLEMENTED),
+    DOWNLOAD("2. DOWNLOAD", StageMaturity.IMPLEMENTED),
+    AUDIO("3. AUDIO (ffmpeg)", StageMaturity.IMPLEMENTED),
+    TRANSCRIBE("4. TRANSCRIBE", StageMaturity.PARTIAL),
+    AI_RECAP("5. AI RECAP", StageMaturity.IMPLEMENTED),
+    TTS("6. TTS (Edge-TTS)", StageMaturity.IMPLEMENTED),
+    SUBTITLE("7. SUBTITLE", StageMaturity.PARTIAL),
+    RENDER("8. RENDER", StageMaturity.PARTIAL)
 }
 
 enum class StageState(val label: String) {

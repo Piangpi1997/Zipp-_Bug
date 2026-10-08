@@ -56,6 +56,7 @@ class StudioFragment : Fragment() {
             ).apply { mkdirs() }
 
             File(dir, "$safeName.json").writeText(schema)
+            File(dir, "current_project.json").writeText(schema)
             File(dir, "$safeName.html").writeText(html)
 
             requireActivity().runOnUiThread {
@@ -65,6 +66,12 @@ class StudioFragment : Fragment() {
                     Snackbar.LENGTH_SHORT
                 ).show()
             }
+        }
+
+        @JavascriptInterface
+        fun loadProject(): String {
+            val file = File(File(requireContext().filesDir, "studio"), "current_project.json")
+            return if (file.exists()) file.readText() else ""
         }
 
         @JavascriptInterface
