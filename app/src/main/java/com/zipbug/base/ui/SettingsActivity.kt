@@ -20,6 +20,19 @@ class SettingsActivity : AppCompatActivity() {
             MODE_PRIVATE
         )
 
+        // One-time convenience migration for users who pasted an
+        // OpenRouter key into the old OpenAI-only field.
+        val savedOpenAi = secrets.get("openai")
+        val savedOpenRouter = secrets.get("openrouter")
+        if (
+            savedOpenRouter.isBlank() &&
+            savedOpenAi.startsWith("sk-or-")
+        ) {
+            secrets.put("openrouter", savedOpenAi)
+            secrets.put("openai", "")
+        }
+
+        binding.openrouter.setText(secrets.get("openrouter"))
         binding.openai.setText(secrets.get("openai"))
         binding.gemini.setText(secrets.get("gemini"))
         binding.anthropic.setText(secrets.get("anthropic"))
@@ -45,16 +58,20 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.save.setOnClickListener {
             secrets.put(
+                "openrouter",
+                binding.openrouter.text.toString().trim()
+            )
+            secrets.put(
                 "openai",
-                binding.openai.text.toString()
+                binding.openai.text.toString().trim()
             )
             secrets.put(
                 "gemini",
-                binding.gemini.text.toString()
+                binding.gemini.text.toString().trim()
             )
             secrets.put(
                 "anthropic",
-                binding.anthropic.text.toString()
+                binding.anthropic.text.toString().trim()
             )
 
             prefs.edit()
