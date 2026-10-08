@@ -36,6 +36,12 @@ class SettingsActivity : AppCompatActivity() {
                 "$home/OpenDots/Zip_Bug"
             )
         )
+        binding.artifactExportPath.setText(
+            prefs.getString(
+                "artifactExportPath",
+                "/storage/emulated/0/Download/Zip_Bug-debug.apk"
+            )
+        )
 
         binding.save.setOnClickListener {
             secrets.put(
@@ -59,6 +65,10 @@ class SettingsActivity : AppCompatActivity() {
                 .putString(
                     "projectRoot",
                     binding.projectRoot.text.toString()
+                )
+                .putString(
+                    "artifactExportPath",
+                    binding.artifactExportPath.text.toString()
                 )
                 .apply()
 
