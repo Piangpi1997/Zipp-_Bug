@@ -39,6 +39,13 @@ jobs:
       - name: Validate project
         run: python verify-project.py
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Studio editor tests
+        run: node --test app/src/test/js/studio-core.test.js
+
       - name: Unit tests
         run: gradle --no-daemon testDebugUnitTest
 

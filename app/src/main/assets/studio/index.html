@@ -1,27 +1,32 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>LIKEFIGMA Studio</title>
   <link rel="stylesheet" href="studio.css">
 </head>
 <body>
   <header>
     <b>ZIP_BUG // LIKEFIGMA STUDIO</b>
-    <button class="btn-tool" onclick="undo()" title="Undo">↩ Undo</button>
-    <button class="btn-tool" onclick="redo()" title="Redo">↪ Redo</button>
+    <span id="save-status" role="status" aria-live="polite">Loading project…</span>
+    <button class="btn-tool" id="undo-button" onclick="undo()" title="Undo (Ctrl/Cmd+Z)">↩ Undo</button>
+    <button class="btn-tool" id="redo-button" onclick="redo()" title="Redo (Ctrl/Cmd+Shift+Z)">↪ Redo</button>
     <button class="btn-export" onclick="exportXml()">Export XML</button>
     <button class="btn-export" onclick="exportCompose()">Export Compose</button>
     <button class="btn-save" onclick="save()">Save</button>
   </header>
+
   <div class="screen-bar">
-    <label style="color:#aaa;font-size:11px">Screen:</label>
+    <label for="screen-select">Screen:</label>
     <select id="screen-select" onchange="switchScreen(this.value)"></select>
     <button class="btn-small" onclick="newScreen()">+ Screen</button>
     <button class="btn-small" onclick="renameScreen()">Rename</button>
     <button class="btn-small" onclick="duplicateScreen()">Duplicate</button>
-    <button class="btn-small" onclick="deleteScreen()" style="background:#442222;color:#ff8888">Delete</button>
+    <button class="btn-small danger" onclick="deleteScreen()">Delete</button>
   </div>
-  <div class="toolbar">
+
+  <div class="toolbar" aria-label="Editor tools">
     <button onclick="add('Text')">+ Text</button>
     <button onclick="add('Button')">+ Button</button>
     <button onclick="add('Input')">+ Input</button>
@@ -29,60 +34,63 @@
     <button onclick="add('Image')">+ Image</button>
     <span class="sep"></span>
     <button onclick="duplicateSelected()">Duplicate</button>
-    <button onclick="deleteSelected()" style="background:#ff4d4d;color:#fff">Delete</button>
+    <button class="danger" onclick="deleteSelected()">Delete</button>
+    <label class="snap-control"><input id="snap-toggle" type="checkbox" checked onchange="setSnapEnabled(this.checked)"> Snap 8px</label>
+    <button onclick="alignSelected('left')" title="Align left edges">Align left</button>
+    <button onclick="alignSelected('centerX')" title="Align horizontal centers">Align center X</button>
+    <button onclick="alignSelected('top')" title="Align top edges">Align top</button>
+    <button onclick="alignSelected('centerY')" title="Align vertical centers">Align center Y</button>
+    <button onclick="distributeSelected('horizontal')" title="Distribute horizontally">Distribute H</button>
+    <button onclick="distributeSelected('vertical')" title="Distribute vertically">Distribute V</button>
   </div>
+
   <main>
-    <section id="canvas-wrapper">
-      <div id="canvas" class="phone"></div>
+    <section id="canvas-wrapper" aria-label="Design canvas">
+      <div id="canvas" class="phone grid-visible" aria-label="Phone screen preview"></div>
     </section>
     <aside>
       <h3>Layers</h3>
-      <div id="layers-list"></div>
+      <div id="layers-list" aria-label="Layers"></div>
+      <div class="field-row layer-actions">
+        <button class="btn-small" onclick="bringForward()">Bring up</button>
+        <button class="btn-small" onclick="sendBackward()">Send down</button>
+        <button class="btn-small" id="visibility-button" onclick="toggleVisibility()">Hide</button>
+      </div>
 
       <h3>Inspector</h3>
       <div class="field">
-        <label>Text / Content</label>
-        <input id="label" placeholder="Text" oninput="applyChanges()">
+        <label for="label">Text / Content</label>
+        <input id="label" placeholder="Select a layer" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled>
       </div>
       <div class="field-row">
-        <div>
-          <label>W</label>
-          <input id="prop-w" type="number" min="20" max="600" oninput="applyChanges()">
-        </div>
-        <div>
-          <label>H</label>
-          <input id="prop-h" type="number" min="20" max="800" oninput="applyChanges()">
-        </div>
+        <div><label for="prop-x">X</label><input id="prop-x" type="number" min="0" max="5000" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
+        <div><label for="prop-y">Y</label><input id="prop-y" type="number" min="0" max="5000" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
       </div>
       <div class="field-row">
-        <div>
-          <label>Font Size</label>
-          <input id="prop-font" type="number" min="8" max="48" oninput="applyChanges()">
-        </div>
-        <div>
-          <label>Radius</label>
-          <input id="radius" type="range" min="0" max="32" value="12" oninput="applyChanges()">
-        </div>
+        <div><label for="prop-w">W</label><input id="prop-w" type="number" min="20" max="1000" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
+        <div><label for="prop-h">H</label><input id="prop-h" type="number" min="20" max="1600" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
       </div>
       <div class="field-row">
-        <div>
-          <label>Fill</label>
-          <input id="color" type="color" value="#ff6b00" oninput="applyChanges()">
-        </div>
-        <div>
-          <label>Text Color</label>
-          <input id="text-color" type="color" value="#ffffff" oninput="applyChanges()">
-        </div>
+        <div><label for="prop-font">Font size</label><input id="prop-font" type="number" min="8" max="96" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
+        <div><label for="radius">Radius</label><input id="radius" type="range" min="0" max="64" value="12" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
       </div>
       <div class="field-row">
-        <button class="btn-small" onclick="bringForward()">Bring Up</button>
-        <button class="btn-small" onclick="sendBackward()">Send Down</button>
+        <div><label for="color">Fill</label><input id="color" type="color" value="#ff6b00" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
+        <div><label for="text-color">Text color</label><input id="text-color" type="color" value="#ffffff" onfocus="beginInspectorEdit()" oninput="applyChanges()" onchange="commitInspectorEdit()" onblur="commitInspectorEdit()" disabled></div>
       </div>
 
-      <h3>Schema JSON</h3>
-      <pre id="schema"></pre>
+      <h3>Import / recovery</h3>
+      <div class="field">
+        <label for="project-import">Import project JSON (supports legacy projects)</label>
+        <input id="project-import" type="file" accept="application/json,.json" onchange="importFromFile(this.files && this.files[0])">
+      </div>
+      <button class="btn-small" onclick="restoreLastGood()">Restore last good save</button>
+
+      <h3>Project schema</h3>
+      <pre id="schema" aria-label="Project JSON preview"></pre>
     </aside>
   </main>
+  <script src="studio-core.js"></script>
   <script src="studio.js"></script>
 </body>
 </html>
