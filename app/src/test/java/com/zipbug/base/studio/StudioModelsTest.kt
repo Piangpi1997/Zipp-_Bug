@@ -100,4 +100,75 @@ class StudioModelsTest {
         assertTrue(composeCode.contains("Refresh"))
         assertTrue(composeCode.contains("Button("))
     }
+
+    @Test
+    fun testMultiScreenLifecycleAndComponentMutation() {
+        // 1. Create Screen A
+        val screenA = StudioScreen(
+            id = "screen_a",
+            name = "WelcomeScreen",
+            components = mutableListOf(
+                StudioComponent(
+                    id = "comp_hero",
+                    type = "Image",
+                    name = "HeroImage",
+                    x = 0f,
+                    y = 0f,
+                    width = 320f,
+                    height = 200f
+                )
+            )
+        )
+
+        // 2. Create Screen B
+        val screenB = StudioScreen(
+            id = "screen_b",
+            name = "Profile",
+            components = mutableListOf(
+                StudioComponent(
+                    id = "comp_avatar",
+                    type = "Image",
+                    name = "Avatar",
+                    x = 16f,
+                    y = 16f,
+                    width = 80f,
+                    height = 80f
+                ),
+                StudioComponent(
+                    id = "comp_bio",
+                    type = "Text",
+                    name = "BioText",
+                    text = "Android & Kotlin Architect",
+                    x = 16f,
+                    y = 110f,
+                    width = 280f,
+                    height = 60f,
+                    textColor = "#39D98A"
+                )
+            )
+        )
+
+        val project = StudioProject(
+            id = "proj_multi",
+            name = "MultiScreenApp",
+            screens = mutableListOf(screenA, screenB)
+        )
+
+        // 3. Verify Project JSON Serialization
+        val json = project.toJson()
+        assertEquals(2, json.getJSONArray("screens").length())
+        val screenBJson = json.getJSONArray("screens").getJSONObject(1)
+        assertEquals("Profile", screenBJson.getString("name"))
+        assertEquals(2, screenBJson.getJSONArray("components").length())
+
+        // 4. Verify Layout Code Generation for Screen B
+        val xmlB = project.exportToAndroidXml(screenB)
+        assertTrue(xmlB.contains("@+id/comp_avatar"))
+        assertTrue(xmlB.contains("@+id/comp_bio"))
+        assertTrue(xmlB.contains("Android & Kotlin Architect"))
+
+        val composeB = project.exportToJetpackCompose(screenB)
+        assertTrue(composeB.contains("fun ProfileScreen()"))
+        assertTrue(composeB.contains("Android & Kotlin Architect"))
+    }
 }
