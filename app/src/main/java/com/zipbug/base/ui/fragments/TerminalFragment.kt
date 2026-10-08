@@ -24,6 +24,7 @@ class TerminalFragment : Fragment() {
     private var _binding: FragmentTerminalBinding? = null
     private val binding get() = _binding!!
     private var pendingPermissionAction: (() -> Unit)? = null
+    private var lastFailedJob: BuildJobEntity? = null
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -100,10 +101,24 @@ class TerminalFragment : Fragment() {
             }
         }
 
-        binding.doctor.setOnClickListener {
-            withTermuxPermission {
-                runDoctor()
+        binding.btnDeviceProof.setOnClickListener {
+            startActivity(android.content.Intent(requireContext(), com.zipbug.base.ui.DeviceVerificationActivity::class.java))
+        }
+
+        binding.btnFixErrorWithAi.setOnClickListener {
+            val job = lastFailedJob ?: return@setOnClickListener
+            val rawLog = (job.stderr + "\n" + job.stdout + "\n" + job.errorMessage).trim()
+            val errors = com.zipbug.base.repair.CompilerErrorParser.parseErrors(rawLog)
+            val projectName = java.io.File(job.workDir).name.ifBlank { "Project" }
+            val prompt = if (errors.isNotEmpty()) {
+                com.zipbug.base.repair.CompilerErrorParser.buildAiRepairPrompt(projectName, errors, rawLog.take(2000))
+            } else {
+                "Build job '${job.tool}' failed with exitCode ${job.exitCode}.\n\nFailure Log:\n${rawLog.take(2000)}\n\nPlease analyze the root cause and propose a targeted patch."
             }
+            (requireActivity() as? com.zipbug.base.ui.MainActivity)?.navigateToAiWithPrompt(
+                prompt,
+                com.zipbug.base.ai.AiMode.FIX_ERROR
+            )
         }
 
         observeLatestJob()
@@ -148,6 +163,14 @@ class TerminalFragment : Fragment() {
     }
 
     private fun render(job: BuildJobEntity) {
+        val isFailed = job.status == BuildJobEntity.FAILED || (job.exitCode != null && job.exitCode != 0)
+        if (isFailed) {
+            lastFailedJob = job
+            binding.btnFixErrorWithAi.visibility = View.VISIBLE
+        } else {
+            binding.btnFixErrorWithAi.visibility = View.GONE
+        }
+
         val exit = job.exitCode?.let {
             "\nexitCode: $it"
         }.orEmpty()

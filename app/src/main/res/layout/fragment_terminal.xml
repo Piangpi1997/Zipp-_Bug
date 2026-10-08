@@ -89,11 +89,11 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/doctor"
+            android:id="@+id/btnDeviceProof"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="Engine Diagnostics (15 Checks)"
+            android:text="Device Proof &amp; Checks"
             android:textSize="12sp" />
 
         <Button
@@ -137,4 +137,14 @@
         android:textColor="@color/z_green"
         android:textIsSelectable="true"
         android:textSize="13sp" />
+
+    <Button
+        android:id="@+id/btnFixErrorWithAi"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:backgroundTint="@color/z_orange"
+        android:text="Fix Error with AI"
+        android:textColor="#111111"
+        android:visibility="gone" />
 </LinearLayout>

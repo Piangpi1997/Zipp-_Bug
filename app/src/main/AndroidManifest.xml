@@ -34,6 +34,8 @@
         <activity android:name=".ui.AppCreatorActivity" android:exported="false" />
         <activity android:name=".ui.WebRuntimeActivity" android:exported="false" />
         <activity android:name=".ui.MediaRecapActivity" android:exported="false" />
+        <activity android:name=".ui.DeviceVerificationActivity" android:exported="false" />
+        <activity android:name=".ui.SigningDiagnosticsActivity" android:exported="false" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.MainActivity" android:exported="true">
             <intent-filter>
