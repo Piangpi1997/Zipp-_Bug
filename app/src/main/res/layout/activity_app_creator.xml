@@ -52,10 +52,17 @@
             android:textColorHint="@color/z_muted" />
 
         <Button
-            android:id="@+id/create"
+            android:id="@+id/createAndroid"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:text="Create Source ZIP" />
+            android:text="Create Kotlin/XML Android ZIP" />
+
+        <Button
+            android:id="@+id/createWeb"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="Create HTML/JS/JSON Mini-App ZIP" />
 
         <TextView
             android:id="@+id/result"
