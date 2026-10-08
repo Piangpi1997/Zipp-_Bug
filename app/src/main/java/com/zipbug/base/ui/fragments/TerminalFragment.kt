@@ -134,6 +134,13 @@ class TerminalFragment : Fragment() {
                     .collect { job ->
                         if (job != null && _binding != null) {
                             render(job)
+                            if (job.status == BuildJobEntity.SUCCESS && (job.tool == "gradle" || job.argsJson.contains("assemble"))) {
+                                launch {
+                                    runCatching {
+                                        com.zipbug.base.artifact.ApkArtifactScanner.scanAndPersist(requireContext())
+                                    }
+                                }
+                            }
                         }
                     }
             }

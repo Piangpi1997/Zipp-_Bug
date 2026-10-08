@@ -10,14 +10,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         ProjectEntity::class,
-        BuildJobEntity::class
+        BuildJobEntity::class,
+        ApkArtifactEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class ZipBugDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
     abstract fun buildJobDao(): BuildJobDao
+    abstract fun apkArtifactDao(): ApkArtifactDao
 
     companion object {
         @Volatile private var INSTANCE: ZipBugDatabase? = null
@@ -46,13 +48,36 @@ abstract class ZipBugDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS apk_artifacts (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        filePath TEXT NOT NULL,
+                        fileName TEXT NOT NULL,
+                        packageName TEXT NOT NULL,
+                        versionName TEXT NOT NULL,
+                        versionCode INTEGER NOT NULL,
+                        minSdk INTEGER NOT NULL,
+                        targetSdk INTEGER NOT NULL,
+                        sizeBytes INTEGER NOT NULL,
+                        sha256 TEXT NOT NULL,
+                        signerCertificateSha256 TEXT,
+                        discoveredAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun get(context: Context): ZipBugDatabase = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Room.databaseBuilder(
                 context.applicationContext,
                 ZipBugDatabase::class.java,
                 "zipbug.db"
             )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
                 .also { INSTANCE = it }
         }

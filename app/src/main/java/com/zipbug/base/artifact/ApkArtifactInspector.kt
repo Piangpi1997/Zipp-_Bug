@@ -8,6 +8,13 @@ import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
 
+enum class InstallSafetyStatus(val label: String) {
+    SAFE_UPDATE("SAFE UPDATE"),
+    SIGNER_CONFLICT("SIGNER CONFLICT"),
+    NEW_INSTALL("NEW INSTALL"),
+    UNKNOWN("UNKNOWN")
+}
+
 data class ApkMetadata(
     val file: File,
     val packageName: String,
@@ -21,8 +28,22 @@ data class ApkMetadata(
     val isInstalled: Boolean = false,
     val installedVersionName: String? = null,
     val installedVersionCode: Long? = null,
+    val installedSignerSha256: String? = null,
     val signerConflict: Boolean = false
-)
+) {
+    val safetyStatus: InstallSafetyStatus
+        get() = when {
+            !isInstalled -> InstallSafetyStatus.NEW_INSTALL
+            signerConflict -> InstallSafetyStatus.SIGNER_CONFLICT
+            signerCertificateSha256 != null && !signerConflict -> InstallSafetyStatus.SAFE_UPDATE
+            else -> InstallSafetyStatus.UNKNOWN
+        }
+
+    val conflictExplanation: String?
+        get() = if (safetyStatus == InstallSafetyStatus.SIGNER_CONFLICT) {
+            "Same package name is already installed but signed with a different key."
+        } else null
+}
 
 object ApkArtifactInspector {
 
@@ -71,12 +92,19 @@ object ApkArtifactInspector {
                         apkSignerHash = hashBytesSha256(sigs[0].toByteArray())
                     }
                 }
+            } else {
+                @Suppress("DEPRECATION")
+                val sigs = archiveInfo.signatures
+                if (!sigs.isNullOrEmpty()) {
+                    apkSignerHash = hashBytesSha256(sigs[0].toByteArray())
+                }
             }
 
             // Check installed version & compare signers
-            var isInstalled = false
+            var isInstalled: Boolean
             var installedVerName: String? = null
             var installedVerCode: Long? = null
+            var installedSignerHash: String? = null
             var signerConflict = false
 
             try {
@@ -90,7 +118,7 @@ object ApkArtifactInspector {
                     installedInfo.versionCode.toLong()
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && apkSignerHash != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     val installedSigning = installedInfo.signingInfo
                     if (installedSigning != null) {
                         val installedSigs = if (installedSigning.hasMultipleSigners()) {
@@ -99,11 +127,20 @@ object ApkArtifactInspector {
                             installedSigning.signingCertificateHistory
                         }
                         if (!installedSigs.isNullOrEmpty()) {
-                            val installedSignerHash = hashBytesSha256(installedSigs[0].toByteArray())
-                            if (installedSignerHash != apkSignerHash) {
-                                signerConflict = true
-                            }
+                            installedSignerHash = hashBytesSha256(installedSigs[0].toByteArray())
                         }
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    val installedSigs = installedInfo.signatures
+                    if (!installedSigs.isNullOrEmpty()) {
+                        installedSignerHash = hashBytesSha256(installedSigs[0].toByteArray())
+                    }
+                }
+
+                if (apkSignerHash != null && installedSignerHash != null) {
+                    if (apkSignerHash != installedSignerHash) {
+                        signerConflict = true
                     }
                 }
             } catch (_: PackageManager.NameNotFoundException) {
@@ -123,6 +160,7 @@ object ApkArtifactInspector {
                 isInstalled = isInstalled,
                 installedVersionName = installedVerName,
                 installedVersionCode = installedVerCode,
+                installedSignerSha256 = installedSignerHash,
                 signerConflict = signerConflict
             )
         }
@@ -145,3 +183,4 @@ object ApkArtifactInspector {
         return digest.digest(bytes).joinToString("") { "%02x".format(it) }
     }
 }
+
