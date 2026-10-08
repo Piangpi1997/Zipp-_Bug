@@ -1,0 +1,61 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI Provider Keys"
+            android:textColor="@color/z_text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/openai"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="OpenAI API key"
+            android:inputType="textPassword"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/gemini"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Gemini API key"
+            android:inputType="textPassword"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/anthropic"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Claude API key"
+            android:inputType="textPassword"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/termuxHome"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Termux working directory"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Save encrypted settings" />
+    </LinearLayout>
+</ScrollView>
