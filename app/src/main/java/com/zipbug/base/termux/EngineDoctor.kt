@@ -19,6 +19,7 @@ checks = {
     "aapt2": shutil.which("aapt2"),
     "ffmpeg": shutil.which("ffmpeg"),
     "yt-dlp": shutil.which("yt-dlp"),
+    "edge-tts": shutil.which("edge-tts"),
     "sdk34": os.path.isfile(os.path.join(sdk, "platforms", "android-34", "android.jar")) if sdk else False,
 }
 
