@@ -65,6 +65,13 @@
         android:text="Run approved tool" />
 
     <Button
+        android:id="@+id/doctor"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="6dp"
+        android:text="Termux Doctor • Java / Gradle / SDK 34" />
+
+    <Button
         android:id="@+id/buildApk"
         android:layout_width="match_parent"
         android:layout_height="52dp"
