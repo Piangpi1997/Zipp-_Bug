@@ -15,25 +15,51 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val secrets = SecretStore(this)
-        val prefs = getSharedPreferences("zipbug.settings", MODE_PRIVATE)
+        val prefs = getSharedPreferences(
+            "zipbug.settings",
+            MODE_PRIVATE
+        )
 
         binding.openai.setText(secrets.get("openai"))
         binding.gemini.setText(secrets.get("gemini"))
         binding.anthropic.setText(secrets.get("anthropic"))
-        binding.termuxHome.setText(
+
+        val home = prefs.getString(
+            "termuxHome",
+            "/data/data/com.termux/files/home"
+        )!!
+
+        binding.termuxHome.setText(home)
+        binding.projectRoot.setText(
             prefs.getString(
-                "termuxHome",
-                "/data/data/com.termux/files/home"
+                "projectRoot",
+                "$home/OpenDots/Zip_Bug"
             )
         )
 
         binding.save.setOnClickListener {
-            secrets.put("openai", binding.openai.text.toString())
-            secrets.put("gemini", binding.gemini.text.toString())
-            secrets.put("anthropic", binding.anthropic.text.toString())
+            secrets.put(
+                "openai",
+                binding.openai.text.toString()
+            )
+            secrets.put(
+                "gemini",
+                binding.gemini.text.toString()
+            )
+            secrets.put(
+                "anthropic",
+                binding.anthropic.text.toString()
+            )
 
             prefs.edit()
-                .putString("termuxHome", binding.termuxHome.text.toString())
+                .putString(
+                    "termuxHome",
+                    binding.termuxHome.text.toString()
+                )
+                .putString(
+                    "projectRoot",
+                    binding.projectRoot.text.toString()
+                )
                 .apply()
 
             Snackbar.make(
