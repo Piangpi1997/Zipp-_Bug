@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,6 +20,26 @@ import kotlinx.coroutines.launch
 class TerminalFragment : Fragment() {
     private var _binding: FragmentTerminalBinding? = null
     private val binding get() = _binding!!
+    private var pendingPermissionAction: (() -> Unit)? = null
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val action = pendingPermissionAction
+        pendingPermissionAction = null
+
+        if (granted) {
+            action?.invoke()
+        } else if (_binding != null) {
+            binding.engineState.text = "ENGINE • PERMISSION REQUIRED"
+            binding.output.text =
+                "Zip_Bug needs Android permission:\n" +
+                    "Run commands in Termux environment\n\n" +
+                    "Open Android Settings → Apps → Zip_Bug Studio → " +
+                    "Permissions → Additional permissions → " +
+                    "Run commands in Termux environment → Allow."
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +59,9 @@ class TerminalFragment : Fragment() {
         savedInstanceState: Bundle?
     ) {
         binding.run.setOnClickListener {
-            runCommand(binding.command.text.toString())
+            withTermuxPermission {
+                runCommand(binding.command.text.toString())
+            }
         }
 
         binding.ffmpeg.setOnClickListener {
@@ -55,14 +78,32 @@ class TerminalFragment : Fragment() {
 
         binding.buildApk.setOnClickListener {
             binding.command.setText("/apkbuilder")
-            runCommand("/apkbuilder")
+            withTermuxPermission {
+                runCommand("/apkbuilder")
+            }
         }
 
         binding.doctor.setOnClickListener {
-            runDoctor()
+            withTermuxPermission {
+                runDoctor()
+            }
         }
 
         observeLatestJob()
+    }
+
+    private fun withTermuxPermission(
+        action: () -> Unit
+    ) {
+        if (TermuxBridge.hasPermission(requireContext())) {
+            action()
+            return
+        }
+
+        pendingPermissionAction = action
+        permissionLauncher.launch(
+            TermuxBridge.PERMISSION_RUN_COMMAND
+        )
     }
 
     private fun observeLatestJob() {
