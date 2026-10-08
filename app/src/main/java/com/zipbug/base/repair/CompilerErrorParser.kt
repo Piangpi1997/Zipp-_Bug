@@ -55,6 +55,56 @@ Analyze the compiler errors and provide a targeted patch proposal in JSON format
   "replacementSnippet": "fixed code block",
   "explanation": "why this fixes the compilation error"
 }
-""".trimIndent()
+        """.trimIndent()
+    }
+
+    fun parsePatchProposal(rawResponse: String): Result<PatchProposal> {
+        return runCatching {
+            var cleaned = rawResponse.trim()
+            if (cleaned.startsWith("```json")) {
+                cleaned = cleaned.removePrefix("```json")
+            } else if (cleaned.startsWith("```")) {
+                cleaned = cleaned.removePrefix("```")
+            }
+            if (cleaned.endsWith("```")) {
+                cleaned = cleaned.removeSuffix("```")
+            }
+            cleaned = cleaned.trim()
+
+            val firstBrace = cleaned.indexOf('{')
+            val lastBrace = cleaned.lastIndexOf('}')
+            if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+                cleaned = cleaned.substring(firstBrace, lastBrace + 1)
+            }
+
+            val obj = org.json.JSONObject(cleaned)
+            PatchProposal(
+                targetFile = obj.getString("targetFile"),
+                originalSnippet = obj.getString("originalSnippet"),
+                replacementSnippet = obj.getString("replacementSnippet"),
+                explanation = obj.optString("explanation", "")
+            )
+        }
+    }
+
+    fun applyPatch(projectRoot: java.io.File, patch: PatchProposal): Result<java.io.File> {
+        return runCatching {
+            val cleanRelPath = patch.targetFile.trimStart('/', '\\')
+            require(!cleanRelPath.contains("..")) { "Path traversal rejected: ${patch.targetFile}" }
+
+            val targetFile = java.io.File(projectRoot, cleanRelPath)
+            if (!targetFile.exists()) {
+                throw java.io.FileNotFoundException("Target file not found: ${targetFile.absolutePath}")
+            }
+
+            val content = targetFile.readText(Charsets.UTF_8)
+            if (!content.contains(patch.originalSnippet)) {
+                throw IllegalStateException("Original snippet not found in ${targetFile.name}")
+            }
+
+            val newContent = content.replace(patch.originalSnippet, patch.replacementSnippet)
+            targetFile.writeText(newContent, Charsets.UTF_8)
+            targetFile
+        }
     }
 }

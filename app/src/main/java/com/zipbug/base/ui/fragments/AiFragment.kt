@@ -222,11 +222,58 @@ class AiFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             val result = repository.complete(request)
-            binding.output.setText(
-                result.getOrElse {
-                    "Error: ${it.message}"
+            result.onSuccess { text ->
+                binding.output.setText(text)
+
+                when (selectedMode) {
+                    AiMode.APP_CREATOR -> {
+                        val parsed = com.zipbug.base.creator.AppCreatorParser.parse(text)
+                        if (parsed.isSuccess) {
+                            binding.reviewAction.isVisible = true
+                            binding.reviewAction.text = "Review Spec"
+                            binding.reviewAction.setOnClickListener {
+                                val sheet = com.zipbug.base.ui.AppSpecReviewBottomSheetDialogFragment.newInstance(text)
+                                sheet.onRegenerateRequested = { sendPrompt() }
+                                sheet.show(parentFragmentManager, com.zipbug.base.ui.AppSpecReviewBottomSheetDialogFragment.TAG)
+                            }
+                            // Proactively present review sheet
+                            val sheet = com.zipbug.base.ui.AppSpecReviewBottomSheetDialogFragment.newInstance(text)
+                            sheet.onRegenerateRequested = { sendPrompt() }
+                            sheet.show(parentFragmentManager, com.zipbug.base.ui.AppSpecReviewBottomSheetDialogFragment.TAG)
+                        } else {
+                            binding.reviewAction.isVisible = false
+                        }
+                    }
+
+                    AiMode.FIX_ERROR -> {
+                        val parsedPatch = com.zipbug.base.repair.CompilerErrorParser.parsePatchProposal(text)
+                        if (parsedPatch.isSuccess) {
+                            val prefs = requireContext().getSharedPreferences("zipbug.settings", 0)
+                            val home = prefs.getString("termuxHome", "/data/data/com.termux/files/home")!!
+                            val projectRoot = prefs.getString("projectRoot", "$home/OpenDots/Zip_Bug_Antigravity")!!
+
+                            binding.reviewAction.isVisible = true
+                            binding.reviewAction.text = "Review Patch"
+                            binding.reviewAction.setOnClickListener {
+                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                                sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
+                            }
+                            // Proactively present review sheet
+                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                            sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
+                        } else {
+                            binding.reviewAction.isVisible = false
+                        }
+                    }
+
+                    else -> {
+                        binding.reviewAction.isVisible = false
+                    }
                 }
-            )
+            }.onFailure { err ->
+                binding.reviewAction.isVisible = false
+                binding.output.setText("Error: ${err.message}")
+            }
         }
     }
 

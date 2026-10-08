@@ -51,4 +51,39 @@ class CompilerErrorParserTest {
         assertTrue(prompt.contains("MainActivity.kt:10"))
         assertTrue(prompt.contains("Unresolved reference"))
     }
+
+    @Test
+    fun parseAndApplyPatchProposal() {
+        val jsonPatch = """
+        ```json
+        {
+          "targetFile": "src/Main.kt",
+          "originalSnippet": "val a = 1",
+          "replacementSnippet": "val a = 2",
+          "explanation": "Update constant"
+        }
+        ```
+        """.trimIndent()
+
+        val patchResult = CompilerErrorParser.parsePatchProposal(jsonPatch)
+        assertTrue(patchResult.isSuccess)
+        val patch = patchResult.getOrThrow()
+        assertEquals("src/Main.kt", patch.targetFile)
+        assertEquals("val a = 1", patch.originalSnippet)
+        assertEquals("val a = 2", patch.replacementSnippet)
+
+        val tempDir = java.io.File(System.getProperty("java.io.tmpdir"), "zipbug_test_${System.currentTimeMillis()}").apply { mkdirs() }
+        try {
+            val srcDir = java.io.File(tempDir, "src").apply { mkdirs() }
+            val mainFile = java.io.File(srcDir, "Main.kt")
+            mainFile.writeText("fun test() {\n    val a = 1\n}\n")
+
+            val applyResult = CompilerErrorParser.applyPatch(tempDir, patch)
+            assertTrue(applyResult.isSuccess)
+            val updated = mainFile.readText()
+            assertTrue(updated.contains("val a = 2"))
+        } finally {
+            tempDir.deleteRecursively()
+        }
+    }
 }
