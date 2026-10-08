@@ -1,10 +1,25 @@
 package com.zipbug.base.ai
 
-enum class AiProvider(val label: String) {
-    OPENROUTER("OpenRouter • Free"),
-    OPENAI("OpenAI"),
-    GEMINI("Gemini"),
-    ANTHROPIC("Claude")
+enum class AiProvider(
+    val label: String,
+    val defaultModel: String
+) {
+    OPENROUTER(
+        "OpenRouter • Free",
+        "openrouter/free"
+    ),
+    OPENAI(
+        "OpenAI",
+        "gpt-4.1-mini"
+    ),
+    GEMINI(
+        "Gemini",
+        "gemini-2.5-flash"
+    ),
+    ANTHROPIC(
+        "Claude",
+        "claude-sonnet-4-5"
+    )
 }
 
 data class AiRequest(
