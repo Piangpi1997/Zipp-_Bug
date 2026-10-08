@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.zipbug.base.databinding.FragmentHomeBinding
 import com.zipbug.base.ui.MediaRecapActivity
 import com.zipbug.base.ui.AppCreatorActivity
+import com.zipbug.base.ui.TtsStudioActivity
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -33,6 +34,12 @@ class HomeFragment : Fragment() {
         binding.appCreator.setOnClickListener {
             startActivity(
                 Intent(requireContext(), AppCreatorActivity::class.java)
+            )
+        }
+
+        binding.ttsStudio.setOnClickListener {
+            startActivity(
+                Intent(requireContext(), TtsStudioActivity::class.java)
             )
         }
     }
