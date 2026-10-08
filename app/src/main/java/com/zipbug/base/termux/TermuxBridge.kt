@@ -26,7 +26,8 @@ object TermuxBridge {
         "aapt2" to "aapt2",
         "zipalign" to "zipalign",
         "apksigner" to "apksigner",
-        "cp" to "cp"
+        "cp" to "cp",
+        "edge-tts" to "edge-tts"
     )
 
     data class Request(
