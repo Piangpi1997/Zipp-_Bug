@@ -22,8 +22,8 @@
 - **Target Branch HEAD**: `feat/antigravity-studio-v2`
 - **Release Candidate Classification**: `BUILD VERIFIED / PHYSICAL PROOF PENDING`
 - **Build Artifact**: `app/build/outputs/apk/debug/app-debug.apk`
-- **APK File Size**: `7,007,064` bytes (~6.68 MB)
-- **APK SHA-256**: `F0260B259E9B464A32945B7BF0592618A058456F62F9CCC9DD3537E5C85B8180`
+- **APK File Size**: `7,008,724` bytes (~6.68 MB)
+- **APK SHA-256**: `45AACDF38CAF73E9A6BACF52629A779CDDBEA4F1C4C824C2FBD20036ACC3A276`
 - **Signer Certificate**: `CN=Android Debug, O=Android, C=US`
 - **Signer SHA-256**: `ec416f8a9e9a28b4b36478f76ce7bcf624ac711965fafaa310711b279a2b830a`
 - **Signature Scheme**: APK Signature Scheme v2 (`true`), RSA 2048-bit
