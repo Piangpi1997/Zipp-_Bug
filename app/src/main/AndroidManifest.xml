@@ -12,6 +12,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.ZipBug">
+        <service android:name=".termux.TermuxResultService" android:exported="false" />
         <activity android:name=".ui.WebRuntimeActivity" android:exported="false" />
         <activity android:name=".ui.MediaRecapActivity" android:exported="false" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
