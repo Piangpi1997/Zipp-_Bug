@@ -17,6 +17,13 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="Keys are encrypted locally with Android Keystore."
+            android:textColor="@color/z_muted" />
+
         <EditText
             android:id="@+id/openai"
             android:layout_width="match_parent"
@@ -44,11 +51,30 @@
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Termux Engine"
+            android:textColor="@color/z_text"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
         <EditText
             android:id="@+id/termuxHome"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Termux working directory"
+            android:hint="Termux home"
+            android:singleLine="true"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/projectRoot"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Default Android project root"
+            android:singleLine="true"
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
@@ -56,6 +82,7 @@
             android:id="@+id/save"
             android:layout_width="match_parent"
             android:layout_height="52dp"
+            android:layout_marginTop="12dp"
             android:text="Save encrypted settings" />
     </LinearLayout>
 </ScrollView>
