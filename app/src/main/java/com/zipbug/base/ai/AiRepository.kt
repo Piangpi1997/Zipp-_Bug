@@ -44,22 +44,26 @@ class AiRepository {
                 return Result.failure(IllegalArgumentException("API key is empty"))
             }
             val key = req.apiKey.trim()
-            val expectedProvider = when {
-                key.startsWith("sk-or-") -> AiProvider.OPENROUTER
-                key.startsWith("sk-ant-") -> AiProvider.ANTHROPIC
-                key.startsWith("sk-proj-") -> AiProvider.OPENAI
-                key.startsWith("AIza") -> AiProvider.GEMINI
+            val recognizedKey = when {
+                key.startsWith("sk-or-") ->
+                    Triple("sk-or-", AiProvider.OPENROUTER, "OpenRouter")
+                key.startsWith("sk-ant-") ->
+                    Triple("sk-ant-", AiProvider.ANTHROPIC, "Anthropic")
+                key.startsWith("sk-proj-") ->
+                    Triple("sk-proj-", AiProvider.OPENAI, "OpenAI")
+                key.startsWith("AIza") ->
+                    Triple("AIza", AiProvider.GEMINI, "Gemini")
                 else -> null
             }
 
             if (
-                expectedProvider != null &&
-                req.provider != expectedProvider
+                recognizedKey != null &&
+                req.provider != recognizedKey.second
             ) {
                 return Result.failure(
                     IllegalArgumentException(
-                        "This API key prefix belongs to " +
-                            expectedProvider.label +
+                        "API key prefix '${recognizedKey.first}' belongs to " +
+                            recognizedKey.third +
                             " and will not be sent to " +
                             req.provider.label +
                             "."
