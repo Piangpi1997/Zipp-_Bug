@@ -3,6 +3,7 @@ package com.zipbug.base.creator
 import android.content.Context
 import com.zipbug.base.ZipBugApp
 import com.zipbug.base.data.ProjectEntity
+import com.zipbug.base.termux.LogSanitizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -38,6 +39,15 @@ object AppProjectGenerator {
 
                 for (generatedFile in spec.files) {
                     val cleanPath = normalizeRelativePath(generatedFile.path)
+                    require(
+                        !LogSanitizer.containsRecognizableSecret(
+                            generatedFile.content
+                        )
+                    ) {
+                        "Generated file contains a recognizable API key/token: " +
+                            cleanPath +
+                            ". Remove the secret and regenerate."
+                    }
                     allFiles[cleanPath] = generatedFile.content
                 }
 
