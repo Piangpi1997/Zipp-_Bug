@@ -11,6 +11,13 @@ object LogSanitizer {
         Regex("""(?i)(api[_-]?key\s*[:=]\s*)[a-zA-Z0-9_\-\.]{16,}""")
     )
 
+    fun containsRecognizableSecret(raw: String?): Boolean {
+        if (raw.isNullOrBlank()) return false
+        return SECRET_PATTERNS.any { pattern ->
+            pattern.containsMatchIn(raw)
+        }
+    }
+
     /**
      * Redacts known API keys and tokens, then bounds total text length to prevent
      * SQLite CursorWindow exceptions.
