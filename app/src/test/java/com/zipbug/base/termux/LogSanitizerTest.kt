@@ -122,4 +122,28 @@ class LogSanitizerTest {
         }
     }
 
+
+    @Test
+    fun testTermuxBridgeRejectsUserInlinePython() {
+        var thrown = false
+        try {
+            TermuxBridge.validateArguments(
+                "python",
+                listOf("-c", "print('unsafe')")
+            )
+        } catch (e: IllegalArgumentException) {
+            thrown = true
+        }
+        assertTrue("User /termux Python -c must be blocked", thrown)
+    }
+
+    @Test
+    fun testTermuxBridgeAllowsFixedInternalInlinePython() {
+        TermuxBridge.validateArguments(
+            "python",
+            listOf("-c", "print('internal')"),
+            allowInlineCode = true
+        )
+    }
+
 }
