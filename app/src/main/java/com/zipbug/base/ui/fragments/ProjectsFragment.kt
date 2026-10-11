@@ -254,23 +254,42 @@ class ProjectsFragment : Fragment() {
         }
 
         val btnBuild = Button(requireContext()).apply {
-            val termuxAccessible = project.rootPath.startsWith("/data/data/com.termux/files/")
-            text = if (termuxAccessible) "Build APK" else "Needs Termux workspace"
-            visibility = if (isAndroidProject(project)) View.VISIBLE else View.GONE
-            setBackgroundColor(ContextCompat.getColor(context, R.color.z_orange))
+            val termuxAccessible =
+                project.rootPath.startsWith("/data/data/com.termux/files/")
+            text =
+                if (termuxAccessible) "Build APK"
+                else "Export Source ZIP"
+            visibility =
+                if (isAndroidProject(project)) View.VISIBLE
+                else View.GONE
+            setBackgroundColor(
+                ContextCompat.getColor(context, R.color.z_orange)
+            )
             setTextColor(0xFF111111.toInt())
-            layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                44 * resources.displayMetrics.density.toInt(),
+                1f
+            ).apply {
                 marginEnd = 6
             }
             setOnClickListener {
                 if (termuxAccessible) {
-                    buildAndInspectProject(project)
+                    (activity as? MainActivity)?.navigateToTerminal(
+                        "/apkbuilder --debug \"" +
+                            project.rootPath +
+                            "\""
+                    )
                 } else {
-                    Snackbar.make(
-                        binding.root,
-                        "This Android project is inside the Zip_Bug sandbox. Transfer it to a Termux workspace before a real Gradle build.",
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                    pendingSourceExport = project
+                    val filename = project.name
+                        .replace(
+                            Regex("[^a-zA-Z0-9._-]"),
+                            "_"
+                        )
+                        .ifBlank { "ZipBugProject" } +
+                        "-source.zip"
+                    exportProjectSource.launch(filename)
                 }
             }
         }
@@ -336,52 +355,6 @@ class ProjectsFragment : Fragment() {
             File(project.rootPath, "settings.gradle.kts").isFile ||
             File(project.rootPath, "settings.gradle").isFile
 
-    private fun buildAndInspectProject(project: ProjectEntity) {
-        val app = requireActivity().application as ZipBugApp
-        Snackbar.make(binding.root, "Queuing Gradle build for '${project.name}'…", Snackbar.LENGTH_SHORT).show()
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val req = com.zipbug.base.termux.TermuxBridge.Request(
-                tool = "gradle",
-                args = listOf("--no-daemon", "assembleDebug"),
-                workDir = project.rootPath,
-                label = "Build ${project.name}"
-            )
-
-            val sendResult = com.zipbug.base.termux.TermuxBridge.send(requireContext(), req)
-            if (sendResult.isFailure) {
-                Snackbar.make(binding.root, "Build failed before dispatch: ${sendResult.exceptionOrNull()?.message}", Snackbar.LENGTH_LONG).show()
-                return@launch
-            }
-
-            val jobId = sendResult.getOrThrow()
-            Snackbar.make(binding.root, "Build running (jobId: $jobId)… Waiting for output", Snackbar.LENGTH_LONG).show()
-
-            val job = app.database.buildJobDao().observe(jobId)
-                .filterNotNull()
-                .filter { it.status != com.zipbug.base.data.BuildJobEntity.RUNNING }
-                .first()
-
-            if (job.status == BuildJobEntity.SUCCESS && job.exitCode == 0) {
-                // Discover and inspect newest APK
-                ApkArtifactScanner.scanAndPersist(requireContext(), listOf(File(project.rootPath)))
-                val artifacts = app.database.apkArtifactDao().listAll()
-                val newestApk = artifacts.firstOrNull {
-                    it.filePath.startsWith(project.rootPath)
-                }
-
-                if (newestApk != null) {
-                    ApkDetailBottomSheetDialogFragment.newInstance(newestApk.filePath)
-                        .show(parentFragmentManager, ApkDetailBottomSheetDialogFragment.TAG)
-                } else {
-                    Snackbar.make(binding.root, "Build succeeded, but no APK artifact found in output directory", Snackbar.LENGTH_LONG).show()
-                }
-                renderArtifacts()
-            } else {
-                Snackbar.make(binding.root, "Build failed (exit ${job.exitCode}). Tap Terminal to fix with AI.", Snackbar.LENGTH_LONG).show()
-            }
-        }
-    }
 
     private fun renderArtifacts() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -456,6 +429,7 @@ class ProjectsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        pendingSourceExport = null
         super.onDestroyView()
         _binding = null
     }
