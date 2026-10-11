@@ -54,7 +54,8 @@ object TermuxBridge {
         val tool: String,
         val args: List<String>,
         val workDir: String = "/data/data/com.termux/files/home",
-        val label: String = "Zip_Bug command"
+        val label: String = "Zip_Bug command",
+        val allowInlineCode: Boolean = false
     )
 
     suspend fun send(
@@ -94,7 +95,11 @@ object TermuxBridge {
                 "Work directory must resolve inside Termux storage"
             }
 
-            validateArguments(request.tool, request.args)
+            validateArguments(
+                request.tool,
+                request.args,
+                request.allowInlineCode
+            )
 
             val resultIntent = Intent(
                 appContext,
@@ -183,12 +188,22 @@ object TermuxBridge {
         return result
     }
 
-    fun validateArguments(tool: String, args: List<String>) {
+    fun validateArguments(
+        tool: String,
+        args: List<String>,
+        allowInlineCode: Boolean = false
+    ) {
         require(
             args.none { arg ->
                 arg.contains('\u0000') || arg.length > 4096
             }
         ) { "Invalid argument: contains null byte or exceeds 4096 characters" }
+
+        if (tool == "python" && args.contains("-c")) {
+            require(allowInlineCode) {
+                "Inline Python code is reserved for reviewed Zip_Bug internal workflows"
+            }
+        }
 
         if (tool == "sh" || tool == "bash") {
             require(args.none { it == "-c" || it == "--command" }) {
