@@ -48,12 +48,12 @@ Do not treat a Windows debug signer fingerprint as the permanent release signer 
 ## Latest Verified Local Build Fingerprint
 
 - **APK Name**: `app-debug.apk`
-- **APK Size**: `7,096,016` bytes (~6.77 MB)
-- **APK SHA-256**: `3A00FBDFBCE01869D109AF10AC6D58E3405D3731CA8B695CA0F3DCD7F20915E5`
+- **APK Size**: `7,204,565` bytes (~6.87 MB)
+- **APK SHA-256**: `AC0491818AAF2C4F4423B056FD831FF81CE8EFC5FD648ED67B11892616E67FB9`
 - **Signer Certificate**: `CN=Android Debug, O=Android, C=US`
 - **Signer SHA-256**: `ec416f8a9e9a28b4b36478f76ce7bcf624ac711965fafaa310711b279a2b830a`
 - **Signature Verification**: APK Signature Scheme v2 PASS (RSA 2048-bit)
-- **Unit Tests**: 55/55 PASS (`./gradlew testDebugUnitTest --no-daemon`)
+- **Unit Tests**: 78/78 PASS (`./gradlew testDebugUnitTest --no-daemon`)
 
 ## Functional changes included after cb56740
 
@@ -77,7 +77,18 @@ The verified code baseline now also includes:
 - TermuxBridge argument validation to reject shell injection and dangerous chaining;
 - LikeFigma Studio 8px grid snapping, portrait device presets, alignment, distribute, and export schema validation;
 - Myanmar Edge-TTS speed/pitch controls, sentence-aware chunking, preview, artifact verification, and Play/Share audio intents;
-- Social Recap public URL validation (blocking private/local SSRF endpoints), distinct outputs (Summary, Caption, Titles), and input preservation on failure.
+- Social Recap public URL validation (blocking private/local SSRF endpoints), distinct outputs (Summary, Caption, Titles), and input preservation on failure;
+- Zippy Cut / Long Recap end-to-end studio (`/zippycut`, `/recap`):
+  - Room DB persistence: `recap_projects`, `recap_clips`, `recap_scripts`, `recap_render_jobs`, and `MIGRATION_3_4`;
+  - App startup stale job handling: dead running jobs transitioned to `INTERRUPTED`;
+  - SAF file picker for video/audio with Termux workspace staging;
+  - 4-part AI script generation (Part 1 Hook, Part 2 Rising Action, Part 3 Climax, Part 4 Conclusion) in Myanmar and English;
+  - Script style selection: Recap, Recap + Dialogue, Dub;
+  - Myanmar Edge-TTS voiceover with Nilar, Thiha, Jenny voices, speed/pitch controls, snippet preview, and verified audio persistence;
+  - Timeline & Clip editor: 1–18 clips max, strict trim bounds (`startMs < endMs <= durationMs`), clip reordering, and effect selection;
+  - 8-stage render pipeline: `VALIDATION` → `MEDIA PREPARATION` → `CLIP PROCESSING` → `VOICEOVER` → `SUBTITLES` → `EFFECTS` → `FINAL ENCODE` → `OUTPUT VERIFICATION`;
+  - Truthful render validation: exit code 0 + output file existence + file size > 0 bytes required before marking `SUCCESS`;
+  - 4-part failure diagnosis (`WHAT FAILED`, `WHY`, `SAFE NEXT STEP`, `RETRY`).
 
 ## Physical-device proof still required
 
