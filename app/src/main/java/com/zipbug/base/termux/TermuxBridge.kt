@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ZipBugDatabase
 import org.json.JSONArray
+import java.io.File
 import java.util.UUID
 
 object TermuxBridge {
@@ -67,7 +68,7 @@ object TermuxBridge {
         val job = BuildJobEntity(
             id = jobId,
             tool = request.tool,
-            argsJson = JSONArray(request.args).toString(),
+            argsJson = LogSanitizer.sanitize(JSONArray(request.args).toString()),
             workDir = request.workDir,
             status = BuildJobEntity.QUEUED
         )
@@ -85,8 +86,12 @@ object TermuxBridge {
             val binary = tools[request.tool]
                 ?: error("Tool not allowed: ${request.tool}")
 
-            require(request.workDir.startsWith("/data/data/com.termux/files/")) {
-                "Work directory must be inside Termux storage"
+            val canonicalWorkDir = File(request.workDir).canonicalPath
+            require(
+                canonicalWorkDir == "/data/data/com.termux/files" ||
+                    canonicalWorkDir.startsWith("/data/data/com.termux/files/")
+            ) {
+                "Work directory must resolve inside Termux storage"
             }
 
             validateArguments(request.tool, request.args)
@@ -162,7 +167,9 @@ object TermuxBridge {
                 stderr = "",
                 exitCode = null,
                 errorCode = null,
-                errorMessage = error.message ?: error.javaClass.simpleName
+                errorMessage = LogSanitizer.sanitize(
+                    error.message ?: error.javaClass.simpleName
+                )
             )
         }
     }
@@ -175,12 +182,34 @@ object TermuxBridge {
         ) { "Invalid argument: contains null byte or exceeds 4096 characters" }
 
         if (tool == "sh" || tool == "bash") {
+            require(args.none { it == "-c" || it == "--command" }) {
+                "Shell command-string mode (-c/--command) is not allowed"
+            }
             for (arg in args) {
-                if (arg.contains(";") || arg.contains("&&") || arg.contains("||") || arg.contains("|") || arg.contains("`") || arg.contains("$(")) {
-                    throw IllegalArgumentException("Forbidden shell operator in argument: $arg")
+                if (
+                    arg.contains(';') ||
+                    arg.contains("&&") ||
+                    arg.contains("||") ||
+                    arg.contains('|') ||
+                    arg.contains('`') ||
+                    arg.contains("$(") ||
+                    arg.contains('\n') ||
+                    arg.contains('\r') ||
+                    arg.contains('>') ||
+                    arg.contains('<')
+                ) {
+                    throw IllegalArgumentException(
+                        "Forbidden shell operator in argument"
+                    )
                 }
-                if (arg.contains("rm -rf") || arg.contains("rm -r -f") || arg.contains("mkfs")) {
-                    throw IllegalArgumentException("Destructive command forbidden in shell runner")
+                if (
+                    arg.contains("rm -rf", ignoreCase = true) ||
+                    arg.contains("rm -r -f", ignoreCase = true) ||
+                    arg.contains("mkfs", ignoreCase = true)
+                ) {
+                    throw IllegalArgumentException(
+                        "Destructive command forbidden in shell runner"
+                    )
                 }
             }
         }
