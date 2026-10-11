@@ -38,7 +38,7 @@ class AppCreatorParserTest {
         assertEquals("com.zipbug.noteapp", spec.packageName)
         assertEquals(1, spec.permissions.size)
         assertEquals(1, spec.files.size)
-        assertEquals("gradle assembleDebug", spec.buildCommand)
+        assertEquals("gradle --no-daemon assembleDebug", spec.buildCommand)
     }
 
     @Test
@@ -60,4 +60,62 @@ class AppCreatorParserTest {
         assertTrue(result.isSuccess)
         assertEquals("MarkdownApp", result.getOrThrow().name)
     }
+
+    @Test
+    fun parseIgnoresAiRequestedArbitraryBuildCommand() {
+        val json = """
+        {
+          "project": {
+            "name": "SafeBuild",
+            "packageName": "com.zipbug.safebuild",
+            "target": "ANDROID_KOTLIN"
+          },
+          "files": [],
+          "build": {
+            "command": "bash -c rm -rf /"
+          }
+        }
+        """.trimIndent()
+
+        val spec = AppCreatorParser.parse(json).getOrThrow()
+        assertEquals(
+            "gradle --no-daemon assembleDebug",
+            spec.buildCommand
+        )
+    }
+
+    @Test
+    fun parseRejectsUnsupportedTarget() {
+        val json = """
+        {
+          "project": {
+            "name": "WrongTarget",
+            "packageName": "com.zipbug.wrong",
+            "target": "SHELL_APP"
+          },
+          "files": []
+        }
+        """.trimIndent()
+
+        assertTrue(AppCreatorParser.parse(json).isFailure)
+    }
+
+    @Test
+    fun parseRejectsUnsupportedSdkRange() {
+        val json = """
+        {
+          "project": {
+            "name": "BadSdk",
+            "packageName": "com.zipbug.badsdk",
+            "target": "ANDROID_KOTLIN",
+            "minSdk": 23,
+            "targetSdk": 35
+          },
+          "files": []
+        }
+        """.trimIndent()
+
+        assertTrue(AppCreatorParser.parse(json).isFailure)
+    }
+
 }
