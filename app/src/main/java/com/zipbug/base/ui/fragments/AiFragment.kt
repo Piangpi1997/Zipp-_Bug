@@ -13,12 +13,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.R
 import com.zipbug.base.ai.AiMode
 import com.zipbug.base.ai.AiProvider
 import com.zipbug.base.ai.AiRepository
 import com.zipbug.base.ai.AiRequest
 import com.zipbug.base.databinding.FragmentAiBinding
 import com.zipbug.base.security.SecretStore
+import com.zipbug.base.termux.LogSanitizer
 import kotlinx.coroutines.launch
 
 class AiFragment : Fragment() {
@@ -64,9 +66,11 @@ class AiFragment : Fragment() {
 
         binding.provider.adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.item_spinner_dark,
             AiProvider.values().map { it.label }
-        )
+        ).apply {
+            setDropDownViewResource(R.layout.item_spinner_dark)
+        }
 
         binding.provider.setSelection(
             AiProvider.OPENROUTER.ordinal
@@ -77,9 +81,11 @@ class AiFragment : Fragment() {
 
         binding.mode.adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.item_spinner_dark,
             AiMode.values().map { it.title }
-        )
+        ).apply {
+            setDropDownViewResource(R.layout.item_spinner_dark)
+        }
 
         if (!initialModeName.isNullOrBlank()) {
             val modeEnum = runCatching { AiMode.valueOf(initialModeName) }.getOrDefault(AiMode.CHAT)
@@ -362,7 +368,11 @@ class AiFragment : Fragment() {
                 }
             }.onFailure { err ->
                 binding.reviewAction.isVisible = false
-                binding.output.setText("Error: ${err.message}")
+                binding.output.setText(
+                    "Error: " + LogSanitizer.sanitize(
+                        err.message ?: err.javaClass.simpleName
+                    )
+                )
             }
         }
     }
