@@ -1157,46 +1157,80 @@ class TerminalFragment : Fragment() {
             else -> return
         }
 
-        binding.engineState.text = "ENGINE • QUEUING"
+        fun dispatchRequest() {
+            binding.engineState.text = "ENGINE • QUEUING"
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            val result = TermuxBridge.send(
-                requireContext(),
-                request
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = TermuxBridge.send(
+                    requireContext(),
+                    request
+                )
 
-            result.onSuccess { id ->
-                if (canonicalCommand == "/apkbuilder") {
-                    activeBuildJobId = id
-                    activeBuildCancelPath =
-                        buildCancelPath
-                    activeBuildWorkDir =
-                        buildWorkDir
-                    observeBuildJob(id)
+                result.onSuccess { id ->
+                    if (canonicalCommand == "/apkbuilder") {
+                        activeBuildJobId = id
+                        activeBuildCancelPath =
+                            buildCancelPath
+                        activeBuildWorkDir =
+                            buildWorkDir
+                        observeBuildJob(id)
+
+                        binding.output.text =
+                            "Queued controlled debug build:\n$id\n\n" +
+                                "Timeout: 1200 seconds\n" +
+                                "Release signing: untouched\n" +
+                                "Waiting for the Termux result callback…"
+                    } else {
+                        binding.output.text =
+                            "Queued real Termux job:\n$id\n\n" +
+                                "Waiting for Termux result callback…"
+                    }
+                }.onFailure {
+                    if (canonicalCommand == "/apkbuilder") {
+                        activeBuildJobId = null
+                        activeBuildCancelPath = null
+                        activeBuildWorkDir = null
+                        binding.cancelBuild.visibility =
+                            View.GONE
+                    }
 
                     binding.output.text =
-                        "Queued controlled debug build:\n$id\n\n" +
-                            "Timeout: 1200 seconds\n" +
-                            "Release signing: untouched\n" +
-                            "Waiting for the Termux result callback…"
-                } else {
-                    binding.output.text =
-                        "Queued real Termux job:\n$id\n\n" +
-                            "Waiting for Termux result callback…"
+                        "Command failed before execution:\n${it.message}"
                 }
-            }.onFailure {
-                if (canonicalCommand == "/apkbuilder") {
-                    activeBuildJobId = null
-                    activeBuildCancelPath = null
-                    activeBuildWorkDir = null
-                    binding.cancelBuild.visibility =
-                        View.GONE
-                }
-
-                binding.output.text =
-                    "Command failed before execution:\n${it.message}"
             }
         }
+
+        if (canonicalCommand == "/termux") {
+            val preview = buildString {
+                append("Tool: /data/data/com.termux/files/usr/bin/")
+                append(request.tool)
+                append("\nWork dir: ")
+                append(request.workDir)
+                append("\nArguments:")
+                if (request.args.isEmpty()) {
+                    append(" (none)")
+                } else {
+                    request.args.forEachIndexed { index, arg ->
+                        append("\n  [")
+                        append(index)
+                        append("] ")
+                        append(arg)
+                    }
+                }
+            }
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Review Termux command")
+                .setMessage(preview)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Run") { _, _ ->
+                    dispatchRequest()
+                }
+                .show()
+            return
+        }
+
+        dispatchRequest()
     }
 
     override fun onDestroyView() {
