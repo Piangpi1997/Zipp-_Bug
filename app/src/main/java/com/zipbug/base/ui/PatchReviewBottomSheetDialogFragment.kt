@@ -7,12 +7,17 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.ZipBugApp
+import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.databinding.DialogPatchReviewBinding
 import com.zipbug.base.repair.CompilerErrorParser
+import com.zipbug.base.repair.CompilerPatchTermux
 import com.zipbug.base.repair.PatchProposal
 import com.zipbug.base.termux.TermuxBridge
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.io.File
 
 class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
@@ -72,28 +77,89 @@ class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         binding.btnApplyPatch.setOnClickListener {
             val patch = currentPatch ?: return@setOnClickListener
-            val root = File(projectRootPath)
-            if (!root.exists()) {
-                Snackbar.make(binding.root, "Project directory not found: $projectRootPath", Snackbar.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
 
-            val applyResult = CompilerErrorParser.applyPatch(root, patch)
-            applyResult.onSuccess { patchedFile ->
-                Snackbar.make(binding.root, "Patched: ${patchedFile.name}. Triggering rebuild…", Snackbar.LENGTH_SHORT).show()
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val req = TermuxBridge.Request(
-                        tool = "gradle",
-                        args = listOf("--no-daemon", "assembleDebug"),
-                        workDir = root.absolutePath,
-                        label = "Rebuild after patch"
-                    )
-                    TermuxBridge.send(requireContext(), req)
+            val request = CompilerPatchTermux
+                .buildRequest(projectRootPath, patch)
+                .getOrElse { error ->
+                    Snackbar.make(
+                        binding.root,
+                        error.message ?: "Reviewed patch is invalid",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    return@setOnClickListener
+                }
+
+            binding.btnApplyPatch.isEnabled = false
+            binding.btnApplyPatch.text = "Applying…"
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                val sendResult = TermuxBridge.send(
+                    requireContext(),
+                    request
+                )
+
+                if (sendResult.isFailure) {
+                    binding.btnApplyPatch.isEnabled = true
+                    binding.btnApplyPatch.text = "Apply Patch"
+                    Snackbar.make(
+                        binding.root,
+                        "Patch dispatch failed: " +
+                            (sendResult.exceptionOrNull()?.message
+                                ?: "unknown error"),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    return@launch
+                }
+
+                val jobId = sendResult.getOrThrow()
+                val app = requireActivity().application as ZipBugApp
+                val finalJob = app.database.buildJobDao()
+                    .observe(jobId)
+                    .filterNotNull()
+                    .filter {
+                        it.status != BuildJobEntity.QUEUED &&
+                            it.status != BuildJobEntity.RUNNING
+                    }
+                    .first()
+
+                val applied =
+                    finalJob.status == BuildJobEntity.SUCCESS &&
+                        finalJob.exitCode == 0 &&
+                        finalJob.stdout.contains("ZIPBUG_PATCH_OK|")
+
+                if (applied) {
+                    Snackbar.make(
+                        binding.root,
+                        "Reviewed patch applied. Opening controlled rebuild…",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+
                     onPatchApplied?.invoke()
                     dismiss()
+
+                    (activity as? MainActivity)?.navigateToTerminal(
+                        "/apkbuilder --debug \"" +
+                            projectRootPath +
+                            "\""
+                    )
+                } else {
+                    binding.btnApplyPatch.isEnabled = true
+                    binding.btnApplyPatch.text = "Apply Patch"
+                    val detail = sequenceOf(
+                        finalJob.errorMessage,
+                        finalJob.stderr,
+                        finalJob.stdout
+                    ).firstOrNull { it.isNotBlank() }
+                        ?.lineSequence()
+                        ?.firstOrNull()
+                        ?: "Patch command did not report success"
+
+                    Snackbar.make(
+                        binding.root,
+                        "Patch not applied: " + detail,
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
-            }.onFailure { err ->
-                Snackbar.make(binding.root, "Failed to apply patch: ${err.message}", Snackbar.LENGTH_LONG).show()
             }
         }
     }
