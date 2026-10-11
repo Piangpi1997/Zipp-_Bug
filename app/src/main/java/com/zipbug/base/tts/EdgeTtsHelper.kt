@@ -47,21 +47,76 @@ object EdgeTtsHelper {
      * (Myanmar sentence terminator "။" or newlines/periods).
      */
     fun chunkText(text: String, maxChunkChars: Int = 500): List<String> {
-        if (text.length <= maxChunkChars) return listOf(text)
+        require(maxChunkChars >= 32) {
+            "TTS chunk size must be at least 32 characters"
+        }
+
+        val trimmed = text.trim()
+        if (trimmed.isEmpty()) return emptyList()
+        if (trimmed.length <= maxChunkChars) return listOf(trimmed)
+
         val chunks = mutableListOf<String>()
-        val sentences = text.split(Regex("(?<=[။\n.!?])"))
         var current = StringBuilder()
-        for (sentence in sentences) {
-            if (current.length + sentence.length > maxChunkChars && current.isNotEmpty()) {
-                chunks.add(current.toString().trim())
-                current = StringBuilder()
+
+        fun flushCurrent() {
+            val value = current.toString().trim()
+            if (value.isNotEmpty()) chunks += value
+            current = StringBuilder()
+        }
+
+        fun appendBounded(segment: String) {
+            var remaining = segment.trim()
+            while (remaining.isNotEmpty()) {
+                val capacity = maxChunkChars - current.length
+                if (capacity <= 0) {
+                    flushCurrent()
+                    continue
+                }
+
+                if (remaining.length <= capacity) {
+                    current.append(remaining)
+                    break
+                }
+
+                if (current.isNotEmpty()) {
+                    flushCurrent()
+                    continue
+                }
+
+                val window = remaining.take(maxChunkChars + 1)
+                val preferredBreak = window
+                    .lastIndexOfAny(
+                        charArrayOf(' ', '။', '.', '!', '?', '\n', ',')
+                    )
+                    .takeIf { it >= maxChunkChars / 2 }
+                    ?: maxChunkChars
+
+                val cut = preferredBreak.coerceIn(1, maxChunkChars)
+                val piece = remaining.substring(0, cut).trim()
+                if (piece.isNotEmpty()) chunks += piece
+                remaining = remaining.substring(cut).trimStart()
             }
-            current.append(sentence)
         }
-        if (current.isNotBlank()) {
-            chunks.add(current.toString().trim())
+
+        text.split(Regex("(?<=[။\\n.!?])")).forEach { sentence ->
+            val clean = sentence.trim()
+            if (clean.isEmpty()) return@forEach
+
+            val separator = if (current.isEmpty()) "" else " "
+            if (
+                current.length +
+                    separator.length +
+                    clean.length <= maxChunkChars
+            ) {
+                current.append(separator).append(clean)
+            } else {
+                flushCurrent()
+                appendBounded(clean)
+            }
         }
-        return if (chunks.isEmpty()) listOf(text) else chunks
+
+        flushCurrent()
+        return chunks
     }
 
     /**
