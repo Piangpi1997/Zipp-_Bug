@@ -79,4 +79,47 @@ class LogSanitizerTest {
         }
         assertTrue("Should reject rm -rf in bash arguments", thrown)
     }
+
+    @Test
+    fun testRedactsOpenAiStyleKeyWithoutBearerPrefix() {
+        val raw = "provider key sk-proj-abcdefghijklmnopqrstuvwxyz012345"
+        val sanitized = LogSanitizer.sanitize(raw)
+        assertFalse(sanitized.contains("abcdefghijklmnopqrstuvwxyz012345"))
+        assertTrue(sanitized.contains("sk-[REDACTED]"))
+    }
+
+    @Test
+    fun testGenericApiKeyEqualsRedactionDoesNotLeakSecretInPrefix() {
+        val raw = "api_key=abcdefghijklmnopqrstuvwxyz012345"
+        val sanitized = LogSanitizer.sanitize(raw)
+        assertFalse(sanitized.contains("abcdefghijklmnopqrstuvwxyz012345"))
+        assertTrue(sanitized.contains("api_key=[REDACTED]"))
+    }
+
+    @Test
+    fun testTermuxBridgeRejectsShellCommandStringMode() {
+        for (flag in listOf("-c", "--command")) {
+            var thrown = false
+            try {
+                TermuxBridge.validateArguments("bash", listOf(flag, "echo hello"))
+            } catch (e: IllegalArgumentException) {
+                thrown = true
+            }
+            assertTrue("Should reject shell command-string flag $flag", thrown)
+        }
+    }
+
+    @Test
+    fun testTermuxBridgeRejectsRedirectAndNewlineOperators() {
+        for (arg in listOf("script.sh>out.txt", "script.sh\necho injected")) {
+            var thrown = false
+            try {
+                TermuxBridge.validateArguments("sh", listOf(arg))
+            } catch (e: IllegalArgumentException) {
+                thrown = true
+            }
+            assertTrue("Should reject shell operator in $arg", thrown)
+        }
+    }
+
 }
