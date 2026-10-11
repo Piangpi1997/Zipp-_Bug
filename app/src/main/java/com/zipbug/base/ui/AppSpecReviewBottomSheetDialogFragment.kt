@@ -31,6 +31,78 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var currentSpec: GeneratedProjectSpec? = null
     private var rawJson: String = ""
     private var generatedProject: ProjectEntity? = null
+    private var pendingExportProject: ProjectEntity? = null
+
+    private val exportGeneratedSource = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val project = pendingExportProject
+        pendingExportProject = null
+
+        if (uri == null || project == null) {
+            if (_binding != null) {
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export cancelled",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            return@registerForActivityResult
+        }
+
+        val appContext = context?.applicationContext
+            ?: return@registerForActivityResult
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val root = File(project.rootPath).canonicalFile
+                    require(root.isDirectory) {
+                        "Generated project folder is no longer available."
+                    }
+
+                    val files = linkedMapOf<String, String>()
+                    root.walkTopDown()
+                        .filter { it.isFile }
+                        .forEach { file ->
+                            val relative = file
+                                .relativeTo(root)
+                                .invariantSeparatorsPath
+                            require(file.length() <= MAX_EXPORT_SOURCE_FILE_BYTES) {
+                                "Source file is too large to export safely: " + relative
+                            }
+                            files[relative] = file.readText(Charsets.UTF_8)
+                        }
+
+                    require(files.isNotEmpty()) {
+                        "Generated project contains no source files."
+                    }
+
+                    val writer = ProjectZipWriter(appContext)
+                    writer.write(uri, files)
+                    writer.validate(uri, files.keys)
+                }
+            }
+
+            if (_binding == null) return@launch
+
+            result.onSuccess { validation ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP verified: " + validation.entryCount +
+                        " files. Save/unzip it in your Termux workspace before building.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }.onFailure { error ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export failed: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 
     var onRegenerateRequested: (() -> Unit)? = null
     var onSpecEdited: ((String) -> Unit)? = null
