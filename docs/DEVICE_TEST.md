@@ -1,13 +1,11 @@
 # Zip_Bug // Antigravity Studio — On-Device Physical Proof Guide
 
-This document contains the exact, linear sequence to verify Zip_Bug Antigravity on a physical Android phone running Termux.
+This guide tracks the current implementation on `feat/antigravity-studio-v2`. It must be run against the latest branch HEAD before any physical result is classified as VERIFIED.
 
----
+## 1. Sync the exact branch first
 
-## 1. Linear On-Device Execution Sequence
-
-### Phase A: Update Repository
 Inside Termux:
+
 ```bash
 cd ~/OpenDots/Zip_Bug_Antigravity
 git fetch origin
@@ -15,32 +13,27 @@ git checkout feat/antigravity-studio-v2
 git pull --ff-only origin feat/antigravity-studio-v2
 git log -1 --oneline
 ```
-*Expected Commit*: Matches latest commit on `feat/antigravity-studio-v2`.
 
----
+The commit shown here must match the current GitHub branch HEAD. Do not continue a release proof from an older RC snapshot.
 
-### Phase B: Configure Termux Environment
-Inside Termux:
+## 2. Configure Termux
+
 ```bash
-# 1. Allow external app command execution
 mkdir -p ~/.termux
-grep -q '^allow-external-apps=true' ~/.termux/termux.properties 2>/dev/null || echo 'allow-external-apps=true' >> ~/.termux/termux.properties
+grep -q '^allow-external-apps=true' ~/.termux/termux.properties 2>/dev/null || \
+  echo 'allow-external-apps=true' >> ~/.termux/termux.properties
 termux-reload-settings
 
-# 2. Configure Android SDK 34 environment
-echo 'export ANDROID_HOME=$HOME/android-sdk' >> ~/.bashrc
-echo 'export ANDROID_SDK_ROOT=$ANDROID_HOME' >> ~/.bashrc
-echo 'export PATH=$PATH:$ANDROID_HOME/platform-tools' >> ~/.bashrc
-source ~/.bashrc
+export ANDROID_HOME=$HOME/android-sdk
+export ANDROID_SDK_ROOT=$ANDROID_HOME
 
-# 3. Grant shared storage access
 termux-setup-storage
 ```
 
----
+Zip_Bug also requires Android permission `com.termux.permission.RUN_COMMAND`. If permission is denied, the app must report a permission failure rather than READY/SUCCESS.
 
-### Phase C: Verify Native Tools
-Ensure all native dependencies are installed and available in `$PATH`:
+## 3. Verify native tools
+
 ```bash
 command -v python
 command -v java
@@ -50,94 +43,115 @@ command -v aapt2
 command -v yt-dlp
 command -v edge-tts
 ```
-If any tool is missing, install it:
-```bash
-pkg update -y
-pkg install -y python openjdk-17 gradle ffmpeg aapt2
-pip install --upgrade yt-dlp edge-tts
-```
 
----
+If required packages are missing, install them before continuing. Do not mark a dependency PASS just because a UI control exists.
 
-### Phase D: Build RC APK on Device
-From `~/OpenDots/Zip_Bug_Antigravity`:
+## 4. Controlled debug APK build
+
+From the repository root:
+
 ```bash
 chmod +x scripts/build-termux.sh
-./scripts/build-termux.sh
+
+./scripts/build-termux.sh \
+  --debug \
+  --export /storage/emulated/0/Download/Zip_Bug-debug.apk \
+  --timeout-seconds 1200
 ```
-*Expected Output*:
-- `BUILD SUCCESSFUL`
-- Output APK created at `app/build/outputs/apk/debug/app-debug.apk`
-- Exported copy at `/storage/emulated/0/Download/Zip_Bug-Antigravity-RC.apk`
-- Real APK SHA-256 and byte size printed to console.
 
----
+The controlled script now reports explicit stages:
 
-### Phase E: Install & Screen Navigation Check
-1. Open your Android File Manager or Downloads app.
-2. Install `/storage/emulated/0/Download/Zip_Bug-Antigravity-RC.apk`.
-3. Launch **Zip_Bug Antigravity Studio**.
-4. When prompted, grant **com.termux.permission.RUN_COMMAND** (*Allow Zip_Bug to run commands in Termux*). If denied, verify the app shows `FAIL` rather than `READY`.
-5. Navigate through all app screens:
-   - **Home**: System overview & stats.
-   - **AI**: Provider selection & health check.
-   - **Studio**: LikeFigma canvas, multi-screen navigation, export XML & Compose.
-   - **Terminal**: Terminal log view & command buttons.
-   - **Projects**: Project listing, APK scanner, Signing Diagnostics.
-   - **Settings**: Termux home, project root, encrypted API key storage.
-   - **Device & Engine Proof**: Pre-flight status and 5-step guided tests.
-   - **Signing Diagnostics**: Compare installed APK against newest build artifact.
+- `VALIDATION`
+- `DEPENDENCIES`
+- `BUILD`
+- `PACKAGING`
 
----
+A successful build must end with real `ZIPBUG_STAGE|...|PASS|...` records, an artifact proof record, and `ZIPBUG_RESULT|SUCCESS|debug`.
 
-### Phase F: In-App 5-Step Guided Proof
-1. Open **Terminal** tab → Tap **Device & Engine Proof**.
-2. Tap **Run Guided 5-Step Proof**:
-   - `TEST 1: Python` (`python --version`) → `PASS`
-   - `TEST 2: Java` (`java -version`) → `PASS`
-   - `TEST 3: Gradle` (`gradle --version`) → `PASS`
-   - `TEST 4: FFmpeg` (`ffmpeg -version`) → `PASS`
-   - `TEST 5: aapt2` (`aapt2 version`) → `PASS`
-3. Tap **Copy Log** to copy the formatted execution report to your clipboard.
+The exported APK must have non-zero size and matching SHA-256 with the built artifact. When `apksigner` is available, signature verification must also pass.
 
----
+### Release signing boundary
 
-### Phase G: OpenRouter Physical Test
-1. Navigate to **AI** tab.
-2. Provider: select `OpenRouter • Free`.
-3. Model: enter or confirm `openrouter/free`.
-4. Ensure your OpenRouter API key is saved in Settings (stored in hardware-backed Android Keystore).
-5. Tap **Health Check**:
-   - Verify status transitions to `READY`.
-6. Set Mode to `Chat`, enter prompt:
+`--release` is intentionally blocked until signing credentials are explicitly configured and reviewed. Zip_Bug must never silently create, replace, or guess a release keystore/password.
+
+## 5. Install one signer lineage only
+
+Debug APKs built on Windows, GitHub Actions, and Termux may use different debug certificates.
+
+Before updating an already installed Zip_Bug package, compare signers. If signer hashes differ, Android will reject the update. Do not uninstall an app containing important local data until required secrets/settings are backed up.
+
+For a clean physical proof, install one chosen APK lineage and keep that signer consistent for subsequent updates.
+
+## 6. Screen/navigation proof
+
+Open Zip_Bug and verify these real screens/actions:
+
+- **Home** — grouped Build / Design / Media / Tools dashboard.
+- **Command Help** — searchable `/help` registry with examples.
+- **App Creator** — `/appcreator`; legacy `/apcreator` must still resolve.
+- **Studio** — `/likefigma`.
+- **AI** — provider/model selection and real provider response.
+- **Terminal** — `/termux`, controlled `/apkbuilder --debug`, build stages, cancel, stdout/stderr/exitCode.
+- **Projects** — imported mini-apps and APK artifact inspection.
+- **Settings** — encrypted API keys, reveal/copy, encrypted backup/restore, Termux paths.
+- **Device & Engine Proof** — guided native-tool checks.
+- **Signing Diagnostics** — installed-vs-artifact signer comparison.
+
+Reserved/non-working commands such as `/aizipper` must be shown as unavailable with an explanation, not simulated as working.
+
+## 7. In-app guided engine proof
+
+Open **Terminal → Device & Engine Proof** and run the guided checks:
+
+1. Python: `python --version`
+2. Java: `java -version`
+3. Gradle: `gradle --version`
+4. FFmpeg: `ffmpeg -version`
+5. aapt2: `aapt2 version`
+
+Each proof must include the actual execution state and exit result. Copy the formatted proof log after completion.
+
+## 8. OpenRouter physical test
+
+In **Settings**, save an OpenRouter key securely. Do not paste the key into Terminal logs, AI prompts, source ZIPs, or screenshots.
+
+In **AI**:
+
+- Provider: `OpenRouter • Free`
+- Model: `openrouter/free`
+
+Send:
+
+```text
+Return exactly:
+ZIP_BUG_OPENROUTER_OK
+```
+
+A network/provider response is VERIFIED only when the real endpoint returns successfully.
+
+## 9. App Creator physical flow
+
+The AI App Creator flow is split deliberately between generation and build boundaries:
+
+1. AI mode `App Creator` returns a structured project spec.
+2. Parser validates the JSON.
+3. Review sheet displays permissions, dependencies, and file plan.
+4. Generate Project writes the project to Zip_Bug-managed storage and records it.
+5. **Do not claim an APK build from app-private storage.** A generated Android project must first be exported/transferred to a Termux-accessible workspace.
+6. From that Termux project root, run the controlled debug workflow:
    ```text
-   Return exactly:
-   ZIP_BUG_OPENROUTER_OK
+   /apkbuilder --debug /data/data/com.termux/files/home/<project-path>
    ```
-7. Tap **Send** and confirm the exact response from the OpenRouter endpoint.
+7. Only after exit code 0 plus artifact validation may the APK be reported as built.
+8. Inspect APK metadata, SHA-256, and signer before installation.
 
----
+## 10. Evidence required for DEVICE VERIFIED
 
-### Phase H: App Creator Physical Flow
-1. In the **AI** tab, switch Mode to **App Creator**.
-2. Enter prompt:
-   ```text
-   Create a simple Android Kotlin/XML app with one screen, a title, one orange button, and dark background.
-   ```
-3. Tap **Send**.
-4. Verify complete workflow stages:
-   - `STAGE 1 (AI Response)`: Receives structured JSON spec.
-   - `STAGE 2 (Validation)`: AppCreatorParser validates JSON.
-   - `STAGE 3 (App Spec Review)`: Review sheet opens with permissions, dependencies, and file list.
-   - `STAGE 4 (Generate Project)`: Tap **Generate Project**; verifies project is saved in Room database and disk directory.
-   - `STAGE 5 (Build Project)`: Tap **Build APK**; dispatches `./gradlew assembleDebug` via Termux bridge.
-   - `STAGE 6 (Artifact Inspection)`: Inspects newly built APK SHA-256 and signer diagnostics.
+Return all of the following:
 
----
+1. Device Verification Log from the physical phone.
+2. Controlled Termux build output showing stage records, exit code 0, and artifact proof.
+3. OpenRouter live response `ZIP_BUG_OPENROUTER_OK`.
+4. If App Creator is included in the claim, the Termux-accessible project path and its controlled APK build/artifact proof.
 
-## 2. Evidence to Return
-
-To complete RC1 certification, paste the following real outputs from your phone:
-1. **Device Verification Log** (from the **Copy Log** button in Device & Engine Proof).
-2. **Terminal Build Output** from `./scripts/build-termux.sh`.
-3. **OpenRouter Response** (`ZIP_BUG_OPENROUTER_OK`).
+Until those outputs exist, physical Android and Termux status remains **PENDING**.
