@@ -83,6 +83,34 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btnSummary"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Summary" />
+
+            <Button
+                android:id="@+id/btnSocialCaption"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Caption" />
+
+            <Button
+                android:id="@+id/btnTitle"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Titles" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Button
                 android:id="@+id/recap"
                 android:layout_width="0dp"
                 android:layout_height="48dp"

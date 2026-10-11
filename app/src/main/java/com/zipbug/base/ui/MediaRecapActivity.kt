@@ -74,6 +74,30 @@ class MediaRecapActivity : AppCompatActivity() {
             prepareAuthorizedMedia()
         }
 
+        binding.btnSummary.setOnClickListener {
+            buildOutputPrompt(
+                "Structured Summary",
+                "Provide an objective, structured summary of the content with key takeaways, timestamps/chapters if applicable, and main conclusions."
+            )
+            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Summary prompt constructed")
+        }
+
+        binding.btnSocialCaption.setOnClickListener {
+            buildOutputPrompt(
+                "Social Media Caption",
+                "Write a high-engagement social media caption with a strong hook, 3-5 bullet points of core value, a clear call-to-action, and relevant hashtags."
+            )
+            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Caption prompt constructed")
+        }
+
+        binding.btnTitle.setOnClickListener {
+            buildOutputPrompt(
+                "Title Variations",
+                "Generate 5 compelling title variations:\n1. Curiosity hook\n2. Direct & informative\n3. Question style\n4. Numbered list / guide\n5. Viral / high-CTR"
+            )
+            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Title ideas prompt constructed")
+        }
+
         binding.recap.setOnClickListener {
             buildPrompt("Recap")
             updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Recap prompt constructed")
@@ -154,14 +178,17 @@ class MediaRecapActivity : AppCompatActivity() {
     }
 
     private fun prepareAuthorizedMedia() {
-        val url = binding.url.text.toString().trim()
+        val rawUrl = binding.url.text.toString().trim()
+        val validation = validateMediaUrl(rawUrl)
 
-        if (!url.startsWith("https://") && !url.startsWith("http://")) {
-            Snackbar.make(binding.root, "Enter a valid http(s) URL", Snackbar.LENGTH_SHORT).show()
-            updateStage(PipelineStage.SOURCE, StageState.FAILED, "Invalid URL")
+        if (validation.isFailure) {
+            val errorMsg = validation.exceptionOrNull()?.message ?: "Invalid URL"
+            Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
+            updateStage(PipelineStage.SOURCE, StageState.FAILED, errorMsg)
             return
         }
 
+        val url = validation.getOrThrow()
         updateStage(PipelineStage.SOURCE, StageState.SUCCESS, url)
         updateStage(PipelineStage.DOWNLOAD, StageState.RUNNING, "Starting yt-dlp")
         updateStage(PipelineStage.AUDIO, StageState.PENDING)
@@ -275,8 +302,51 @@ class MediaRecapActivity : AppCompatActivity() {
         )
     }
 
+    private fun buildOutputPrompt(type: String, instructions: String) {
+        val url = binding.url.text.toString().trim().ifBlank { "[No Source URL provided]" }
+        val language = binding.language.text.toString().trim().ifBlank { "Myanmar" }
+
+        binding.output.setText(
+            "=== AI $type Generation ===\n" +
+                "Language: $language\n" +
+                "Source URL: $url\n\n" +
+                "Task Instructions:\n" +
+                "$instructions\n\n" +
+                "Rules:\n" +
+                "- Maintain strict factual fidelity to the actual media content.\n" +
+                "- Do not hallucinate unsourced claims.\n" +
+                "- Deliver clear, polished formatting ready for publication."
+        )
+    }
+
     override fun onDestroy() {
         observer?.cancel()
         super.onDestroy()
+    }
+
+    companion object {
+        fun validateMediaUrl(rawUrl: String): Result<String> {
+            val trimmed = rawUrl.trim()
+            if (!trimmed.startsWith("https://", ignoreCase = true) && !trimmed.startsWith("http://", ignoreCase = true)) {
+                return Result.failure(IllegalArgumentException("URL must start with http:// or https://"))
+            }
+            val uri = runCatching { java.net.URI(trimmed) }.getOrNull()
+                ?: return Result.failure(IllegalArgumentException("Malformed URL"))
+            val host = uri.host?.lowercase()
+                ?: return Result.failure(IllegalArgumentException("URL is missing a valid hostname"))
+
+            if (host == "localhost" || host == "127.0.0.1" || host == "::1" ||
+                host.startsWith("10.") || host.startsWith("192.168.") ||
+                (host.startsWith("172.") && host.split(".").getOrNull(1)?.toIntOrNull() in 16..31)
+            ) {
+                return Result.failure(IllegalArgumentException("Local and private network URLs are prohibited"))
+            }
+
+            if (!host.contains('.')) {
+                return Result.failure(IllegalArgumentException("Host must contain a valid domain (e.g. youtube.com)"))
+            }
+
+            return Result.success(trimmed)
+        }
     }
 }
