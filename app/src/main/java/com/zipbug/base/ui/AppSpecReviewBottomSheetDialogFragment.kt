@@ -6,16 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.creator.AppCreatorParser
 import com.zipbug.base.creator.AppProjectGenerator
 import com.zipbug.base.creator.GeneratedProjectSpec
+import com.zipbug.base.creator.ProjectZipWriter
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.DialogAppSpecReviewBinding
 import com.zipbug.base.termux.TermuxBridge
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.Locale
 
 class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
@@ -33,6 +38,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "AppSpecReviewBottomSheet"
         private const val ARG_SPEC_JSON = "arg_spec_json"
+        private const val MAX_EXPORT_SOURCE_FILE_BYTES = 4L * 1024 * 1024
 
         fun newInstance(specJson: String): AppSpecReviewBottomSheetDialogFragment {
             return AppSpecReviewBottomSheetDialogFragment().apply {
