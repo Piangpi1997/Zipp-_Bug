@@ -95,7 +95,7 @@ class LocalHttpServer(
                 "Content-Security-Policy: $contentSecurityPolicy\r\n" +
                 "X-Content-Type-Options: nosniff\r\n" +
                 "Referrer-Policy: no-referrer\r\n" +
-                "Cross-Origin-Resource-Policy: same-origin\r\n"
+                "Cross-Origin-Resource-Policy: same-origin\r\n\r\n"
 
             out.write(head.toByteArray())
             file.inputStream().use { it.copyTo(out) }
