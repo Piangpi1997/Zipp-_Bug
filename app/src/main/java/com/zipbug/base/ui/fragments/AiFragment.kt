@@ -209,7 +209,11 @@ class AiFragment : Fragment() {
                 append("Provider: ${result.provider.label}\n")
                 append("Status: ${result.status.label}\n")
                 append("Masked Key: ${result.maskedKey}\n")
-                append("Detail: ${result.message}\n\n")
+                append(
+                    "Detail: " +
+                        LogSanitizer.sanitize(result.message) +
+                        "\n\n"
+                )
                 if (result.status != com.zipbug.base.ai.HealthStatus.READY) {
                     append("FIX:\n")
                     when (result.status) {
