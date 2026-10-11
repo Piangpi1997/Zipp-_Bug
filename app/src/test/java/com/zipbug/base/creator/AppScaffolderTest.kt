@@ -80,4 +80,42 @@ class AppScaffolderTest {
         )
     }
 
+
+    @Test
+    fun scaffoldAppliesReviewedSdkPermissionsAndDependencies() {
+        val files = AppScaffolder.files(
+            AppSpec(
+                name = "Configured",
+                packageName = "com.example.configured",
+                goal = "",
+                minSdk = 26,
+                targetSdk = 34,
+                permissions = listOf(
+                    "android.permission.INTERNET"
+                ),
+                dependencies = listOf(
+                    "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+                )
+            )
+        )
+
+        val gradle = files.getValue("app/build.gradle.kts")
+        val manifest = files.getValue(
+            "app/src/main/AndroidManifest.xml"
+        )
+
+        assertTrue(gradle.contains("minSdk = 26"))
+        assertTrue(gradle.contains("targetSdk = 34"))
+        assertTrue(
+            gradle.contains(
+                "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+            )
+        )
+        assertTrue(
+            manifest.contains(
+                "android.permission.INTERNET"
+            )
+        )
+    }
+
 }
