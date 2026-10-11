@@ -91,4 +91,59 @@ class CompilerErrorParserTest {
             tempDir.deleteRecursively()
         }
     }
+
+    @Test
+    fun applyPatchReplacesOnlyReviewedOccurrence() {
+        val tempDir = java.io.File(
+            System.getProperty("java.io.tmpdir"),
+            "zipbug_patch_once_" + System.currentTimeMillis()
+        ).apply { mkdirs() }
+
+        try {
+            val file = java.io.File(tempDir, "Main.kt")
+            file.writeText("val a = 1\nval a = 1\n")
+
+            val result = CompilerErrorParser.applyPatch(
+                tempDir,
+                PatchProposal(
+                    targetFile = "Main.kt",
+                    originalSnippet = "val a = 1",
+                    replacementSnippet = "val a = 2",
+                    explanation = "Replace reviewed occurrence"
+                )
+            )
+
+            assertTrue(result.isSuccess)
+            assertEquals(
+                "val a = 2\nval a = 1\n",
+                file.readText()
+            )
+        } finally {
+            tempDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun applyPatchRejectsTraversalPath() {
+        val tempDir = java.io.File(
+            System.getProperty("java.io.tmpdir"),
+            "zipbug_patch_traversal_" + System.currentTimeMillis()
+        ).apply { mkdirs() }
+
+        try {
+            val result = CompilerErrorParser.applyPatch(
+                tempDir,
+                PatchProposal(
+                    targetFile = "../outside.kt",
+                    originalSnippet = "old",
+                    replacementSnippet = "new",
+                    explanation = "unsafe"
+                )
+            )
+            assertTrue(result.isFailure)
+        } finally {
+            tempDir.deleteRecursively()
+        }
+    }
+
 }
