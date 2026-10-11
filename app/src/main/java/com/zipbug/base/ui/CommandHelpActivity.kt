@@ -1,5 +1,7 @@
 package com.zipbug.base.ui
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
@@ -10,17 +12,49 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.zipbug.base.R
+import com.zipbug.base.command.CommandGroups
 import com.zipbug.base.command.CommandRegistry
 import com.zipbug.base.command.CommandSpec
 import com.zipbug.base.databinding.ActivityCommandHelpBinding
 
 class CommandHelpActivity : AppCompatActivity() {
+    companion object {
+        private const val EXTRA_GROUP = "command_group"
+
+        fun createIntent(
+            context: Context,
+            group: String? = null
+        ): Intent =
+            Intent(
+                context,
+                CommandHelpActivity::class.java
+            ).apply {
+                group?.let {
+                    putExtra(
+                        EXTRA_GROUP,
+                        it
+                    )
+                }
+            }
+    }
+
     private lateinit var binding: ActivityCommandHelpBinding
+    private var selectedGroup: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCommandHelpBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        selectedGroup =
+            intent.getStringExtra(EXTRA_GROUP)
+                ?.let(CommandGroups::normalize)
+
+        selectedGroup?.let { group ->
+            title = group + " Commands"
+            binding.search.hint =
+                "Search " + group + " commands"
+        }
 
         binding.search.addTextChangedListener(
             object : TextWatcher {
@@ -48,15 +82,37 @@ class CommandHelpActivity : AppCompatActivity() {
     }
 
     private fun render(query: String) {
-        val commands = CommandRegistry.search(query)
+        val commands =
+            if (selectedGroup == null) {
+                CommandRegistry.search(query)
+            } else {
+                CommandRegistry.forGroup(
+                    selectedGroup!!
+                ).filter {
+                    query.isBlank() ||
+                        searchableText(it).contains(
+                            query.trim(),
+                            ignoreCase = true
+                        )
+                }
+            }
+
         binding.results.removeAllViews()
 
-        binding.count.text =
-            if (query.isBlank()) {
-                "${commands.size} commands"
-            } else {
-                "${commands.size} matches"
+        binding.count.text = buildString {
+            selectedGroup?.let {
+                append(it)
+                append(" • ")
             }
+
+            if (query.isBlank()) {
+                append(commands.size)
+                append(" commands")
+            } else {
+                append(commands.size)
+                append(" matches")
+            }
+        }
 
         if (commands.isEmpty()) {
             binding.results.addView(
@@ -78,10 +134,13 @@ class CommandHelpActivity : AppCompatActivity() {
         var previousGroup: String? = null
 
         commands.forEach { spec ->
-            if (spec.group != previousGroup) {
+            if (
+                selectedGroup == null &&
+                spec.group != previousGroup
+            ) {
                 binding.results.addView(
                     TextView(this).apply {
-                        text = spec.group.uppercase()
+                        text = "/" + spec.group
                         setTextColor(
                             ContextCompat.getColor(
                                 this@CommandHelpActivity,
@@ -96,9 +155,26 @@ class CommandHelpActivity : AppCompatActivity() {
                 previousGroup = spec.group
             }
 
-            binding.results.addView(commandCard(spec))
+            binding.results.addView(
+                commandCard(spec)
+            )
         }
     }
+
+    private fun searchableText(
+        spec: CommandSpec
+    ): String =
+        buildString {
+            append(spec.command)
+            append(' ')
+            append(spec.aliases.joinToString(" "))
+            append(' ')
+            append(spec.group)
+            append(' ')
+            append(spec.description)
+            append(' ')
+            append(spec.example)
+        }
 
     private fun commandCard(spec: CommandSpec): View =
         LinearLayout(this).apply {
@@ -130,7 +206,11 @@ class CommandHelpActivity : AppCompatActivity() {
                     setTextColor(
                         ContextCompat.getColor(
                             this@CommandHelpActivity,
-                            if (spec.available) R.color.z_text else R.color.z_muted
+                            if (spec.available) {
+                                R.color.z_text
+                            } else {
+                                R.color.z_muted
+                            }
                         )
                     )
                     textSize = 15f
@@ -154,7 +234,7 @@ class CommandHelpActivity : AppCompatActivity() {
 
             addView(
                 TextView(this@CommandHelpActivity).apply {
-                    text = "Example: ${spec.example}"
+                    text = "Example: " + spec.example
                     setTextColor(
                         ContextCompat.getColor(
                             this@CommandHelpActivity,
@@ -170,7 +250,8 @@ class CommandHelpActivity : AppCompatActivity() {
             if (!spec.available) {
                 addView(
                     TextView(this@CommandHelpActivity).apply {
-                        text = "Unavailable: ${spec.unavailableReason}"
+                        text =
+                            "Unavailable: " + spec.unavailableReason
                         setTextColor(
                             ContextCompat.getColor(
                                 this@CommandHelpActivity,
@@ -185,5 +266,6 @@ class CommandHelpActivity : AppCompatActivity() {
         }
 
     private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
+        (value * resources.displayMetrics.density)
+            .toInt()
 }
