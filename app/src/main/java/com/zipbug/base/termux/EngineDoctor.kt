@@ -10,7 +10,8 @@ object EngineDoctor {
             tool = "python",
             args = listOf("-c", script),
             workDir = home,
-            label = "Zip_Bug Engine Diagnostics"
+            label = "Zip_Bug Engine Diagnostics",
+            allowInlineCode = true
         )
     }
 }
