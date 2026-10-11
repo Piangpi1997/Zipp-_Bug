@@ -18,6 +18,22 @@ class CommandRegistryTest {
     }
 
     @Test
+    fun recapAliasesResolveToZippyCut() {
+        assertEquals(
+            "/zippycut",
+            CommandRegistry.canonical("/longrecap")
+        )
+        assertEquals(
+            "/zippycut",
+            CommandRegistry.canonical("/recap")
+        )
+
+        val spec = CommandRegistry.resolve("/longrecap")
+        assertNotNull(spec)
+        assertEquals(CommandGroups.TOOLS, spec?.group)
+    }
+
+    @Test
     fun topLevelCategoriesResolveAndFilter() {
         val categoryCommands = listOf(
             "/ui" to CommandGroups.UI,
