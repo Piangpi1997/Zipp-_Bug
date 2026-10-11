@@ -38,17 +38,23 @@ function snapshot() {
   return JSON.stringify(project);
 }
 
+function flushNativeAutosave() {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+  try {
+    if (window.ZipBug && typeof window.ZipBug.autosave === 'function') {
+      window.ZipBug.autosave(JSON.stringify(project));
+    }
+  } catch (e) {
+    console.warn('Native recovery autosave failed:', e);
+  }
+}
+
 function scheduleNativeAutosave() {
   if (autosaveTimer) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(function() {
-    try {
-      if (window.ZipBug && typeof window.ZipBug.autosave === 'function') {
-        window.ZipBug.autosave(JSON.stringify(project));
-      }
-    } catch (e) {
-      console.warn('Native recovery autosave failed:', e);
-    }
-  }, 300);
+  autosaveTimer = setTimeout(flushNativeAutosave, 250);
 }
 
 function persistProject() {
@@ -84,6 +90,20 @@ function updateHistoryButtons() {
   const redoBtn = document.querySelector('#redo-btn');
   if (undoBtn) undoBtn.disabled = undoStack.length === 0;
   if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+}
+
+function updateSelectionActionButtons() {
+  const hasSelection = !!getSelectedNode();
+  ['duplicate-layer-btn', 'delete-layer-btn', 'align-left-btn', 'align-center-btn',
+   'align-right-btn', 'align-top-btn', 'align-bottom-btn'].forEach(function(id) {
+    const button = document.querySelector('#' + id);
+    if (button) button.disabled = !hasSelection;
+  });
+  const canDistribute = getActiveNodes().length >= 3;
+  ['distribute-h-btn', 'distribute-v-btn'].forEach(function(id) {
+    const button = document.querySelector('#' + id);
+    if (button) button.disabled = !canDistribute;
+  });
 }
 
 function safeParse(raw) {
@@ -173,7 +193,10 @@ function updateCanvasScale() {
 }
 
 function switchDevicePreset(presetKey) {
-  currentDevicePreset = DEVICE_PRESETS[presetKey] ? presetKey : 'standard';
+  const nextPreset = DEVICE_PRESETS[presetKey] ? presetKey : 'standard';
+  if (nextPreset === currentDevicePreset) return;
+  pushState();
+  currentDevicePreset = nextPreset;
   project.preview = project.preview || {};
   project.preview.devicePreset = currentDevicePreset;
   touchProject();
@@ -185,7 +208,10 @@ function switchDevicePreset(presetKey) {
 }
 
 function toggleGridSnap(enabled) {
-  gridSnapEnabled = !!enabled;
+  const nextEnabled = !!enabled;
+  if (nextEnabled === gridSnapEnabled) return;
+  pushState();
+  gridSnapEnabled = nextEnabled;
   project.preview = project.preview || {};
   project.preview.gridSnap = gridSnapEnabled;
   canvas.classList.toggle('grid-on', gridSnapEnabled);
@@ -512,6 +538,7 @@ function selectNode(id) {
   refreshSelectionVisuals();
   renderLayers();
   updateInspector();
+  updateSelectionActionButtons();
 }
 
 function clearSelection() {
@@ -519,6 +546,7 @@ function clearSelection() {
   refreshSelectionVisuals();
   renderLayers();
   updateInspector();
+  updateSelectionActionButtons();
 }
 
 function refreshSelectionVisuals() {
@@ -644,8 +672,10 @@ function renderCanvas() {
       if (!resizeChanged && Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
       resizeChanged = true;
       const dim = getDeviceDimensions();
-      node.width = snap(Math.max(30, Math.min(resizeWidth + dx, dim.w - node.x)));
-      node.height = snap(Math.max(20, Math.min(resizeHeight + dy, dim.h - node.y)));
+      const maxWidth = Math.max(30, dim.w - node.x);
+      const maxHeight = Math.max(20, dim.h - node.y);
+      node.width = Math.min(maxWidth, Math.max(30, snap(resizeWidth + dx)));
+      node.height = Math.min(maxHeight, Math.max(20, snap(resizeHeight + dy)));
       el.style.width = node.width + 'px';
       el.style.height = node.height + 'px';
     };
@@ -800,6 +830,7 @@ function render() {
   renderLayers();
   updateInspector();
   updateHistoryButtons();
+  updateSelectionActionButtons();
 }
 
 function showValidationFailure(result, target) {
@@ -926,6 +957,11 @@ if (getActiveNodes().length === 0) seedDefaultNode();
 render();
 setStatus(recoveryMessage, recoveryMessage.indexOf('Recovered') === 0 ? 'ok' : '');
 
+window.flushRecovery = flushNativeAutosave;
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) flushNativeAutosave();
+});
+window.addEventListener('pagehide', flushNativeAutosave);
 window.addEventListener('resize', updateCanvasScale);
 if (typeof ResizeObserver !== 'undefined' && canvasWrapper) {
   new ResizeObserver(updateCanvasScale).observe(canvasWrapper);
