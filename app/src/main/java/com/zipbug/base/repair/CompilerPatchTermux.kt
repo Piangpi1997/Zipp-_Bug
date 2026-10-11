@@ -5,6 +5,7 @@ import com.zipbug.base.termux.TermuxBridge
 
 object CompilerPatchTermux {
     private const val MAX_SNIPPET_CHARS = 2_500
+    private const val MAX_ENCODED_ARG_CHARS = 3_800
 
     private const val PATCH_SCRIPT =
         "import base64,pathlib,sys\n" +
@@ -43,6 +44,15 @@ object CompilerPatchTermux {
             "Replacement patch snippet is too large for the reviewed patch workflow."
         }
 
+        val originalEncoded = b64(patch.originalSnippet)
+        val replacementEncoded = b64(patch.replacementSnippet)
+        require(
+            originalEncoded.length <= MAX_ENCODED_ARG_CHARS &&
+                replacementEncoded.length <= MAX_ENCODED_ARG_CHARS
+        ) {
+            "Reviewed patch snippet is too large for a safe Termux argument."
+        }
+
         TermuxBridge.Request(
             tool = "python",
             args = listOf(
@@ -50,8 +60,8 @@ object CompilerPatchTermux {
                 PATCH_SCRIPT,
                 projectRoot,
                 relative,
-                b64(patch.originalSnippet),
-                b64(patch.replacementSnippet)
+                originalEncoded,
+                replacementEncoded
             ),
             workDir = projectRoot,
             label = "Zip_Bug Reviewed Compiler Patch",
