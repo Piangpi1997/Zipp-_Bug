@@ -281,8 +281,7 @@
       }
     });
     lines.push('</androidx.constraintlayout.widget.ConstraintLayout>', '');
-    return { ok: true, content: lines.join('
-'), screenName: screen.name, warnings: validation.warnings };
+    return { ok: true, content: lines.join('\n'), screenName: screen.name, warnings: validation.warnings };
   }
 
   function generateCompose(project) {
@@ -348,17 +347,14 @@
       });
       lines.push('    }', '}', '');
     });
-    return { ok: true, content: lines.join('
-'), warnings: validation.warnings };
+    return { ok: true, content: lines.join('\n'), warnings: validation.warnings };
   }
 
   function formatIssues(issues, limit) {
     const max = limit || 6;
     return (issues || []).slice(0, max).map(function(issue) {
       return issue.path + ': ' + issue.message;
-    }).join('
-') + ((issues || []).length > max ? '
-… +' + ((issues || []).length - max) + ' more' : '');
+    }).join('\n') + ((issues || []).length > max ? '\n… +' + ((issues || []).length - max) + ' more' : '');
   }
 
   return {
