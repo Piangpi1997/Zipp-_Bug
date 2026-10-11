@@ -114,6 +114,13 @@ object CommandRegistry {
             example = "/socialrecap"
         ),
         CommandSpec(
+            command = "/zippycut",
+            aliases = listOf("/recap"),
+            group = CommandGroups.TOOLS,
+            description = "Open the Zippy Cut // Long Recap studio for multi-part script, timeline, voiceover, and video export.",
+            example = "/zippycut"
+        ),
+        CommandSpec(
             command = "/help",
             group = CommandGroups.TOOLS,
             description = "Search supported commands, descriptions, aliases, and examples.",

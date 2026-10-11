@@ -6,20 +6,29 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.zipbug.base.data.recap.*
 
 @Database(
     entities = [
         ProjectEntity::class,
         BuildJobEntity::class,
-        ApkArtifactEntity::class
+        ApkArtifactEntity::class,
+        RecapProjectEntity::class,
+        RecapClipEntity::class,
+        RecapScriptEntity::class,
+        RecapRenderJobEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class ZipBugDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
     abstract fun buildJobDao(): BuildJobDao
     abstract fun apkArtifactDao(): ApkArtifactDao
+    abstract fun recapProjectDao(): RecapProjectDao
+    abstract fun recapClipDao(): RecapClipDao
+    abstract fun recapScriptDao(): RecapScriptDao
+    abstract fun recapRenderJobDao(): RecapRenderJobDao
 
     companion object {
         @Volatile private var INSTANCE: ZipBugDatabase? = null
@@ -71,13 +80,116 @@ abstract class ZipBugDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS recap_projects (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        sourceUri TEXT,
+                        sourceFileName TEXT,
+                        sourceLocalPath TEXT,
+                        sourceDurationMs INTEGER NOT NULL,
+                        language TEXT NOT NULL,
+                        recapMode TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        outputFilePath TEXT,
+                        outputFileSize INTEGER,
+                        outputDurationMs INTEGER,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS recap_clips (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        projectId TEXT NOT NULL,
+                        orderIndex INTEGER NOT NULL,
+                        sourcePath TEXT NOT NULL,
+                        startMs INTEGER NOT NULL,
+                        endMs INTEGER NOT NULL,
+                        durationMs INTEGER NOT NULL,
+                        effectType TEXT NOT NULL,
+                        effectParam TEXT NOT NULL,
+                        isEnabled INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE INDEX IF NOT EXISTS index_recap_clips_projectId_orderIndex 
+                    ON recap_clips(projectId, orderIndex)
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS recap_scripts (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        projectId TEXT NOT NULL,
+                        partNumber INTEGER NOT NULL,
+                        title TEXT NOT NULL,
+                        scriptText TEXT NOT NULL,
+                        ttsVoice TEXT NOT NULL,
+                        ttsSpeed TEXT NOT NULL,
+                        ttsPitch TEXT NOT NULL,
+                        ttsAudioPath TEXT,
+                        ttsAudioSize INTEGER,
+                        isGenerated INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_recap_scripts_projectId_partNumber 
+                    ON recap_scripts(projectId, partNumber)
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS recap_render_jobs (
+                        jobId TEXT NOT NULL PRIMARY KEY,
+                        projectId TEXT NOT NULL,
+                        jobType TEXT NOT NULL,
+                        stage TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        progress INTEGER NOT NULL,
+                        createdTime INTEGER NOT NULL,
+                        startedTime INTEGER,
+                        finishedTime INTEGER,
+                        errorReason TEXT,
+                        failureDiagnosis TEXT,
+                        outputReference TEXT,
+                        outputSizeBytes INTEGER,
+                        durationMs INTEGER,
+                        log TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE INDEX IF NOT EXISTS index_recap_render_jobs_projectId 
+                    ON recap_render_jobs(projectId)
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE INDEX IF NOT EXISTS index_recap_render_jobs_status 
+                    ON recap_render_jobs(status)
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun get(context: Context): ZipBugDatabase = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Room.databaseBuilder(
                 context.applicationContext,
                 ZipBugDatabase::class.java,
                 "zipbug.db"
             )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
                 .also { INSTANCE = it }
         }

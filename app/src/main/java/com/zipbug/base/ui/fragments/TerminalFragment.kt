@@ -31,6 +31,7 @@ import com.zipbug.base.ui.AppCreatorActivity
 import com.zipbug.base.ui.CommandHelpActivity
 import com.zipbug.base.ui.MainActivity
 import com.zipbug.base.ui.MediaRecapActivity
+import com.zipbug.base.ui.RecapStudioActivity
 import com.zipbug.base.ui.TtsStudioActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -993,6 +994,15 @@ class TerminalFragment : Fragment() {
                     Intent(
                         requireContext(),
                         MediaRecapActivity::class.java
+                    )
+                )
+            }
+
+            "/zippycut" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        RecapStudioActivity::class.java
                     )
                 )
             }

@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Zip_Bug Studio</string>
+    <string name="recap_studio_title">Zippy Cut // Long Recap Studio</string>
+    <string name="recap_studio_subtitle">Professional End-to-End Video Recap Engine</string>
+    <string name="tab_project">Project</string>
+    <string name="tab_script">Script (1-4)</string>
+    <string name="tab_timeline">Timeline</string>
+    <string name="tab_voiceover">Voiceover</string>
+    <string name="tab_render">Render</string>
+    <string name="btn_new_project">New Project</string>
+    <string name="btn_rename">Rename</string>
+    <string name="btn_import_media">Select Media (SAF)</string>
+    <string name="btn_generate_script">Generate Script</string>
+    <string name="btn_preview_audio">Preview Voice</string>
+    <string name="btn_generate_voiceover">Generate Audio</string>
+    <string name="btn_start_render">Start Real Render</string>
+    <string name="btn_cancel_render">Cancel Render</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_open_video">Open Video</string>
+    <string name="btn_share_video">Share Video</string>
 </resources>

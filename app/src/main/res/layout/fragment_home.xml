@@ -93,6 +93,13 @@
             android:text="Social Recap  •  /socialrecap" />
 
         <Button
+            android:id="@+id/zippyCut"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Zippy Cut // Long Recap  •  /zippycut" />
+
+        <Button
             android:id="@+id/projects"
             android:layout_width="match_parent"
             android:layout_height="52dp"

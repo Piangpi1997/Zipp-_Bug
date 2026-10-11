@@ -13,6 +13,7 @@ import com.zipbug.base.ui.AppCreatorActivity
 import com.zipbug.base.ui.CommandHelpActivity
 import com.zipbug.base.ui.MainActivity
 import com.zipbug.base.ui.MediaRecapActivity
+import com.zipbug.base.ui.RecapStudioActivity
 import com.zipbug.base.ui.TtsStudioActivity
 
 class HomeFragment : Fragment() {
@@ -98,6 +99,15 @@ class HomeFragment : Fragment() {
                 Intent(
                     requireContext(),
                     MediaRecapActivity::class.java
+                )
+            )
+        }
+
+        binding.zippyCut.setOnClickListener {
+            startActivity(
+                Intent(
+                    requireContext(),
+                    RecapStudioActivity::class.java
                 )
             )
         }
