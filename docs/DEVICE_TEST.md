@@ -145,7 +145,43 @@ The AI App Creator flow is split deliberately between generation and build bound
 7. Only after exit code 0 plus artifact validation may the APK be reported as built.
 8. Inspect APK metadata, SHA-256, and signer before installation.
 
-## 10. Evidence required for DEVICE VERIFIED
+## 10. Zippy Cut / Long Recap physical proof
+
+Use media you own, are authorized to process, or that is publicly accessible.
+
+1. Open **Home → Zippy Cut** or run any of:
+   - `/zippycut`
+   - `/longrecap`
+   - `/recap`
+2. Create a new recap project and give it a name.
+3. Use the Android file picker to select one local video or audio source.
+4. Confirm the project survives closing and reopening Zip_Bug.
+5. Choose script language (Myanmar or English) independently from UI language.
+6. Generate one real AI script using an existing configured provider. Verify four persisted parts are produced and editable:
+   - Part 1
+   - Part 2
+   - Part 3
+   - Part 4
+7. Generate one TTS preview/full voiceover. For Myanmar, select an available Burmese Edge-TTS voice. Verify the output audio file exists and is non-empty before accepting SUCCESS.
+8. Build a timeline with at least one clip. Verify order and trim bounds, then enable only effects reported as supported.
+9. Start the final render and capture the real persistent render states/logs. The expected pipeline is:
+   `VALIDATION → MEDIA PREPARATION → CLIP PROCESSING → VOICEOVER → SUBTITLES → EFFECTS → FINAL ENCODE → OUTPUT VERIFICATION`
+10. Do not accept SUCCESS unless the render process exits 0 and the final output file exists with size > 0 bytes.
+11. Use **Open** to play the resulting video and **Share** to confirm the exported file is accessible.
+12. Close and reopen Zip_Bug and confirm project, script parts, clip state, TTS reference, and render output are still attached to the project.
+
+Return these Zippy Cut proof items:
+
+- project name/id and selected source type (do not include secrets);
+- AI script completion state and Part 1–4 presence;
+- TTS job status and verified audio output path/URI;
+- final render job status, exit code, and stage log;
+- final video path/URI, byte size, and duration if available;
+- any failure diagnosis shown by the app.
+
+Physical Zippy Cut / Long Recap remains **PENDING** until this end-to-end flow produces a verified playable output on the phone.
+
+## 11. Evidence required for DEVICE VERIFIED
 
 Return all of the following:
 
