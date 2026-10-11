@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.ZipBugApp
 import com.zipbug.base.ai.AiMode
+import com.zipbug.base.command.CommandGroups
 import com.zipbug.base.command.CommandRegistry
 import com.zipbug.base.build.BuildArtifactProof
 import com.zipbug.base.build.BuildWorkflowParser
@@ -905,9 +906,53 @@ class TerminalFragment : Fragment() {
         when (spec.command) {
             "/help" -> {
                 startActivity(
-                    Intent(
+                    CommandHelpActivity.createIntent(
+                        requireContext()
+                    )
+                )
+            }
+
+            "/ui" -> {
+                startActivity(
+                    CommandHelpActivity.createIntent(
                         requireContext(),
-                        CommandHelpActivity::class.java
+                        CommandGroups.UI
+                    )
+                )
+            }
+
+            "/engine" -> {
+                startActivity(
+                    CommandHelpActivity.createIntent(
+                        requireContext(),
+                        CommandGroups.ENGINE
+                    )
+                )
+            }
+
+            "/tools" -> {
+                startActivity(
+                    CommandHelpActivity.createIntent(
+                        requireContext(),
+                        CommandGroups.TOOLS
+                    )
+                )
+            }
+
+            "/coding" -> {
+                startActivity(
+                    CommandHelpActivity.createIntent(
+                        requireContext(),
+                        CommandGroups.CODING
+                    )
+                )
+            }
+
+            "/future" -> {
+                startActivity(
+                    CommandHelpActivity.createIntent(
+                        requireContext(),
+                        CommandGroups.FUTURE
                     )
                 )
             }
