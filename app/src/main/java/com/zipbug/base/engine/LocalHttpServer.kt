@@ -79,10 +79,23 @@ class LocalHttpServer(
                 else -> "application/octet-stream"
             }
 
+            val contentSecurityPolicy =
+                "default-src 'self' data: blob:; " +
+                    "connect-src 'self'; " +
+                    "img-src 'self' data: blob:; " +
+                    "media-src 'self' data: blob:; " +
+                    "style-src 'self' 'unsafe-inline'; " +
+                    "script-src 'self' 'unsafe-inline'; " +
+                    "object-src 'none'; frame-src 'none'; base-uri 'none'"
+
             val head = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: $mime\r\n" +
                 "Content-Length: ${file.length()}\r\n" +
-                "Cache-Control: no-store\r\n\r\n"
+                "Cache-Control: no-store\r\n" +
+                "Content-Security-Policy: $contentSecurityPolicy\r\n" +
+                "X-Content-Type-Options: nosniff\r\n" +
+                "Referrer-Policy: no-referrer\r\n" +
+                "Cross-Origin-Resource-Policy: same-origin\r\n"
 
             out.write(head.toByteArray())
             file.inputStream().use { it.copyTo(out) }
