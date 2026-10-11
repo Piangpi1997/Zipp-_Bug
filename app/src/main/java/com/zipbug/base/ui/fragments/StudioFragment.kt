@@ -154,7 +154,19 @@ class StudioFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        _binding?.web?.evaluateJavascript(
+            "if (window.flushRecovery) { window.flushRecovery(); }",
+            null
+        )
+        super.onPause()
+    }
+
     override fun onDestroyView() {
+        _binding?.web?.evaluateJavascript(
+            "if (window.flushRecovery) { window.flushRecovery(); }",
+            null
+        )
         super.onDestroyView()
         _binding = null
     }
