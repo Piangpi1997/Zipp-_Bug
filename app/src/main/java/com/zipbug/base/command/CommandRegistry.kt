@@ -115,7 +115,7 @@ object CommandRegistry {
         ),
         CommandSpec(
             command = "/zippycut",
-            aliases = listOf("/recap"),
+            aliases = listOf("/longrecap", "/recap"),
             group = CommandGroups.TOOLS,
             description = "Open the Zippy Cut // Long Recap studio for multi-part script, timeline, voiceover, and video export.",
             example = "/zippycut"
