@@ -122,13 +122,23 @@ class TtsStudioActivity : AppCompatActivity() {
             return
         }
 
-        currentAudioTarget = File(output)
+        val target = runCatching { validatedSharedAudioTarget(output) }
+            .getOrElse { error ->
+                Snackbar.make(
+                    binding.root,
+                    error.message ?: "Choose a valid shared audio output path",
+                    Snackbar.LENGTH_LONG
+                ).show()
+                return
+            }
+
+        currentAudioTarget = target
         binding.actionRow.visibility = View.GONE
         binding.status.text = if (isPreview) "PREVIEW • QUEUING" else "TTS • QUEUING"
 
         val request = EdgeTtsHelper.buildRequest(
             text = text,
-            outputFilePath = output,
+            outputFilePath = target.absolutePath,
             voice = voice,
             rate = rate.takeIf { it.isNotBlank() },
             pitch = pitch.takeIf { it.isNotBlank() },
@@ -209,15 +219,20 @@ class TtsStudioActivity : AppCompatActivity() {
             Snackbar.make(binding.root, "Audio file does not exist", Snackbar.LENGTH_SHORT).show()
             return
         }
-        val uri = getFileUri(file)
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, "audio/mpeg")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        try {
+
+        runCatching {
+            val uri = getFileUri(file)
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "audio/mpeg")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             startActivity(Intent.createChooser(intent, "Play TTS Audio"))
-        } catch (e: Exception) {
-            Snackbar.make(binding.root, "Cannot open audio player: ${e.message}", Snackbar.LENGTH_SHORT).show()
+        }.onFailure { error ->
+            Snackbar.make(
+                binding.root,
+                "Cannot open audio player: ${error.message}",
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -227,25 +242,45 @@ class TtsStudioActivity : AppCompatActivity() {
             Snackbar.make(binding.root, "Audio file does not exist", Snackbar.LENGTH_SHORT).show()
             return
         }
-        val uri = getFileUri(file)
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "audio/mpeg"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        try {
+
+        runCatching {
+            val uri = getFileUri(file)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "audio/mpeg"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             startActivity(Intent.createChooser(intent, "Share TTS Audio"))
-        } catch (e: Exception) {
-            Snackbar.make(binding.root, "Share failed: ${e.message}", Snackbar.LENGTH_SHORT).show()
+        }.onFailure { error ->
+            Snackbar.make(
+                binding.root,
+                "Share failed: ${error.message}",
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
     private fun getFileUri(file: File): Uri =
-        try {
-            FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
-        } catch (_: Exception) {
-            Uri.fromFile(file)
+        FileProvider.getUriForFile(
+            this,
+            "$packageName.fileprovider",
+            file
+        )
+
+    private fun validatedSharedAudioTarget(path: String): File {
+        val file = File(path)
+        val canonical = file.canonicalPath
+        require(
+            canonical.startsWith("/storage/emulated/0/Download/") ||
+                canonical.startsWith("/storage/emulated/0/Music/")
+        ) {
+            "Save audio under shared Download or Music so Play/Share can access it safely."
         }
+        require(file.name.endsWith(".mp3", ignoreCase = true)) {
+            "Audio output must use an .mp3 filename."
+        }
+        return file
+    }
 
     private fun showError(error: Throwable) {
         binding.status.text = "TTS • FAILED"
