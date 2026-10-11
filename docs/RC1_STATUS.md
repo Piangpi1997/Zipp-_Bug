@@ -45,6 +45,16 @@ The artifact ZIP digest is not the APK SHA-256.
 
 Do not treat a Windows debug signer fingerprint as the permanent release signer for the CI APK. Windows, GitHub Actions, and Termux debug builds may use different debug certificates. Stable cross-environment update signing remains a separate release-engineering task.
 
+## Latest Verified Local Build Fingerprint
+
+- **APK Name**: `app-debug.apk`
+- **APK Size**: `7,096,016` bytes (~6.77 MB)
+- **APK SHA-256**: `3A00FBDFBCE01869D109AF10AC6D58E3405D3731CA8B695CA0F3DCD7F20915E5`
+- **Signer Certificate**: `CN=Android Debug, O=Android, C=US`
+- **Signer SHA-256**: `ec416f8a9e9a28b4b36478f76ce7bcf624ac711965fafaa310711b279a2b830a`
+- **Signature Verification**: APK Signature Scheme v2 PASS (RSA 2048-bit)
+- **Unit Tests**: 55/55 PASS (`./gradlew testDebugUnitTest --no-daemon`)
+
 ## Functional changes included after cb56740
 
 The verified code baseline now also includes:
@@ -62,7 +72,12 @@ The verified code baseline now also includes:
 - APK size/SHA/export verification;
 - release-signing boundary that does not create/overwrite credentials;
 - artifact Open/Share actions only after proof is complete;
-- block on misleading Android builds from app-private storage that Termux cannot access.
+- block on misleading Android builds from app-private storage that Termux cannot access;
+- LogSanitizer secret redaction (sk-or-, AIzaSy, Bearer tokens) and CursorWindow log length bounding;
+- TermuxBridge argument validation to reject shell injection and dangerous chaining;
+- LikeFigma Studio 8px grid snapping, portrait device presets, alignment, distribute, and export schema validation;
+- Myanmar Edge-TTS speed/pitch controls, sentence-aware chunking, preview, artifact verification, and Play/Share audio intents;
+- Social Recap public URL validation (blocking private/local SSRF endpoints), distinct outputs (Summary, Caption, Titles), and input preservation on failure.
 
 ## Physical-device proof still required
 
