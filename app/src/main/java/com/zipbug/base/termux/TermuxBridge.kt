@@ -89,11 +89,7 @@ object TermuxBridge {
                 "Work directory must be inside Termux storage"
             }
 
-            require(
-                request.args.none { arg ->
-                    arg.contains('\u0000') || arg.length > 4096
-                }
-            ) { "Invalid argument" }
+            validateArguments(request.tool, request.args)
 
             val resultIntent = Intent(
                 appContext,
@@ -168,6 +164,25 @@ object TermuxBridge {
                 errorCode = null,
                 errorMessage = error.message ?: error.javaClass.simpleName
             )
+        }
+    }
+
+    fun validateArguments(tool: String, args: List<String>) {
+        require(
+            args.none { arg ->
+                arg.contains('\u0000') || arg.length > 4096
+            }
+        ) { "Invalid argument: contains null byte or exceeds 4096 characters" }
+
+        if (tool == "sh" || tool == "bash") {
+            for (arg in args) {
+                if (arg.contains(";") || arg.contains("&&") || arg.contains("||") || arg.contains("|") || arg.contains("`") || arg.contains("$(")) {
+                    throw IllegalArgumentException("Forbidden shell operator in argument: $arg")
+                }
+                if (arg.contains("rm -rf") || arg.contains("rm -r -f") || arg.contains("mkfs")) {
+                    throw IllegalArgumentException("Destructive command forbidden in shell runner")
+                }
+            }
         }
     }
 }

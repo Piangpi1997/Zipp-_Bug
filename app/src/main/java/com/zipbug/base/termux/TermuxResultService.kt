@@ -47,18 +47,22 @@ class TermuxResultService : IntentService("ZipBugTermuxResult") {
 
             val job = dao.get(jobId)
 
+            val sanitizedStdout = LogSanitizer.sanitize(stdout)
+            val sanitizedStderr = LogSanitizer.sanitize(stderr)
+            val finalErrMsg = if (result == null) {
+                "Termux returned no result bundle"
+            } else {
+                LogSanitizer.sanitize(errorMessage)
+            }
+
             dao.finish(
                 id = jobId,
                 status = status,
-                stdout = stdout,
-                stderr = stderr,
+                stdout = sanitizedStdout,
+                stderr = sanitizedStderr,
                 exitCode = exitCode,
                 errorCode = errorCode,
-                errorMessage = if (result == null) {
-                    "Termux returned no result bundle"
-                } else {
-                    errorMessage
-                }
+                errorMessage = finalErrMsg
             )
 
             // A successful /apkbuilder is followed by a real Termux copy
