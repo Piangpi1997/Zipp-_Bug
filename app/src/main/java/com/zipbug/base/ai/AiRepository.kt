@@ -43,9 +43,30 @@ class AiRepository {
             if (req.apiKey.isBlank()) {
                 return Result.failure(IllegalArgumentException("API key is empty"))
             }
-            if ((req.provider == AiProvider.OPENAI || req.provider == AiProvider.ANTHROPIC) && req.apiKey.startsWith("sk-or-")) {
-                return Result.failure(IllegalArgumentException("Keys starting with 'sk-or-' must not be sent to ${req.provider.label}."))
+            val key = req.apiKey.trim()
+            val expectedProvider = when {
+                key.startsWith("sk-or-") -> AiProvider.OPENROUTER
+                key.startsWith("sk-ant-") -> AiProvider.ANTHROPIC
+                key.startsWith("sk-proj-") -> AiProvider.OPENAI
+                key.startsWith("AIza") -> AiProvider.GEMINI
+                else -> null
             }
+
+            if (
+                expectedProvider != null &&
+                req.provider != expectedProvider
+            ) {
+                return Result.failure(
+                    IllegalArgumentException(
+                        "This API key prefix belongs to " +
+                            expectedProvider.label +
+                            " and will not be sent to " +
+                            req.provider.label +
+                            "."
+                    )
+                )
+            }
+
             if (req.provider != AiProvider.OPENROUTER && req.model.startsWith("openrouter/")) {
                 return Result.failure(IllegalArgumentException("OpenRouter model '${req.model}' cannot be used with provider ${req.provider.label}."))
             }
