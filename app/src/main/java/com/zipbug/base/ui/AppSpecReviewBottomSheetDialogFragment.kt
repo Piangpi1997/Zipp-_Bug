@@ -16,7 +16,6 @@ import com.zipbug.base.creator.GeneratedProjectSpec
 import com.zipbug.base.creator.ProjectZipWriter
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.DialogAppSpecReviewBinding
-import com.zipbug.base.termux.TermuxBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,7 +52,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val appContext = context?.applicationContext
             ?: return@registerForActivityResult
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
                 runCatching {
                     val root = File(project.rootPath).canonicalFile
