@@ -39,6 +39,9 @@ jobs:
       - name: Validate project
         run: python verify-project.py
 
+      - name: Studio JS tests
+        run: node scripts/test-studio-core.js
+
       - name: Unit tests
         run: gradle --no-daemon testDebugUnitTest
 
