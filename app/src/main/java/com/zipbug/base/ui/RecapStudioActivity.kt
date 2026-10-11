@@ -415,13 +415,31 @@ class RecapStudioActivity : AppCompatActivity() {
         val count = clips.size
         binding.tvClipsHeader.text = "TIMELINE & CLIPS ($count / 18)"
 
-        val validation = RecapTimelineManager.validateTimeline(clips)
-        if (validation.isSuccess) {
-            binding.tvTimelineValidation.text = "Status: Valid ($count clips)"
-            binding.tvTimelineValidation.setTextColor(ContextCompat.getColor(this, R.color.z_green))
+        if (clips.isEmpty()) {
+            binding.tvTimelineValidation.text =
+                "No clips yet. Select media, then use Auto Split or + Clip."
+            binding.tvTimelineValidation.setTextColor(
+                ContextCompat.getColor(this, R.color.z_muted)
+            )
         } else {
-            binding.tvTimelineValidation.text = "Status: Invalid - ${validation.exceptionOrNull()?.message?.take(80)}"
-            binding.tvTimelineValidation.setTextColor(ContextCompat.getColor(this, R.color.z_red))
+            val validation = RecapTimelineManager.validateTimeline(clips)
+            if (validation.isSuccess) {
+                binding.tvTimelineValidation.text = "Status: Valid ($count clips)"
+                binding.tvTimelineValidation.setTextColor(
+                    ContextCompat.getColor(this, R.color.z_green)
+                )
+            } else {
+                val reason = validation.exceptionOrNull()
+                    ?.message
+                    ?.lineSequence()
+                    ?.firstOrNull()
+                    ?.take(120)
+                    ?: "Timeline needs attention"
+                binding.tvTimelineValidation.text = "Status: Needs attention — $reason"
+                binding.tvTimelineValidation.setTextColor(
+                    ContextCompat.getColor(this, R.color.z_red)
+                )
+            }
         }
 
         for ((index, clip) in clips.withIndex()) {
@@ -534,7 +552,15 @@ class RecapStudioActivity : AppCompatActivity() {
             Toast.makeText(this, "Max 18 clips allowed per project", Toast.LENGTH_SHORT).show()
             return
         }
-        val src = project.sourceLocalPath ?: ""
+        val src = project.sourceLocalPath
+        if (src.isNullOrBlank()) {
+            Toast.makeText(
+                this,
+                "Select source media before adding timeline clips",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
         val lastEnd = clips.lastOrNull()?.endMs ?: 0L
         val newClip = RecapClipEntity(
             id = UUID.randomUUID().toString(),
