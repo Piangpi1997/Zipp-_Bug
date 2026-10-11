@@ -21,6 +21,7 @@ import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.FragmentProjectsBinding
 import com.zipbug.base.creator.ProjectDirectoryZipWriter
 import com.zipbug.base.engine.EngineManager
+import com.zipbug.base.project.ProjectWorkspaceManager
 import com.zipbug.base.project.ZipImporter
 import com.zipbug.base.ui.ApkDetailBottomSheetDialogFragment
 import com.zipbug.base.ui.MainActivity
@@ -255,7 +256,7 @@ class ProjectsFragment : Fragment() {
 
         val btnBuild = Button(requireContext()).apply {
             val termuxAccessible =
-                project.rootPath.startsWith("/data/data/com.termux/files/")
+                ProjectWorkspaceManager.isTermuxAccessible(project.rootPath)
             text =
                 if (termuxAccessible) "Build APK"
                 else "Export Source ZIP"
