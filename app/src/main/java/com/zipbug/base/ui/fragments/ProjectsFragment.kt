@@ -17,25 +17,74 @@ import com.zipbug.base.R
 import com.zipbug.base.ZipBugApp
 import com.zipbug.base.artifact.ApkArtifactScanner
 import com.zipbug.base.data.ApkArtifactEntity
-import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.FragmentProjectsBinding
+import com.zipbug.base.creator.ProjectDirectoryZipWriter
 import com.zipbug.base.engine.EngineManager
 import com.zipbug.base.project.ZipImporter
-import com.zipbug.base.termux.TermuxBridge
 import com.zipbug.base.ui.ApkDetailBottomSheetDialogFragment
+import com.zipbug.base.ui.MainActivity
 import com.zipbug.base.ui.SigningDiagnosticsActivity
 import com.zipbug.base.ui.WebRuntimeActivity
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
 
 class ProjectsFragment : Fragment() {
     private var _binding: FragmentProjectsBinding? = null
     private val binding get() = _binding!!
+    private var pendingSourceExport: ProjectEntity? = null
+
+    private val exportProjectSource = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val project = pendingSourceExport
+        pendingSourceExport = null
+
+        if (uri == null || project == null) {
+            if (_binding != null) {
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export cancelled",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            return@registerForActivityResult
+        }
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    ProjectDirectoryZipWriter(requireContext())
+                        .writeAndValidate(
+                            uri,
+                            File(project.rootPath)
+                        )
+                }
+            }
+
+            if (_binding == null) return@launch
+
+            result.onSuccess { validation ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP verified: " +
+                        validation.entryCount +
+                        " files. Unzip it in a Termux workspace, then build with /apkbuilder --debug.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }.onFailure { error ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export failed: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 
     private val pickZip = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
