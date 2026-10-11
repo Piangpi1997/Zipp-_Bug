@@ -75,7 +75,7 @@ object TermuxBridge {
 
         dao.upsert(job)
 
-        return runCatching {
+        val result = runCatching {
             require(isTermuxInstalled(appContext)) {
                 "Termux package (com.termux) is not installed on this device"
             }
@@ -159,7 +159,13 @@ object TermuxBridge {
 
             dao.markStarted(jobId)
             jobId
-        }.onFailure { error ->
+        }
+
+        val error = result.exceptionOrNull()
+        if (error != null) {
+            val safeMessage = LogSanitizer.sanitize(
+                error.message ?: error.javaClass.simpleName
+            )
             dao.finish(
                 id = jobId,
                 status = BuildJobEntity.FAILED,
@@ -167,11 +173,14 @@ object TermuxBridge {
                 stderr = "",
                 exitCode = null,
                 errorCode = null,
-                errorMessage = LogSanitizer.sanitize(
-                    error.message ?: error.javaClass.simpleName
-                )
+                errorMessage = safeMessage
+            )
+            return Result.failure(
+                IllegalArgumentException(safeMessage)
             )
         }
+
+        return result
     }
 
     fun validateArguments(tool: String, args: List<String>) {
