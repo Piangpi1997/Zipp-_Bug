@@ -30,8 +30,11 @@ object AppProjectGenerator {
                     AppSpec(
                         name = spec.name,
                         packageName = spec.packageName,
-                        goal = "Target: " + spec.target +
-                            "\nPermissions: " + spec.permissions.joinToString()
+                        goal = "Target: " + spec.target,
+                        minSdk = spec.minSdk,
+                        targetSdk = spec.targetSdk,
+                        permissions = spec.permissions,
+                        dependencies = spec.dependencies
                     )
                 )
 
