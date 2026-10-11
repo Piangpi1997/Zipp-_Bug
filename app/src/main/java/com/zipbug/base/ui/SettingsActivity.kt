@@ -165,21 +165,30 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         binding.save.setOnClickListener {
+            val termuxHome = binding.termuxHome.text.toString().trim()
+            val projectRoot = binding.projectRoot.text.toString().trim()
+            val artifactPath = binding.artifactExportPath.text.toString().trim()
+
+            val settingsError = validateEngineSettings(
+                termuxHome,
+                projectRoot,
+                artifactPath
+            )
+            if (settingsError != null) {
+                Snackbar.make(
+                    binding.root,
+                    settingsError,
+                    Snackbar.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
             saveSecrets()
 
             prefs.edit()
-                .putString(
-                    "termuxHome",
-                    binding.termuxHome.text.toString()
-                )
-                .putString(
-                    "projectRoot",
-                    binding.projectRoot.text.toString()
-                )
-                .putString(
-                    "artifactExportPath",
-                    binding.artifactExportPath.text.toString()
-                )
+                .putString("termuxHome", termuxHome)
+                .putString("projectRoot", projectRoot)
+                .putString("artifactExportPath", artifactPath)
                 .apply()
 
             Snackbar.make(
@@ -194,6 +203,36 @@ class SettingsActivity : AppCompatActivity() {
         pendingBackupPassphrase?.fill('\u0000')
         pendingBackupPassphrase = null
         super.onDestroy()
+    }
+
+    private fun validateEngineSettings(
+        termuxHome: String,
+        projectRoot: String,
+        artifactPath: String
+    ): String? {
+        if (
+            termuxHome != "/data/data/com.termux/files" &&
+            !termuxHome.startsWith("/data/data/com.termux/files/")
+        ) {
+            return "Termux home must stay inside /data/data/com.termux/files/."
+        }
+
+        if (
+            projectRoot != "/data/data/com.termux/files" &&
+            !projectRoot.startsWith("/data/data/com.termux/files/")
+        ) {
+            return "Project root must stay inside Termux storage."
+        }
+
+        if (!artifactPath.startsWith("/storage/emulated/0/Download/")) {
+            return "APK export path must be inside shared Download."
+        }
+
+        if (!artifactPath.endsWith(".apk", ignoreCase = true)) {
+            return "APK export path must end with .apk."
+        }
+
+        return null
     }
 
     private fun loadSecretFields() {
