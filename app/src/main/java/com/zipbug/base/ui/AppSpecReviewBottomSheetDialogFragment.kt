@@ -166,14 +166,13 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                             "/data/data/com.termux/files/"
                         )
 
-                    binding.btnBuildProject.isEnabled =
-                        termuxAccessible
+                    binding.btnBuildProject.isEnabled = true
 
                     binding.btnBuildProject.text =
                         if (termuxAccessible) {
                             "Build Debug APK"
                         } else {
-                            "Move to Termux First"
+                            "Export Source ZIP"
                         }
 
                     Snackbar.make(
@@ -201,24 +200,25 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 generatedProject
                     ?: return@setOnClickListener
 
-            if (
-                !proj.rootPath.startsWith(
+            val termuxAccessible =
+                proj.rootPath.startsWith(
                     "/data/data/com.termux/files/"
                 )
-            ) {
-                Snackbar.make(
-                    binding.root,
-                    "Build not started: project is not in a Termux workspace. No fake build was queued.",
-                    Snackbar.LENGTH_LONG
-                ).show()
+
+            if (!termuxAccessible) {
+                pendingExportProject = proj
+                val filename = proj.name
+                    .replace(Regex("[^a-zA-Z0-9._-]"), "_")
+                    .ifBlank { "ZipBugGeneratedApp" } +
+                    "-source.zip"
+                exportGeneratedSource.launch(filename)
                 return@setOnClickListener
             }
 
-            Snackbar.make(
-                binding.root,
-                "Use /apkbuilder --debug with this Termux project root so validation, timeout, packaging, and APK verification are enforced.",
-                Snackbar.LENGTH_LONG
-            ).show()
+            dismiss()
+            (activity as? MainActivity)?.navigateToTerminal(
+                "/apkbuilder --debug \"" + proj.rootPath + "\""
+            )
         }
     }
 
@@ -281,6 +281,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     override fun onDestroyView() {
+        pendingExportProject = null
         super.onDestroyView()
         _binding = null
     }
