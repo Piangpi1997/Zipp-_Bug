@@ -16,27 +16,45 @@ class LocalHttpServer(
     private var server: ServerSocket? = null
     private val pool = Executors.newCachedThreadPool()
 
+    @Synchronized
     fun start() {
         if (running) return
+
+        val boundServer = ServerSocket(
+            port,
+            20,
+            InetAddress.getByName("127.0.0.1")
+        )
+
+        server = boundServer
         running = true
+
         pool.execute {
-            server = ServerSocket(
-                port,
-                20,
-                InetAddress.getByName("127.0.0.1")
-            )
-            while (running) {
-                runCatching { server?.accept() }
-                    .getOrNull()
-                    ?.let { socket -> pool.execute { serve(socket) } }
+            try {
+                while (running) {
+                    val socket = runCatching {
+                        boundServer.accept()
+                    }.getOrNull() ?: continue
+
+                    pool.execute {
+                        serve(socket)
+                    }
+                }
+            } finally {
+                runCatching { boundServer.close() }
+                .getOrNull()
+                ?: Unit
+                running = false
             }
         }
     }
 
+    @Synchronized
     fun stop() {
         running = false
         runCatching { server?.close() }
         server = null
+        pool.shutdownNow()
     }
 
     private fun serve(socket: Socket) {
