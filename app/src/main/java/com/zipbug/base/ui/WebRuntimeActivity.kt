@@ -12,10 +12,12 @@ import java.io.ByteArrayInputStream
 import java.net.URI
 
 class WebRuntimeActivity : AppCompatActivity() {
+    private lateinit var webView: WebView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val webView = WebView(this)
+        webView = WebView(this)
         setContentView(webView)
 
         webView.settings.apply {
@@ -88,8 +90,12 @@ class WebRuntimeActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        (findViewById<WebView?>(android.R.id.content)
-            ?: return super.onDestroy())
+        if (::webView.isInitialized) {
+            webView.stopLoading()
+            webView.loadUrl("about:blank")
+            webView.removeAllViews()
+            webView.destroy()
+        }
         super.onDestroy()
     }
 
