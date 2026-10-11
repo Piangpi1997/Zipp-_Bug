@@ -11,60 +11,103 @@ object AppProjectGenerator {
 
     suspend fun generate(context: Context, spec: GeneratedProjectSpec): Result<ProjectEntity> =
         withContext(Dispatchers.IO) {
-            runCatching {
-                val safeName = spec.name.replace(Regex("[^a-zA-Z0-9_-]"), "_").ifBlank { "GeneratedApp" }
-                val projectsDir = File(context.filesDir, "projects").apply { mkdirs() }
-                val targetDir = File(projectsDir, safeName).apply { mkdirs() }
+            val safeName = spec.name
+                .replace(Regex("[^a-zA-Z0-9_-]"), "_")
+                .ifBlank { "GeneratedApp" }
+            val createdAt = System.currentTimeMillis()
+            val projectId = "proj_" + safeName + "_" + createdAt
+            val projectsDir = File(context.filesDir, "projects").apply { mkdirs() }
+            val targetDir = File(projectsDir, projectId)
 
-                // 1. Generate base project structure
-                val baseFiles = runCatching {
-                    AppScaffolder.files(
-                        AppSpec(
-                            name = spec.name,
-                            packageName = spec.packageName,
-                            goal = "Target: ${spec.target}\nPermissions: ${spec.permissions.joinToString()}"
-                        )
+            runCatching {
+                require(targetDir.mkdirs()) {
+                    "Unable to create a clean generated project directory."
+                }
+                val canonicalRoot = targetDir.canonicalFile
+
+                val baseFiles = AppScaffolder.files(
+                    AppSpec(
+                        name = spec.name,
+                        packageName = spec.packageName,
+                        goal = "Target: " + spec.target +
+                            "\nPermissions: " + spec.permissions.joinToString()
                     )
-                }.getOrDefault(emptyMap())
+                )
 
                 val allFiles = baseFiles.toMutableMap()
 
-                // 2. Overlay / write AI generated files
-                for (gf in spec.files) {
-                    val cleanPath = gf.path.trimStart('/', '\\')
-                    require(!cleanPath.contains("..")) { "Path traversal rejected: ${gf.path}" }
-                    allFiles[cleanPath] = gf.content
+                for (generatedFile in spec.files) {
+                    val cleanPath = normalizeRelativePath(generatedFile.path)
+                    allFiles[cleanPath] = generatedFile.content
                 }
 
-                // 3. Write all files to disk
                 for ((relPath, content) in allFiles) {
-                    val targetFile = File(targetDir, relPath)
-                    targetFile.parentFile?.mkdirs()
+                    val normalizedPath = normalizeRelativePath(relPath)
+                    val targetFile = resolveInside(canonicalRoot, normalizedPath)
+                    targetFile.parentFile?.let { parent ->
+                        require(parent.exists() || parent.mkdirs()) {
+                            "Unable to create project directory: " + parent.path
+                        }
+                    }
                     targetFile.writeText(content, Charsets.UTF_8)
                 }
 
                 val packagePath = spec.packageName.replace('.', '/')
-                val mainActivityFile = File(targetDir, "app/src/main/java/$packagePath/MainActivity.kt")
-                val entryFilePath = if (mainActivityFile.exists()) {
+                val mainActivityFile = File(
+                    canonicalRoot,
+                    "app/src/main/java/" + packagePath + "/MainActivity.kt"
+                )
+                val entryFilePath = if (mainActivityFile.isFile) {
                     mainActivityFile.absolutePath
                 } else {
-                    File(targetDir, "build.gradle.kts").absolutePath
+                    File(canonicalRoot, "build.gradle.kts").absolutePath
                 }
 
                 val projectEntity = ProjectEntity(
-                    id = "proj_${safeName}_${System.currentTimeMillis()}",
+                    id = projectId,
                     name = spec.name,
                     kind = spec.target,
-                    rootPath = targetDir.absolutePath,
+                    rootPath = canonicalRoot.absolutePath,
                     entryFile = entryFilePath,
-                    createdAt = System.currentTimeMillis(),
-                    lastOpenedAt = System.currentTimeMillis()
+                    createdAt = createdAt,
+                    lastOpenedAt = createdAt
                 )
 
                 val app = context.applicationContext as ZipBugApp
                 app.database.projectDao().upsert(projectEntity)
 
                 projectEntity
+            }.onFailure {
+                targetDir.deleteRecursively()
             }
         }
+
+    private fun normalizeRelativePath(rawPath: String): String {
+        val normalized = rawPath
+            .trim()
+            .replace('\\', '/')
+            .trimStart('/')
+
+        require(normalized.isNotBlank()) {
+            "Generated file path cannot be blank."
+        }
+        require(!WINDOWS_DRIVE_PREFIX.containsMatchIn(normalized)) {
+            "Absolute Windows path rejected: " + rawPath
+        }
+        require(normalized.split('/').none { it == ".." || it.isBlank() }) {
+            "Unsafe generated file path rejected: " + rawPath
+        }
+        return normalized
+    }
+
+    private fun resolveInside(root: File, relativePath: String): File {
+        val candidate = File(root, relativePath).canonicalFile
+        val prefix = root.path + File.separator
+        require(candidate.path.startsWith(prefix)) {
+            "Generated file escapes project sandbox: " + relativePath
+        }
+        return candidate
+    }
+
+    private val WINDOWS_DRIVE_PREFIX = Regex("^[A-Za-z]:[/\\\\]")
 }
