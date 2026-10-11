@@ -55,4 +55,29 @@ class AppScaffolderTest {
         )
         assertEquals(12, files.size)
     }
+
+    @Test
+    fun redactsRecognizableSecretsFromGeneratedSource() {
+        val secret = "sk-or-v1-abcdefghijklmnopqrstuvwxyz123456"
+        val files = AppScaffolder.files(
+            AppSpec(
+                name = "Safe",
+                packageName = "com.example.safe",
+                goal = "Use key " + secret + " only locally"
+            )
+        )
+
+        val combined = files.values.joinToString("\n")
+        assertTrue(!combined.contains(secret))
+        assertTrue(combined.contains("[REDACTED]"))
+        assertTrue(
+            files.getValue("app/src/main/AndroidManifest.xml")
+                .contains("android:allowBackup=\"false\"")
+        )
+        assertTrue(
+            files.getValue("README.md")
+                .contains("/apkbuilder --debug")
+        )
+    }
+
 }
