@@ -1,150 +1,137 @@
-let project = {
+'use strict';
+
+const StudioCore = window.ZipBugStudioCore;
+if (!StudioCore) throw new Error('ZipBugStudioCore failed to load');
+
+let project = StudioCore.migrateProject({
   id: 'proj_studio',
   name: 'ZipBug Studio',
-  screens: [
-    { id: 'screen_main', name: 'Main', nodes: [] }
-  ],
-  currentScreenId: 'screen_main'
-};
+  screens: [{ id: 'screen_main', name: 'Main', nodes: [] }],
+  currentScreenId: 'screen_main',
+  preview: { devicePreset: 'standard', gridSnap: true }
+});
 
 let selected = null;
 let sequence = 0;
-const canvas = document.querySelector('#canvas');
+let gridSnapEnabled = true;
+let currentDevicePreset = 'standard';
+let canvasScale = 1;
+let inspectorSnapshot = null;
+let autosaveTimer = null;
+
+const GRID_SIZE = 8;
+const DEVICE_PRESETS = StudioCore.DEVICE_PRESETS;
 const undoStack = [];
 const redoStack = [];
+const canvas = document.querySelector('#canvas');
+const canvasStage = document.querySelector('#canvas-stage');
+const canvasWrapper = document.querySelector('#canvas-wrapper');
+const statusEl = document.querySelector('#studio-status');
 
-let gridSnapEnabled = true;
-const GRID_SIZE = 8;
-
-const DEVICE_PRESETS = {
-  small: { w: 360, h: 640 },
-  standard: { w: 390, h: 844 },
-  large: { w: 412, h: 915 }
-};
-let currentDevicePreset = 'standard';
-
-function switchDevicePreset(presetKey) {
-  const preset = DEVICE_PRESETS[presetKey] || DEVICE_PRESETS.standard;
-  currentDevicePreset = presetKey;
-  if (canvas) {
-    canvas.style.width = preset.w + 'px';
-    canvas.style.minHeight = preset.h + 'px';
-    canvas.style.height = preset.h + 'px';
-  }
+function setStatus(message, kind) {
+  if (!statusEl) return;
+  statusEl.textContent = message;
+  statusEl.className = kind || '';
 }
 
-function toggleGridSnap(enabled) {
-  gridSnapEnabled = !!enabled;
+function snapshot() {
+  return JSON.stringify(project);
 }
 
-function snap(val) {
-  if (!gridSnapEnabled) return Math.round(val);
-  return Math.round(val / GRID_SIZE) * GRID_SIZE;
-}
-
-function getDeviceDimensions() {
-  return DEVICE_PRESETS[currentDevicePreset] || DEVICE_PRESETS.standard;
-}
-
-function alignSelected(side) {
-  const nodes = getActiveNodes();
-  const node = nodes.find(n => n.id === selected);
-  if (!node) return;
-  pushState();
-  const dim = getDeviceDimensions();
-  switch (side) {
-    case 'left':
-      node.x = 16;
-      break;
-    case 'center':
-      node.x = Math.max(0, Math.round((dim.w - node.width) / 2));
-      break;
-    case 'right':
-      node.x = Math.max(0, dim.w - node.width - 16);
-      break;
-    case 'top':
-      node.y = 16;
-      break;
-    case 'bottom':
-      node.y = Math.max(0, dim.h - node.height - 16);
-      break;
-  }
-  if (gridSnapEnabled) {
-    node.x = snap(node.x);
-    node.y = snap(node.y);
-  }
-  render();
-}
-
-function distributeNodes(direction) {
-  const nodes = getActiveNodes();
-  if (nodes.length < 3) {
-    alert('At least 3 layers are required to distribute.');
-    return;
-  }
-  pushState();
-  if (direction === 'v') {
-    const sorted = [...nodes].sort((a, b) => a.y - b.y);
-    const minY = sorted[0].y;
-    const lastNode = sorted[sorted.length - 1];
-    const maxY = lastNode.y;
-    const totalSpan = maxY - minY;
-    const step = totalSpan / (sorted.length - 1);
-    sorted.forEach((n, idx) => {
-      if (idx > 0 && idx < sorted.length - 1) {
-        n.y = snap(minY + (step * idx));
+function scheduleNativeAutosave() {
+  if (autosaveTimer) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(function() {
+    try {
+      if (window.ZipBug && typeof window.ZipBug.autosave === 'function') {
+        window.ZipBug.autosave(JSON.stringify(project));
       }
-    });
-  } else if (direction === 'h') {
-    const sorted = [...nodes].sort((a, b) => a.x - b.x);
-    const minX = sorted[0].x;
-    const lastNode = sorted[sorted.length - 1];
-    const maxX = lastNode.x;
-    const totalSpan = maxX - minX;
-    const step = totalSpan / (sorted.length - 1);
-    sorted.forEach((n, idx) => {
-      if (idx > 0 && idx < sorted.length - 1) {
-        n.x = snap(minX + (step * idx));
-      }
-    });
-  }
-  render();
+    } catch (e) {
+      console.warn('Native recovery autosave failed:', e);
+    }
+  }, 300);
 }
 
-function validateSchema(screen) {
-  if (!screen) return { valid: false, error: 'No active screen found.' };
-  if (!Array.isArray(screen.nodes)) return { valid: false, error: 'Screen nodes must be an array.' };
-  const allowedTypes = ['Text', 'Button', 'Input', 'Card', 'Image'];
-  for (let i = 0; i < screen.nodes.length; i++) {
-    const n = screen.nodes[i];
-    if (!n.id || typeof n.id !== 'string') {
-      return { valid: false, error: 'Node #' + i + ' has missing or invalid id.' };
-    }
-    if (!allowedTypes.includes(n.type)) {
-      return { valid: false, error: 'Node ' + n.id + ' has invalid type: ' + n.type };
-    }
-    if (typeof n.width !== 'number' || n.width <= 0 || isNaN(n.width)) {
-      return { valid: false, error: 'Node ' + n.id + ' has invalid width: ' + n.width };
-    }
-    if (typeof n.height !== 'number' || n.height <= 0 || isNaN(n.height)) {
-      return { valid: false, error: 'Node ' + n.id + ' has invalid height: ' + n.height };
-    }
-    if (typeof n.x !== 'number' || isNaN(n.x)) {
-      return { valid: false, error: 'Node ' + n.id + ' has invalid x position: ' + n.x };
-    }
-    if (typeof n.y !== 'number' || isNaN(n.y)) {
-      return { valid: false, error: 'Node ' + n.id + ' has invalid y position: ' + n.y };
-    }
+function persistProject() {
+  try {
+    localStorage.setItem('zipbug_studio_project', JSON.stringify(project));
+  } catch (e) {
+    console.warn('LocalStorage save failed:', e);
   }
-  return { valid: true };
+  scheduleNativeAutosave();
+}
+
+function touchProject() {
+  project.schemaVersion = StudioCore.SCHEMA_VERSION;
+  project.updatedAt = Date.now();
+}
+
+function pushSnapshot(value) {
+  if (!value) return;
+  if (undoStack.length === 0 || undoStack[undoStack.length - 1] !== value) {
+    undoStack.push(value);
+    if (undoStack.length > 50) undoStack.shift();
+  }
+  redoStack.length = 0;
+  updateHistoryButtons();
+}
+
+function pushState() {
+  pushSnapshot(snapshot());
+}
+
+function updateHistoryButtons() {
+  const undoBtn = document.querySelector('#undo-btn');
+  const redoBtn = document.querySelector('#redo-btn');
+  if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+  if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+}
+
+function safeParse(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function loadPersistedProject() {
+  let localRaw = null;
+  let nativeRaw = null;
+  try { localRaw = localStorage.getItem('zipbug_studio_project'); } catch (e) { console.warn(e); }
+  try {
+    if (window.ZipBug && typeof window.ZipBug.loadProject === 'function') nativeRaw = window.ZipBug.loadProject();
+  } catch (e) {
+    console.warn('Native recovery load failed:', e);
+  }
+
+  const localParsed = safeParse(localRaw);
+  const nativeParsed = safeParse(nativeRaw);
+  const candidates = [];
+  if (localParsed) candidates.push({ source: 'local autosave', value: localParsed, updatedAt: Number(localParsed.updatedAt) || 0 });
+  if (nativeParsed) candidates.push({ source: 'recovery storage', value: nativeParsed, updatedAt: Number(nativeParsed.updatedAt) || 0 });
+  if (candidates.length === 0) return 'New project ready';
+
+  candidates.sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+  const chosen = candidates[0];
+  project = StudioCore.migrateProject(chosen.value);
+  return 'Recovered ' + chosen.source + ' · schema v' + project.schemaVersion;
+}
+
+function recalculateSequence() {
+  let maxSeq = 0;
+  project.screens.forEach(function(screen) {
+    screen.nodes.forEach(function(node) {
+      const match = String(node.id || '').match(/^n(\d+)$/);
+      if (match) maxSeq = Math.max(maxSeq, Number(match[1]));
+    });
+  });
+  sequence = maxSeq;
 }
 
 function getActiveScreen() {
-  let screen = project.screens.find(s => s.id === project.currentScreenId);
+  let screen = project.screens.find(function(s) { return s.id === project.currentScreenId; });
   if (!screen) {
-    if (project.screens.length === 0) {
-      project.screens.push({ id: 'screen_1', name: 'Main', nodes: [] });
-    }
     project.currentScreenId = project.screens[0].id;
     screen = project.screens[0];
   }
@@ -155,227 +142,413 @@ function getActiveNodes() {
   return getActiveScreen().nodes;
 }
 
-function persistProject() {
-  try {
-    localStorage.setItem('zipbug_studio_project', JSON.stringify(project));
-  } catch (e) {
-    console.warn('LocalStorage save failed:', e);
-  }
+function getSelectedNode() {
+  return getActiveNodes().find(function(n) { return n.id === selected; }) || null;
 }
 
-function loadPersistedProject() {
-  try {
-    const raw = localStorage.getItem('zipbug_studio_project');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.screens) && parsed.screens.length > 0) {
-        project = parsed;
-        // update sequence counter to avoid collision
-        let maxSeq = 0;
-        project.screens.forEach(s => {
-          s.nodes.forEach(n => {
-            const num = parseInt((n.id || '').replace(/\D/g, ''), 10);
-            if (!isNaN(num) && num > maxSeq) maxSeq = num;
-          });
-        });
-        sequence = maxSeq;
-      }
-    }
-  } catch (e) {
-    console.warn('LocalStorage load failed:', e);
-  }
+function applyPreviewFromProject() {
+  const preview = project.preview || {};
+  currentDevicePreset = DEVICE_PRESETS[preview.devicePreset] ? preview.devicePreset : 'standard';
+  gridSnapEnabled = preview.gridSnap !== false;
+  const deviceSelect = document.querySelector('#device-select');
+  const snapCheck = document.querySelector('#grid-snap-check');
+  if (deviceSelect) deviceSelect.value = currentDevicePreset;
+  if (snapCheck) snapCheck.checked = gridSnapEnabled;
+  canvas.classList.toggle('grid-on', gridSnapEnabled);
 }
 
-function pushState() {
-  undoStack.push(JSON.stringify(project));
-  if (undoStack.length > 30) undoStack.shift();
-  redoStack.length = 0;
+function getDeviceDimensions() {
+  return DEVICE_PRESETS[currentDevicePreset] || DEVICE_PRESETS.standard;
+}
+
+function updateCanvasScale() {
+  const dim = getDeviceDimensions();
+  const availableWidth = Math.max(220, (canvasWrapper ? canvasWrapper.clientWidth : dim.w) - 24);
+  canvasScale = Math.min(1, availableWidth / dim.w);
+  canvas.style.width = dim.w + 'px';
+  canvas.style.height = dim.h + 'px';
+  canvas.style.transform = 'scale(' + canvasScale + ')';
+  canvasStage.style.width = Math.ceil(dim.w * canvasScale) + 'px';
+  canvasStage.style.height = Math.ceil(dim.h * canvasScale) + 'px';
+}
+
+function switchDevicePreset(presetKey) {
+  currentDevicePreset = DEVICE_PRESETS[presetKey] ? presetKey : 'standard';
+  project.preview = project.preview || {};
+  project.preview.devicePreset = currentDevicePreset;
+  touchProject();
   persistProject();
+  updateCanvasScale();
+  renderCanvas();
+  updateSchema();
+  setStatus('Preview · ' + currentDevicePreset + ' ' + getDeviceDimensions().w + '×' + getDeviceDimensions().h + 'dp', 'ok');
+}
+
+function toggleGridSnap(enabled) {
+  gridSnapEnabled = !!enabled;
+  project.preview = project.preview || {};
+  project.preview.gridSnap = gridSnapEnabled;
+  canvas.classList.toggle('grid-on', gridSnapEnabled);
+  touchProject();
+  persistProject();
+  setStatus(gridSnapEnabled ? 'Grid snap enabled · 8dp' : 'Grid snap disabled', 'ok');
+}
+
+function snap(value) {
+  if (!gridSnapEnabled) return Math.round(value);
+  return Math.round(value / GRID_SIZE) * GRID_SIZE;
+}
+
+function clampPosition(node) {
+  const dim = getDeviceDimensions();
+  node.x = Math.max(0, Math.min(snap(node.x), Math.max(0, dim.w - node.width)));
+  node.y = Math.max(0, Math.min(snap(node.y), Math.max(0, dim.h - node.height)));
 }
 
 function undo() {
-  if (undoStack.length === 0) return;
-  redoStack.push(JSON.stringify(project));
-  project = JSON.parse(undoStack.pop());
-  const activeNodes = getActiveNodes();
-  if (!activeNodes.find(n => n.id === selected)) selected = null;
+  if (undoStack.length === 0) {
+    setStatus('Nothing to undo', 'warn');
+    return;
+  }
+  redoStack.push(snapshot());
+  project = StudioCore.migrateProject(JSON.parse(undoStack.pop()));
+  touchProject();
+  applyPreviewFromProject();
+  if (!getSelectedNode()) selected = null;
+  persistProject();
   renderScreenSelect();
   render();
+  updateHistoryButtons();
+  setStatus('Undo applied · autosaved', 'ok');
 }
 
 function redo() {
-  if (redoStack.length === 0) return;
-  undoStack.push(JSON.stringify(project));
-  project = JSON.parse(redoStack.pop());
+  if (redoStack.length === 0) {
+    setStatus('Nothing to redo', 'warn');
+    return;
+  }
+  undoStack.push(snapshot());
+  project = StudioCore.migrateProject(JSON.parse(redoStack.pop()));
+  touchProject();
+  applyPreviewFromProject();
+  if (!getSelectedNode()) selected = null;
+  persistProject();
   renderScreenSelect();
   render();
+  updateHistoryButtons();
+  setStatus('Redo applied · autosaved', 'ok');
 }
 
 function renderScreenSelect() {
-  const sel = document.querySelector('#screen-select');
-  if (!sel) return;
-  sel.innerHTML = '';
-  project.screens.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.textContent = s.name;
-    if (s.id === project.currentScreenId) opt.selected = true;
-    sel.appendChild(opt);
+  const select = document.querySelector('#screen-select');
+  if (!select) return;
+  select.innerHTML = '';
+  project.screens.forEach(function(screen) {
+    const option = document.createElement('option');
+    option.value = screen.id;
+    option.textContent = screen.name;
+    option.selected = screen.id === project.currentScreenId;
+    select.appendChild(option);
   });
 }
 
 function switchScreen(id) {
+  if (!project.screens.some(function(s) { return s.id === id; })) return;
   project.currentScreenId = id;
   selected = null;
+  touchProject();
   persistProject();
   render();
 }
 
+function uniqueScreenId() {
+  let i = Date.now();
+  while (project.screens.some(function(s) { return s.id === 'screen_' + i; })) i++;
+  return 'screen_' + i;
+}
+
 function newScreen() {
   const name = prompt('New Screen Name:', 'Screen ' + (project.screens.length + 1));
-  if (!name) return;
+  if (!name || !name.trim()) return;
   pushState();
-  const id = 'screen_' + Date.now();
-  project.screens.push({ id: id, name: name.trim(), nodes: [] });
-  project.currentScreenId = id;
+  const screen = { id: uniqueScreenId(), name: name.trim(), nodes: [] };
+  project.screens.push(screen);
+  project.currentScreenId = screen.id;
   selected = null;
+  touchProject();
+  persistProject();
   renderScreenSelect();
   render();
+  setStatus('Screen created · ' + screen.name, 'ok');
 }
 
 function renameScreen() {
   const active = getActiveScreen();
-  const newName = prompt('Rename Screen:', active.name);
-  if (!newName || !newName.trim()) return;
+  const value = prompt('Rename Screen:', active.name);
+  if (!value || !value.trim() || value.trim() === active.name) return;
   pushState();
-  active.name = newName.trim();
+  active.name = value.trim();
+  touchProject();
+  persistProject();
   renderScreenSelect();
-  render();
+  updateSchema();
+  setStatus('Screen renamed · autosaved', 'ok');
 }
 
 function duplicateScreen() {
   const active = getActiveScreen();
   pushState();
-  const copy = JSON.parse(JSON.stringify(active));
-  copy.id = 'screen_' + Date.now();
-  copy.name = active.name + ' (copy)';
+  const copy = StudioCore.clone(active);
+  copy.id = uniqueScreenId();
+  copy.name = active.name + ' Copy';
+  copy.nodes = copy.nodes.map(function(node) {
+    sequence++;
+    const result = Object.assign({}, node);
+    result.id = 'n' + sequence;
+    return result;
+  });
   project.screens.push(copy);
   project.currentScreenId = copy.id;
   selected = null;
+  touchProject();
+  persistProject();
   renderScreenSelect();
   render();
+  setStatus('Screen duplicated · ' + copy.name, 'ok');
 }
 
 function deleteScreen() {
   if (project.screens.length <= 1) {
-    alert('Cannot delete the only screen in the project.');
+    setStatus('Cannot delete the only screen', 'warn');
     return;
   }
-  if (!confirm('Delete current screen?')) return;
+  if (!confirm('Delete current screen? This can be undone.')) return;
   pushState();
-  project.screens = project.screens.filter(s => s.id !== project.currentScreenId);
+  project.screens = project.screens.filter(function(s) { return s.id !== project.currentScreenId; });
   project.currentScreenId = project.screens[0].id;
   selected = null;
+  touchProject();
+  persistProject();
   renderScreenSelect();
   render();
+  setStatus('Screen deleted · Undo is available', 'ok');
 }
 
-function add(type) {
-  pushState();
+function createNode(type) {
   sequence++;
-  const defaultColors = {
-    Text: '#222222',
-    Button: '#ff6b00',
-    Input: '#2a2a2a',
-    Card: '#1e1e1e',
-    Image: '#333333'
+  const presets = {
+    Text: { w: 140, h: 40, font: 16, tc: '#FFFFFF', bg: '#222222', r: 0 },
+    Button: { w: 160, h: 48, font: 14, tc: '#111111', bg: '#FF6B00', r: 12 },
+    Input: { w: 220, h: 48, font: 14, tc: '#FFFFFF', bg: '#2A2A2A', r: 8 },
+    Card: { w: 260, h: 140, font: 14, tc: '#FFFFFF', bg: '#1E1E1E', r: 16 },
+    Image: { w: 160, h: 120, font: 12, tc: '#AAAAAA', bg: '#333333', r: 12 }
   };
-
-  const defaultSizes = {
-    Text: { w: 140, h: 40, font: 16, tc: '#ffffff', r: 0 },
-    Button: { w: 160, h: 48, font: 14, tc: '#111111', r: 12 },
-    Input: { w: 220, h: 48, font: 14, tc: '#ffffff', r: 8 },
-    Card: { w: 260, h: 140, font: 14, tc: '#ffffff', r: 16 },
-    Image: { w: 160, h: 120, font: 12, tc: '#aaaaaa', r: 12 }
-  };
-
-  const cfg = defaultSizes[type] || { w: 120, h: 48, font: 14, tc: '#ffffff', r: 8 };
-
-  const node = {
+  const cfg = presets[type] || presets.Text;
+  const dim = getDeviceDimensions();
+  return {
     id: 'n' + sequence,
     type: type,
     label: type + ' ' + sequence,
-    x: 30,
-    y: 30 + ((sequence % 8) * 36),
+    x: snap(Math.min(32, Math.max(0, dim.w - cfg.w))),
+    y: snap(Math.min(32 + ((sequence % 7) * 40), Math.max(0, dim.h - cfg.h))),
     width: cfg.w,
     height: cfg.h,
     fontSize: cfg.font,
     textColor: cfg.tc,
-    color: defaultColors[type] || '#ff6b00',
+    color: cfg.bg,
     radius: cfg.r,
-    zIndex: sequence
+    zIndex: getActiveNodes().length
   };
+}
 
+function add(type) {
+  if (!StudioCore.ALLOWED_TYPES.includes(type)) return;
+  pushState();
+  const node = createNode(type);
   getActiveNodes().push(node);
   selected = node.id;
+  touchProject();
+  persistProject();
   render();
+  setStatus(type + ' added · drag or resize it', 'ok');
 }
 
 function duplicateSelected() {
-  const nodes = getActiveNodes();
-  const current = nodes.find(n => n.id === selected);
-  if (!current) return;
+  const current = getSelectedNode();
+  if (!current) {
+    setStatus('Select a layer before duplicating', 'warn');
+    return;
+  }
   pushState();
   sequence++;
-  const copy = JSON.parse(JSON.stringify(current));
+  const copy = StudioCore.clone(current);
   copy.id = 'n' + sequence;
-  copy.label = current.label + ' (copy)';
-  copy.x = Math.min(300, current.x + 16);
-  copy.y = Math.min(500, current.y + 16);
-  copy.zIndex = sequence;
-  nodes.push(copy);
+  copy.label = current.label + ' Copy';
+  copy.x = current.x + 16;
+  copy.y = current.y + 16;
+  clampPosition(copy);
+  getActiveNodes().push(copy);
   selected = copy.id;
+  touchProject();
+  persistProject();
   render();
+  setStatus('Layer duplicated · ' + copy.label, 'ok');
 }
 
 function deleteSelected() {
-  if (!selected) return;
+  if (!selected) {
+    setStatus('Select a layer before deleting', 'warn');
+    return;
+  }
   pushState();
   const screen = getActiveScreen();
-  screen.nodes = screen.nodes.filter(n => n.id !== selected);
+  screen.nodes = screen.nodes.filter(function(n) { return n.id !== selected; });
   selected = null;
+  touchProject();
+  persistProject();
   render();
+  setStatus('Layer deleted · Undo is available', 'ok');
 }
 
-function bringForward() {
+function moveLayerById(id, delta) {
   const nodes = getActiveNodes();
-  const idx = nodes.findIndex(n => n.id === selected);
-  if (idx < 0 || idx >= nodes.length - 1) return;
+  const index = nodes.findIndex(function(n) { return n.id === id; });
+  const target = index + delta;
+  if (index < 0 || target < 0 || target >= nodes.length) return;
   pushState();
-  const tmp = nodes[idx];
-  nodes[idx] = nodes[idx + 1];
-  nodes[idx + 1] = tmp;
+  const node = nodes.splice(index, 1)[0];
+  nodes.splice(target, 0, node);
+  nodes.forEach(function(n, i) { n.zIndex = i; });
+  selected = id;
+  touchProject();
+  persistProject();
   render();
+  setStatus('Layer order updated · autosaved', 'ok');
 }
 
-function sendBackward() {
+function moveSelectedLayer(delta) {
+  if (!selected) {
+    setStatus('Select a layer before reordering', 'warn');
+    return;
+  }
+  moveLayerById(selected, delta);
+}
+
+function moveSelectedToEdge(edge) {
   const nodes = getActiveNodes();
-  const idx = nodes.findIndex(n => n.id === selected);
-  if (idx <= 0) return;
+  const index = nodes.findIndex(function(n) { return n.id === selected; });
+  if (index < 0) {
+    setStatus('Select a layer before reordering', 'warn');
+    return;
+  }
+  const target = edge === 'front' ? nodes.length - 1 : 0;
+  if (index === target) return;
   pushState();
-  const tmp = nodes[idx];
-  nodes[idx] = nodes[idx - 1];
-  nodes[idx - 1] = tmp;
+  const node = nodes.splice(index, 1)[0];
+  nodes.splice(target, 0, node);
+  nodes.forEach(function(n, i) { n.zIndex = i; });
+  touchProject();
+  persistProject();
   render();
+  setStatus(edge === 'front' ? 'Moved to front' : 'Moved to back', 'ok');
 }
 
-function render() {
+function alignSelected(side) {
+  const node = getSelectedNode();
+  if (!node) {
+    setStatus('Select a layer before aligning', 'warn');
+    return;
+  }
+  pushState();
+  const dim = getDeviceDimensions();
+  if (side === 'left') node.x = 16;
+  if (side === 'center') node.x = Math.max(0, (dim.w - node.width) / 2);
+  if (side === 'right') node.x = Math.max(0, dim.w - node.width - 16);
+  if (side === 'top') node.y = 16;
+  if (side === 'bottom') node.y = Math.max(0, dim.h - node.height - 16);
+  clampPosition(node);
+  touchProject();
+  persistProject();
+  render();
+  setStatus('Aligned ' + side + ' · autosaved', 'ok');
+}
+
+function distributeNodes(direction) {
+  const nodes = getActiveNodes();
+  if (nodes.length < 3) {
+    setStatus('Distribute requires at least 3 layers on this screen', 'warn');
+    return;
+  }
+  pushState();
+  if (direction === 'h') {
+    const sorted = nodes.slice().sort(function(a, b) { return (a.x + a.width / 2) - (b.x + b.width / 2); });
+    const first = sorted[0].x + sorted[0].width / 2;
+    const last = sorted[sorted.length - 1].x + sorted[sorted.length - 1].width / 2;
+    const step = (last - first) / (sorted.length - 1);
+    sorted.forEach(function(node, index) {
+      if (index === 0 || index === sorted.length - 1) return;
+      node.x = snap(first + (step * index) - node.width / 2);
+      clampPosition(node);
+    });
+  } else {
+    const sorted = nodes.slice().sort(function(a, b) { return (a.y + a.height / 2) - (b.y + b.height / 2); });
+    const first = sorted[0].y + sorted[0].height / 2;
+    const last = sorted[sorted.length - 1].y + sorted[sorted.length - 1].height / 2;
+    const step = (last - first) / (sorted.length - 1);
+    sorted.forEach(function(node, index) {
+      if (index === 0 || index === sorted.length - 1) return;
+      node.y = snap(first + (step * index) - node.height / 2);
+      clampPosition(node);
+    });
+  }
+  touchProject();
+  persistProject();
+  render();
+  setStatus(direction === 'h' ? 'Distributed horizontally' : 'Distributed vertically', 'ok');
+}
+
+function selectNode(id) {
+  selected = id;
+  refreshSelectionVisuals();
+  renderLayers();
+  updateInspector();
+}
+
+function clearSelection() {
+  selected = null;
+  refreshSelectionVisuals();
+  renderLayers();
+  updateInspector();
+}
+
+function refreshSelectionVisuals() {
+  canvas.querySelectorAll('.node').forEach(function(el) {
+    el.classList.toggle('sel', el.dataset.nodeId === selected);
+  });
+}
+
+function beginGestureHistory() {
+  return snapshot();
+}
+
+function commitGestureHistory(before, changed, label) {
+  if (!changed) return;
+  pushSnapshot(before);
+  touchProject();
+  persistProject();
+  updateInspector();
+  updateSchema();
+  setStatus(label + ' · autosaved', 'ok');
+}
+
+function renderCanvas() {
   canvas.innerHTML = '';
   const nodes = getActiveNodes();
-
   nodes.forEach(function(node, index) {
+    node.zIndex = index;
     const el = document.createElement('div');
     el.className = 'node' + (selected === node.id ? ' sel' : '');
+    el.dataset.nodeId = node.id;
     el.style.left = node.x + 'px';
     el.style.top = node.y + 'px';
     el.style.width = node.width + 'px';
@@ -384,102 +557,111 @@ function render() {
     el.style.borderRadius = node.radius + 'px';
     el.style.color = node.textColor;
     el.style.fontSize = node.fontSize + 'px';
-    el.style.zIndex = index + 1;
-
-    if (node.type === 'Input') {
-      el.style.border = '1px solid #555';
-    }
-
+    el.style.zIndex = String(index + 1);
+    if (node.type === 'Input') el.style.border = '1px solid #666';
     el.textContent = node.label;
 
-    // Resize handle
     const handle = document.createElement('div');
     handle.className = 'handle';
+    handle.setAttribute('aria-label', 'Resize ' + node.label);
     el.appendChild(handle);
 
-    // Click to select
-    el.onclick = function(e) {
-      e.stopPropagation();
+    el.onclick = function(event) {
+      event.stopPropagation();
       selectNode(node.id);
     };
 
-    // Drag to move
-    let startX = 0, startY = 0, origX = 0, origY = 0;
-    el.onpointerdown = function(e) {
-      if (e.target === handle) return;
-      el.setPointerCapture(e.pointerId);
-      startX = e.clientX;
-      startY = e.clientY;
-      origX = node.x;
-      origY = node.y;
+    let dragPointerId = null;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragOriginX = 0;
+    let dragOriginY = 0;
+    let dragBefore = null;
+    let dragChanged = false;
+
+    el.onpointerdown = function(event) {
+      if (event.target === handle) return;
+      event.preventDefault();
       selectNode(node.id);
+      dragPointerId = event.pointerId;
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+      dragOriginX = node.x;
+      dragOriginY = node.y;
+      dragBefore = beginGestureHistory();
+      dragChanged = false;
+      el.setPointerCapture(event.pointerId);
     };
 
-    el.onpointermove = function(e) {
-      if (!el.hasPointerCapture(e.pointerId)) return;
-      node.x = snap(Math.max(0, origX + (e.clientX - startX)));
-      node.y = snap(Math.max(0, origY + (e.clientY - startY)));
+    el.onpointermove = function(event) {
+      if (dragPointerId !== event.pointerId || !el.hasPointerCapture(event.pointerId)) return;
+      const dx = (event.clientX - dragStartX) / canvasScale;
+      const dy = (event.clientY - dragStartY) / canvasScale;
+      if (!dragChanged && Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      dragChanged = true;
+      node.x = dragOriginX + dx;
+      node.y = dragOriginY + dy;
+      clampPosition(node);
       el.style.left = node.x + 'px';
       el.style.top = node.y + 'px';
     };
 
-    el.onpointerup = function(e) {
-      if (el.hasPointerCapture(e.pointerId)) {
-        el.releasePointerCapture(e.pointerId);
-        persistProject();
-        updateInspector();
-      }
+    function endDrag(event) {
+      if (dragPointerId !== event.pointerId) return;
+      if (el.hasPointerCapture(event.pointerId)) el.releasePointerCapture(event.pointerId);
+      dragPointerId = null;
+      commitGestureHistory(dragBefore, dragChanged, 'Layer moved');
+    }
+    el.onpointerup = endDrag;
+    el.onpointercancel = endDrag;
+
+    let resizePointerId = null;
+    let resizeStartX = 0;
+    let resizeStartY = 0;
+    let resizeWidth = 0;
+    let resizeHeight = 0;
+    let resizeBefore = null;
+    let resizeChanged = false;
+
+    handle.onpointerdown = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      selectNode(node.id);
+      resizePointerId = event.pointerId;
+      resizeStartX = event.clientX;
+      resizeStartY = event.clientY;
+      resizeWidth = node.width;
+      resizeHeight = node.height;
+      resizeBefore = beginGestureHistory();
+      resizeChanged = false;
+      handle.setPointerCapture(event.pointerId);
     };
 
-    // Drag to resize
-    let startW = 0, startH = 0, resizeStartX = 0, resizeStartY = 0;
-    handle.onpointerdown = function(e) {
-      e.stopPropagation();
-      handle.setPointerCapture(e.pointerId);
-      resizeStartX = e.clientX;
-      resizeStartY = e.clientY;
-      startW = node.width;
-      startH = node.height;
-    };
-
-    handle.onpointermove = function(e) {
-      if (!handle.hasPointerCapture(e.pointerId)) return;
-      node.width = snap(Math.max(30, startW + (e.clientX - resizeStartX)));
-      node.height = snap(Math.max(20, startH + (e.clientY - resizeStartY)));
+    handle.onpointermove = function(event) {
+      if (resizePointerId !== event.pointerId || !handle.hasPointerCapture(event.pointerId)) return;
+      const dx = (event.clientX - resizeStartX) / canvasScale;
+      const dy = (event.clientY - resizeStartY) / canvasScale;
+      if (!resizeChanged && Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      resizeChanged = true;
+      const dim = getDeviceDimensions();
+      node.width = snap(Math.max(30, Math.min(resizeWidth + dx, dim.w - node.x)));
+      node.height = snap(Math.max(20, Math.min(resizeHeight + dy, dim.h - node.y)));
       el.style.width = node.width + 'px';
       el.style.height = node.height + 'px';
     };
 
-    handle.onpointerup = function(e) {
-      if (handle.hasPointerCapture(e.pointerId)) {
-        handle.releasePointerCapture(e.pointerId);
-        persistProject();
-        updateInspector();
-      }
-    };
+    function endResize(event) {
+      if (resizePointerId !== event.pointerId) return;
+      if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+      resizePointerId = null;
+      commitGestureHistory(resizeBefore, resizeChanged, 'Layer resized');
+    }
+    handle.onpointerup = endResize;
+    handle.onpointercancel = endResize;
 
     canvas.appendChild(el);
   });
-
-  renderLayers();
-  updateInspector();
-  persistProject();
-}
-
-function selectNode(id) {
-  selected = id;
-  const nodes = getActiveNodes();
-  const node = nodes.find(n => n.id === id);
-  if (node) {
-    document.querySelector('#label').value = node.label;
-    document.querySelector('#color').value = node.color;
-    document.querySelector('#radius').value = node.radius;
-    document.querySelector('#prop-w').value = Math.round(node.width);
-    document.querySelector('#prop-h').value = Math.round(node.height);
-    document.querySelector('#prop-font').value = Math.round(node.fontSize);
-    document.querySelector('#text-color').value = node.textColor || '#ffffff';
-  }
-  render();
+  canvas.classList.toggle('grid-on', gridSnapEnabled);
 }
 
 function renderLayers() {
@@ -487,172 +669,264 @@ function renderLayers() {
   if (!container) return;
   container.innerHTML = '';
   const nodes = getActiveNodes();
+  if (nodes.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-hint';
+    empty.textContent = 'No layers yet. Add Text, Button, Input, Card, or Image.';
+    container.appendChild(empty);
+    return;
+  }
   for (let i = nodes.length - 1; i >= 0; i--) {
-    const n = nodes[i];
+    const node = nodes[i];
     const row = document.createElement('div');
-    row.className = 'layer-item' + (n.id === selected ? ' active' : '');
-    row.innerHTML = '<span>' + n.label + '</span><small>' + n.type + '</small>';
-    row.onclick = function() {
-      selectNode(n.id);
+    row.className = 'layer-item' + (node.id === selected ? ' active' : '');
+
+    const name = document.createElement('span');
+    name.className = 'layer-name';
+    name.textContent = node.label;
+    row.appendChild(name);
+
+    const meta = document.createElement('span');
+    meta.className = 'layer-meta';
+    const type = document.createElement('small');
+    type.textContent = node.type;
+    meta.appendChild(type);
+
+    const down = document.createElement('button');
+    down.className = 'layer-move';
+    down.textContent = 'Down';
+    down.disabled = i === 0;
+    down.onclick = function(event) {
+      event.stopPropagation();
+      selected = node.id;
+      moveLayerById(node.id, -1);
     };
+    meta.appendChild(down);
+
+    const up = document.createElement('button');
+    up.className = 'layer-move';
+    up.textContent = 'Up';
+    up.disabled = i === nodes.length - 1;
+    up.onclick = function(event) {
+      event.stopPropagation();
+      selected = node.id;
+      moveLayerById(node.id, 1);
+    };
+    meta.appendChild(up);
+
+    row.appendChild(meta);
+    row.onclick = function() { selectNode(node.id); };
     container.appendChild(row);
   }
 }
 
+function updateSchema() {
+  const schema = document.querySelector('#schema');
+  if (schema) schema.textContent = JSON.stringify(project, null, 2);
+}
+
+function setInspectorDisabled(disabled) {
+  ['label', 'color', 'radius', 'prop-w', 'prop-h', 'prop-font', 'text-color'].forEach(function(id) {
+    const input = document.querySelector('#' + id);
+    if (input) input.disabled = disabled;
+  });
+}
+
 function updateInspector() {
-  const schemaEl = document.querySelector('#schema');
-  if (schemaEl) {
-    schemaEl.textContent = JSON.stringify(project, null, 2);
-  }
+  const node = getSelectedNode();
+  setInspectorDisabled(!node);
+  const values = node ? {
+    label: node.label,
+    color: node.color,
+    radius: node.radius,
+    'prop-w': Math.round(node.width),
+    'prop-h': Math.round(node.height),
+    'prop-font': Math.round(node.fontSize),
+    'text-color': node.textColor
+  } : {
+    label: '', color: '#ff6b00', radius: 0, 'prop-w': '', 'prop-h': '', 'prop-font': '', 'text-color': '#ffffff'
+  };
+  Object.keys(values).forEach(function(id) {
+    const input = document.querySelector('#' + id);
+    if (input) input.value = values[id];
+  });
+  updateSchema();
+}
+
+function beginInspectorEdit() {
+  if (!getSelectedNode() || inspectorSnapshot) return;
+  inspectorSnapshot = snapshot();
 }
 
 function applyChanges() {
-  const nodes = getActiveNodes();
-  const node = nodes.find(n => n.id === selected);
+  const node = getSelectedNode();
   if (!node) return;
+  if (!inspectorSnapshot) inspectorSnapshot = snapshot();
 
-  node.label = document.querySelector('#label').value;
-  node.color = document.querySelector('#color').value;
-  node.radius = Number(document.querySelector('#radius').value);
-  node.width = Number(document.querySelector('#prop-w').value) || node.width;
-  node.height = Number(document.querySelector('#prop-h').value) || node.height;
-  node.fontSize = Number(document.querySelector('#prop-font').value) || node.fontSize;
-  node.textColor = document.querySelector('#text-color').value;
+  const next = {
+    label: document.querySelector('#label').value,
+    color: document.querySelector('#color').value,
+    radius: Number(document.querySelector('#radius').value),
+    width: Number(document.querySelector('#prop-w').value),
+    height: Number(document.querySelector('#prop-h').value),
+    fontSize: Number(document.querySelector('#prop-font').value),
+    textColor: document.querySelector('#text-color').value
+  };
+  const changed = Object.keys(next).some(function(key) { return node[key] !== next[key]; });
+  if (!changed) return;
 
-  render();
+  Object.assign(node, next);
+  touchProject();
+  persistProject();
+  renderCanvas();
+  renderLayers();
+  updateSchema();
+  setStatus('Editing ' + (node.label || node.id) + ' · autosaved', 'ok');
+}
+
+function commitInspectorEdit() {
+  if (!inspectorSnapshot) return;
+  const before = inspectorSnapshot;
+  inspectorSnapshot = null;
+  if (before !== snapshot()) {
+    pushSnapshot(before);
+    setStatus('Inspector edit committed · Undo is available', 'ok');
+  }
+}
+
+function render() {
+  updateCanvasScale();
+  renderCanvas();
+  renderLayers();
+  updateInspector();
+  updateHistoryButtons();
+}
+
+function showValidationFailure(result, target) {
+  const details = StudioCore.formatIssues(result.errors, 8);
+  setStatus(target + ' blocked · ' + (result.errors[0] ? result.errors[0].path + ': ' + result.errors[0].message : 'invalid schema'), 'error');
+  alert(target + ' blocked. Fix these fields first:\n\n' + details);
 }
 
 function exportXml() {
   const active = getActiveScreen();
-  const val = validateSchema(active);
-  if (!val.valid) {
-    alert('Schema Validation Error:\n' + val.error + '\nExport aborted to prevent invalid Android code generation.');
+  const result = StudioCore.generateAndroidXml(project, active.id);
+  if (!result.ok) {
+    showValidationFailure(result, 'XML export');
     return;
   }
-
-  let xml = '<?xml version="1.0" encoding="utf-8"?>\n' +
-    '<androidx.constraintlayout.widget.ConstraintLayout\n' +
-    '    xmlns:android="http://schemas.android.com/apk/res/android"\n' +
-    '    xmlns:app="http://schemas.android.com/apk/res-auto"\n' +
-    '    android:layout_width="match_parent"\n' +
-    '    android:layout_height="match_parent"\n' +
-    '    android:background="#121212">\n\n';
-
-  active.nodes.forEach(function(n) {
-    if (n.type === 'Text') {
-      xml += '    <TextView\n' +
-        '        android:id="@+id/' + n.id + '"\n' +
-        '        android:layout_width="' + Math.round(n.width) + 'dp"\n' +
-        '        android:layout_height="' + Math.round(n.height) + 'dp"\n' +
-        '        android:text="' + n.label + '"\n' +
-        '        android:textColor="' + n.textColor + '"\n' +
-        '        android:textSize="' + Math.round(n.fontSize) + 'sp"\n' +
-        '        android:layout_marginStart="' + Math.round(n.x) + 'dp"\n' +
-        '        android:layout_marginTop="' + Math.round(n.y) + 'dp"\n' +
-        '        app:layout_constraintStart_toStartOf="parent"\n' +
-        '        app:layout_constraintTop_toTopOf="parent" />\n\n';
-    } else if (n.type === 'Button') {
-      xml += '    <com.google.android.material.button.MaterialButton\n' +
-        '        android:id="@+id/' + n.id + '"\n' +
-        '        android:layout_width="' + Math.round(n.width) + 'dp"\n' +
-        '        android:layout_height="' + Math.round(n.height) + 'dp"\n' +
-        '        android:text="' + n.label + '"\n' +
-        '        app:cornerRadius="' + Math.round(n.radius) + 'dp"\n' +
-        '        android:layout_marginStart="' + Math.round(n.x) + 'dp"\n' +
-        '        android:layout_marginTop="' + Math.round(n.y) + 'dp"\n' +
-        '        app:layout_constraintStart_toStartOf="parent"\n' +
-        '        app:layout_constraintTop_toTopOf="parent" />\n\n';
-    } else {
-      xml += '    <View\n' +
-        '        android:id="@+id/' + n.id + '"\n' +
-        '        android:layout_width="' + Math.round(n.width) + 'dp"\n' +
-        '        android:layout_height="' + Math.round(n.height) + 'dp"\n' +
-        '        android:background="' + n.color + '"\n' +
-        '        android:layout_marginStart="' + Math.round(n.x) + 'dp"\n' +
-        '        android:layout_marginTop="' + Math.round(n.y) + 'dp"\n' +
-        '        app:layout_constraintStart_toStartOf="parent"\n' +
-        '        app:layout_constraintTop_toTopOf="parent" />\n\n';
+  let nativeResult = 'OK';
+  try {
+    if (window.ZipBug && typeof window.ZipBug.exportXml === 'function') {
+      nativeResult = window.ZipBug.exportXml(active.name, JSON.stringify(project), result.content);
     }
-  });
-
-  xml += '</androidx.constraintlayout.widget.ConstraintLayout>';
-
-  if (window.ZipBug && window.ZipBug.exportXml) {
-    window.ZipBug.exportXml(active.name, xml);
-  } else {
-    alert('Exported XML for ' + active.name + ':\n' + xml.slice(0, 300) + '…');
+  } catch (e) {
+    setStatus('XML export failed · ' + e.message, 'error');
+    return;
   }
+  if (typeof nativeResult === 'string' && nativeResult.indexOf('ERROR:') === 0) {
+    setStatus(nativeResult.substring(6), 'error');
+    return;
+  }
+  const warning = result.warnings && result.warnings.length ? ' · ' + result.warnings.length + ' preview warning(s)' : '';
+  setStatus('XML exported · ' + active.name + '.xml' + warning, warning ? 'warn' : 'ok');
 }
 
 function exportCompose() {
-  const active = getActiveScreen();
-  const val = validateSchema(active);
-  if (!val.valid) {
-    alert('Schema Validation Error:\n' + val.error + '\nExport aborted to prevent invalid Android code generation.');
+  const result = StudioCore.generateCompose(project);
+  if (!result.ok) {
+    showValidationFailure(result, 'Compose export');
     return;
   }
-
-  let comp = 'package com.zipbug.generated.ui\n\n' +
-    'import androidx.compose.foundation.background\n' +
-    'import androidx.compose.foundation.layout.*\n' +
-    'import androidx.compose.material3.*\n' +
-    'import androidx.compose.runtime.Composable\n' +
-    'import androidx.compose.ui.Modifier\n' +
-    'import androidx.compose.ui.graphics.Color\n' +
-    'import androidx.compose.ui.unit.dp\n\n';
-
-  project.screens.forEach(s => {
-    const fnName = s.name.replace(/[^a-zA-Z0-9]/g, '') || 'Screen';
-    comp += '@Composable\nfun ' + fnName + 'Screen() {\n' +
-      '    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {\n';
-    s.nodes.forEach(n => {
-      comp += '        // ' + n.type + ' (' + n.label + ')\n' +
-        '        Box(modifier = Modifier.offset(x = ' + Math.round(n.x) + '.dp, y = ' + Math.round(n.y) + '.dp)' +
-        '.size(width = ' + Math.round(n.width) + '.dp, height = ' + Math.round(n.height) + '.dp))\n';
-    });
-    comp += '    }\n}\n\n';
-  });
-
-  if (window.ZipBug && window.ZipBug.exportCompose) {
-    window.ZipBug.exportCompose(getActiveScreen().name, comp);
-  } else {
-    alert('Exported Compose:\n' + comp);
+  const active = getActiveScreen();
+  let nativeResult = 'OK';
+  try {
+    if (window.ZipBug && typeof window.ZipBug.exportCompose === 'function') {
+      nativeResult = window.ZipBug.exportCompose(active.name, JSON.stringify(project), result.content);
+    }
+  } catch (e) {
+    setStatus('Compose export failed · ' + e.message, 'error');
+    return;
   }
+  if (typeof nativeResult === 'string' && nativeResult.indexOf('ERROR:') === 0) {
+    setStatus(nativeResult.substring(6), 'error');
+    return;
+  }
+  const warning = result.warnings && result.warnings.length ? ' · ' + result.warnings.length + ' preview warning(s)' : '';
+  setStatus('Compose exported · ' + active.name + '.kt' + warning, warning ? 'warn' : 'ok');
+}
+
+function buildPreviewHtml() {
+  const active = getActiveScreen();
+  const dim = getDeviceDimensions();
+  let html = '<main style="position:relative;width:' + dim.w + 'px;min-height:' + dim.h + 'px;background:#1a1a1a">';
+  active.nodes.forEach(function(node) {
+    html += '<div style="position:absolute;left:' + Math.round(node.x) + 'px;top:' + Math.round(node.y) + 'px;width:' + Math.round(node.width) + 'px;height:' + Math.round(node.height) + 'px;background:' + node.color + ';color:' + node.textColor + ';font-size:' + Math.round(node.fontSize) + 'px;border-radius:' + Math.round(node.radius) + 'px;display:flex;align-items:center;justify-content:center">' + StudioCore.xmlEscape(node.label) + '</div>';
+  });
+  return html + '</main>';
 }
 
 function save() {
-  const active = getActiveScreen();
-  let html = '<main style="position:relative;width:360px;min-height:640px;background:#1a1a1a">';
-  active.nodes.forEach(function(node) {
-    html += '<div style="position:absolute;left:' +
-      node.x + 'px;top:' + node.y +
-      'px;width:' + node.width +
-      'px;height:' + node.height +
-      'px;background:' + node.color +
-      ';color:' + node.textColor +
-      ';font-size:' + node.fontSize +
-      'px;border-radius:' + node.radius +
-      'px;display:flex;align-items:center;justify-content:center">' +
-      node.label + '</div>';
-  });
-  html += '</main>';
-
+  touchProject();
   persistProject();
-
-  if (window.ZipBug) {
-    ZipBug.save(
-      active.name,
-      JSON.stringify(project),
-      html
-    );
+  const active = getActiveScreen();
+  try {
+    if (window.ZipBug && typeof window.ZipBug.save === 'function') {
+      window.ZipBug.save(active.name, JSON.stringify(project), buildPreviewHtml());
+      setStatus('Saved project · ' + active.name + ' · recovery updated', 'ok');
+    } else {
+      setStatus('Saved to browser storage · native bridge unavailable', 'warn');
+    }
+  } catch (e) {
+    setStatus('Save failed · ' + e.message, 'error');
   }
 }
 
-// Initial setup: load from persistence or add default node
-loadPersistedProject();
+function seedDefaultNode() {
+  const node = createNode('Button');
+  getActiveNodes().push(node);
+  selected = node.id;
+  touchProject();
+  persistProject();
+}
+
+canvas.addEventListener('pointerdown', function(event) {
+  if (event.target === canvas) clearSelection();
+});
+
+document.addEventListener('keydown', function(event) {
+  const tag = document.activeElement ? document.activeElement.tagName : '';
+  const editing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+    event.preventDefault();
+    if (event.shiftKey) redo(); else undo();
+    return;
+  }
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
+    event.preventDefault();
+    redo();
+    return;
+  }
+  if (!editing && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd') {
+    event.preventDefault();
+    duplicateSelected();
+    return;
+  }
+  if (!editing && (event.key === 'Delete' || event.key === 'Backspace')) {
+    event.preventDefault();
+    deleteSelected();
+  }
+});
+
+const recoveryMessage = loadPersistedProject();
+recalculateSequence();
+applyPreviewFromProject();
 renderScreenSelect();
-if (getActiveNodes().length === 0) {
-  add('Button');
-} else {
-  render();
+if (getActiveNodes().length === 0) seedDefaultNode();
+render();
+setStatus(recoveryMessage, recoveryMessage.indexOf('Recovered') === 0 ? 'ok' : '');
+
+window.addEventListener('resize', updateCanvasScale);
+if (typeof ResizeObserver !== 'undefined' && canvasWrapper) {
+  new ResizeObserver(updateCanvasScale).observe(canvasWrapper);
 }
