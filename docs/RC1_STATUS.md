@@ -1,142 +1,82 @@
-# Zip_Bug // Antigravity Studio — Release Candidate 1 (RC1) Status Report
+# Zip_Bug // Antigravity Studio — RC1 Status Report
 
 **Repository**: `https://github.com/Piangpi1997/Zipp-_Bug`  
 **Target Branch**: `feat/antigravity-studio-v2`  
-**Evaluation Date**: 2026-10-08  
-**Verification Paradigm**: Real Evidence Only (Zero Simulated Success)
+**Status Date**: 2026-10-11  
+**Truth Rule**: no simulated build/runtime success.
 
----
+## Current classification
 
-## 1. Executive Status & Binary Fingerprint
+`BUILD VERIFIED / PHYSICAL PROOF PENDING`
 
-| Verification Scope | Status | Evidence / Validation Method |
+The former RC snapshot at `cb56740` is historical. The branch has advanced beyond it.
+
+- **Latest code-bearing verified commit**: `820e779a4ae9f83399055b347bea8c6de4a0d90b`
+- **Current documentation sync commit**: `7a84cca74f99a6bf174722b8aa18568c766fe4a1`
+- The documentation-only commit has fresh CI queued at the time of this update.
+- The verified code baseline `820e779` passed Architecture Check and Android CI.
+
+## Verified build evidence for 820e779
+
+| Scope | Status | Evidence |
 | :--- | :--- | :--- |
-| **VERIFIED BY UNIT TEST** | **PASS** (34/34) | `./gradlew --no-daemon testDebugUnitTest` executed with 0 failures, 0 errors, 0 skipped. |
-| **VERIFIED BY WINDOWS BUILD** | **PASS** | `./gradlew --no-daemon clean assembleDebug` executed cleanly (41 actionable tasks). |
-| **VERIFIED BY APK SIGNATURE TOOL** | **PASS** | `apksigner.bat verify --verbose --print-certs` confirmed APK Signature Scheme v2 valid. |
-| **VERIFIED BY GITHUB ANDROID CI** | **PASS** | GitHub Actions Workflow Runs: Architecture Check (`37797397860`) & Android CI (`37797397631`) green. |
-| **VERIFIED ON PHYSICAL ANDROID** | **PENDING** | Awaiting user execution and proof logs from physical Android device. |
-| **VERIFIED IN TERMUX** | **PENDING** | Awaiting real on-device 5-step command proof logs and physical compilation output. |
+| Architecture Check | PASS | GitHub Actions push run `37821761253` |
+| Unit tests | PASS | Android CI push run `37821761312` |
+| Debug APK build | PASS | Android CI push run `37821761312` |
+| APK signature verification | PASS | `apksigner verify --verbose`: APK Signature Scheme v2 = true |
+| Artifact upload | PASS | Android CI artifact `Zip_Bug-debug` |
+| Physical Android runtime | PENDING | Requires user device proof |
+| Termux controlled runtime/build | PENDING | Requires on-device stage/output proof |
+| OpenRouter physical response | PENDING | Requires real provider response from phone |
 
-### Binary Fingerprint
-- **Target Branch HEAD**: `feat/antigravity-studio-v2`
-- **Release Candidate Classification**: `BUILD VERIFIED / PHYSICAL PROOF PENDING`
-- **Build Artifact**: `app/build/outputs/apk/debug/app-debug.apk`
-- **APK File Size**: `7,008,724` bytes (~6.68 MB)
-- **APK SHA-256**: `45AACDF38CAF73E9A6BACF52629A779CDDBEA4F1C4C824C2FBD20036ACC3A276`
-- **Signer Certificate**: `CN=Android Debug, O=Android, C=US`
-- **Signer SHA-256**: `ec416f8a9e9a28b4b36478f76ce7bcf624ac711965fafaa310711b279a2b830a`
-- **Signature Scheme**: APK Signature Scheme v2 (`true`), RSA 2048-bit
+## Current CI APK fingerprint
 
----
+The APK below is the GitHub CI artifact for verified code commit `820e779`.
 
-## 2. Categorized Verification Breakdown
+- **APK name**: `app-debug.apk`
+- **APK size**: `7,060,645` bytes
+- **APK SHA-256**: `5416aa5548b457a3ebf0e020c70b53724abca8735f01b64857b20f87cfdcd8ba`
+- **Signature verification**: APK Signature Scheme v2 PASS
+- **Artifact ZIP digest reported by GitHub**: `sha256:1a59b5b91654232a3e19c941fa5857a9e4402209207a59ddc1f928c89fdef7b8`
 
-### CATEGORY A: VERIFIED BY UNIT TEST (PASS)
-*All tests executed via `./gradlew --no-daemon testDebugUnitTest` — 34 passed, 0 failures, 0 errors, 0 skipped.*
+The artifact ZIP digest is not the APK SHA-256.
 
-1. **`AiRepositoryTest` (9 tests)**
-   - API key masking for empty, short, and standard keys.
-   - Rejection of blank API keys.
-   - Security Route Isolation: Blocks `sk-or-` keys from being dispatched to OpenAI or Anthropic.
-   - Validation that `openrouter/*` models cannot be requested on Gemini or Anthropic.
-   - Acceptance of valid OpenRouter and Gemini requests.
-2. **`ApkArtifactInspectorTest` (4 tests)**
-   - Package info extraction (versionName, versionCode, minSdk, targetSdk).
-   - Signer certificate SHA-256 extraction and hex formatting.
-   - Signer comparison classification (`SAFE UPDATE`, `SIGNER CONFLICT`, `NEW INSTALL`, `UNKNOWN`).
-3. **`AppCreatorParserTest` (2 tests)**
-   - Parsing of structured markdown JSON blocks for generated app specs.
-   - Error rejection on malformed JSON.
-4. **`AppScaffolderTest` (3 tests)**
-   - Scaffolding of Android project files (`build.gradle.kts`, `AndroidManifest.xml`, `MainActivity.kt`).
-5. **`CompilerErrorParserTest` (4 tests)**
-   - Kotlin compiler error line/column/message parsing.
-   - Java javac error parsing.
-   - Construction of AI repair prompts.
-   - Patch application with automatic pre-modification backup creation (`.bak_<timestamp>`).
-6. **`StudioModelsTest` (4 tests)**
-   - Export to Android XML ConstraintLayout.
-   - Export to Jetpack Compose composables.
-   - Multi-screen project serialization (`toJson`) for multiple screens.
-   - Multi-screen lifecycle, component mutation (dimensions, coordinates, text, colors), and multi-screen code generation.
-7. **`CommandLineParserTest` (3 tests)**
-   - Parsing of Termux CLI arguments and quotes.
-8. **`EngineDiagnosticsTest` (3 tests)**
-   - 15-check engine diagnostics report generation.
-   - Parsing of Python diagnostic JSON output.
-   - Mandatory check pass/fail gatekeeper logic.
-9. **`EdgeTtsHelperTest` (2 tests)**
-   - Burmese (`my-MM-ThihaNeural`, `my-MM-NilarNeural`) and English TTS voice command construction.
+### Debug signer warning
 
----
+Do not treat a Windows debug signer fingerprint as the permanent release signer for the CI APK. Windows, GitHub Actions, and Termux debug builds may use different debug certificates. Stable cross-environment update signing remains a separate release-engineering task.
 
-### CATEGORY B: VERIFIED BY WINDOWS BUILD (PASS)
-*Executed in Windows host environment with Java 17 and Gradle 8.9.*
+## Functional changes included after cb56740
 
-1. **Clean Debug Compilation**:
-   - `compileDebugKotlin` and `compileDebugJavaWithJavac` clean build without errors.
-   - Room compiler annotation processing (`kaptDebugKotlin`) clean.
-2. **Package Assembly**:
-   - `assembleDebug` completed in 56 seconds (41 actionable tasks executed).
-   - Verified output binary existence at `app/build/outputs/apk/debug/app-debug.apk`.
+The verified code baseline now also includes:
 
----
+- grouped Home dashboard: Build / Design / Media / Tools;
+- centralized slash command registry and searchable `/help`;
+- canonical `/appcreator` plus backward-compatible `/apcreator` alias;
+- factual unavailable state for reserved `/aizipper`;
+- hardened mini-app ZIP path validation;
+- project-type-aware web runtime vs Android build actions;
+- source ZIP reopen/validation before success;
+- source ZIP Open/Share actions;
+- controlled debug APK workflow with Validation / Dependencies / Build / Packaging stages;
+- timeout and cancel-token support;
+- APK size/SHA/export verification;
+- release-signing boundary that does not create/overwrite credentials;
+- artifact Open/Share actions only after proof is complete;
+- block on misleading Android builds from app-private storage that Termux cannot access.
 
-### CATEGORY C: VERIFIED BY APK SIGNATURE TOOL (PASS)
-*Executed via `apksigner.bat verify --verbose --print-certs` (Android SDK Build-Tools 34.0.0).*
+## Physical-device proof still required
 
-1. **Signature Verification**:
-   - `Verified using v2 scheme (APK Signature Scheme v2): true`
-   - `Number of signers: 1`
-   - `Signer #1 certificate DN: C=US, O=Android, CN=Android Debug`
-   - `Signer #1 certificate SHA-256 digest: ec416f8a9e9a28b4b36478f76ce7bcf624ac711965fafaa310711b279a2b830a`
-   - `Signer #1 key algorithm: RSA (2048 bits)`
+Follow `docs/DEVICE_TEST.md` from the latest branch HEAD.
 
----
+Physical verification requires:
 
-### CATEGORY D: VERIFIED BY GITHUB ANDROID CI (PASS)
-*Executed in official GitHub Actions runner (`ubuntu-latest`, OpenJDK 17).*
+1. real Device & Engine Proof log;
+2. controlled Termux debug build with stage records, exit code 0, and artifact proof;
+3. real OpenRouter response `ZIP_BUG_OPENROUTER_OK`;
+4. for App Creator APK claims, transfer/export to a Termux-accessible project root before invoking the controlled builder.
 
-1. **Architecture Check (Run 37797397860)**:
-   - Success in 9s.
-2. **Android CI (Run 37797397631)**:
-   - Success in 2m 47s.
-   - Validate project: PASS.
-   - Unit tests: PASS.
-   - Build debug APK: PASS.
-   - Verify APK: PASS.
-   - Upload artifact: PASS.
+Do not use the older instruction that App Creator can directly dispatch a Gradle build from Zip_Bug app-private storage. That path is intentionally blocked because it is not a valid Termux workspace.
 
----
+## Promotion rule
 
-### CATEGORY E: PHYSICAL ANDROID VERIFICATION (PENDING)
-*Pending real execution results from physical Android phone.*
-
-1. **Runtime App Screens**:
-   - Navigation across Home, AI, Studio, Terminal, Projects, Settings, Device Verification, and Signing Diagnostics screens on a physical device.
-2. **Permission Gating**:
-   - Physical prompt and grant of `com.termux.permission.RUN_COMMAND`.
-3. **Encrypted Secret Storage**:
-   - Verification of hardware-backed Android Keystore key generation and retrieval on actual device hardware.
-
----
-
-### CATEGORY F: TERMUX RUNTIME VERIFICATION (PENDING)
-*Pending real execution results from Termux environment.*
-
-1. **Physical 5-Step Guided Proof**:
-   - Execution and output of `python --version`, `java -version`, `gradle --version`, `ffmpeg -version`, and `aapt2 version` inside the actual on-device Termux container via `DeviceVerificationActivity`.
-2. **On-Device APK Compilation**:
-   - Execution of `./scripts/build-termux.sh` to compile `Zip_Bug-Antigravity-RC.apk` entirely on Android hardware.
-3. **Live OpenRouter API Verification**:
-   - Live query from the physical phone with encrypted API key to OpenRouter Free endpoint.
-
----
-
-## 3. Transition to Device-Verified Status
-
-RC1 will transition from `BUILD VERIFIED / PHYSICAL PROOF PENDING` to `DEVICE VERIFIED` once the user performs the linear on-device test sequence in [`docs/DEVICE_TEST.md`](file:///C:/ZipBugCanonical/docs/DEVICE_TEST.md) and provides the physical evidence:
-1. Copy Log output from **Device & Engine Proof** (all 15 checks evaluated and 5 command proofs showing real execution, exit code 0, timestamps, and stdout).
-2. Terminal output from `./scripts/build-termux.sh` confirming on-device compilation success and export to `/storage/emulated/0/Download/Zip_Bug-Antigravity-RC.apk`.
-3. OpenRouter ping confirmation (`ZIP_BUG_OPENROUTER_OK`).
+RC1 may be promoted to `DEVICE VERIFIED` only after the physical evidence above is returned and reviewed. CI/build verification alone is not sufficient.
