@@ -65,3 +65,22 @@ pre{white-space:pre-wrap;word-break:break-word;color:var(--green);font-size:10px
   .toolbar button{flex-basis:calc(33.333% - 7px)}
   #canvas-wrapper{height:48vh;min-height:310px}
 }
+
+/* Android WebView reports CSS viewport widths differently from device pixels.
+   Keep editor controls and inspector within the actual embedded viewport. */
+html,body{max-width:100%;min-width:0}
+header,.screen-bar,.toolbar,main,aside{min-width:0;max-width:100%}
+.screen-bar>*,.toolbar>*{flex-shrink:0}
+@media(max-width:760px){
+  body{overflow-y:auto;overflow-x:hidden;height:100dvh}
+  header{position:relative}
+  .screen-bar,.toolbar{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+  .screen-bar>*,.toolbar>*{flex:0 0 auto!important;scroll-snap-align:start}
+  .screen-bar select{max-width:190px;min-width:110px}
+  .toolbar button{min-width:70px}
+  main{display:flex;flex-direction:column;flex:1 0 auto;overflow:visible;min-width:0}
+  #canvas-wrapper{width:100%;max-width:100%;min-width:0;height:52vh;min-height:310px;overflow:auto}
+  aside{width:100%;max-width:100%;min-width:0;overflow:visible}
+  .field-row{min-width:0}
+  #layers-list{max-width:100%}
+}
