@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.zipbug.base.ai.AiMode
+import com.zipbug.base.command.CommandGroups
 import com.zipbug.base.databinding.FragmentHomeBinding
 import com.zipbug.base.ui.AppCreatorActivity
 import com.zipbug.base.ui.CommandHelpActivity
@@ -37,6 +38,26 @@ class HomeFragment : Fragment() {
     ) {
         val main = requireActivity() as MainActivity
 
+        binding.uiCategory.setOnClickListener {
+            openCategory(CommandGroups.UI)
+        }
+
+        binding.engineCategory.setOnClickListener {
+            openCategory(CommandGroups.ENGINE)
+        }
+
+        binding.toolsCategory.setOnClickListener {
+            openCategory(CommandGroups.TOOLS)
+        }
+
+        binding.codingCategory.setOnClickListener {
+            openCategory(CommandGroups.CODING)
+        }
+
+        binding.futureCategory.setOnClickListener {
+            openCategory(CommandGroups.FUTURE)
+        }
+
         binding.appCreator.setOnClickListener {
             startActivity(
                 Intent(
@@ -47,7 +68,9 @@ class HomeFragment : Fragment() {
         }
 
         binding.apkBuilder.setOnClickListener {
-            main.navigateToTerminal("/apkbuilder")
+            main.navigateToTerminal(
+                "/apkbuilder --debug"
+            )
         }
 
         binding.studio.setOnClickListener {
@@ -87,9 +110,8 @@ class HomeFragment : Fragment() {
 
         binding.commandHelp.setOnClickListener {
             startActivity(
-                Intent(
-                    requireContext(),
-                    CommandHelpActivity::class.java
+                CommandHelpActivity.createIntent(
+                    requireContext()
                 )
             )
         }
@@ -97,6 +119,17 @@ class HomeFragment : Fragment() {
         binding.projects.setOnClickListener {
             main.navigateToProjects()
         }
+    }
+
+    private fun openCategory(
+        group: String
+    ) {
+        startActivity(
+            CommandHelpActivity.createIntent(
+                requireContext(),
+                group
+            )
+        )
     }
 
     override fun onDestroyView() {
