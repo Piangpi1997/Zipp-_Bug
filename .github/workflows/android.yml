@@ -48,6 +48,9 @@ jobs:
       - name: Unit tests
         run: gradle --no-daemon testDebugUnitTest
 
+      - name: Android lint
+        run: gradle --no-daemon lintDebug
+
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
@@ -56,6 +59,15 @@ jobs:
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Compile unsigned release candidate
+        run: gradle --no-daemon assembleRelease
+
+      - name: Verify unsigned release output
+        shell: bash
+        run: |
+          test -s app/build/outputs/apk/release/app-release-unsigned.apk
+          "$ANDROID_HOME/build-tools/34.0.0/aapt2" dump badging app/build/outputs/apk/release/app-release-unsigned.apk >/dev/null
 
       - uses: actions/upload-artifact@v4
         with:
