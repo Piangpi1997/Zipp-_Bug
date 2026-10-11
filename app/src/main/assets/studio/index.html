@@ -40,16 +40,16 @@
     <button onclick="add('Card')">+ Card</button>
     <button onclick="add('Image')">+ Image</button>
     <span class="sep"></span>
-    <button onclick="duplicateSelected()">Duplicate</button>
-    <button class="btn-danger" onclick="deleteSelected()">Delete</button>
+    <button id="duplicate-layer-btn" onclick="duplicateSelected()">Duplicate</button>
+    <button id="delete-layer-btn" class="btn-danger" onclick="deleteSelected()">Delete</button>
     <span class="sep"></span>
-    <button class="btn-tool" onclick="alignSelected('left')">Left</button>
-    <button class="btn-tool" onclick="alignSelected('center')">Center</button>
-    <button class="btn-tool" onclick="alignSelected('right')">Right</button>
-    <button class="btn-tool" onclick="alignSelected('top')">Top</button>
-    <button class="btn-tool" onclick="alignSelected('bottom')">Bottom</button>
-    <button class="btn-tool" onclick="distributeNodes('h')">Distribute H</button>
-    <button class="btn-tool" onclick="distributeNodes('v')">Distribute V</button>
+    <button id="align-left-btn" class="btn-tool" onclick="alignSelected('left')">Left</button>
+    <button id="align-center-btn" class="btn-tool" onclick="alignSelected('center')">Center</button>
+    <button id="align-right-btn" class="btn-tool" onclick="alignSelected('right')">Right</button>
+    <button id="align-top-btn" class="btn-tool" onclick="alignSelected('top')">Top</button>
+    <button id="align-bottom-btn" class="btn-tool" onclick="alignSelected('bottom')">Bottom</button>
+    <button id="distribute-h-btn" class="btn-tool" onclick="distributeNodes('h')">Distribute H</button>
+    <button id="distribute-v-btn" class="btn-tool" onclick="distributeNodes('v')">Distribute V</button>
   </div>
 
   <div id="studio-status" role="status" aria-live="polite">Ready · edits autosave locally and to recovery storage.</div>
