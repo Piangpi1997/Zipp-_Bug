@@ -40,7 +40,10 @@ jobs:
         run: python verify-project.py
 
       - name: Studio JS tests
-        run: node scripts/test-studio-core.js
+        run: |
+          node --check app/src/main/assets/studio/studio-core.js
+          node --check app/src/main/assets/studio/studio.js
+          node scripts/test-studio-core.js
 
       - name: Unit tests
         run: gradle --no-daemon testDebugUnitTest
