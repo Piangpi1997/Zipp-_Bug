@@ -13,6 +13,132 @@ const canvas = document.querySelector('#canvas');
 const undoStack = [];
 const redoStack = [];
 
+let gridSnapEnabled = true;
+const GRID_SIZE = 8;
+
+const DEVICE_PRESETS = {
+  small: { w: 360, h: 640 },
+  standard: { w: 390, h: 844 },
+  large: { w: 412, h: 915 }
+};
+let currentDevicePreset = 'standard';
+
+function switchDevicePreset(presetKey) {
+  const preset = DEVICE_PRESETS[presetKey] || DEVICE_PRESETS.standard;
+  currentDevicePreset = presetKey;
+  if (canvas) {
+    canvas.style.width = preset.w + 'px';
+    canvas.style.minHeight = preset.h + 'px';
+    canvas.style.height = preset.h + 'px';
+  }
+}
+
+function toggleGridSnap(enabled) {
+  gridSnapEnabled = !!enabled;
+}
+
+function snap(val) {
+  if (!gridSnapEnabled) return Math.round(val);
+  return Math.round(val / GRID_SIZE) * GRID_SIZE;
+}
+
+function getDeviceDimensions() {
+  return DEVICE_PRESETS[currentDevicePreset] || DEVICE_PRESETS.standard;
+}
+
+function alignSelected(side) {
+  const nodes = getActiveNodes();
+  const node = nodes.find(n => n.id === selected);
+  if (!node) return;
+  pushState();
+  const dim = getDeviceDimensions();
+  switch (side) {
+    case 'left':
+      node.x = 16;
+      break;
+    case 'center':
+      node.x = Math.max(0, Math.round((dim.w - node.width) / 2));
+      break;
+    case 'right':
+      node.x = Math.max(0, dim.w - node.width - 16);
+      break;
+    case 'top':
+      node.y = 16;
+      break;
+    case 'bottom':
+      node.y = Math.max(0, dim.h - node.height - 16);
+      break;
+  }
+  if (gridSnapEnabled) {
+    node.x = snap(node.x);
+    node.y = snap(node.y);
+  }
+  render();
+}
+
+function distributeNodes(direction) {
+  const nodes = getActiveNodes();
+  if (nodes.length < 3) {
+    alert('At least 3 layers are required to distribute.');
+    return;
+  }
+  pushState();
+  if (direction === 'v') {
+    const sorted = [...nodes].sort((a, b) => a.y - b.y);
+    const minY = sorted[0].y;
+    const lastNode = sorted[sorted.length - 1];
+    const maxY = lastNode.y;
+    const totalSpan = maxY - minY;
+    const step = totalSpan / (sorted.length - 1);
+    sorted.forEach((n, idx) => {
+      if (idx > 0 && idx < sorted.length - 1) {
+        n.y = snap(minY + (step * idx));
+      }
+    });
+  } else if (direction === 'h') {
+    const sorted = [...nodes].sort((a, b) => a.x - b.x);
+    const minX = sorted[0].x;
+    const lastNode = sorted[sorted.length - 1];
+    const maxX = lastNode.x;
+    const totalSpan = maxX - minX;
+    const step = totalSpan / (sorted.length - 1);
+    sorted.forEach((n, idx) => {
+      if (idx > 0 && idx < sorted.length - 1) {
+        n.x = snap(minX + (step * idx));
+      }
+    });
+  }
+  render();
+}
+
+function validateSchema(screen) {
+  if (!screen) return { valid: false, error: 'No active screen found.' };
+  if (!Array.isArray(screen.nodes)) return { valid: false, error: 'Screen nodes must be an array.' };
+  const allowedTypes = ['Text', 'Button', 'Input', 'Card', 'Image'];
+  for (let i = 0; i < screen.nodes.length; i++) {
+    const n = screen.nodes[i];
+    if (!n.id || typeof n.id !== 'string') {
+      return { valid: false, error: 'Node #' + i + ' has missing or invalid id.' };
+    }
+    if (!allowedTypes.includes(n.type)) {
+      return { valid: false, error: 'Node ' + n.id + ' has invalid type: ' + n.type };
+    }
+    if (typeof n.width !== 'number' || n.width <= 0 || isNaN(n.width)) {
+      return { valid: false, error: 'Node ' + n.id + ' has invalid width: ' + n.width };
+    }
+    if (typeof n.height !== 'number' || n.height <= 0 || isNaN(n.height)) {
+      return { valid: false, error: 'Node ' + n.id + ' has invalid height: ' + n.height };
+    }
+    if (typeof n.x !== 'number' || isNaN(n.x)) {
+      return { valid: false, error: 'Node ' + n.id + ' has invalid x position: ' + n.x };
+    }
+    if (typeof n.y !== 'number' || isNaN(n.y)) {
+      return { valid: false, error: 'Node ' + n.id + ' has invalid y position: ' + n.y };
+    }
+  }
+  return { valid: true };
+}
+
 function getActiveScreen() {
   let screen = project.screens.find(s => s.id === project.currentScreenId);
   if (!screen) {
@@ -291,8 +417,8 @@ function render() {
 
     el.onpointermove = function(e) {
       if (!el.hasPointerCapture(e.pointerId)) return;
-      node.x = Math.max(0, origX + (e.clientX - startX));
-      node.y = Math.max(0, origY + (e.clientY - startY));
+      node.x = snap(Math.max(0, origX + (e.clientX - startX)));
+      node.y = snap(Math.max(0, origY + (e.clientY - startY)));
       el.style.left = node.x + 'px';
       el.style.top = node.y + 'px';
     };
@@ -318,8 +444,8 @@ function render() {
 
     handle.onpointermove = function(e) {
       if (!handle.hasPointerCapture(e.pointerId)) return;
-      node.width = Math.max(30, startW + (e.clientX - resizeStartX));
-      node.height = Math.max(20, startH + (e.clientY - resizeStartY));
+      node.width = snap(Math.max(30, startW + (e.clientX - resizeStartX)));
+      node.height = snap(Math.max(20, startH + (e.clientY - resizeStartY)));
       el.style.width = node.width + 'px';
       el.style.height = node.height + 'px';
     };
@@ -398,6 +524,12 @@ function applyChanges() {
 
 function exportXml() {
   const active = getActiveScreen();
+  const val = validateSchema(active);
+  if (!val.valid) {
+    alert('Schema Validation Error:\n' + val.error + '\nExport aborted to prevent invalid Android code generation.');
+    return;
+  }
+
   let xml = '<?xml version="1.0" encoding="utf-8"?>\n' +
     '<androidx.constraintlayout.widget.ConstraintLayout\n' +
     '    xmlns:android="http://schemas.android.com/apk/res/android"\n' +
@@ -453,6 +585,13 @@ function exportXml() {
 }
 
 function exportCompose() {
+  const active = getActiveScreen();
+  const val = validateSchema(active);
+  if (!val.valid) {
+    alert('Schema Validation Error:\n' + val.error + '\nExport aborted to prevent invalid Android code generation.');
+    return;
+  }
+
   let comp = 'package com.zipbug.generated.ui\n\n' +
     'import androidx.compose.foundation.background\n' +
     'import androidx.compose.foundation.layout.*\n' +

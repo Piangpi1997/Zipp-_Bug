@@ -20,6 +20,16 @@
     <button class="btn-small" onclick="renameScreen()">Rename</button>
     <button class="btn-small" onclick="duplicateScreen()">Duplicate</button>
     <button class="btn-small" onclick="deleteScreen()" style="background:#442222;color:#ff8888">Delete</button>
+    <span class="sep"></span>
+    <label style="color:#aaa;font-size:11px">Device:</label>
+    <select id="device-select" onchange="switchDevicePreset(this.value)">
+      <option value="small">Small (360x640)</option>
+      <option value="standard" selected>Standard (390x844)</option>
+      <option value="large">Large (412x915)</option>
+    </select>
+    <label style="color:#aaa;font-size:11px;margin-left:6px;display:flex;align-items:center;gap:4px">
+      <input type="checkbox" id="grid-snap-check" checked onchange="toggleGridSnap(this.checked)"> Snap 8px
+    </label>
   </div>
   <div class="toolbar">
     <button onclick="add('Text')">+ Text</button>
@@ -30,6 +40,15 @@
     <span class="sep"></span>
     <button onclick="duplicateSelected()">Duplicate</button>
     <button onclick="deleteSelected()" style="background:#ff4d4d;color:#fff">Delete</button>
+    <span class="sep"></span>
+    <button class="btn-tool" onclick="alignSelected('left')" title="Align Left">⯬ Left</button>
+    <button class="btn-tool" onclick="alignSelected('center')" title="Align Center">⯮ Center ⯬</button>
+    <button class="btn-tool" onclick="alignSelected('right')" title="Align Right">Right ⯮</button>
+    <button class="btn-tool" onclick="alignSelected('top')" title="Align Top">⯭ Top</button>
+    <button class="btn-tool" onclick="alignSelected('bottom')" title="Align Bottom">⯯ Bottom</button>
+    <span class="sep"></span>
+    <button class="btn-tool" onclick="distributeNodes('h')" title="Distribute Horizontally">⬌ Distribute H</button>
+    <button class="btn-tool" onclick="distributeNodes('v')" title="Distribute Vertically">⬍ Distribute V</button>
   </div>
   <main>
     <section id="canvas-wrapper">

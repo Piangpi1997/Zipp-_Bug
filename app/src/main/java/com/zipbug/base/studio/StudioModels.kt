@@ -28,7 +28,19 @@ data class StudioScreen(
     val id: String,
     var name: String,
     val components: MutableList<StudioComponent> = mutableListOf()
-)
+) {
+    fun validate(): Result<Unit> {
+        val allowedTypes = setOf("Text", "Button", "Input", "Card", "Image")
+        if (id.isBlank()) return Result.failure(IllegalArgumentException("Screen id cannot be blank"))
+        for (c in components) {
+            if (c.id.isBlank()) return Result.failure(IllegalArgumentException("Component id cannot be blank"))
+            if (c.type !in allowedTypes) return Result.failure(IllegalArgumentException("Unsupported component type: ${c.type}"))
+            if (c.width <= 0f) return Result.failure(IllegalArgumentException("Component ${c.id} width must be > 0"))
+            if (c.height <= 0f) return Result.failure(IllegalArgumentException("Component ${c.id} height must be > 0"))
+        }
+        return Result.success(Unit)
+    }
+}
 
 data class StudioProject(
     val id: String,
@@ -74,7 +86,18 @@ data class StudioProject(
         return root
     }
 
+    fun validate(): Result<Unit> {
+        if (id.isBlank()) return Result.failure(IllegalArgumentException("Project id cannot be blank"))
+        if (screens.isEmpty()) return Result.failure(IllegalArgumentException("Project must have at least one screen"))
+        for (s in screens) {
+            val res = s.validate()
+            if (res.isFailure) return res
+        }
+        return Result.success(Unit)
+    }
+
     fun exportToAndroidXml(screen: StudioScreen): String {
+        screen.validate().getOrThrow()
         val sb = StringBuilder()
         sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
         sb.append("<androidx.constraintlayout.widget.ConstraintLayout\n")
@@ -142,6 +165,7 @@ data class StudioProject(
     }
 
     fun exportToJetpackCompose(screen: StudioScreen): String {
+        screen.validate().getOrThrow()
         val sb = StringBuilder()
         sb.append("package com.zipbug.generated.ui\n\n")
         sb.append("import androidx.compose.foundation.background\n")

@@ -171,4 +171,73 @@ class StudioModelsTest {
         assertTrue(composeB.contains("fun ProfileScreen()"))
         assertTrue(composeB.contains("Android & Kotlin Architect"))
     }
+
+    @Test
+    fun testSchemaValidationCatchesInvalidComponents() {
+        val invalidScreen = StudioScreen(
+            id = "s_invalid",
+            name = "Invalid",
+            components = mutableListOf(
+                StudioComponent(
+                    id = "",
+                    type = "Text",
+                    name = "EmptyId"
+                )
+            )
+        )
+        val res = invalidScreen.validate()
+        assertTrue(res.isFailure)
+
+        val invalidTypeScreen = StudioScreen(
+            id = "s_invalid_type",
+            name = "InvalidType",
+            components = mutableListOf(
+                StudioComponent(
+                    id = "c1",
+                    type = "UnknownWidget",
+                    name = "BadType"
+                )
+            )
+        )
+        assertTrue(invalidTypeScreen.validate().isFailure)
+
+        val invalidDimScreen = StudioScreen(
+            id = "s_invalid_dim",
+            name = "InvalidDim",
+            components = mutableListOf(
+                StudioComponent(
+                    id = "c2",
+                    type = "Button",
+                    name = "BadDim",
+                    width = -50f
+                )
+            )
+        )
+        assertTrue(invalidDimScreen.validate().isFailure)
+    }
+
+    @Test
+    fun testSchemaValidationSucceedsForValidScreen() {
+        val validScreen = StudioScreen(
+            id = "s_valid",
+            name = "ValidScreen",
+            components = mutableListOf(
+                StudioComponent(
+                    id = "c_text",
+                    type = "Text",
+                    name = "Greeting",
+                    width = 120f,
+                    height = 40f
+                ),
+                StudioComponent(
+                    id = "c_btn",
+                    type = "Button",
+                    name = "ClickMe",
+                    width = 100f,
+                    height = 48f
+                )
+            )
+        )
+        assertTrue(validScreen.validate().isSuccess)
+    }
 }
