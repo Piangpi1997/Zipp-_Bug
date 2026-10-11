@@ -16,6 +16,7 @@ import com.zipbug.base.creator.GeneratedProjectSpec
 import com.zipbug.base.creator.ProjectZipWriter
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.DialogAppSpecReviewBinding
+import com.zipbug.base.project.ProjectWorkspaceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -161,9 +162,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     generatedProject = proj
 
                     val termuxAccessible =
-                        proj.rootPath.startsWith(
-                            "/data/data/com.termux/files/"
-                        )
+                        ProjectWorkspaceManager.isTermuxAccessible(proj.rootPath)
 
                     binding.btnBuildProject.isEnabled = true
 
@@ -200,9 +199,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     ?: return@setOnClickListener
 
             val termuxAccessible =
-                proj.rootPath.startsWith(
-                    "/data/data/com.termux/files/"
-                )
+                ProjectWorkspaceManager.isTermuxAccessible(proj.rootPath)
 
             if (!termuxAccessible) {
                 pendingExportProject = proj
