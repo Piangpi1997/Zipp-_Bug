@@ -205,13 +205,12 @@
 
   function kotlinString(value) {
     return String(value == null ? '' : value)
-      .replace(/\/g, '\\')
-      .replace(/"/g, '\"')
-      .replace(//g, '\r')
-      .replace(/
-/g, '\n')
-      .replace(/	/g, '\t')
-      .replace(/$/g, '\$');
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\r/g, '\\r')
+      .replace(/\n/g, '\\n')
+      .replace(/\t/g, '\\t')
+      .replace(/\$/g, '\\$');
   }
 
   function composeColor(hex, fallback) {
