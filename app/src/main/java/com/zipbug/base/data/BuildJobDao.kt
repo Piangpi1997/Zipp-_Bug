@@ -60,4 +60,19 @@ interface BuildJobDao {
         errorMessage: String,
         finishedAt: Long = System.currentTimeMillis()
     )
+
+    @Query(
+        """
+        UPDATE build_jobs
+        SET status = 'FAILED',
+            errorMessage = :reason,
+            finishedAt = :finishedAt
+        WHERE id = :id AND status = 'RUNNING'
+        """
+    )
+    suspend fun cancel(
+        id: String,
+        reason: String = "Cancelled by user",
+        finishedAt: Long = System.currentTimeMillis()
+    )
 }

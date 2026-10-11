@@ -26,11 +26,12 @@ class ZipImporter(private val context: Context) {
                     while (true) {
                         val entry = zin.nextEntry ?: break
                         if (++count > MAX_FILES) {
-                            error("ZIP contains too many files")
+                            error("ZIP contains too many files (exceeds $MAX_FILES)")
                         }
 
                         val rawName = entry.name
                         require(rawName.isNotBlank()) { "ZIP contains an empty path" }
+                        require(!rawName.contains('\u0000')) { "Malicious ZIP entry: contains null byte" }
                         require(!rawName.startsWith("/") && !rawName.startsWith("\\")) {
                             "Absolute ZIP paths are not allowed: $rawName"
                         }
@@ -70,38 +71,47 @@ class ZipImporter(private val context: Context) {
                         zin.closeEntry()
                     }
                 }
-            } ?: error("Unable to open ZIP")
+            } ?: error("Unable to open ZIP stream from $uri")
 
             val manifestFile = File(canonicalRoot, "app.json")
+            val isAndroid = File(canonicalRoot, "build.gradle").exists() ||
+                File(canonicalRoot, "build.gradle.kts").exists() ||
+                File(canonicalRoot, "settings.gradle").exists() ||
+                File(canonicalRoot, "settings.gradle.kts").exists()
+
             val manifest = if (manifestFile.isFile) {
-                JSONObject(manifestFile.readText(Charsets.UTF_8))
+                runCatching { JSONObject(manifestFile.readText(Charsets.UTF_8)) }.getOrDefault(JSONObject())
             } else {
                 JSONObject()
             }
 
-            val rawEntry = manifest.optString("entry", "www/index.html").trim()
-            require(rawEntry.isNotBlank()) { "app.json entry must not be blank" }
-
-            val normalizedEntry = rawEntry.replace('\\', '/')
-            require(!normalizedEntry.startsWith("/")) {
-                "app.json entry must be relative"
+            val rawEntry = manifest.optString("entry", if (isAndroid) "" else "www/index.html").trim()
+            val normalizedEntry = if (rawEntry.isNotBlank()) {
+                val norm = rawEntry.replace('\\', '/')
+                require(!norm.startsWith("/")) { "app.json entry must be relative" }
+                require(!WINDOWS_DRIVE_PREFIX.containsMatchIn(norm)) { "app.json entry must be relative" }
+                val entryFile = resolveInside(canonicalRoot, norm, "app.json entry")
+                require(entryFile.isFile) { "Missing entry file: $norm" }
+                norm
+            } else if (isAndroid) {
+                if (File(canonicalRoot, "build.gradle.kts").exists()) "build.gradle.kts" else "build.gradle"
+            } else {
+                val firstFile = canonicalRoot.walkTopDown().firstOrNull { it.isFile }
+                firstFile?.relativeTo(canonicalRoot)?.path?.replace('\\', '/') ?: ""
             }
-            require(!WINDOWS_DRIVE_PREFIX.containsMatchIn(normalizedEntry)) {
-                "app.json entry must be relative"
-            }
 
-            val entryFile = resolveInside(canonicalRoot, normalizedEntry, "app.json entry")
-            require(entryFile.isFile) { "Missing entry file: $normalizedEntry" }
+            val defaultKind = if (isAndroid) "android" else "web-mini-app"
+            val kind = manifest.optString("kind", defaultKind)
+                .trim()
+                .ifBlank { defaultKind }
+                .take(40)
 
             val name = manifest.optString("name", "Imported project")
                 .trim()
-                .ifBlank { "Imported project" }
+                .ifBlank {
+                    uri.lastPathSegment?.substringAfterLast('/')?.removeSuffix(".zip")?.ifBlank { "Imported project" } ?: "Imported project"
+                }
                 .take(80)
-
-            val kind = manifest.optString("kind", "web-mini-app")
-                .trim()
-                .ifBlank { "web-mini-app" }
-                .take(40)
 
             ProjectEntity(
                 id = id,
@@ -134,8 +144,8 @@ class ZipImporter(private val context: Context) {
     }
 
     companion object {
-        private const val MAX_FILES = 5_000
-        private const val MAX_EXTRACTED_BYTES = 512L * 1024 * 1024
+        const val MAX_FILES = 5_000
+        const val MAX_EXTRACTED_BYTES = 512L * 1024 * 1024 // 512 MB
         private const val BUFFER_SIZE = 8 * 1024
         private val WINDOWS_DRIVE_PREFIX = Regex("^[A-Za-z]:[/\\\\]")
     }
