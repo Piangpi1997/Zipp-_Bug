@@ -5,12 +5,20 @@ import com.zipbug.base.termux.LogSanitizer
 data class AppSpec(
     val name: String,
     val packageName: String,
-    val goal: String
+    val goal: String,
+    val minSdk: Int = 24,
+    val targetSdk: Int = 34,
+    val permissions: List<String> = emptyList(),
+    val dependencies: List<String> = emptyList()
 )
 
 object AppScaffolder {
     private val packageRegex =
         Regex("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)+$")
+    private val permissionRegex =
+        Regex("^android\\.permission\\.[A-Z0-9_]+$")
+    private val dependencyRegex =
+        Regex("^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+:[A-Za-z0-9_.+\\-]+$")
 
     fun validate(spec: AppSpec) {
         require(spec.name.isNotBlank()) { "App name is required" }
@@ -19,6 +27,24 @@ object AppScaffolder {
             "Invalid package name"
         }
         require(spec.goal.length <= 4000) { "Goal is too long" }
+        require(spec.minSdk in 24..34) {
+            "minSdk must be between 24 and 34"
+        }
+        require(spec.targetSdk in spec.minSdk..34) {
+            "targetSdk must be between minSdk and 34"
+        }
+        require(spec.permissions.size <= 32) {
+            "Too many requested permissions"
+        }
+        require(spec.permissions.all(permissionRegex::matches)) {
+            "Unsupported Android permission name"
+        }
+        require(spec.dependencies.size <= 64) {
+            "Too many dependencies"
+        }
+        require(spec.dependencies.all(dependencyRegex::matches)) {
+            "Dependencies must use group:artifact:version coordinates"
+        }
     }
 
     fun files(spec: AppSpec): Map<String, String> {
@@ -34,9 +60,15 @@ object AppScaffolder {
             "settings.gradle.kts" to settingsGradle(spec.name),
             "build.gradle.kts" to rootGradle(),
             "gradle.properties" to gradleProperties(),
-            "app/build.gradle.kts" to appGradle(spec.packageName),
+            "app/build.gradle.kts" to appGradle(
+                spec.packageName,
+                spec.minSdk,
+                spec.targetSdk,
+                spec.dependencies
+            ),
             "app/proguard-rules.pro" to "# Add project-specific rules here.\n",
-            "app/src/main/AndroidManifest.xml" to manifest(),
+            "app/src/main/AndroidManifest.xml" to
+                manifest(spec.permissions),
             "app/src/main/java/" + packagePath + "/MainActivity.kt" to
                 mainActivity(spec.packageName, safeGoal),
             "app/src/main/res/layout/activity_main.xml" to mainLayout(spec.name),
@@ -74,7 +106,37 @@ object AppScaffolder {
         android.nonTransitiveRClass=true
     """.trimIndent() + "\n"
 
-    private fun appGradle(packageName: String) = """
+    private fun appGradle(
+        packageName: String,
+        minSdk: Int,
+        targetSdk: Int,
+        dependencies: List<String>
+    ): String {
+        val dependencyLines = buildString {
+            append(
+                "    implementation(\"androidx.core:core-ktx:1.13.1\")\n"
+            )
+            append(
+                "    implementation(\"androidx.appcompat:appcompat:1.7.0\")\n"
+            )
+            append(
+                "    implementation(\"com.google.android.material:material:1.12.0\")"
+            )
+            for (dependency in dependencies.distinct()) {
+                if (
+                    dependency == "androidx.core:core-ktx:1.13.1" ||
+                    dependency == "androidx.appcompat:appcompat:1.7.0" ||
+                    dependency == "com.google.android.material:material:1.12.0"
+                ) {
+                    continue
+                }
+                append("\n    implementation(")
+                append(quote(dependency))
+                append(")")
+            }
+        }
+
+        return """
         plugins {
             id("com.android.application")
             id("org.jetbrains.kotlin.android")
@@ -86,8 +148,8 @@ object AppScaffolder {
 
             defaultConfig {
                 applicationId = "__PACKAGE__"
-                minSdk = 24
-                targetSdk = 34
+                minSdk = __MIN_SDK__
+                targetSdk = __TARGET_SDK__
                 versionCode = 1
                 versionName = "1.0.0"
             }
@@ -100,16 +162,33 @@ object AppScaffolder {
         }
 
         dependencies {
-            implementation("androidx.core:core-ktx:1.13.1")
-            implementation("androidx.appcompat:appcompat:1.7.0")
-            implementation("com.google.android.material:material:1.12.0")
+__DEPENDENCIES__
         }
-    """.trimIndent()
-        .replace("__PACKAGE__", packageName) + "\n"
+        """.trimIndent()
+            .replace("__PACKAGE__", packageName)
+            .replace("__MIN_SDK__", minSdk.toString())
+            .replace("__TARGET_SDK__", targetSdk.toString())
+            .replace("__DEPENDENCIES__", dependencyLines) + "\n"
+    }
 
-    private fun manifest() = """
+    private fun manifest(
+        permissions: List<String>
+    ): String {
+        val permissionLines = permissions
+            .distinct()
+            .joinToString("\n") {
+                "    <uses-permission android:name=\"" +
+                    xml(it) +
+                    "\" />"
+            }
+
+        val permissionBlock =
+            if (permissionLines.isBlank()) ""
+            else permissionLines + "\n"
+
+        return """
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <application
+__PERMISSIONS__            <application
                 android:allowBackup="false"
                 android:label="@string/app_name"
                 android:theme="@style/Theme.Generated">
@@ -123,7 +202,9 @@ object AppScaffolder {
                 </activity>
             </application>
         </manifest>
-    """.trimIndent() + "\n"
+        """.trimIndent()
+            .replace("__PERMISSIONS__", permissionBlock) + "\n"
+    }
 
     private fun mainActivity(
         packageName: String,
