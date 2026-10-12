@@ -231,11 +231,13 @@ class AppCreatorActivity : AppCompatActivity() {
                 "Preparing React Native + Expo TypeScript source…"
 
         val name = binding.appName.text.toString().trim()
+        val packageName = binding.packageName.text.toString().trim()
         val goal = binding.goal.text.toString().trim()
 
         runCatching {
             ReactNativeExpoScaffolder.files(
                 name = name,
+                packageName = packageName,
                 goal = goal
             )
         }.onSuccess { files ->
