@@ -66,19 +66,21 @@ object ReactNativeExpoScaffolder {
             )
             .toString(2) + "\n"
 
-        val appJson = JSONObject()
-            .put(
-                "expo",
-                JSONObject()
-                    .put("name", name)
-                    .put("slug", slug)
-                    .put("version", "1.0.0")
-                    .put("orientation", "portrait")
-                    .put("userInterfaceStyle", "dark")
-                    .put("android", JSONObject())
-                    .put("ios", JSONObject())
-            )
-            .toString(2) + "\n"
+        val expoConfig = """
+            export default {
+              expo: {
+                name: __NAME_JSON__,
+                slug: __SLUG_JSON__,
+                version: '1.0.0',
+                orientation: 'portrait',
+                userInterfaceStyle: 'dark',
+                android: {},
+                ios: {},
+              },
+            }
+        """.trimIndent()
+            .replace("__NAME_JSON__", JSONObject.quote(name))
+            .replace("__SLUG_JSON__", JSONObject.quote(slug)) + "\n"
 
         val appTsx = """
             import React, { useState } from 'react'
@@ -222,7 +224,7 @@ object ReactNativeExpoScaffolder {
         return linkedMapOf(
             "app.json" to manifest,
             "package.json" to packageJson,
-            "expo-app.json" to appJson,
+            "app.config.js" to expoConfig,
             "App.tsx" to appTsx,
             "tsconfig.json" to tsconfig,
             ".gitignore" to "node_modules/\n.expo/\ndist/\nweb-build/\n",
