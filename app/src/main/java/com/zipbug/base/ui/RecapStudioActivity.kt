@@ -159,6 +159,7 @@ class RecapStudioActivity : AppCompatActivity() {
             clips.addAll(initial)
         }
         renderClipsUi()
+        updateRenderAvailability()
 
         // Load scripts
         val loadedScripts = db.recapScriptDao().getScriptsForProject(project.id)
@@ -551,6 +552,7 @@ class RecapStudioActivity : AppCompatActivity() {
         clips.addAll(initial)
         persistClips()
         renderClipsUi()
+        updateRenderAvailability()
     }
 
     private fun addNewClip() {
@@ -582,6 +584,29 @@ class RecapStudioActivity : AppCompatActivity() {
         clips.add(newClip)
         persistClips()
         renderClipsUi()
+        updateRenderAvailability()
+    }
+
+    private fun updateRenderAvailability() {
+        val sourcePath = activeProject?.sourceLocalPath
+        val sourceReady =
+            !sourcePath.isNullOrBlank() &&
+                !sourcePath.startsWith("content://", ignoreCase = true) &&
+                File(sourcePath).isFile &&
+                File(sourcePath).length() > 0L
+        val timelineReady = clips.isNotEmpty()
+
+        binding.btnStartRender.isEnabled = sourceReady && timelineReady
+        if (!sourceReady) {
+            binding.tvRenderStatus.text =
+                "Status: WAITING • Select media to enable render"
+        } else if (!timelineReady) {
+            binding.tvRenderStatus.text =
+                "Status: WAITING • Add at least one clip"
+        } else if (binding.tvRenderStatus.text.toString().startsWith("Status: WAITING")) {
+            binding.tvRenderStatus.text =
+                "Status: IDLE • Ready to render"
+        }
     }
 
     private fun previewTtsVoice() {
@@ -713,10 +738,27 @@ class RecapStudioActivity : AppCompatActivity() {
 
         // 1. STAGE: VALIDATION
         updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "RUNNING")
+
+        val sourcePath = project.sourceLocalPath
+        if (
+            sourcePath.isNullOrBlank() ||
+                sourcePath.startsWith("content://", ignoreCase = true) ||
+                !File(sourcePath).isFile ||
+                File(sourcePath).length() <= 0L
+        ) {
+            updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "FAILED")
+            showFailureDiagnosis(
+                RecapFailureDiagnosis.missingMediaFile(sourcePath)
+            )
+            updateRenderAvailability()
+            return
+        }
+
         val timelineVal = RecapTimelineManager.validateTimeline(clips)
         if (timelineVal.isFailure) {
             updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "FAILED")
             showFailureDiagnosis(RecapFailureDiagnosis.invalidClipCount(clips.size))
+            updateRenderAvailability()
             return
         }
         updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "SUCCESS")
