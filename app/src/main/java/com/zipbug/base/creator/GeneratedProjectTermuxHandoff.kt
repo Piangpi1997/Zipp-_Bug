@@ -64,7 +64,8 @@ object GeneratedProjectTermuxHandoff {
                 val safeId = project.id
                     .replace(Regex("[^a-zA-Z0-9_-]"), "_")
                     .takeLast(24)
-                val zipName = "${safeName}_${safeId}.zip"
+                val handoffId = System.currentTimeMillis()
+                val zipName = "${safeName}_${safeId}_$handoffId.zip"
                 val relativeDir =
                     Environment.DIRECTORY_DOWNLOADS +
                         "/Zip_Bug/Generated"
@@ -101,7 +102,7 @@ object GeneratedProjectTermuxHandoff {
                         "$sharedRoot/$relativeDir/$zipName"
 
                     val destinationName =
-                        "${safeName}_${safeId}"
+                        "${safeName}_${safeId}_$handoffId"
                             .replace(Regex("[^a-zA-Z0-9._-]"), "_")
                     val termuxRoot =
                         "/data/data/com.termux/files/home/" +
