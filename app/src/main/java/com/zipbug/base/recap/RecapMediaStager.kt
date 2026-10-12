@@ -8,6 +8,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
+import androidx.annotation.RequiresApi
 import java.io.File
 
 object RecapMediaStager {
@@ -55,6 +56,7 @@ object RecapMediaStager {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun stageToPublicDownloads(
         context: Context,
         uri: Uri,
