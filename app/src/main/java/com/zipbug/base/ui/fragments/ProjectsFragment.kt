@@ -250,6 +250,23 @@ class ProjectsFragment : Fragment() {
         }
         card.addView(metaTv)
 
+        if (project.kind.equals("react-vite-source", ignoreCase = true)) {
+            val sourceNote = TextView(requireContext()).apply {
+                text =
+                    "React + Vite source only. Build it in a reviewed Node/npm workspace; " +
+                        "Zip_Bug does not auto-run package lifecycle scripts from imported ZIPs."
+                setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.z_muted
+                    )
+                )
+                textSize = 12f
+                setPadding(0, 0, 0, 8)
+            }
+            card.addView(sourceNote)
+        }
+
         val btnRow = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
         }
@@ -348,8 +365,11 @@ class ProjectsFragment : Fragment() {
     }
 
     private fun isWebProject(project: ProjectEntity): Boolean =
-        project.kind.equals("web-mini-app", ignoreCase = true) ||
-            project.entryFile.endsWith(".html", ignoreCase = true)
+        !project.kind.equals("react-vite-source", ignoreCase = true) &&
+            (
+                project.kind.equals("web-mini-app", ignoreCase = true) ||
+                    project.entryFile.endsWith(".html", ignoreCase = true)
+            )
 
     private fun isAndroidProject(project: ProjectEntity): Boolean =
         project.kind.contains("ANDROID", ignoreCase = true) ||
