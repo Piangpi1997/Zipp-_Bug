@@ -64,6 +64,21 @@
             android:layout_marginTop="8dp"
             android:text="Create HTML/JS/JSON Mini-App ZIP" />
 
+        <Button
+            android:id="@+id/createReact"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="Create React + Vite Source ZIP" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="React ZIP is source-only. Zip_Bug will not auto-run npm lifecycle scripts from imported projects."
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
         <TextView
             android:id="@+id/result"
             android:layout_width="match_parent"
