@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -222,42 +221,45 @@ class RecapStudioActivity : AppCompatActivity() {
                 // Not all SAF pickers grant persistable permission
             }
 
-            // Stage to Termux-accessible home or app files
-            val stagingDir = File("/data/data/com.termux/files/home/recap/projects/${project.id}")
-            if (!stagingDir.exists()) stagingDir.mkdirs()
+            val stagedResult = RecapMediaStager.stage(
+                context = this@RecapStudioActivity,
+                uri = uri,
+                projectId = project.id
+            )
 
-            val fileName = "source_${System.currentTimeMillis()}.mp4"
-            val targetFile = File(stagingDir, fileName)
-
-            try {
-                contentResolver.openInputStream(uri)?.use { input ->
-                    FileOutputStream(targetFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            } catch (e: Exception) {
+            if (stagedResult.isFailure) {
+                val reason = stagedResult.exceptionOrNull()
+                    ?.message
+                    ?: "Media staging failed"
                 withContext(Dispatchers.Main) {
                     showFailureDiagnosis(
-                        RecapFailureDiagnosis.missingMediaFile(uri.toString())
+                        RecapFailureDiagnosis.mediaStagingFailed(
+                            uri = uri.toString(),
+                            reason = reason
+                        )
                     )
                 }
                 return@launch
             }
 
-            // Extract duration
+            val staged = stagedResult.getOrThrow()
+
+            // Extract duration from the shared staged copy that Termux/ffmpeg can read.
             var durationMs = 60_000L
             runCatching {
                 val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(targetFile.absolutePath)
-                val durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                retriever.setDataSource(staged.localPath)
+                val durStr = retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_DURATION
+                )
                 durStr?.toLongOrNull()?.let { durationMs = it }
                 retriever.release()
             }
 
             val updatedProject = project.copy(
-                sourceUri = uri.toString(),
-                sourceFileName = fileName,
-                sourceLocalPath = targetFile.absolutePath,
+                sourceUri = staged.sourceUri,
+                sourceFileName = staged.displayName,
+                sourceLocalPath = staged.localPath,
                 sourceDurationMs = durationMs,
                 updatedAt = System.currentTimeMillis()
             )
@@ -265,7 +267,7 @@ class RecapStudioActivity : AppCompatActivity() {
 
             val initialClips = RecapTimelineManager.createInitialClips(
                 projectId = project.id,
-                sourcePath = targetFile.absolutePath,
+                sourcePath = staged.localPath,
                 totalDurationMs = durationMs
             )
             db.recapClipDao().deleteClipsForProject(project.id)
@@ -273,7 +275,12 @@ class RecapStudioActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 bindProject(updatedProject)
-                Toast.makeText(this@RecapStudioActivity, "Media imported: $fileName", Toast.LENGTH_SHORT).show()
+                hideFailureDiagnosis()
+                Toast.makeText(
+                    this@RecapStudioActivity,
+                    "Media imported: ${staged.displayName}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
