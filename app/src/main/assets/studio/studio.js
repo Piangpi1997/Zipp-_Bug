@@ -925,7 +925,7 @@ function seedDefaultNode() {
   persistProject();
 }
 
-canvas.addEventListener('pointerdown', function(event) {
+canvas.addEventListener('click', function(event) {
   if (event.target === canvas) clearSelection();
 });
 
