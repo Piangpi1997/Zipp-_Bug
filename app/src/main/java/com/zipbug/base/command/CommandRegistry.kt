@@ -141,6 +141,13 @@ object CommandRegistry {
             description = "Open AI in App Creator mode for a structured project spec.",
             example = "/aicreator"
         ),
+        CommandSpec(
+            command = "/reactcreator",
+            aliases = listOf("/react"),
+            group = CommandGroups.CODING,
+            description = "Open App Creator for a React + Vite source project ZIP.",
+            example = "/reactcreator"
+        ),
 
         // FUTURE
         CommandSpec(
