@@ -11,13 +11,19 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.creator.AppCreatorParser
+import com.zipbug.base.ZipBugApp
 import com.zipbug.base.creator.AppProjectGenerator
+import com.zipbug.base.creator.GeneratedProjectTermuxHandoff
 import com.zipbug.base.creator.GeneratedProjectSpec
 import com.zipbug.base.creator.ProjectZipWriter
+import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.DialogAppSpecReviewBinding
 import com.zipbug.base.project.ProjectWorkspaceManager
+import com.zipbug.base.termux.TermuxBridge
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -32,6 +38,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var rawJson: String = ""
     private var generatedProject: ProjectEntity? = null
     private var pendingExportProject: ProjectEntity? = null
+    private var handoffObserverJob: Job? = null
 
     private val exportGeneratedSource = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/zip")
@@ -170,7 +177,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                         if (termuxAccessible) {
                             "Build Debug APK"
                         } else {
-                            "Export Source ZIP"
+                            "Move to Termux & Build"
                         }
 
                     Snackbar.make(
@@ -202,12 +209,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 ProjectWorkspaceManager.isTermuxAccessible(proj.rootPath)
 
             if (!termuxAccessible) {
-                pendingExportProject = proj
-                val filename = proj.name
-                    .replace(Regex("[^a-zA-Z0-9._-]"), "_")
-                    .ifBlank { "ZipBugGeneratedApp" } +
-                    "-source.zip"
-                exportGeneratedSource.launch(filename)
+                showHandoffOptions(proj)
                 return@setOnClickListener
             }
 
@@ -215,6 +217,174 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
             (activity as? MainActivity)?.navigateToTerminal(
                 "/apkbuilder --debug \"" + proj.rootPath + "\""
             )
+        }
+    }
+
+    private fun showHandoffOptions(project: ProjectEntity) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Move generated project")
+            .setMessage(
+                "Zip_Bug generated this project in private app storage. " +
+                    "Choose Move & Build to stage a verified ZIP in Downloads, " +
+                    "extract it into a unique Termux workspace, then start the " +
+                    "controlled debug APK workflow. Imported ZIPs still cannot " +
+                    "trigger shell commands."
+            )
+            .setNegativeButton("Cancel", null)
+            .setNeutralButton("Export ZIP") { _, _ ->
+                exportProjectSource(project)
+            }
+            .setPositiveButton("Move & Build") { _, _ ->
+                moveProjectToTermuxAndBuild(project)
+            }
+            .show()
+    }
+
+    private fun exportProjectSource(project: ProjectEntity) {
+        pendingExportProject = project
+        val filename = project.name
+            .replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            .ifBlank { "ZipBugGeneratedApp" } +
+            "-source.zip"
+        exportGeneratedSource.launch(filename)
+    }
+
+    private fun moveProjectToTermuxAndBuild(project: ProjectEntity) {
+        binding.btnBuildProject.isEnabled = false
+        binding.btnBuildProject.text = "Staging Source…"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val staged = GeneratedProjectTermuxHandoff.stage(
+                requireContext(),
+                project
+            )
+
+            staged.onFailure { error ->
+                if (_binding == null) return@onFailure
+                binding.btnBuildProject.isEnabled = true
+                binding.btnBuildProject.text = "Move to Termux & Build"
+                Snackbar.make(
+                    binding.root,
+                    "Handoff staging failed: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+
+            val plan = staged.getOrNull() ?: return@launch
+
+            binding.btnBuildProject.text = "Moving to Termux…"
+
+            TermuxBridge.send(
+                requireContext(),
+                TermuxBridge.Request(
+                    tool = "python",
+                    args = listOf(
+                        "-m",
+                        "zipfile",
+                        "-e",
+                        plan.stagedZipPath,
+                        plan.termuxRootPath
+                    ),
+                    workDir = "/data/data/com.termux/files/home",
+                    label = "Generated Project Handoff"
+                )
+            ).onSuccess { jobId ->
+                observeHandoffJob(
+                    project = project,
+                    plan = plan,
+                    jobId = jobId
+                )
+            }.onFailure { error ->
+                if (_binding == null) return@onFailure
+                binding.btnBuildProject.isEnabled = true
+                binding.btnBuildProject.text = "Move to Termux & Build"
+                Snackbar.make(
+                    binding.root,
+                    "Termux handoff could not start: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun observeHandoffJob(
+        project: ProjectEntity,
+        plan: com.zipbug.base.creator.GeneratedProjectHandoffPlan,
+        jobId: String
+    ) {
+        handoffObserverJob?.cancel()
+        val database =
+            (requireActivity().application as ZipBugApp).database
+
+        handoffObserverJob = viewLifecycleOwner.lifecycleScope.launch {
+            database.buildJobDao()
+                .observe(jobId)
+                .filterNotNull()
+                .collect { job ->
+                    when (job.status) {
+                        BuildJobEntity.SUCCESS -> {
+                            handoffObserverJob?.cancel()
+
+                            val moved = project.copy(
+                                rootPath = plan.termuxRootPath,
+                                entryFile = File(
+                                    plan.termuxRootPath,
+                                    plan.entryRelativePath
+                                ).absolutePath,
+                                lastOpenedAt = System.currentTimeMillis()
+                            )
+                            database.projectDao().upsert(moved)
+                            generatedProject = moved
+
+                            if (_binding == null) return@collect
+
+                            binding.btnBuildProject.isEnabled = true
+                            binding.btnBuildProject.text = "Build Debug APK"
+
+                            Snackbar.make(
+                                binding.root,
+                                "Moved and verified " +
+                                    plan.validation.entryCount +
+                                    " files in Termux. Starting debug build…",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+
+                            dismiss()
+                            (activity as? MainActivity)?.navigateToTerminal(
+                                "/apkbuilder --debug \"" +
+                                    moved.rootPath +
+                                    "\""
+                            )
+                        }
+
+                        BuildJobEntity.FAILED -> {
+                            handoffObserverJob?.cancel()
+                            if (_binding == null) return@collect
+
+                            binding.btnBuildProject.isEnabled = true
+                            binding.btnBuildProject.text =
+                                "Move to Termux & Build"
+
+                            val detail = sequenceOf(
+                                job.errorMessage,
+                                job.stderr,
+                                job.stdout
+                            ).firstOrNull { it.isNotBlank() }
+                                ?.lineSequence()
+                                ?.firstOrNull()
+                                ?.take(180)
+                                ?: "Termux could not extract the staged source."
+
+                            Snackbar.make(
+                                binding.root,
+                                "Handoff failed: $detail",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
         }
     }
 
@@ -277,6 +447,8 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     override fun onDestroyView() {
+        handoffObserverJob?.cancel()
+        handoffObserverJob = null
         pendingExportProject = null
         super.onDestroyView()
         _binding = null
