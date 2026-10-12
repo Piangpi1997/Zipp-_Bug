@@ -77,4 +77,18 @@ class CommandRegistryTest {
     fun unknownCommandDoesNotResolve() {
         assertEquals(null, CommandRegistry.resolve("/does-not-exist"))
     }
+
+    @Test
+    fun reactCreatorAliasResolvesAndIsSearchable() {
+        assertEquals(
+            "/reactcreator",
+            CommandRegistry.canonical("/react")
+        )
+
+        val spec = CommandRegistry.resolve("/reactcreator")
+        assertNotNull(spec)
+        assertEquals(CommandGroups.CODING, spec?.group)
+        assertTrue(CommandRegistry.search("react").contains(spec))
+    }
+
 }
