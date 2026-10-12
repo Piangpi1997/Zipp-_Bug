@@ -85,6 +85,24 @@ class HomeFragment : Fragment() {
             )
         }
 
+        binding.reactCreator.setOnClickListener {
+            startActivity(
+                Intent(
+                    requireContext(),
+                    AppCreatorActivity::class.java
+                )
+            )
+        }
+
+        binding.reactNativeCreator.setOnClickListener {
+            startActivity(
+                Intent(
+                    requireContext(),
+                    AppCreatorActivity::class.java
+                )
+            )
+        }
+
         binding.ttsStudio.setOnClickListener {
             startActivity(
                 Intent(
