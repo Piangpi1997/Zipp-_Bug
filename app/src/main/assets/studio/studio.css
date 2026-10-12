@@ -84,3 +84,17 @@ header,.screen-bar,.toolbar,main,aside{min-width:0;max-width:100%}
   .field-row{min-width:0}
   #layers-list{max-width:100%}
 }
+
+html.zipbug-android,html.zipbug-android body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+html.zipbug-android body{height:auto;min-height:100%;overflow-y:auto}
+html.zipbug-android header{width:100%;max-width:100%;display:flex;flex-direction:column;align-items:stretch;overflow:hidden}
+html.zipbug-android header b{width:100%;flex:0 0 auto}
+html.zipbug-android .header-actions,html.zipbug-android .screen-bar,html.zipbug-android .toolbar{width:100%;max-width:100%;min-width:0;display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+html.zipbug-android .header-actions{justify-content:flex-start;padding-bottom:2px}
+html.zipbug-android .header-actions>*,html.zipbug-android .screen-bar>*,html.zipbug-android .toolbar>*{flex:0 0 auto!important}
+html.zipbug-android main{display:flex;flex-direction:column;width:100%;max-width:100%;min-width:0;overflow:visible}
+html.zipbug-android #canvas-wrapper{width:100%;max-width:100%;min-width:0;height:50vh;min-height:320px;overflow:auto;flex:0 0 auto;padding:12px}
+html.zipbug-android aside{width:100%;max-width:100%;min-width:0;overflow:visible;border-left:0;border-top:1px solid #2a2a2a;padding-bottom:28px}
+html.zipbug-android .field-row{width:100%;min-width:0}
+html.zipbug-android .field-row>div{min-width:0}
+html.zipbug-android #layers-list,html.zipbug-android pre{max-width:100%}
