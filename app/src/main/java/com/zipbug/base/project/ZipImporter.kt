@@ -73,7 +73,14 @@ class ZipImporter(private val context: Context) {
                 }
             } ?: error("Unable to open ZIP stream from $uri")
 
-            val manifestFile = File(canonicalRoot, "app.json")
+            val zipBugManifest = File(canonicalRoot, "zipbug.json")
+            val legacyManifest = File(canonicalRoot, "app.json")
+            val manifestFile = when {
+                zipBugManifest.isFile -> zipBugManifest
+                legacyManifest.isFile -> legacyManifest
+                else -> legacyManifest
+            }
+
             val isAndroid = File(canonicalRoot, "build.gradle").exists() ||
                 File(canonicalRoot, "build.gradle.kts").exists() ||
                 File(canonicalRoot, "settings.gradle").exists() ||
@@ -88,10 +95,10 @@ class ZipImporter(private val context: Context) {
             val rawEntry = manifest.optString("entry", if (isAndroid) "" else "www/index.html").trim()
             val normalizedEntry = if (rawEntry.isNotBlank()) {
                 val norm = rawEntry.replace('\\', '/')
-                require(!norm.startsWith("/")) { "app.json entry must be relative" }
+                require(!norm.startsWith("/")) { "project manifest entry must be relative" }
                 require(!WINDOWS_DRIVE_PREFIX.containsMatchIn(norm)) { "app.json entry must be relative" }
                 val entryFile = resolveInside(canonicalRoot, norm, "app.json entry")
-                require(entryFile.isFile) { "Missing entry file: $norm" }
+                require(entryFile.isFile) { "Missing project entry file: $norm" }
                 norm
             } else if (isAndroid) {
                 if (File(canonicalRoot, "build.gradle.kts").exists()) "build.gradle.kts" else "build.gradle"
