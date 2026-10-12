@@ -91,4 +91,22 @@ class CommandRegistryTest {
         assertTrue(CommandRegistry.search("react").contains(spec))
     }
 
+
+    @Test
+    fun reactNativeAliasesResolveAndAreSearchable() {
+        assertEquals(
+            "/reactnative",
+            CommandRegistry.canonical("/rncreator")
+        )
+        assertEquals(
+            "/reactnative",
+            CommandRegistry.canonical("/expo")
+        )
+
+        val spec = CommandRegistry.resolve("/reactnative")
+        assertNotNull(spec)
+        assertEquals(CommandGroups.CODING, spec?.group)
+        assertTrue(CommandRegistry.search("expo").contains(spec))
+    }
+
 }
