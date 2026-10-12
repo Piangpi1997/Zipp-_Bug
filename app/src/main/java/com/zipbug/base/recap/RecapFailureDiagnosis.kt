@@ -33,6 +33,22 @@ data class RecapFailureDiagnosis(
                 retryNote = "Reselect source file and retry"
             )
 
+        fun mediaStagingFailed(
+            uri: String,
+            reason: String
+        ): RecapFailureDiagnosis =
+            RecapFailureDiagnosis(
+                whatFailed = "Media Staging",
+                why =
+                    "The selected media could not be copied into shared storage " +
+                        "for Termux/FFmpeg. Source: $uri. Reason: ${reason.take(180)}",
+                safeNextStep =
+                    "Reselect the media. Zip_Bug will copy it into " +
+                        "Download/Zip_Bug/Recap before rendering.",
+                canRetry = true,
+                retryNote = "Reselect source media and retry"
+            )
+
         fun invalidClipCount(count: Int): RecapFailureDiagnosis =
             RecapFailureDiagnosis(
                 whatFailed = "Timeline Validation",
