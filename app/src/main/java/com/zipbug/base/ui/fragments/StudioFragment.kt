@@ -26,8 +26,17 @@ class StudioFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.web.settings.javaScriptEnabled = true
-        binding.web.settings.domStorageEnabled = true
+        binding.web.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            useWideViewPort = false
+            loadWithOverviewMode = false
+            setSupportZoom(false)
+            builtInZoomControls = false
+            displayZoomControls = false
+            textZoom = 100
+        }
+        binding.web.isHorizontalScrollBarEnabled = false
         binding.web.addJavascriptInterface(StudioBridge(), "ZipBug")
         binding.web.loadUrl("file:///android_asset/studio/index.html")
     }
