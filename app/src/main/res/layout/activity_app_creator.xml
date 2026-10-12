@@ -82,7 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="React ZIP is source-only. Zip_Bug will not auto-run npm lifecycle scripts from imported projects."
+            android:text="React source ZIPs are source-only. Zip_Bug will not auto-run npm/npx lifecycle scripts from imported projects."
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
