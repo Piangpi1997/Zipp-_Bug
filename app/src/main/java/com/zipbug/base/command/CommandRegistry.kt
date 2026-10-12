@@ -148,6 +148,13 @@ object CommandRegistry {
             description = "Open App Creator for a React + Vite source project ZIP.",
             example = "/reactcreator"
         ),
+        CommandSpec(
+            command = "/reactnative",
+            aliases = listOf("/rncreator", "/expo"),
+            group = CommandGroups.CODING,
+            description = "Open App Creator for a React Native + Expo TypeScript source ZIP.",
+            example = "/reactnative"
+        ),
 
         // FUTURE
         CommandSpec(
