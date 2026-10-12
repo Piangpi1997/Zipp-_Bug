@@ -156,6 +156,10 @@ class TerminalFragment : Fragment() {
             startActivity(android.content.Intent(requireContext(), com.zipbug.base.ui.DeviceVerificationActivity::class.java))
         }
 
+        binding.syncProject.setOnClickListener {
+            syncProjectFromOrigin()
+        }
+
         binding.btnFixErrorWithAi.setOnClickListener {
             val job = lastFailedJob ?: return@setOnClickListener
             val rawLog = (job.stderr + "\n" + job.stdout + "\n" + job.errorMessage).trim()
@@ -358,6 +362,21 @@ class TerminalFragment : Fragment() {
             if (job.errorMessage.isNotBlank()) {
                 append("\n\nERROR\n")
                 append(job.errorMessage)
+            }
+
+            val combinedLog =
+                (job.stdout + "\n" + job.stderr + "\n" + job.errorMessage)
+            if (
+                isFailed &&
+                job.tool == "bash" &&
+                combinedLog.contains("Set ANDROID_HOME", ignoreCase = true)
+            ) {
+                append(
+                    "\n\nSAFE NEXT STEP\n" +
+                        "This Termux checkout is using an older build script. " +
+                        "Tap 'Sync Termux Project (ff-only)', then run " +
+                        "'Device Proof & Checks' and retry Debug APK."
+                )
             }
         }
     }
@@ -822,6 +841,66 @@ class TerminalFragment : Fragment() {
             "%.2f MB",
             kb / 1024.0
         )
+    }
+
+    private fun syncProjectFromOrigin() {
+        val prefs = requireContext()
+            .getSharedPreferences("zipbug.settings", 0)
+        val home = prefs.getString(
+            "termuxHome",
+            "/data/data/com.termux/files/home"
+        )!!
+        val savedRoot = prefs.getString(
+            "projectRoot",
+            "$home/OpenDots/Zip_Bug_Antigravity"
+        )!!
+        val projectRoot =
+            if (savedRoot == "$home/OpenDots/Zip_Bug") {
+                "$home/OpenDots/Zip_Bug_Antigravity"
+            } else {
+                savedRoot
+            }
+
+        val args = listOf(
+            "pull",
+            "--ff-only",
+            "origin",
+            "feat/antigravity-studio-v2"
+        )
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sync Termux project")
+            .setMessage(
+                "This updates only the configured Git checkout and refuses merges.\n\n" +
+                    "Tool: /data/data/com.termux/files/usr/bin/git\n" +
+                    "Work dir: $projectRoot\n" +
+                    "Arguments: ${args.joinToString(" ")}"
+            )
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Sync") { _, _ ->
+                binding.engineState.text = "ENGINE • SYNC QUEUING"
+                viewLifecycleOwner.lifecycleScope.launch {
+                    TermuxBridge.send(
+                        requireContext(),
+                        TermuxBridge.Request(
+                            tool = "git",
+                            args = args,
+                            workDir = projectRoot,
+                            label = "Zip_Bug Project Sync"
+                        )
+                    ).onSuccess { id ->
+                        binding.output.text =
+                            "Queued safe ff-only project sync:\n$id\n\n" +
+                                "Local edits will not be merged automatically. " +
+                                "Wait for the real Termux result before building."
+                    }.onFailure { error ->
+                        binding.engineState.text = "ENGINE • SYNC FAILED"
+                        binding.output.text =
+                            "Project sync could not start:\n${error.message}"
+                    }
+                }
+            }
+            .show()
     }
 
     private fun runDoctor() {
