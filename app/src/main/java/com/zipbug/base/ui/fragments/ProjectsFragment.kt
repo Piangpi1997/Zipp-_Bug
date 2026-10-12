@@ -250,10 +250,13 @@ class ProjectsFragment : Fragment() {
         }
         card.addView(metaTv)
 
-        if (project.kind.equals("react-vite-source", ignoreCase = true)) {
+        if (
+            project.kind.equals("react-vite-source", ignoreCase = true) ||
+                project.kind.equals("react-native-expo-source", ignoreCase = true)
+        ) {
             val sourceNote = TextView(requireContext()).apply {
                 text =
-                    "React + Vite source only. Build it in a reviewed Node/npm workspace; " +
+                    "React source only. Build it in a reviewed Node/npm/Expo workspace; " +
                         "Zip_Bug does not auto-run package lifecycle scripts from imported ZIPs."
                 setTextColor(
                     ContextCompat.getColor(
@@ -366,6 +369,7 @@ class ProjectsFragment : Fragment() {
 
     private fun isWebProject(project: ProjectEntity): Boolean =
         !project.kind.equals("react-vite-source", ignoreCase = true) &&
+            !project.kind.equals("react-native-expo-source", ignoreCase = true) &&
             (
                 project.kind.equals("web-mini-app", ignoreCase = true) ||
                     project.entryFile.endsWith(".html", ignoreCase = true)
