@@ -1038,7 +1038,8 @@ class TerminalFragment : Fragment() {
             }
 
             "/appcreator",
-            "/reactcreator" -> {
+            "/reactcreator",
+            "/reactnative" -> {
                 startActivity(
                     Intent(
                         requireContext(),
