@@ -11,12 +11,19 @@ import org.json.JSONObject
  * from imported projects. Build and package it only in a reviewed workspace.
  */
 object ReactNativeExpoScaffolder {
+    private val packageRegex =
+        Regex("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)+$")
+
     fun files(
         name: String,
+        packageName: String,
         goal: String
     ): Map<String, String> {
         require(name.isNotBlank()) { "App name is required" }
         require(name.length <= 60) { "App name is too long" }
+        require(packageRegex.matches(packageName)) {
+            "Invalid Android package name"
+        }
         require(goal.length <= 4000) { "Goal is too long" }
 
         val safeGoal = LogSanitizer.sanitize(goal)
@@ -31,6 +38,7 @@ object ReactNativeExpoScaffolder {
             .put("version", "1.0.0")
             .put("kind", "react-native-expo-source")
             .put("entry", "App.tsx")
+            .put("androidPackage", packageName)
             .put("permissions", JSONArray())
             .put(
                 "requiredTools",
@@ -75,7 +83,10 @@ object ReactNativeExpoScaffolder {
                     .put("version", "1.0.0")
                     .put("orientation", "portrait")
                     .put("userInterfaceStyle", "dark")
-                    .put("android", JSONObject())
+                    .put(
+                        "android",
+                        JSONObject().put("package", packageName)
+                    )
                     .put("ios", JSONObject())
             )
             .toString(2) + "\n"
