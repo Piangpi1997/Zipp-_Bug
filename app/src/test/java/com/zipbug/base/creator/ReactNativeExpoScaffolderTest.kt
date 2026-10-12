@@ -11,6 +11,7 @@ class ReactNativeExpoScaffolderTest {
     fun generatesExpoTypeScriptSourceWithSafeManifest() {
         val files = ReactNativeExpoScaffolder.files(
             name = "My Native App",
+            packageName = "com.example.nativeapp",
             goal = "A simple mobile dashboard"
         )
 
@@ -28,6 +29,12 @@ class ReactNativeExpoScaffolderTest {
 
         val expoConfig = JSONObject(files.getValue("app.json"))
         assertTrue(expoConfig.has("expo"))
+        assertEquals(
+            "com.example.nativeapp",
+            expoConfig.getJSONObject("expo")
+                .getJSONObject("android")
+                .getString("package")
+        )
 
         val packageJson = JSONObject(files.getValue("package.json"))
         assertTrue(
@@ -50,6 +57,7 @@ class ReactNativeExpoScaffolderTest {
         val secret = "sk-or-abcdefghijklmnopqrstuvwxyz012345"
         val files = ReactNativeExpoScaffolder.files(
             name = "Safe Native",
+            packageName = "com.example.safenative",
             goal = "Use $secret"
         )
 
@@ -57,4 +65,14 @@ class ReactNativeExpoScaffolderTest {
         assertTrue(!appSource.contains(secret))
         assertTrue(appSource.contains("[REDACTED]"))
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun rejectsInvalidAndroidPackage() {
+        ReactNativeExpoScaffolder.files(
+            name = "Bad Package",
+            packageName = "not a package",
+            goal = ""
+        )
+    }
+
 }
