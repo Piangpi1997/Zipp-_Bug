@@ -15,16 +15,19 @@ class ReactNativeExpoScaffolderTest {
         )
 
         assertTrue(files.containsKey("package.json"))
-        assertTrue(files.containsKey("app.config.js"))
+        assertTrue(files.containsKey("app.json"))
         assertTrue(files.containsKey("App.tsx"))
         assertTrue(files.containsKey("tsconfig.json"))
 
-        val manifest = JSONObject(files.getValue("app.json"))
+        val manifest = JSONObject(files.getValue("zipbug.json"))
         assertEquals(
             "react-native-expo-source",
             manifest.getString("kind")
         )
         assertEquals("App.tsx", manifest.getString("entry"))
+
+        val expoConfig = JSONObject(files.getValue("app.json"))
+        assertTrue(expoConfig.has("expo"))
 
         val packageJson = JSONObject(files.getValue("package.json"))
         assertTrue(
