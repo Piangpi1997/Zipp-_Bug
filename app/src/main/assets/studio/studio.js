@@ -3,6 +3,10 @@
 const StudioCore = window.ZipBugStudioCore;
 if (!StudioCore) throw new Error('ZipBugStudioCore failed to load');
 
+if (window.ZipBug) {
+  document.documentElement.classList.add('zipbug-android');
+}
+
 let project = StudioCore.migrateProject({
   id: 'proj_studio',
   name: 'ZipBug Studio',
