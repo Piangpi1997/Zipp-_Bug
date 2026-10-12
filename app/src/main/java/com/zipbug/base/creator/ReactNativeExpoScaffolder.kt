@@ -67,7 +67,7 @@ object ReactNativeExpoScaffolder {
             .toString(2) + "\n"
 
         val expoConfig = """
-            export default {
+            module.exports = {
               expo: {
                 name: __NAME_JSON__,
                 slug: __SLUG_JSON__,
