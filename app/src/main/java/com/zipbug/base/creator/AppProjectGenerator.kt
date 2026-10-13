@@ -39,6 +39,8 @@ object AppProjectGenerator {
                 )
 
                 val allFiles = baseFiles.toMutableMap()
+                allFiles["app/src/main/AndroidManifest.xml"] =
+                    controlledManifest(spec)
 
                 for (generatedFile in spec.files) {
                     val cleanPath = normalizeRelativePath(generatedFile.path)
@@ -94,6 +96,53 @@ object AppProjectGenerator {
                 targetDir.deleteRecursively()
             }
         }
+
+    private fun controlledManifest(
+        spec: GeneratedProjectSpec
+    ): String {
+        val permissionLines = spec.permissions
+            .distinct()
+            .joinToString("\n") {
+                "    <uses-permission android:name=\"" + it + "\" />"
+            }
+        val permissionBlock =
+            if (permissionLines.isBlank()) "" else permissionLines + "\n"
+
+        val activities = spec.activities.distinct()
+        val launcher =
+            activities.firstOrNull()
+                ?: spec.packageName + ".MainActivity"
+        val extraActivities = activities
+            .drop(1)
+            .joinToString("\n") { activity ->
+                "        <activity android:name=\"" +
+                    activity +
+                    "\" android:exported=\"false\" />"
+            }
+        val extraBlock =
+            if (extraActivities.isBlank()) "" else extraActivities + "\n"
+
+        return """
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            __PERMISSIONS__    <application
+                    android:allowBackup="false"
+                    android:label="@string/app_name"
+                    android:theme="@style/Theme.Generated">
+                    <activity
+                        android:name="__LAUNCHER__"
+                        android:exported="true">
+                        <intent-filter>
+                            <action android:name="android.intent.action.MAIN" />
+                            <category android:name="android.intent.category.LAUNCHER" />
+                        </intent-filter>
+                    </activity>
+            __EXTRA_ACTIVITIES__    </application>
+            </manifest>
+        """.trimIndent()
+            .replace("__PERMISSIONS__", permissionBlock)
+            .replace("__LAUNCHER__", launcher)
+            .replace("__EXTRA_ACTIVITIES__", extraBlock) + "\n"
+    }
 
     private fun normalizeRelativePath(rawPath: String): String {
         val normalized = rawPath
