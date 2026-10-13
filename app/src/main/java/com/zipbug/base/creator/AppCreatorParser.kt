@@ -207,7 +207,7 @@ object AppCreatorParser {
     )
 
     private fun normalizePath(path: String): String =
-        path.trim().replace('\\\\', '/').trimStart('/')
+        path.trim().replace('\\', '/').trimStart('/')
 
     private fun validateGeneratedProjectCoherence(
         packageName: String,
