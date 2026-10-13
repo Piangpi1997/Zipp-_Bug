@@ -113,6 +113,8 @@ object AppCreatorParser {
                     "Generated source exceeds the project size limit"
                 }
 
+                validateGeneratedFileQuality(path, content)
+
                 filesList.add(
                     GeneratedFile(
                         path = path,
@@ -146,4 +148,68 @@ object AppCreatorParser {
             )
         }
     }
+
+    private fun validateGeneratedFileQuality(
+        path: String,
+        content: String
+    ) {
+        val trimmed = content.trim()
+        val lower = trimmed.lowercase()
+
+        require(trimmed.isNotBlank()) {
+            "Generated file is empty: $path"
+        }
+
+        require(
+            !lower.contains("todo()") &&
+                !lower.contains("notimplementederror") &&
+                !lower.contains("// todo") &&
+                !lower.contains("/* todo") &&
+                trimmed != "..." &&
+                trimmed != "// ..."
+        ) {
+            "Generated file is a placeholder and must be regenerated: $path"
+        }
+
+        if (path.endsWith(".kt", ignoreCase = true)) {
+            require(trimmed.length >= 40) {
+                "Generated Kotlin file is too small to be complete: $path"
+            }
+
+            if (path.startsWith("app/src/main/java/")) {
+                require(
+                    Regex("(?m)^\\s*package\\s+[A-Za-z_][A-Za-z0-9_.]*")
+                        .containsMatchIn(trimmed)
+                ) {
+                    "Generated Kotlin source is missing a package declaration: $path"
+                }
+            }
+
+            val implementationFile = path.substringAfterLast('/')
+                .removeSuffix(".kt")
+                .let { name ->
+                    name.endsWith("Activity") ||
+                        name.endsWith("Screen") ||
+                        name.endsWith("ViewModel") ||
+                        name.endsWith("Repository") ||
+                        name.endsWith("Database")
+                }
+
+            if (implementationFile) {
+                require(trimmed.length >= 120) {
+                    "Generated implementation is only a stub: $path"
+                }
+            }
+        }
+
+        if (path.endsWith(".xml", ignoreCase = true)) {
+            require(trimmed.startsWith("<")) {
+                "Generated XML is not valid XML text: $path"
+            }
+            require(trimmed.length >= 80) {
+                "Generated XML file is too small to be complete: $path"
+            }
+        }
+    }
+
 }
