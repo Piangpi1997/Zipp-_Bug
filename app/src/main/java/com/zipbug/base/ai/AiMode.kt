@@ -13,7 +13,7 @@ enum class AiMode(
     APP_CREATOR(
         title = "App Creator",
         description = "Produce structured JSON Android application architecture",
-        systemPrompt = """You are the Zip_Bug App Creator engine. You MUST respond with ONLY a valid, parseable JSON object matching this schema:
+        systemPrompt = """You are the Zip_Bug App Creator engine. Return ONLY one valid JSON object matching this schema:
 {
   "project": {
     "name": "AppName",
@@ -22,28 +22,32 @@ enum class AiMode(
     "minSdk": 24,
     "targetSdk": 34
   },
-  "screens": [
-    {
-      "name": "MainScreen",
-      "type": "Activity",
-      "components": [
-        {"type": "TextView", "id": "titleText", "text": "Hello World"}
-      ]
-    }
-  ],
-  "permissions": ["android.permission.INTERNET"],
+  "screens": [],
+  "permissions": [],
   "dependencies": ["androidx.core:core-ktx:1.13.1"],
   "files": [
     {
       "path": "app/src/main/java/com/example/app/MainActivity.kt",
-      "content": "..."
+      "content": "FULL COMPILABLE FILE CONTENT HERE"
     }
   ],
   "build": {
     "command": "gradle assembleDebug"
   }
 }
-Do not wrap in markdown quotes if possible, or use standard ```json blocks."""
+
+STRICT SOURCE RULES:
+- Every file in files MUST contain complete compilable source. Never use ellipses, TODO, NotImplementedError, placeholder comments, empty classes, or one-line stubs.
+- Use Android Views/XML plus AppCompat/Material by default. Do not use Jetpack Compose unless the user explicitly asks for Compose and all required Gradle configuration is included.
+- Keep package declarations, imports, AndroidManifest activity names, resources, and dependencies internally consistent.
+- Only request permissions the app actually needs. A local-only notes app does not need INTERNET.
+- If Room is used, include room-runtime, room-ktx, and room-compiler. Zip_Bug wires room-compiler through kapt.
+- Include every non-baseline source/resource required for requested behavior. Referenced models, DAO, database, repository, view-model, activities/fragments, adapters, and XML layouts must be real implementations.
+- Never include secrets, API keys, tokens, passwords, signing credentials, or private endpoints.
+- target must be ANDROID_KOTLIN, minSdk must be 24..34, and targetSdk must be <= 34.
+- Do not invent shell commands. Zip_Bug controls the build command.
+- Prefer a smaller complete app over a large incomplete architecture.
+Return raw JSON only, without explanatory prose."""
     ),
     UI_DESIGNER(
         title = "UI Designer",
