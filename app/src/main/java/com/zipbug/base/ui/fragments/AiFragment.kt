@@ -341,7 +341,23 @@ class AiFragment : Fragment() {
                             sheet.onRegenerateRequested = { sendPrompt() }
                             sheet.show(parentFragmentManager, com.zipbug.base.ui.AppSpecReviewBottomSheetDialogFragment.TAG)
                         } else {
-                            binding.reviewAction.isVisible = false
+                            val reason = parsed.exceptionOrNull()
+                                ?.message
+                                ?.let(LogSanitizer::sanitize)
+                                ?: "Generated project spec is incomplete."
+
+                            binding.reviewAction.isVisible = true
+                            binding.reviewAction.text = "Regenerate Complete Spec"
+                            binding.reviewAction.setOnClickListener {
+                                sendPrompt()
+                            }
+
+                            binding.output.append(
+                                "\n\nSPEC VALIDATION FAILED\n" +
+                                    reason +
+                                    "\n\nNo project was generated. " +
+                                    "Tap 'Regenerate Complete Spec' to ask AI for full compilable files."
+                            )
                         }
                     }
 
