@@ -140,6 +140,9 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.btnBuildProject.isEnabled = false
+        binding.btnBuildProject.text = "Generate Project First"
+
         rawJson = arguments?.getString(ARG_SPEC_JSON).orEmpty()
         val parsed = AppCreatorParser.parse(rawJson)
 
@@ -147,8 +150,12 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
             currentSpec = spec
             bindSpec(spec)
         }.onFailure { err ->
-            binding.projectSummary.text = "Failed to parse spec JSON:\n${err.message}"
+            binding.projectSummary.text =
+                "Spec validation failed:\n${err.message}\n\n" +
+                    "Regenerate the spec before creating a project."
             binding.btnGenerateProject.isEnabled = false
+            binding.btnBuildProject.isEnabled = false
+            binding.btnBuildProject.text = "Fix Spec First"
         }
 
         binding.btnEditSpec.setOnClickListener {
@@ -436,7 +443,11 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 parsed.onSuccess {
                     rawJson = newJson
                     currentSpec = it
+                    generatedProject = null
                     bindSpec(it)
+                    binding.btnGenerateProject.isEnabled = true
+                    binding.btnBuildProject.isEnabled = false
+                    binding.btnBuildProject.text = "Generate Project First"
                     onSpecEdited?.invoke(newJson)
                 }.onFailure {
                     Snackbar.make(binding.root, "Invalid JSON: ${it.message}", Snackbar.LENGTH_LONG).show()
