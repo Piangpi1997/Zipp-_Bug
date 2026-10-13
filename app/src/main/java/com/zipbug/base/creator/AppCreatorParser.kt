@@ -16,6 +16,7 @@ data class GeneratedProjectSpec(
     val targetSdk: Int = 34,
     val permissions: List<String> = emptyList(),
     val dependencies: List<String> = emptyList(),
+    val activities: List<String> = emptyList(),
     val files: List<GeneratedFile> = emptyList(),
     val buildCommand: String = "gradle assembleDebug"
 )
@@ -62,6 +63,39 @@ object AppCreatorParser {
                 .uppercase()
             val minSdk = projectObj.optInt("minSdk", 24)
             val targetSdk = projectObj.optInt("targetSdk", 34)
+
+
+            val activities = mutableListOf<String>()
+            val declaredLayouts = mutableListOf<String>()
+            val screensArr = root.optJSONArray("screens") ?: JSONArray()
+            require(screensArr.length() <= 32) {
+                "Too many declared screens"
+            }
+            for (i in 0 until screensArr.length()) {
+                val screen = screensArr.getJSONObject(i)
+                val activity = screen.optString("activity").trim()
+                if (activity.isNotBlank()) {
+                    require(
+                        ACTIVITY_CLASS_REGEX.matches(activity) &&
+                            activity.startsWith(packageName + ".")
+                    ) {
+                        "screens[$i].activity must be a class inside $packageName"
+                    }
+                    activities.add(activity)
+                }
+
+                val layout = screen.optString("layout").trim()
+                if (layout.isNotBlank()) {
+                    val normalizedLayout = normalizePath(layout)
+                    require(
+                        normalizedLayout.startsWith("app/src/main/res/layout/") &&
+                            normalizedLayout.endsWith(".xml", ignoreCase = true)
+                    ) {
+                        "screens[$i].layout must point inside app/src/main/res/layout"
+                    }
+                    declaredLayouts.add(normalizedLayout)
+                }
+            }
 
             require(target == "ANDROID_KOTLIN") {
                 "AI App Creator currently supports ANDROID_KOTLIN projects only"
@@ -123,6 +157,14 @@ object AppCreatorParser {
                 )
             }
 
+            validateGeneratedProjectCoherence(
+                packageName = packageName,
+                dependencies = depList,
+                files = filesList,
+                activities = activities,
+                declaredLayouts = declaredLayouts
+            )
+
             AppScaffolder.validate(
                 AppSpec(
                     name = name,
@@ -143,9 +185,170 @@ object AppCreatorParser {
                 targetSdk = targetSdk,
                 permissions = permissionsList.distinct(),
                 dependencies = depList.distinct(),
+                activities = activities.distinct(),
                 files = filesList,
                 buildCommand = CONTROLLED_BUILD_COMMAND
             )
+        }
+    }
+
+    private val ACTIVITY_CLASS_REGEX =
+        Regex("^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)+$")
+
+    private val CONTROLLED_PROJECT_PATHS = setOf(
+        "settings.gradle",
+        "settings.gradle.kts",
+        "build.gradle",
+        "build.gradle.kts",
+        "gradle.properties",
+        "app/build.gradle",
+        "app/build.gradle.kts",
+        "app/src/main/AndroidManifest.xml"
+    )
+
+    private fun normalizePath(path: String): String =
+        path.trim().replace('\\\\', '/').trimStart('/')
+
+    private fun validateGeneratedProjectCoherence(
+        packageName: String,
+        dependencies: List<String>,
+        files: List<GeneratedFile>,
+        activities: List<String>,
+        declaredLayouts: List<String>
+    ) {
+        val normalizedFiles = files.associateBy {
+            normalizePath(it.path)
+        }
+        require(normalizedFiles.size == files.size) {
+            "Generated project contains duplicate file paths"
+        }
+
+        for ((path, file) in normalizedFiles) {
+            require(path !in CONTROLLED_PROJECT_PATHS) {
+                "AI must not replace controlled build or manifest file: $path. " +
+                    "Use project dependencies, permissions, and screens instead."
+            }
+            require(
+                !path.equals("AndroidManifest.xml", ignoreCase = true)
+            ) {
+                "AndroidManifest.xml must not be generated at project root. " +
+                    "Zip_Bug creates the controlled app manifest from screens and permissions."
+            }
+
+            if (
+                path.startsWith("app/src/main/res/layout/") &&
+                path.endsWith(".xml", ignoreCase = true)
+            ) {
+                require(
+                    file.content.contains(
+                        "xmlns:android=\"http://schemas.android.com/apk/res/android\""
+                    )
+                ) {
+                    "Android layout uses a missing or invalid android namespace: $path"
+                }
+            }
+
+            if (
+                path.startsWith("app/src/main/java/") &&
+                path.endsWith(".kt", ignoreCase = true)
+            ) {
+                val packageMatch =
+                    Regex("(?m)^\\s*package\\s+([A-Za-z_][A-Za-z0-9_.]*)")
+                        .find(file.content)
+                val sourcePackage = packageMatch?.groupValues?.getOrNull(1)
+                require(
+                    sourcePackage == packageName ||
+                        sourcePackage?.startsWith(packageName + ".") == true
+                ) {
+                    "Kotlin package must stay inside $packageName: $path"
+                }
+
+                val source = file.content
+                require(!source.contains("android.R.layout.simple_text_view")) {
+                    "Unknown Android layout constant simple_text_view in $path"
+                }
+                require(!source.contains(".getChildListeners()")) {
+                    "ViewGroup.getChildListeners() is not an Android API: $path"
+                }
+                require(
+                    !(source.contains("TextWatcher()") &&
+                        source.contains("override fun onSubmitEvent("))
+                ) {
+                    "TextWatcher has no onSubmitEvent callback: $path"
+                }
+                require(
+                    !Regex("""extras\?\.getLong\(\s*\d+\s*\)""")
+                        .containsMatchIn(source)
+                ) {
+                    "Bundle.getLong requires a String key, not a numeric index: $path"
+                }
+                require(
+                    !(source.contains("ArrayAdapter<") &&
+                        source.contains(".submitList("))
+                ) {
+                    "ArrayAdapter does not provide submitList(): $path"
+                }
+            }
+        }
+
+        require(
+            dependencies.none {
+                it.startsWith("room:room-", ignoreCase = true)
+            }
+        ) {
+            "Room dependencies must use androidx.room:room-* coordinates"
+        }
+
+        val roomEnabled = dependencies.any {
+            it.startsWith("androidx.room:room-runtime:")
+        }
+        if (roomEnabled) {
+            val databaseSources = files.filter {
+                it.content.contains("@Database")
+            }
+            for (databaseSource in databaseSources) {
+                val entities = Regex(
+                    """entities\s*=\s*\[([^]]+)]"""
+                ).find(databaseSource.content)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    .orEmpty()
+
+                Regex("""([A-Za-z_][A-Za-z0-9_]*)::class""")
+                    .findAll(entities)
+                    .map { it.groupValues[1] }
+                    .forEach { entityClass ->
+                        val entityFile = files.firstOrNull {
+                            normalizePath(it.path)
+                                .endsWith("/$entityClass.kt")
+                        }
+                        require(
+                            entityFile != null &&
+                                entityFile.content.contains("@Entity")
+                        ) {
+                            "Room entity $entityClass must be declared with @Entity"
+                        }
+                    }
+            }
+        }
+
+        for (activity in activities.distinct()) {
+            val expected =
+                "app/src/main/java/" +
+                    activity.replace('.', '/') +
+                    ".kt"
+            require(
+                normalizedFiles.containsKey(expected) ||
+                    activity == packageName + ".MainActivity"
+            ) {
+                "Screen activity source is missing: $expected"
+            }
+        }
+
+        for (layout in declaredLayouts.distinct()) {
+            require(normalizedFiles.containsKey(layout)) {
+                "Declared screen layout is missing: $layout"
+            }
         }
     }
 
