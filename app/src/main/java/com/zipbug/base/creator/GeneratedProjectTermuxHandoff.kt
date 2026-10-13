@@ -1,5 +1,6 @@
 package com.zipbug.base.creator
 
+import android.annotation.TargetApi
 import android.content.ContentValues
 import android.content.Context
 import android.os.Build
@@ -19,6 +20,7 @@ data class GeneratedProjectHandoffPlan(
 
 object GeneratedProjectTermuxHandoff {
 
+    @TargetApi(Build.VERSION_CODES.Q)
     suspend fun stage(
         context: Context,
         project: ProjectEntity
