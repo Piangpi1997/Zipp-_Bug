@@ -118,4 +118,45 @@ class AppScaffolderTest {
         )
     }
 
+
+    @Test
+    fun roomCompilerUsesKaptInsteadOfRuntimeImplementation() {
+        val files = AppScaffolder.files(
+            AppSpec(
+                name = "RoomNotes",
+                packageName = "com.example.roomnotes",
+                goal = "",
+                dependencies = listOf(
+                    "androidx.room:room-runtime:2.6.1",
+                    "androidx.room:room-ktx:2.6.1",
+                    "androidx.room:room-compiler:2.6.1"
+                )
+            )
+        )
+
+        val rootGradle = files.getValue("build.gradle.kts")
+        val appGradle = files.getValue("app/build.gradle.kts")
+
+        assertTrue(
+            rootGradle.contains(
+                "id(\"org.jetbrains.kotlin.kapt\") version \"1.9.24\" apply false"
+            )
+        )
+        assertTrue(
+            appGradle.contains(
+                "id(\"org.jetbrains.kotlin.kapt\")"
+            )
+        )
+        assertTrue(
+            appGradle.contains(
+                "kapt(\"androidx.room:room-compiler:2.6.1\")"
+            )
+        )
+        assertTrue(
+            !appGradle.contains(
+                "implementation(\"androidx.room:room-compiler:2.6.1\")"
+            )
+        )
+    }
+
 }
