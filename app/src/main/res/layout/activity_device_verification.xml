@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Device &amp; Engine Proof"
+                android:textColor="@color/z_text"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/overallBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#2E2010"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="UNVERIFIED"
+                android:textColor="@color/z_orange"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Real execution proof for Termux, Java, Gradle, Python, aapt2 &amp; tools."
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <!-- Pre-flight Environment -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="1. Environment Pre-flight"
+            android:textColor="@color/z_orange"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/preflightContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="10dp" />
+
+        <!-- Guided Test Sequence -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="2. Guided Command Proof (5 Tests)"
+            android:textColor="@color/z_orange"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/testsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="10dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnRunGuidedTests"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/z_orange"
+                android:text="Run Guided 5-Step Proof"
+                android:textColor="#111111"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnRunDoctor"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="15-Check Doctor"
+                android:textColor="@color/z_text"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Execution Log"
+            android:textColor="@color/z_orange"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/proofLog"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="6dp"
+            android:background="#101010"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:text="Tap 'Run Guided 5-Step Proof' to execute tests."
+            android:textColor="@color/z_green"
+            android:textIsSelectable="true"
+            android:textSize="11sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnCopyLog"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="Copy Log"
+                android:textColor="@color/z_text"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btnRetry"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="Retry"
+                android:textColor="@color/z_text"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btnOpenTermuxHelp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="Termux Help"
+                android:textColor="@color/z_orange"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

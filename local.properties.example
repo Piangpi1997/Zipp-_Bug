@@ -1,0 +1,4 @@
+# Windows:
+# sdk.dir=C:/Users/YOU/AppData/Local/Android/Sdk
+# Termux:
+# sdk.dir=/data/data/com.termux/files/home/android-sdk

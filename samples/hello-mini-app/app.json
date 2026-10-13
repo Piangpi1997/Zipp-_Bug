@@ -1,0 +1,9 @@
+{
+  "name": "Hello Mini App",
+  "slug": "hello-mini",
+  "version": "1.0.0",
+  "kind": "web-mini-app",
+  "entry": "www/index.html",
+  "permissions": [],
+  "requiredTools": []
+}
