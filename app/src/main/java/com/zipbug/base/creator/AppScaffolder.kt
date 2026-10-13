@@ -96,6 +96,7 @@ object AppScaffolder {
         plugins {
             id("com.android.application") version "8.7.3" apply false
             id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+            id("org.jetbrains.kotlin.kapt") version "1.9.24" apply false
         }
     """.trimIndent() + "\n"
 
@@ -112,6 +113,9 @@ object AppScaffolder {
         targetSdk: Int,
         dependencies: List<String>
     ): String {
+        val usesKapt = dependencies.any {
+            it.startsWith("androidx.room:room-compiler:")
+        }
         val dependencyLines = buildString {
             append(
                 "    implementation(\"androidx.core:core-ktx:1.13.1\")\n"
@@ -130,9 +134,15 @@ object AppScaffolder {
                 ) {
                     continue
                 }
-                append("\n    implementation(")
-                append(quote(dependency))
-                append(")")
+                if (dependency.startsWith("androidx.room:room-compiler:")) {
+                    append("\n    kapt(")
+                    append(quote(dependency))
+                    append(")")
+                } else {
+                    append("\n    implementation(")
+                    append(quote(dependency))
+                    append(")")
+                }
             }
         }
 
@@ -140,6 +150,7 @@ object AppScaffolder {
         plugins {
             id("com.android.application")
             id("org.jetbrains.kotlin.android")
+__KAPT_PLUGIN__
         }
 
         android {
@@ -165,6 +176,10 @@ object AppScaffolder {
 __DEPENDENCIES__
         }
         """.trimIndent()
+            .replace(
+                "__KAPT_PLUGIN__",
+                if (usesKapt) "    id(\"org.jetbrains.kotlin.kapt\")" else ""
+            )
             .replace("__PACKAGE__", packageName)
             .replace("__MIN_SDK__", minSdk.toString())
             .replace("__TARGET_SDK__", targetSdk.toString())
