@@ -96,8 +96,8 @@ class ZipImporter(private val context: Context) {
             val normalizedEntry = if (rawEntry.isNotBlank()) {
                 val norm = rawEntry.replace('\\', '/')
                 require(!norm.startsWith("/")) { "project manifest entry must be relative" }
-                require(!WINDOWS_DRIVE_PREFIX.containsMatchIn(norm)) { "app.json entry must be relative" }
-                val entryFile = resolveInside(canonicalRoot, norm, "app.json entry")
+                require(!WINDOWS_DRIVE_PREFIX.containsMatchIn(norm)) { "project manifest entry must be relative" }
+                val entryFile = resolveInside(canonicalRoot, norm, "project manifest entry")
                 require(entryFile.isFile) { "Missing project entry file: $norm" }
                 norm
             } else if (isAndroid) {
@@ -135,25 +135,29 @@ class ZipImporter(private val context: Context) {
         }
     }
 
-    private fun resolveInside(
-        root: File,
-        relativePath: String,
-        label: String
-    ): File {
-        val candidate = File(root, relativePath).canonicalFile
-        val prefix = root.path + File.separator
-
-        require(candidate.path.startsWith(prefix)) {
-            "$label escapes the project sandbox: $relativePath"
-        }
-
-        return candidate
-    }
-
     companion object {
         const val MAX_FILES = 5_000
         const val MAX_EXTRACTED_BYTES = 512L * 1024 * 1024 // 512 MB
         private const val BUFFER_SIZE = 8 * 1024
         private val WINDOWS_DRIVE_PREFIX = Regex("^[A-Za-z]:[/\\\\]")
+
+        internal fun resolveInside(
+            root: File,
+            relativePath: String,
+            label: String
+        ): File {
+            val canonicalRoot = root.canonicalFile
+            val candidate = File(canonicalRoot, relativePath).canonicalFile
+            val prefix = canonicalRoot.path + File.separator
+
+            require(
+                candidate.path == canonicalRoot.path ||
+                    candidate.path.startsWith(prefix)
+            ) {
+                "$label escapes the project sandbox: $relativePath"
+            }
+
+            return candidate
+        }
     }
 }
