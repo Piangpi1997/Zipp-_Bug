@@ -165,4 +165,18 @@ class AiRepositoryTest {
         )
     }
 
+
+    @Test
+    fun testSafeErrorMessageRedactsProviderSecrets() {
+        val error = IllegalStateException(
+            "request failed: https://example.invalid?key=" +
+                "AIzaAbCdEfGhIjKlMnOpQrStUvWxYz012345"
+        )
+
+        val safe = AiRepository.safeErrorMessage(error)
+
+        assertFalse(safe.contains("AbCdEfGhIjKlMnOpQrStUvWxYz012345"))
+        assertTrue(safe.contains("AIza[REDACTED]"))
+    }
+
 }
