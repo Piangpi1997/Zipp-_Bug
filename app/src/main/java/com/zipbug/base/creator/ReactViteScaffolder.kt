@@ -217,6 +217,9 @@ object ReactViteScaffolder {
             In a Termux workspace you trust, run npm install and npm run build.
             Vite writes the static app to dist/.
 
+            zipbug.json is Zip_Bug metadata. app.json is kept as a legacy
+            compatibility manifest for older Zip_Bug imports.
+
             To run the built result inside Zip_Bug, package dist/ as a normal
             web mini-app with an app.json whose entry points to index.html,
             then import that ZIP in Projects.
@@ -231,6 +234,7 @@ object ReactViteScaffolder {
             ) + "\n"
 
         return linkedMapOf(
+            "zipbug.json" to manifest,
             "app.json" to manifest,
             "package.json" to packageJson,
             "index.html" to index,
