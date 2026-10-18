@@ -19,9 +19,17 @@ class ReactViteScaffolderTest {
         assertTrue(files.containsKey("src/main.jsx"))
         assertTrue(files.containsKey("src/App.jsx"))
 
-        val manifest = JSONObject(files.getValue("app.json"))
+        assertTrue(files.containsKey("zipbug.json"))
+        assertTrue(files.containsKey("app.json"))
+
+        val manifest = JSONObject(files.getValue("zipbug.json"))
+        val legacyManifest = JSONObject(files.getValue("app.json"))
         assertEquals("react-vite-source", manifest.getString("kind"))
         assertEquals("index.html", manifest.getString("entry"))
+        assertEquals(
+            manifest.getString("kind"),
+            legacyManifest.getString("kind")
+        )
 
         val packageJson = JSONObject(files.getValue("package.json"))
         assertTrue(
