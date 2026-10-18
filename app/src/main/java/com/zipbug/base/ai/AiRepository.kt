@@ -7,6 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import com.zipbug.base.termux.LogSanitizer
 import java.util.concurrent.TimeUnit
 
 enum class HealthStatus(val label: String) {
@@ -38,6 +39,11 @@ class AiRepository {
             if (key.length <= 8) return "••••" + key.takeLast(2)
             return key.take(4) + "••••••••" + key.takeLast(4)
         }
+
+        internal fun safeErrorMessage(error: Throwable): String =
+            LogSanitizer.sanitize(
+                error.message ?: error.javaClass.simpleName
+            )
 
         fun validateRequest(req: AiRequest): Result<Unit> {
             if (req.apiKey.isBlank()) {
@@ -125,7 +131,7 @@ class AiRepository {
                     )
                 },
                 onFailure = { ex ->
-                    val msg = ex.message.orEmpty()
+                    val msg = safeErrorMessage(ex)
                     val status = when {
                         msg.contains("HTTP 401") || msg.contains("HTTP 403") -> HealthStatus.AUTH_ERROR
                         msg.contains("HTTP 429") -> HealthStatus.RATE_LIMITED
@@ -144,7 +150,7 @@ class AiRepository {
             ProviderHealthResult(
                 provider = provider,
                 status = HealthStatus.NETWORK_ERROR,
-                message = e.message ?: "Network error",
+                message = safeErrorMessage(e).ifBlank { "Network error" },
                 maskedKey = masked
             )
         }
@@ -160,7 +166,16 @@ class AiRepository {
                 AiProvider.GEMINI -> gemini(req)
                 AiProvider.ANTHROPIC -> anthropic(req)
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = {
+                Result.failure(
+                    IllegalStateException(
+                        safeErrorMessage(it)
+                    )
+                )
+            }
+        )
     }
 
     private fun post(
