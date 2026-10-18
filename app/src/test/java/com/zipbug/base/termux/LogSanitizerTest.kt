@@ -20,7 +20,7 @@ class LogSanitizerTest {
         val raw = "Using AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz01234 for Gemini call"
         val sanitized = LogSanitizer.sanitize(raw)
         assertFalse(sanitized.contains("AbCdEfGhIjKlMnOpQrStUvWxYz01234"))
-        assertTrue(sanitized.contains("AIzaSy[REDACTED]"))
+        assertTrue(sanitized.contains("AIza[REDACTED]"))
     }
 
     @Test
@@ -144,6 +144,30 @@ class LogSanitizerTest {
             listOf("-c", "print('internal')"),
             allowInlineCode = true
         )
+    }
+
+
+    @Test
+    fun testRedactsAnthropicAndOpenAiProjectKeys() {
+        val raw =
+            "anthropic=sk-ant-abcdefghijklmnopqrstuvwxyz012345 " +
+                "openai=sk-proj-abcdefghijklmnopqrstuvwxyz012345"
+        val sanitized = LogSanitizer.sanitize(raw)
+
+        assertFalse(sanitized.contains("abcdefghijklmnopqrstuvwxyz012345"))
+        assertTrue(sanitized.contains("sk-ant-[REDACTED]"))
+        assertTrue(sanitized.contains("sk-proj-[REDACTED]"))
+    }
+
+    @Test
+    fun testRedactsGeminiKeyInsideUrl() {
+        val raw =
+            "https://generativelanguage.googleapis.com/v1beta/models/x?key=" +
+                "AIzaAbCdEfGhIjKlMnOpQrStUvWxYz012345"
+        val sanitized = LogSanitizer.sanitize(raw)
+
+        assertFalse(sanitized.contains("AbCdEfGhIjKlMnOpQrStUvWxYz012345"))
+        assertTrue(sanitized.contains("key=AIza[REDACTED]"))
     }
 
 }
