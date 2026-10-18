@@ -85,7 +85,7 @@ class LogSanitizerTest {
         val raw = "provider key sk-proj-abcdefghijklmnopqrstuvwxyz012345"
         val sanitized = LogSanitizer.sanitize(raw)
         assertFalse(sanitized.contains("abcdefghijklmnopqrstuvwxyz012345"))
-        assertTrue(sanitized.contains("sk-[REDACTED]"))
+        assertTrue(sanitized.contains("sk-proj-[REDACTED]"))
     }
 
     @Test
