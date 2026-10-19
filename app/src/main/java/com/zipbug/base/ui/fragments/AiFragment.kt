@@ -387,7 +387,21 @@ class AiFragment : Fragment() {
                     }
                 }
             }.onFailure { err ->
-                binding.reviewAction.isVisible = false
+                val transientNetwork =
+                    AiRepository.isTransientNetworkError(
+                        err.cause ?: err
+                    )
+
+                if (transientNetwork) {
+                    binding.reviewAction.isVisible = true
+                    binding.reviewAction.text = "Retry Request"
+                    binding.reviewAction.setOnClickListener {
+                        sendPrompt()
+                    }
+                } else {
+                    binding.reviewAction.isVisible = false
+                }
+
                 binding.output.setText(
                     "Error: " + LogSanitizer.sanitize(
                         err.message ?: err.javaClass.simpleName
