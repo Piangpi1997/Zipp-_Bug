@@ -1,0 +1,100 @@
+*{box-sizing:border-box}
+:root{color-scheme:dark;--bg:#121212;--panel:#181818;--panel-2:#202020;--line:#303030;--muted:#aaa29e;--orange:#ff6b00;--green:#39d98a}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:#f7f3ef;font:13px system-ui,-apple-system,sans-serif}
+body{display:flex;flex-direction:column;overflow:hidden}
+button,select,input{font:inherit}
+button{background:#2a2a2a;color:#f7f3ef;border:1px solid transparent;border-radius:7px;padding:7px 11px;font-weight:650;font-size:12px;cursor:pointer;min-height:34px}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+header,.toolbar,.screen-bar{display:flex;gap:7px;padding:8px 10px;background:var(--panel);align-items:center;border-bottom:1px solid #2a2a2a;flex:0 0 auto}
+header{flex-wrap:wrap}
+header b{flex:1 1 190px;color:var(--orange);font-size:14px;letter-spacing:.5px}
+.header-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.screen-bar,.toolbar{overflow-x:auto;scrollbar-width:thin}
+.screen-bar select{background:#222;color:#fff;border:1px solid #444;border-radius:5px;padding:6px 8px;font-size:12px;min-width:112px}
+.screen-bar label,.setting-label{color:#aaa;font-size:11px;white-space:nowrap}
+.setting-label{display:flex;align-items:center;gap:4px}
+.setting-label input{accent-color:var(--green)}
+.sep{width:1px;height:24px;background:#333;margin:0 2px;flex:0 0 1px}
+.btn-save{background:var(--orange);color:#111}.btn-export{background:var(--green);color:#111}.btn-tool{background:#222;color:#ddd}.btn-danger{background:#522;color:#ffaaaa}.btn-small{padding:6px 9px;font-size:11px;min-height:32px}
+#studio-status{padding:6px 10px;background:#101010;border-bottom:1px solid #252525;color:#b9b1ac;font-size:11px;min-height:28px;display:flex;align-items:center;gap:6px}
+#studio-status.ok{color:var(--green)}#studio-status.error{color:#ff7b7b}#studio-status.warn{color:#ffc266}
+main{display:grid;grid-template-columns:minmax(0,1fr) 280px;flex:1;min-height:0;overflow:hidden}
+#canvas-wrapper{overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:18px;background:#0d0d0d;min-width:0;min-height:0;overscroll-behavior:contain}
+#canvas-stage{position:relative;flex:0 0 auto;transition:width .15s ease,height .15s ease}
+.phone{width:390px;height:844px;background:#1a1a1a;border-radius:28px;position:absolute;left:0;top:0;transform-origin:top left;box-shadow:0 12px 36px rgba(0,0,0,.6);border:2px solid #333;overflow:hidden;touch-action:none}
+.phone::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:8px 8px;opacity:0;z-index:1000}
+.phone.grid-on::before{opacity:1}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;cursor:move;user-select:none;touch-action:none;padding:8px;text-align:center;overflow:hidden}
+.node.sel{outline:2px solid var(--green);outline-offset:1px}
+.handle{position:absolute;width:18px;height:18px;background:var(--green);border:2px solid #111;border-radius:4px;right:-3px;bottom:-3px;cursor:se-resize;display:none;z-index:1001;touch-action:none}
+.node.sel .handle{display:block}
+aside{background:var(--panel);padding:12px;overflow:auto;border-left:1px solid #2a2a2a;min-width:0}
+aside h3{margin:12px 0 7px;font-size:12px;color:var(--orange);text-transform:uppercase;letter-spacing:.5px}
+aside label{font-size:11px;color:#a9a29d;display:block;margin-bottom:3px}.field{margin-bottom:9px}.field-row{display:flex;gap:8px;margin-bottom:9px}.field-row>div{flex:1;min-width:0}
+aside input{width:100%;padding:7px;background:#242424;border:1px solid #3a3a3a;color:#fff;border-radius:5px;font-size:12px;min-height:34px}
+aside input[type=color]{padding:3px;height:36px}
+.layer-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:8px}.layer-actions button{padding:6px 4px;font-size:10px}
+#layers-list{max-height:170px;overflow-y:auto;background:var(--panel-2);border-radius:6px;padding:4px}
+.layer-item{padding:6px 7px;border-radius:4px;cursor:pointer;font-size:11px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;color:#ccc;align-items:center}
+.layer-item+.layer-item{margin-top:2px}.layer-item.active{background:var(--orange);color:#111;font-weight:700}.layer-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.layer-meta{display:flex;gap:3px;align-items:center}.layer-meta small{opacity:.8}.layer-move{min-height:24px;padding:1px 5px;font-size:10px;border-radius:4px;background:#333}.layer-item.active .layer-move{background:#222;color:#fff}
+pre{white-space:pre-wrap;word-break:break-word;color:var(--green);font-size:10px;background:#111;padding:8px;border-radius:4px;max-height:190px;overflow:auto;margin:0}
+.empty-hint{color:#8f8884;font-size:11px;padding:8px;text-align:center}
+
+@media(max-width:760px){
+  body{overflow:hidden}
+  header,.screen-bar,.toolbar{padding-left:8px;padding-right:8px}
+  .screen-bar,.toolbar{flex-wrap:wrap;overflow:visible}
+  .screen-bar .sep,.toolbar .sep{display:none}
+  .screen-bar select{flex:1 1 145px;min-width:0}
+  .screen-bar .setting-label{margin-left:2px}
+  .toolbar button{flex:1 1 calc(33.333% - 8px);padding:7px 5px;font-size:11px}
+  main{display:flex;flex-direction:column;overflow:auto}
+  #canvas-wrapper{flex:0 0 auto;height:min(52vh,520px);min-height:330px;padding:12px;justify-content:center}
+  aside{flex:0 0 auto;border-left:0;border-top:1px solid #2a2a2a;overflow:visible;padding-bottom:24px}
+  #layers-list{max-height:150px}
+  pre{max-height:140px}
+}
+
+@media(max-width:430px){
+  header b{flex-basis:100%;font-size:13px}
+  .header-actions{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  .header-actions button{padding:6px 4px;font-size:10px}
+  .screen-bar button{flex:1 1 calc(25% - 6px);padding:6px 4px;font-size:10px}
+  .toolbar button{flex-basis:calc(33.333% - 7px)}
+  #canvas-wrapper{height:48vh;min-height:310px}
+}
+
+/* Android WebView reports CSS viewport widths differently from device pixels.
+   Keep editor controls and inspector within the actual embedded viewport. */
+html,body{max-width:100%;min-width:0}
+header,.screen-bar,.toolbar,main,aside{min-width:0;max-width:100%}
+.screen-bar>*,.toolbar>*{flex-shrink:0}
+@media(max-width:760px){
+  body{overflow-y:auto;overflow-x:hidden;height:100dvh}
+  header{position:relative}
+  .screen-bar,.toolbar{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-width:100%;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+  .screen-bar>*,.toolbar>*{flex:0 0 auto!important;scroll-snap-align:start}
+  .screen-bar select{max-width:190px;min-width:110px}
+  .toolbar button{min-width:70px}
+  main{display:flex;flex-direction:column;flex:1 0 auto;overflow:visible;min-width:0}
+  #canvas-wrapper{width:100%;max-width:100%;min-width:0;height:52vh;min-height:310px;overflow:auto}
+  aside{width:100%;max-width:100%;min-width:0;overflow:visible}
+  .field-row{min-width:0}
+  #layers-list{max-width:100%}
+}
+
+html.zipbug-android,html.zipbug-android body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+html.zipbug-android body{height:auto;min-height:100%;overflow-y:auto}
+html.zipbug-android header{width:100%;max-width:100%;display:flex;flex-direction:column;align-items:stretch;overflow:hidden}
+html.zipbug-android header b{width:100%;flex:0 0 auto}
+html.zipbug-android .header-actions,html.zipbug-android .screen-bar,html.zipbug-android .toolbar{width:100%;max-width:100%;min-width:0;display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+html.zipbug-android .header-actions{justify-content:flex-start;padding-bottom:2px}
+html.zipbug-android .header-actions>*,html.zipbug-android .screen-bar>*,html.zipbug-android .toolbar>*{flex:0 0 auto!important}
+html.zipbug-android main{display:flex;flex-direction:column;width:100%;max-width:100%;min-width:0;overflow:visible}
+html.zipbug-android #canvas-wrapper{width:100%;max-width:100%;min-width:0;height:50vh;min-height:320px;overflow:auto;flex:0 0 auto;padding:12px}
+html.zipbug-android aside{width:100%;max-width:100%;min-width:0;overflow:visible;border-left:0;border-top:1px solid #2a2a2a;padding-bottom:28px}
+html.zipbug-android .field-row{width:100%;min-width:0}
+html.zipbug-android .field-row>div{min-width:0}
+html.zipbug-android #layers-list,html.zipbug-android pre{max-width:100%}

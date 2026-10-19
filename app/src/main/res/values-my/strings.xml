@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Zip_Bug Studio</string>
+    <string name="recap_studio_title">Zippy Cut // Recap စတူဒီယို</string>
+    <string name="recap_studio_subtitle">အစအဆုံး AI Recap နှင့် ဗီဒီယိုထုတ်လုပ်ရေး စနစ်</string>
+    <string name="tab_project">ပရောဂျက်</string>
+    <string name="tab_script">ဇာတ်ညွှန်း (၁-၄)</string>
+    <string name="tab_timeline">တည်းဖြတ်မှု</string>
+    <string name="tab_voiceover">အသံသွင်း</string>
+    <string name="tab_render">ထုတ်လုပ်ခြင်း</string>
+    <string name="btn_new_project">ပရောဂျက်အသစ်</string>
+    <string name="btn_rename">နာမည်ပြောင်းရန်</string>
+    <string name="btn_import_media">ဖိုင်ရွေးချယ်ရန် (SAF)</string>
+    <string name="btn_generate_script">ဇာတ်ညွှန်းထုတ်ယူရန်</string>
+    <string name="btn_preview_audio">အသံနမူနာ</string>
+    <string name="btn_generate_voiceover">နောက်ခံအသံထုတ်ရန်</string>
+    <string name="btn_start_render">Render စတင်ရန်</string>
+    <string name="btn_cancel_render">ရပ်တန့်ရန်</string>
+    <string name="btn_retry">ပြန်ကြိုးစားရန်</string>
+    <string name="btn_open_video">ဗီဒီယိုဖွင့်ရန်</string>
+    <string name="btn_share_video">မျှဝေရန်</string>
+</resources>

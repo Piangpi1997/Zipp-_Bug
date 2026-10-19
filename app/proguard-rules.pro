@@ -1,0 +1,1 @@
+# Alpha foundation: intentionally minimal.\n

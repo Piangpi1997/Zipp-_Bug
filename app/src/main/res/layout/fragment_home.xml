@@ -1,0 +1,176 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zip_Bug Studio"
+            android:textColor="@color/z_text"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="/UI  /ENGINE  /TOOLS  /CODING  /FUTURE"
+            android:textColor="@color/z_green"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/z_surface"
+            android:padding="14dp"
+            android:text="127.0.0.1:3131 • sandboxed runtime&#10;Termux bridge • allow-listed execution&#10;Encrypted BYO API keys • factual build states"
+            android:textColor="@color/z_muted"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/uiCategory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:text="/UI  •  Design &amp; Screen Builder" />
+
+        <Button
+            android:id="@+id/studio"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="UI Screen Lab  •  /likefigma" />
+
+        <Button
+            android:id="@+id/engineCategory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="18dp"
+            android:text="/ENGINE  •  Build &amp; Runtime" />
+
+        <Button
+            android:id="@+id/apkBuilder"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Debug APK Builder  •  /apkbuilder --debug" />
+
+        <Button
+            android:id="@+id/terminal"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Termux Bridge  •  /termux" />
+
+        <Button
+            android:id="@+id/toolsCategory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="18dp"
+            android:text="/TOOLS  •  Utility &amp; Media" />
+
+        <Button
+            android:id="@+id/ttsStudio"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Myanmar TTS  •  /tts" />
+
+        <Button
+            android:id="@+id/mediaRecap"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Social Recap  •  /socialrecap" />
+
+        <Button
+            android:id="@+id/zippyCut"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Zippy Cut // Long Recap  •  /zippycut" />
+
+        <Button
+            android:id="@+id/projects"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Projects &amp; Artifacts  •  /projects" />
+
+        <Button
+            android:id="@+id/commandHelp"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="Command Search  •  /help" />
+
+        <Button
+            android:id="@+id/codingCategory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="18dp"
+            android:text="/CODING  •  Source &amp; AI Creator" />
+
+        <Button
+            android:id="@+id/appCreator"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="App Creator  •  /appcreator" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Legacy alias: /apcreator"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/aiCreator"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="AI App Creator  •  /aicreator" />
+
+        <Button
+            android:id="@+id/reactCreator"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="React + Vite Creator  •  /reactcreator" />
+
+        <Button
+            android:id="@+id/reactNativeCreator"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="6dp"
+            android:text="React Native + Expo  •  /reactnative" />
+
+        <Button
+            android:id="@+id/futureCategory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="18dp"
+            android:text="/FUTURE  •  Planned / Disabled" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@color/z_surface"
+            android:padding="12dp"
+            android:text="/aizipper • PLANNED&#10;Not implemented. No fake action is exposed. Use /appcreator or /projects today."
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</ScrollView>

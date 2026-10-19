@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Signing Diagnostics"
+                android:textColor="@color/z_text"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/matchBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#2E382E"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="ANALYZING"
+                android:textColor="@color/z_green"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Diagnostic comparison of installed package certificate vs build artifact signature."
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/conflictBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#33FF4D4D"
+            android:padding="12dp"
+            android:text="Signer Mismatch Detected: The APK was signed with a different key than the installed package."
+            android:textColor="@color/z_red"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="1. Installed Application Signer"
+            android:textColor="@color/z_orange"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/installedSignerText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@color/z_surface"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:textColor="@color/z_text"
+            android:textSize="11sp"
+            tools:text="Package: com.zipbug.base\nSigner SHA-256: 3F4A..." />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="2. Latest Build Artifact Signer"
+            android:textColor="@color/z_orange"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/artifactSignerText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@color/z_surface"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:textColor="@color/z_text"
+            android:textSize="11sp"
+            tools:text="File: app-debug.apk\nSigner SHA-256: 3F4A..." />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnAppInfo"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#2D2D2D"
+                android:text="App Info"
+                android:textColor="@color/z_text"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnUninstall"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/z_red"
+                android:text="Uninstall Conflicting"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnInspectArtifact"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/z_orange"
+            android:text="Inspect &amp; Install APK"
+            android:textColor="#111111"
+            android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>
