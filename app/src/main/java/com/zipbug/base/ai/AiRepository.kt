@@ -8,6 +8,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import com.zipbug.base.termux.LogSanitizer
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 enum class HealthStatus(val label: String) {
@@ -29,8 +30,11 @@ data class ProviderHealthResult(
 
 class AiRepository {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .callTimeout(120, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .build()
 
     companion object {
@@ -44,6 +48,31 @@ class AiRepository {
             LogSanitizer.sanitize(
                 error.message ?: error.javaClass.simpleName
             )
+
+        internal fun isTransientNetworkError(error: Throwable): Boolean {
+            if (error is IOException) return true
+            val message = safeErrorMessage(error).lowercase()
+            return listOf(
+                "connection abort",
+                "connection reset",
+                "broken pipe",
+                "unexpected end of stream",
+                "stream was reset",
+                "timeout",
+                "timed out"
+            ).any(message::contains)
+        }
+
+        internal fun friendlyNetworkMessage(error: Throwable): String {
+            val safe = safeErrorMessage(error)
+            return if (isTransientNetworkError(error)) {
+                "Network connection was interrupted before the AI response completed. " +
+                    "Your prompt is still here. Check Wi‑Fi/mobile data, run Health Check, " +
+                    "then tap Retry Request. Detail: $safe"
+            } else {
+                safe
+            }
+        }
 
         fun validateRequest(req: AiRequest): Result<Unit> {
             if (req.apiKey.isBlank()) {
@@ -171,7 +200,8 @@ class AiRepository {
             onFailure = {
                 Result.failure(
                     IllegalStateException(
-                        safeErrorMessage(it)
+                        friendlyNetworkMessage(it),
+                        it
                     )
                 )
             }
