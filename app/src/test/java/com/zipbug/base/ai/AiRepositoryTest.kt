@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.net.SocketException
 
 class AiRepositoryTest {
 
@@ -177,6 +178,26 @@ class AiRepositoryTest {
 
         assertFalse(safe.contains("AbCdEfGhIjKlMnOpQrStUvWxYz012345"))
         assertTrue(safe.contains("AIza[REDACTED]"))
+    }
+
+
+    @Test
+    fun testConnectionAbortIsClassifiedAsTransientNetworkFailure() {
+        val error = SocketException("Software caused connection abort")
+        assertTrue(AiRepository.isTransientNetworkError(error))
+    }
+
+    @Test
+    fun testFriendlyNetworkMessageKeepsRetryGuidanceAndRedactsSecrets() {
+        val error = SocketException(
+            "Software caused connection abort sk-or-abcdefghijklmnopqrstuvwxyz012345"
+        )
+
+        val message = AiRepository.friendlyNetworkMessage(error)
+
+        assertTrue(message.contains("Retry Request"))
+        assertTrue(message.contains("Health Check"))
+        assertFalse(message.contains("abcdefghijklmnopqrstuvwxyz012345"))
     }
 
 }
