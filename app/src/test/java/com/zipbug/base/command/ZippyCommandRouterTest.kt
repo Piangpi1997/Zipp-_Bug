@@ -36,6 +36,18 @@ class ZippyCommandRouterTest {
     }
 
     @Test
+    fun undoRoutesToLastReviewedChange() {
+        assertEquals(
+            ZippyCommandAction.UndoLastChange,
+            ZippyCommandRouter.route("/undo")
+        )
+        assertEquals(
+            ZippyCommandAction.UndoLastChange,
+            ZippyCommandRouter.route("/restore")
+        )
+    }
+
+    @Test
     fun navigationShortcutsRouteLocally() {
         assertEquals(
             ZippyCommandAction.OpenStudio,
