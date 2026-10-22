@@ -156,6 +156,13 @@ object CommandRegistry {
             example = "/fix paste or describe the current build error"
         ),
         CommandSpec(
+            command = "/restorepatch",
+            aliases = listOf("/undopatch"),
+            group = CommandGroups.CODING,
+            description = "Restore the last reviewed backup for one project file.",
+            example = "/restorepatch app/src/main/java/com/example/MainActivity.kt"
+        ),
+        CommandSpec(
             command = "/reactcreator",
             aliases = listOf("/react"),
             group = CommandGroups.CODING,
