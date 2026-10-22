@@ -229,6 +229,12 @@ class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                         finalJob.stdout.contains("ZIPBUG_PATCH_OK|")
 
                 if (applied) {
+                    requireContext()
+                        .getSharedPreferences("zipbug.settings", 0)
+                        .edit()
+                        .putString("lastReviewedPatchTarget", patch.targetFile)
+                        .apply()
+
                     Snackbar.make(
                         binding.root,
                         "Reviewed patch applied. Opening controlled rebuild…",
