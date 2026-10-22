@@ -21,6 +21,7 @@ import com.zipbug.base.command.CommandRegistry
 import com.zipbug.base.build.BuildArtifactProof
 import com.zipbug.base.build.BuildWorkflowParser
 import com.zipbug.base.data.BuildJobEntity
+import com.zipbug.base.repair.CompilerPatchTermux
 import com.zipbug.base.databinding.FragmentTerminalBinding
 import com.zipbug.base.termux.CommandLineParser
 import com.zipbug.base.termux.DiagnosticStatus
@@ -1117,6 +1118,19 @@ class TerminalFragment : Fragment() {
                     ?.navigateToProjects()
             }
 
+            "/restorepatch" -> {
+                val target = parts.drop(1).joinToString(" ").trim()
+                if (target.isBlank()) {
+                    binding.output.text =
+                        "Usage: /restorepatch <relative-project-file>\n" +
+                            "Example: /restorepatch app/src/main/java/com/example/MainActivity.kt"
+                } else {
+                    withTermuxPermission {
+                        restoreReviewedPatch(target)
+                    }
+                }
+            }
+
             "/termux",
             "/apkbuilder" -> {
                 withTermuxPermission {
@@ -1132,6 +1146,88 @@ class TerminalFragment : Fragment() {
                     "Command is registered but has no executable action. Use /help."
             }
         }
+    }
+
+    private fun restoreReviewedPatch(targetFile: String) {
+        val prefs = requireContext()
+            .getSharedPreferences("zipbug.settings", 0)
+
+        val home = prefs.getString(
+            "termuxHome",
+            "/data/data/com.termux/files/home"
+        )!!
+
+        val projectRoot = prefs.getString(
+            "projectRoot",
+            "$home/OpenDots/Zip_Bug_Antigravity"
+        )!!
+
+        val request = CompilerPatchTermux
+            .buildRestoreRequest(projectRoot, targetFile)
+            .getOrElse { error ->
+                binding.output.text =
+                    "Restore request rejected:\n" +
+                        (error.message ?: "invalid reviewed patch target")
+                return
+            }
+
+        binding.engineState.text = "ENGINE • RESTORE QUEUED"
+        binding.output.text =
+            "Restoring last reviewed backup:\n" +
+                targetFile +
+                "\n\nWaiting for real Termux result…"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val sent = TermuxBridge.send(requireContext(), request)
+            if (sent.isFailure) {
+                binding.engineState.text = "ENGINE • RESTORE FAILED"
+                binding.output.text =
+                    "Restore dispatch failed:\n" +
+                        (sent.exceptionOrNull()?.message ?: "unknown error")
+                return@launch
+            }
+
+            val jobId = sent.getOrThrow()
+            val app = requireActivity().application as ZipBugApp
+            val finalJob = app.database.buildJobDao()
+                .observe(jobId)
+                .filterNotNull()
+                .filter {
+                    it.status != BuildJobEntity.QUEUED &&
+                        it.status != BuildJobEntity.RUNNING
+                }
+                .first()
+
+            val restored =
+                finalJob.status == BuildJobEntity.SUCCESS &&
+                    finalJob.exitCode == 0 &&
+                    finalJob.stdout.contains("ZIPBUG_RESTORE_OK|")
+
+            if (restored) {
+                binding.engineState.text = "ENGINE • RESTORE SUCCESS"
+                binding.output.text =
+                    "Last reviewed change restored:\n" +
+                        targetFile +
+                        "\n\nOpening controlled rebuild…"
+                navigateToTerminalRebuild(projectRoot)
+            } else {
+                binding.engineState.text = "ENGINE • RESTORE FAILED"
+                val detail = sequenceOf(
+                    finalJob.errorMessage,
+                    finalJob.stderr,
+                    finalJob.stdout
+                ).firstOrNull { it.isNotBlank() }
+                    ?: "No restorable backup was found."
+                binding.output.text =
+                    "Restore failed:\n" + detail
+            }
+        }
+    }
+
+    private fun navigateToTerminalRebuild(projectRoot: String) {
+        (requireActivity() as? MainActivity)?.navigateToTerminal(
+            "/apkbuilder --debug \"" + projectRoot + "\""
+        )
     }
 
     private fun runTermuxCommand(
