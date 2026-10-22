@@ -150,6 +150,7 @@ class AiFragment : Fragment() {
                         AiMode.APP_CREATOR -> binding.prompt.hint = "Describe the app to generate structured JSON spec…"
                         AiMode.TTS_SCRIPT -> binding.prompt.hint = "Describe the Myanmar or English voiceover script…"
                         AiMode.FIX_ERROR -> binding.prompt.hint = "Paste compiler errors or build failure log…"
+                        AiMode.PROJECT_EDIT -> binding.prompt.hint = "Describe one safe change. Include exact source context when possible…"
                         AiMode.SOCIAL_RECAP -> binding.prompt.hint = "Paste video transcript for social recap timeline…"
                         else -> binding.prompt.hint = "Describe the task, code, or architecture…"
                     }
@@ -361,7 +362,8 @@ class AiFragment : Fragment() {
                         }
                     }
 
-                    AiMode.FIX_ERROR -> {
+                    AiMode.FIX_ERROR,
+                    AiMode.PROJECT_EDIT -> {
                         val parsedPatch = com.zipbug.base.repair.CompilerErrorParser.parsePatchProposal(text)
                         if (parsedPatch.isSuccess) {
                             val prefs = requireContext().getSharedPreferences("zipbug.settings", 0)
@@ -369,13 +371,22 @@ class AiFragment : Fragment() {
                             val projectRoot = prefs.getString("projectRoot", "$home/OpenDots/Zip_Bug_Antigravity")!!
 
                             binding.reviewAction.isVisible = true
-                            binding.reviewAction.text = "Review Patch"
+                            binding.reviewAction.text =
+                                if (selectedMode == AiMode.PROJECT_EDIT) "Preview Change" else "Review Patch"
                             binding.reviewAction.setOnClickListener {
-                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(
+                                    text,
+                                    projectRoot,
+                                    selectedMode == AiMode.PROJECT_EDIT
+                                )
                                 sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
                             }
                             // Proactively present review sheet
-                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(
+                                text,
+                                projectRoot,
+                                selectedMode == AiMode.PROJECT_EDIT
+                            )
                             sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
                         } else {
                             binding.reviewAction.isVisible = false
