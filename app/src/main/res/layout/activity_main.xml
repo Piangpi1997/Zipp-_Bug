@@ -72,7 +72,7 @@
             android:backgroundTint="@color/z_orange"
             android:contentDescription="Send to Zippy"
             android:src="@android:drawable/ic_menu_send"
-            android:tint="@color/z_text" />
+            app:tint="@color/z_text" />
     </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
