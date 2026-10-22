@@ -81,6 +81,19 @@ class MainActivity : AppCompatActivity() {
             ZippyCommandAction.OpenAppCreator -> {
                 startActivity(Intent(this, AppCreatorActivity::class.java))
             }
+
+            ZippyCommandAction.UndoLastChange -> {
+                val prefs = getSharedPreferences("zipbug.settings", 0)
+                val target = prefs.getString("lastReviewedPatchTarget", "").orEmpty()
+                if (target.isBlank()) {
+                    navigateToAiWithPrompt(
+                        "There is no recorded reviewed change to restore yet.",
+                        AiMode.CHAT
+                    )
+                } else {
+                    navigateToTerminal("/restorepatch " + target)
+                }
+            }
         }
     }
 
