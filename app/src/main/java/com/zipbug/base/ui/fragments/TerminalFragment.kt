@@ -1061,6 +1061,30 @@ class TerminalFragment : Fragment() {
                     )
             }
 
+            "/askzippy" -> {
+                val instruction = parts.drop(1).joinToString(" ").trim()
+                (requireActivity() as? MainActivity)
+                    ?.navigateToAiWithPrompt(
+                        instruction,
+                        AiMode.CHAT
+                    )
+            }
+
+            "/fix" -> {
+                val failureContext = parts.drop(1).joinToString(" ").trim()
+                val prompt = if (failureContext.isBlank()) {
+                    "Analyze the current build or runtime failure. Identify the smallest safe fix and return a targeted patch proposal."
+                } else {
+                    failureContext
+                }
+
+                (requireActivity() as? MainActivity)
+                    ?.navigateToAiWithPrompt(
+                        prompt,
+                        AiMode.FIX_ERROR
+                    )
+            }
+
             "/tts" -> {
                 startActivity(
                     Intent(
