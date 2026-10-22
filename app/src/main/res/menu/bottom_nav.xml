@@ -2,11 +2,11 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_menu_view"
-        android:title="Home" />
+        android:title="Home • ပင်မ" />
     <item
         android:id="@+id/nav_studio"
         android:icon="@android:drawable/ic_menu_edit"
-        android:title="Studio" />
+        android:title="Studio • ဒီဇိုင်း" />
     <item
         android:id="@+id/nav_ai"
         android:icon="@android:drawable/ic_menu_send"
@@ -14,9 +14,9 @@
     <item
         android:id="@+id/nav_terminal"
         android:icon="@android:drawable/ic_menu_manage"
-        android:title="Terminal" />
+        android:title="Build • တည်" />
     <item
         android:id="@+id/nav_projects"
         android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Projects" />
+        android:title="Projects • ပရောဂျက်" />
 </menu>
