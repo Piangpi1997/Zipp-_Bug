@@ -142,6 +142,20 @@ object CommandRegistry {
             example = "/aicreator"
         ),
         CommandSpec(
+            command = "/askzippy",
+            aliases = listOf("/ask", "/zippy"),
+            group = CommandGroups.CODING,
+            description = "Send a natural-language developer instruction to Zippy AI.",
+            example = "/askzippy add a login screen and keep the current dark orange theme"
+        ),
+        CommandSpec(
+            command = "/fix",
+            aliases = listOf("/aifix"),
+            group = CommandGroups.CODING,
+            description = "Open Zippy AI in focused build-error repair mode.",
+            example = "/fix paste or describe the current build error"
+        ),
+        CommandSpec(
             command = "/reactcreator",
             aliases = listOf("/react"),
             group = CommandGroups.CODING,
