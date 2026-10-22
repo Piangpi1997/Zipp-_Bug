@@ -1067,7 +1067,7 @@ class TerminalFragment : Fragment() {
                 (requireActivity() as? MainActivity)
                     ?.navigateToAiWithPrompt(
                         instruction,
-                        AiMode.CHAT
+                        AiMode.PROJECT_EDIT
                     )
             }
 
