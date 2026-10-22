@@ -7,6 +7,7 @@ sealed interface ZippyCommandAction {
     data object OpenStudio : ZippyCommandAction
     data object OpenProjects : ZippyCommandAction
     data object OpenAppCreator : ZippyCommandAction
+    data object UndoLastChange : ZippyCommandAction
 }
 
 object ZippyCommandRouter {
@@ -18,6 +19,10 @@ object ZippyCommandRouter {
             input.removePrefix(command).trim()
 
         return when {
+            input.equals("/undo", ignoreCase = true) ||
+                input.equals("/restore", ignoreCase = true) ->
+                ZippyCommandAction.UndoLastChange
+
             input.equals("/build", ignoreCase = true) ||
                 input.equals("build apk", ignoreCase = true) ->
                 ZippyCommandAction.BuildDebug
