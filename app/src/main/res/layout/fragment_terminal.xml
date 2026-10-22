@@ -7,7 +7,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Termux Build Engine"
+        android:text="⚙ Build / APK  •  APK တည်ဆောက်ရေး"
         android:textColor="@color/z_text"
         android:textSize="26sp"
         android:textStyle="bold" />
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="COMMAND TEST PANEL"
+        android:text="BUILD TOOLS  •  စမ်းသပ်ကိရိယာများ"
         android:textColor="@color/z_muted"
         android:textSize="11sp"
         android:textStyle="bold" />
@@ -93,7 +93,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="Device Proof &amp; Checks"
+            android:text="Device Check • စစ်မယ်"
             android:textSize="12sp" />
 
         <Button
@@ -102,7 +102,7 @@
             android:layout_height="48dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="Debug APK"
+            android:text="▶ Build APK"
             android:textSize="12sp" />
     </LinearLayout>
 
@@ -111,7 +111,7 @@
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:layout_marginTop="6dp"
-        android:text="Sync Termux Project (ff-only)"
+        android:text="Sync Project • Project ချိတ်ဆက်"
         android:textSize="11sp" />
 
     <LinearLayout
@@ -125,7 +125,7 @@
             android:layout_width="0dp"
             android:layout_height="46dp"
             android:layout_weight="1"
-            android:text="Release Signing"
+            android:text="Release Signing • လက်မှတ်"
             android:textSize="11sp" />
 
         <Button
@@ -134,7 +134,7 @@
             android:layout_height="46dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="Cancel Build"
+            android:text="Stop • ရပ်မယ်"
             android:textSize="11sp"
             android:visibility="gone" />
     </LinearLayout>
@@ -164,7 +164,7 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
-            android:text="Open APK"
+            android:text="Open APK • ဖွင့်"
             android:textSize="11sp" />
 
         <Button
@@ -173,7 +173,7 @@
             android:layout_height="44dp"
             android:layout_marginStart="6dp"
             android:layout_weight="1"
-            android:text="Share APK"
+            android:text="Share APK • မျှဝေ"
             android:textSize="11sp" />
     </LinearLayout>
 
@@ -193,7 +193,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="4dp"
-        android:text="Run Command" />
+        android:text="Run Command • စတင်" />
 
     <TextView
         android:id="@+id/output"
@@ -215,7 +215,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="6dp"
         android:backgroundTint="@color/z_orange"
-        android:text="Fix Error with AI"
+        android:text="✨ Fix Error with AI • AI နဲ့ပြင်"
         android:textColor="#111111"
         android:visibility="gone" />
 </LinearLayout>
