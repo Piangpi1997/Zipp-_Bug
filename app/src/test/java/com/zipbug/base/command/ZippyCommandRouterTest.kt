@@ -20,6 +20,18 @@ class ZippyCommandRouterTest {
     }
 
     @Test
+    fun newAppRequestRoutesToCreator() {
+        assertEquals(
+            ZippyCommandAction.Create("Calculator app တည်ဆောက်ပေးပါ"),
+            ZippyCommandRouter.route("Calculator app တည်ဆောက်ပေးပါ")
+        )
+        assertEquals(
+            ZippyCommandAction.Create("Create a calculator app"),
+            ZippyCommandRouter.route("Create a calculator app")
+        )
+    }
+
+    @Test
     fun fixShortcutRoutesToRepair() {
         assertEquals(
             ZippyCommandAction.Fix("Unresolved reference binding"),
