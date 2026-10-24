@@ -150,6 +150,7 @@ class AiFragment : Fragment() {
                         AiMode.APP_CREATOR -> binding.prompt.hint = "Describe the app to generate structured JSON spec…"
                         AiMode.TTS_SCRIPT -> binding.prompt.hint = "Describe the Myanmar or English voiceover script…"
                         AiMode.FIX_ERROR -> binding.prompt.hint = "Paste compiler errors or build failure log…"
+                        AiMode.PROJECT_EDIT -> binding.prompt.hint = "Describe one safe change. Include exact source context when possible…"
                         AiMode.SOCIAL_RECAP -> binding.prompt.hint = "Paste video transcript for social recap timeline…"
                         else -> binding.prompt.hint = "Describe the task, code, or architecture…"
                     }
@@ -250,6 +251,19 @@ class AiFragment : Fragment() {
         // Common typo seen during testing.
         if (model == "openrouter/tree") {
             model = "openrouter/free"
+            binding.model.setText(model)
+        }
+
+        // Migrate retired/legacy Gemini defaults automatically.
+        if (
+            selected == AiProvider.GEMINI &&
+            model in setOf(
+                "gemini-2.5-flash",
+                "models/gemini-2.5-flash",
+                "gemini-3.5-flash"
+            )
+        ) {
+            model = AiProvider.GEMINI.defaultModel
             binding.model.setText(model)
         }
 
@@ -361,21 +375,42 @@ class AiFragment : Fragment() {
                         }
                     }
 
-                    AiMode.FIX_ERROR -> {
+                    AiMode.FIX_ERROR,
+                    AiMode.PROJECT_EDIT -> {
                         val parsedPatch = com.zipbug.base.repair.CompilerErrorParser.parsePatchProposal(text)
                         if (parsedPatch.isSuccess) {
+                            val patch = parsedPatch.getOrThrow()
+                            if (patch.targetFile.isBlank()) {
+                                binding.reviewAction.isVisible = false
+                                binding.output.append(
+                                    "\n\nZIPPY CONTEXT REQUIRED\n" +
+                                        "This request needs project source context before a safe edit can be proposed. " +
+                                        "For a brand-new app, use App Creator. For an existing project edit, open/import the project first."
+                                )
+                                return@onSuccess
+                            }
+
                             val prefs = requireContext().getSharedPreferences("zipbug.settings", 0)
                             val home = prefs.getString("termuxHome", "/data/data/com.termux/files/home")!!
                             val projectRoot = prefs.getString("projectRoot", "$home/OpenDots/Zip_Bug_Antigravity")!!
 
                             binding.reviewAction.isVisible = true
-                            binding.reviewAction.text = "Review Patch"
+                            binding.reviewAction.text =
+                                if (selectedMode == AiMode.PROJECT_EDIT) "Preview Change" else "Review Patch"
                             binding.reviewAction.setOnClickListener {
-                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(
+                                    text,
+                                    projectRoot,
+                                    selectedMode == AiMode.PROJECT_EDIT
+                                )
                                 sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
                             }
                             // Proactively present review sheet
-                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(
+                                text,
+                                projectRoot,
+                                selectedMode == AiMode.PROJECT_EDIT
+                            )
                             sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
                         } else {
                             binding.reviewAction.isVisible = false

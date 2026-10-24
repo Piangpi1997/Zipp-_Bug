@@ -1,176 +1,322 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/z_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_z"
+                android:contentDescription="Zippy" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Zippy"
+                    android:textColor="@color/z_text"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Web • App • AI  |  ဝဘ် • အက်ပ် • AI"
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/z_card_orange_outline"
+            android:orientation="horizontal"
+            android:padding="18dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="မင်္ဂလာပါ 👋"
+                    android:textColor="@color/z_text"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="What do you want to build today?\nဒီနေ့ ဘာတည်ဆောက်ချင်လဲ?"
+                    android:textColor="@color/z_muted"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:gravity="center"
+                android:text="⬡"
+                android:textColor="@color/z_orange"
+                android:textSize="48sp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zip_Bug Studio"
-            android:textColor="@color/z_text"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="/UI  /ENGINE  /TOOLS  /CODING  /FUTURE"
-            android:textColor="@color/z_green"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@color/z_surface"
-            android:padding="14dp"
-            android:text="127.0.0.1:3131 • sandboxed runtime&#10;Termux bridge • allow-listed execution&#10;Encrypted BYO API keys • factual build states"
-            android:textColor="@color/z_muted"
-            android:textSize="13sp" />
-
-        <Button
-            android:id="@+id/uiCategory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
             android:layout_marginTop="20dp"
-            android:text="/UI  •  Design &amp; Screen Builder" />
+            android:text="CREATE  •  တည်ဆောက်မယ်"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/studio"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="UI Screen Lab  •  /likefigma" />
-
-        <Button
-            android:id="@+id/engineCategory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="18dp"
-            android:text="/ENGINE  •  Build &amp; Runtime" />
-
-        <Button
-            android:id="@+id/apkBuilder"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Debug APK Builder  •  /apkbuilder --debug" />
-
-        <Button
-            android:id="@+id/terminal"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Termux Bridge  •  /termux" />
-
-        <Button
-            android:id="@+id/toolsCategory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="18dp"
-            android:text="/TOOLS  •  Utility &amp; Media" />
-
-        <Button
-            android:id="@+id/ttsStudio"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Myanmar TTS  •  /tts" />
-
-        <Button
-            android:id="@+id/mediaRecap"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Social Recap  •  /socialrecap" />
-
-        <Button
-            android:id="@+id/zippyCut"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Zippy Cut // Long Recap  •  /zippycut" />
-
-        <Button
-            android:id="@+id/projects"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Projects &amp; Artifacts  •  /projects" />
-
-        <Button
-            android:id="@+id/commandHelp"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="Command Search  •  /help" />
-
-        <Button
-            android:id="@+id/codingCategory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="18dp"
-            android:text="/CODING  •  Source &amp; AI Creator" />
-
-        <Button
-            android:id="@+id/appCreator"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="App Creator  •  /appcreator" />
-
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Legacy alias: /apcreator"
-            android:textColor="@color/z_muted"
-            android:textSize="12sp" />
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
 
-        <Button
+            <LinearLayout
+                android:id="@+id/studio"
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/z_card_orange"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎨"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Design"
+                    android:textColor="#FFFFFF"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UI ဒီဇိုင်း / Screen Builder"
+                    android:textColor="#FFF0E6"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/apkBuilder"
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/z_card"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📦"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Build APK"
+                    android:textColor="@color/z_text"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="APK တည်ဆောက် / Install"
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/terminal"
+                android:layout_width="0dp"
+                android:layout_height="132dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/z_card"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▶"
+                    android:textColor="@color/z_text"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="HTML Run"
+                    android:textColor="@color/z_text"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Local Run • Termux"
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/appCreator"
+                android:layout_width="0dp"
+                android:layout_height="132dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/z_card"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🌐"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Zippy_Web"
+                    android:textColor="@color/z_text"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Website • Blogger • Theme"
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="AI &amp; PROJECT  •  AI နှင့် Project"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
             android:id="@+id/aiCreator"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="AI App Creator  •  /aicreator" />
+            android:layout_height="72dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/z_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
 
-        <Button
-            android:id="@+id/reactCreator"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="React + Vite Creator  •  /reactcreator" />
+            <TextView android:layout_width="44dp" android:layout_height="wrap_content" android:text="✨" android:textSize="25sp"/>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Builder" android:textColor="@color/z_text" android:textSize="16sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI နဲ့ App / Website တည်ဆောက်မယ်" android:textColor="@color/z_muted" android:textSize="12sp"/>
+            </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/z_orange" android:textSize="28sp"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/reactNativeCreator"
+        <LinearLayout
+            android:id="@+id/projects"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="6dp"
-            android:text="React Native + Expo  •  /reactnative" />
+            android:layout_height="72dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/z_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
 
-        <Button
-            android:id="@+id/futureCategory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="18dp"
-            android:text="/FUTURE  •  Planned / Disabled" />
+            <TextView android:layout_width="44dp" android:layout_height="wrap_content" android:text="📁" android:textSize="25sp"/>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Projects &amp; Artifacts" android:textColor="@color/z_text" android:textSize="16sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Project များ • ZIP • APK outputs" android:textColor="@color/z_muted" android:textSize="12sp"/>
+            </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/z_orange" android:textSize="28sp"/>
+        </LinearLayout>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:background="@color/z_surface"
-            android:padding="12dp"
-            android:text="/aizipper • PLANNED&#10;Not implemented. No fake action is exposed. Use /appcreator or /projects today."
+            android:layout_marginTop="22dp"
+            android:text="TOOLS  •  ကိရိယာများ"
             android:textColor="@color/z_muted"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button android:id="@+id/uiCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:text="🎨 UI Tools • ဒီဇိုင်းကိရိယာများ"/>
+        <Button android:id="@+id/engineCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="⚙ Build Engine • Build စနစ်"/>
+        <Button android:id="@+id/toolsCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="🧰 Utility Tools • အသုံးဝင်ကိရိယာများ"/>
+        <Button android:id="@+id/codingCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="&lt;/&gt; Coding • Code ဖန်တီးရေး"/>
+        <Button android:id="@+id/commandHelp" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="🔎 Commands • Command ရှာမယ်"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
+            <Button android:id="@+id/ttsStudio" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="🔊 TTS"/>
+            <Button android:id="@+id/mediaRecap" android:layout_width="0dp" android:layout_height="48dp" android:layout_marginStart="6dp" android:layout_weight="1" android:text="🎬 Recap"/>
+            <Button android:id="@+id/zippyCut" android:layout_width="0dp" android:layout_height="48dp" android:layout_marginStart="6dp" android:layout_weight="1" android:text="✂ Cut"/>
+        </LinearLayout>
+
+        <Button android:id="@+id/reactCreator" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:text="React + Vite Creator"/>
+        <Button android:id="@+id/reactNativeCreator" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="React Native + Expo"/>
+        <Button android:id="@+id/futureCategory" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="🚀 Future Tools • နောက်လာမည့်ကိရိယာများ"/>
 
     </LinearLayout>
 </ScrollView>

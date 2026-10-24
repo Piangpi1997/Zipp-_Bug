@@ -33,12 +33,18 @@ class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
         const val TAG = "PatchReviewBottomSheet"
         private const val ARG_PATCH_JSON = "arg_patch_json"
         private const val ARG_PROJECT_ROOT = "arg_project_root"
+        private const val ARG_PROJECT_EDIT = "arg_project_edit"
 
-        fun newInstance(patchJson: String, projectRoot: String): PatchReviewBottomSheetDialogFragment {
+        fun newInstance(
+            patchJson: String,
+            projectRoot: String,
+            projectEdit: Boolean = false
+        ): PatchReviewBottomSheetDialogFragment {
             return PatchReviewBottomSheetDialogFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PATCH_JSON, patchJson)
                     putString(ARG_PROJECT_ROOT, projectRoot)
+                    putBoolean(ARG_PROJECT_EDIT, projectEdit)
                 }
             }
         }
@@ -59,8 +65,26 @@ class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val patchJson = arguments?.getString(ARG_PATCH_JSON).orEmpty()
         projectRootPath = arguments?.getString(ARG_PROJECT_ROOT).orEmpty()
 
+        val projectEdit = arguments?.getBoolean(ARG_PROJECT_EDIT, false) == true
+        if (projectEdit) {
+            binding.patchTitle.text = "Zippy • Preview Change"
+            binding.btnApplyPatch.text = "Apply & Build"
+        }
+
         val parseResult = CompilerErrorParser.parsePatchProposal(patchJson)
         parseResult.onSuccess { patch ->
+            if (patch.targetFile.isBlank()) {
+                binding.targetFileInfo.text = "More source context required"
+                binding.patchExplanation.text = patch.explanation.ifBlank {
+                    "Zippy needs exact existing source text before it can create a safe reviewed patch."
+                }
+                binding.originalSnippet.text = ""
+                binding.replacementSnippet.text = ""
+                binding.btnApplyPatch.isEnabled = false
+                binding.btnRestorePatch.isEnabled = false
+                return@onSuccess
+            }
+
             currentPatch = patch
             binding.targetFileInfo.text = "Target: ${patch.targetFile}"
             binding.patchExplanation.text = patch.explanation.ifBlank { "No explanation provided." }
@@ -73,6 +97,83 @@ class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         binding.btnCancelPatch.setOnClickListener {
             dismiss()
+        }
+
+        binding.btnRestorePatch.setOnClickListener {
+            val patch = currentPatch ?: return@setOnClickListener
+            val request = CompilerPatchTermux
+                .buildRestoreRequest(projectRootPath, patch.targetFile)
+                .getOrElse { error ->
+                    Snackbar.make(
+                        binding.root,
+                        error.message ?: "Restore request is invalid",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    return@setOnClickListener
+                }
+
+            binding.btnRestorePatch.isEnabled = false
+            binding.btnRestorePatch.text = "Restoring…"
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                val sendResult = TermuxBridge.send(requireContext(), request)
+                if (sendResult.isFailure) {
+                    binding.btnRestorePatch.isEnabled = true
+                    binding.btnRestorePatch.text = "Restore Last"
+                    Snackbar.make(
+                        binding.root,
+                        "Restore dispatch failed: " +
+                            (sendResult.exceptionOrNull()?.message ?: "unknown error"),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    return@launch
+                }
+
+                val jobId = sendResult.getOrThrow()
+                val app = requireActivity().application as ZipBugApp
+                val finalJob = app.database.buildJobDao()
+                    .observe(jobId)
+                    .filterNotNull()
+                    .filter {
+                        it.status != BuildJobEntity.QUEUED &&
+                            it.status != BuildJobEntity.RUNNING
+                    }
+                    .first()
+
+                val restored =
+                    finalJob.status == BuildJobEntity.SUCCESS &&
+                        finalJob.exitCode == 0 &&
+                        finalJob.stdout.contains("ZIPBUG_RESTORE_OK|")
+
+                if (restored) {
+                    Snackbar.make(
+                        binding.root,
+                        "Last reviewed change restored. Opening controlled rebuild…",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    dismiss()
+                    (activity as? MainActivity)?.navigateToTerminal(
+                        "/apkbuilder --debug \"" + projectRootPath + "\""
+                    )
+                } else {
+                    binding.btnRestorePatch.isEnabled = true
+                    binding.btnRestorePatch.text = "Restore Last"
+                    val detail = sequenceOf(
+                        finalJob.errorMessage,
+                        finalJob.stderr,
+                        finalJob.stdout
+                    ).firstOrNull { it.isNotBlank() }
+                        ?.lineSequence()
+                        ?.firstOrNull()
+                        ?: "No restorable backup was found"
+
+                    Snackbar.make(
+                        binding.root,
+                        "Restore failed: " + detail,
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
 
         binding.btnApplyPatch.setOnClickListener {
@@ -128,6 +229,12 @@ class PatchReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                         finalJob.stdout.contains("ZIPBUG_PATCH_OK|")
 
                 if (applied) {
+                    requireContext()
+                        .getSharedPreferences("zipbug.settings", 0)
+                        .edit()
+                        .putString("lastReviewedPatchTarget", patch.targetFile)
+                        .apply()
+
                     Snackbar.make(
                         binding.root,
                         "Reviewed patch applied. Opening controlled rebuild…",

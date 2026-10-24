@@ -23,6 +23,17 @@ object CompilerPatchTermux {
             "target.write_text(text.replace(old,new,1),encoding='utf-8')\n" +
             "print('ZIPBUG_PATCH_OK|'+rel)\n"
 
+    private const val RESTORE_SCRIPT =
+        "import pathlib,sys\n" +
+            "root=pathlib.Path(sys.argv[1]).resolve()\n" +
+            "rel=sys.argv[2]\n" +
+            "target=(root/rel).resolve()\n" +
+            "if target==root or root not in target.parents: raise SystemExit('RESTORE_PATH_OUTSIDE_ROOT')\n" +
+            "backup=target.with_name(target.name+'.zipbug.bak')\n" +
+            "if not backup.is_file(): raise SystemExit('RESTORE_BACKUP_MISSING')\n" +
+            "target.write_text(backup.read_text(encoding='utf-8'),encoding='utf-8')\n" +
+            "print('ZIPBUG_RESTORE_OK|'+rel)\n"
+
     fun buildRequest(
         projectRoot: String,
         patch: PatchProposal
@@ -65,6 +76,31 @@ object CompilerPatchTermux {
             ),
             workDir = projectRoot,
             label = "Zip_Bug Reviewed Compiler Patch",
+            allowInlineCode = true
+        )
+    }
+
+    fun buildRestoreRequest(
+        projectRoot: String,
+        targetFile: String
+    ): Result<TermuxBridge.Request> = runCatching {
+        require(
+            projectRoot.startsWith("/data/data/com.termux/files/")
+        ) {
+            "Restore project must be inside the Termux workspace."
+        }
+
+        val relative = normalizeRelativePath(targetFile)
+        TermuxBridge.Request(
+            tool = "python",
+            args = listOf(
+                "-c",
+                RESTORE_SCRIPT,
+                projectRoot,
+                relative
+            ),
+            workDir = projectRoot,
+            label = "Zip_Bug Restore Last Reviewed Patch",
             allowInlineCode = true
         )
     }

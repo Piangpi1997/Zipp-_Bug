@@ -44,6 +44,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".next"
+            versionNameSuffix = "-zippy-next"
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
