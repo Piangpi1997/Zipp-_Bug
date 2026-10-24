@@ -366,6 +366,17 @@ class AiFragment : Fragment() {
                     AiMode.PROJECT_EDIT -> {
                         val parsedPatch = com.zipbug.base.repair.CompilerErrorParser.parsePatchProposal(text)
                         if (parsedPatch.isSuccess) {
+                            val patch = parsedPatch.getOrThrow()
+                            if (patch.targetFile.isBlank()) {
+                                binding.reviewAction.isVisible = false
+                                binding.output.append(
+                                    "\n\nZIPPY CONTEXT REQUIRED\n" +
+                                        "This request needs project source context before a safe edit can be proposed. " +
+                                        "For a brand-new app, use App Creator. For an existing project edit, open/import the project first."
+                                )
+                                return@onSuccess
+                            }
+
                             val prefs = requireContext().getSharedPreferences("zipbug.settings", 0)
                             val home = prefs.getString("termuxHome", "/data/data/com.termux/files/home")!!
                             val projectRoot = prefs.getString("projectRoot", "$home/OpenDots/Zip_Bug_Antigravity")!!
