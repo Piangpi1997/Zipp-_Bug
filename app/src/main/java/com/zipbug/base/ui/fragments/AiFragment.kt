@@ -254,6 +254,19 @@ class AiFragment : Fragment() {
             binding.model.setText(model)
         }
 
+        // Migrate retired/legacy Gemini defaults automatically.
+        if (
+            selected == AiProvider.GEMINI &&
+            model in setOf(
+                "gemini-2.5-flash",
+                "models/gemini-2.5-flash",
+                "gemini-3.5-flash"
+            )
+        ) {
+            model = AiProvider.GEMINI.defaultModel
+            binding.model.setText(model)
+        }
+
         val effectiveProvider =
             if (model.startsWith("openrouter/")) {
                 AiProvider.OPENROUTER
