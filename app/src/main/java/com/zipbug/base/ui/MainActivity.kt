@@ -66,6 +66,9 @@ class MainActivity : AppCompatActivity() {
             is ZippyCommandAction.Ask ->
                 navigateToAiWithPrompt(action.prompt, AiMode.PROJECT_EDIT)
 
+            is ZippyCommandAction.Create ->
+                navigateToAiWithPrompt(action.prompt, AiMode.APP_CREATOR)
+
             is ZippyCommandAction.Fix ->
                 navigateToAiWithPrompt(action.prompt, AiMode.FIX_ERROR)
 
