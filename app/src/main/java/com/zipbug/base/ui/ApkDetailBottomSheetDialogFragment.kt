@@ -84,22 +84,22 @@ class ApkDetailBottomSheetDialogFragment : BottomSheetDialogFragment() {
         when (status) {
             InstallSafetyStatus.SAFE_UPDATE -> {
                 binding.safetyBadge.setTextColor(ContextCompat.getColor(context, R.color.z_green))
-                binding.safetyBadge.setBackgroundColor(0xFF1E3A24.toInt())
+                binding.safetyBadge.setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
             }
             InstallSafetyStatus.SIGNER_CONFLICT -> {
                 binding.safetyBadge.setTextColor(ContextCompat.getColor(context, R.color.z_red))
-                binding.safetyBadge.setBackgroundColor(0xFF3D1818.toInt())
+                binding.safetyBadge.setBackgroundResource(com.zipbug.base.R.color.z_red_soft)
                 binding.conflictWarning.visibility = View.VISIBLE
                 binding.conflictWarning.text = metadata.conflictExplanation
                     ?: "Same package name is already installed but signed with a different key."
             }
             InstallSafetyStatus.NEW_INSTALL -> {
                 binding.safetyBadge.setTextColor(ContextCompat.getColor(context, R.color.z_blue))
-                binding.safetyBadge.setBackgroundColor(0xFF162D4A.toInt())
+                binding.safetyBadge.setBackgroundResource(com.zipbug.base.R.color.z_blue_soft)
             }
             InstallSafetyStatus.UNKNOWN -> {
                 binding.safetyBadge.setTextColor(ContextCompat.getColor(context, R.color.z_orange))
-                binding.safetyBadge.setBackgroundColor(0xFF3E2D12.toInt())
+                binding.safetyBadge.setBackgroundResource(com.zipbug.base.R.color.z_orange_soft)
             }
         }
 

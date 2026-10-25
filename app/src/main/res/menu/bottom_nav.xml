@@ -1,22 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@android:drawable/ic_menu_view"
-        android:title="Home" />
+        android:icon="@drawable/ic_nav_home"
+        android:title="@string/nav_home" />
     <item
         android:id="@+id/nav_studio"
-        android:icon="@android:drawable/ic_menu_edit"
-        android:title="Studio" />
-    <item
-        android:id="@+id/nav_ai"
-        android:icon="@android:drawable/ic_menu_send"
-        android:title="AI" />
+        android:icon="@drawable/ic_nav_studio"
+        android:title="@string/nav_studio" />
     <item
         android:id="@+id/nav_terminal"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="Terminal" />
+        android:icon="@drawable/ic_nav_build"
+        android:title="@string/nav_terminal" />
     <item
         android:id="@+id/nav_projects"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="Projects" />
+        android:icon="@drawable/ic_nav_projects"
+        android:title="@string/nav_projects" />
+    <item
+        android:id="@+id/nav_ai"
+        android:icon="@drawable/ic_nav_ai"
+        android:title="@string/nav_ai" />
 </menu>

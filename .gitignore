@@ -7,3 +7,13 @@ local.properties
 *.jks
 *.keystore
 *.properties.local
+*.apk
+*.aab
+temp_check.db
+*.db
+scratch/
+myanmar-drama-editor/
+*.mp4
+*.mp3
+*.wav
+*.zipbugkeys

@@ -11,7 +11,7 @@ data class RecapProjectEntity(
     val sourceFileName: String? = null,
     val sourceLocalPath: String? = null,
     val sourceDurationMs: Long = 0L,
-    val language: String = "my", // "my" for Myanmar, "en" for English
+    val language: String = "my", // "my" (Myanmar), "en" (English), "th" (Thai), "zh" (Chinese)
     val recapMode: String = "Recap", // "Recap", "Recap + Dialogue", "Dub"
     val status: String = STATUS_DRAFT,
     val outputFilePath: String? = null,
@@ -33,5 +33,7 @@ data class RecapProjectEntity(
 
         const val LANG_MYANMAR = "my"
         const val LANG_ENGLISH = "en"
+        const val LANG_THAI = "th"
+        const val LANG_CHINESE = "zh"
     }
 }

@@ -14,6 +14,9 @@ interface BuildJobDao {
     @Query("SELECT * FROM build_jobs ORDER BY createdAt DESC")
     fun getAllJobs(): Flow<List<BuildJobEntity>>
 
+    @Query("SELECT * FROM build_jobs ORDER BY createdAt DESC")
+    suspend fun listAll(): List<BuildJobEntity>
+
     @Query("SELECT * FROM build_jobs ORDER BY createdAt DESC LIMIT 1")
     fun observeLatest(): Flow<BuildJobEntity?>
 
@@ -73,6 +76,19 @@ interface BuildJobDao {
     suspend fun cancel(
         id: String,
         reason: String = "Cancelled by user",
+        finishedAt: Long = System.currentTimeMillis()
+    )
+
+    @Query(
+        """
+        UPDATE build_jobs
+        SET status = 'FAILED',
+            errorMessage = 'Interrupted: Application restarted before job completion callback arrived',
+            finishedAt = :finishedAt
+        WHERE status IN ('RUNNING', 'QUEUED')
+        """
+    )
+    suspend fun markStaleJobsInterrupted(
         finishedAt: Long = System.currentTimeMillis()
     )
 }

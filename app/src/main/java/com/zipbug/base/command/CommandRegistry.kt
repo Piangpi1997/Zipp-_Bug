@@ -62,7 +62,7 @@ object CommandRegistry {
         CommandSpec(
             command = "/coding",
             group = CommandGroups.CODING,
-            description = "Browse source-generation and AI coding commands.",
+            description = "Browse source-generation, workspace, and AI coding commands.",
             example = "/coding"
         ),
         CommandSpec(
@@ -102,9 +102,16 @@ object CommandRegistry {
             example = "/projects"
         ),
         CommandSpec(
+            command = "/devtools",
+            aliases = listOf("/toolbox"),
+            group = CommandGroups.TOOLS,
+            description = "Open Developer Toolbox: JSON validator/formatter, SHA-256/MD5 hashes, ZIP inspector, workspace search, and backup/restore.",
+            example = "/devtools"
+        ),
+        CommandSpec(
             command = "/tts",
             group = CommandGroups.TOOLS,
-            description = "Open Myanmar Edge-TTS Studio.",
+            description = "Open Multilingual Edge-TTS Audio Lab (Myanmar, English, Thai, Chinese) with TXT/SRT/VTT export.",
             example = "/tts"
         ),
         CommandSpec(
@@ -117,7 +124,7 @@ object CommandRegistry {
             command = "/zippycut",
             aliases = listOf("/recap"),
             group = CommandGroups.TOOLS,
-            description = "Open the Zippy Cut // Long Recap studio for multi-part script, timeline, voiceover, and video export.",
+            description = "Open the Zippy Cut // Long Recap studio for multi-part script, timeline, voiceover, subtitles, and video export.",
             example = "/zippycut"
         ),
         CommandSpec(
@@ -128,6 +135,13 @@ object CommandRegistry {
         ),
 
         // CODING
+        CommandSpec(
+            command = "/workspace",
+            aliases = listOf("/editor"),
+            group = CommandGroups.CODING,
+            description = "Open the Project Workspace to scaffold HTML/React/Android templates, browse/edit code files, and preview HTML.",
+            example = "/workspace"
+        ),
         CommandSpec(
             command = "/appcreator",
             aliases = listOf("/apcreator"),
@@ -149,7 +163,7 @@ object CommandRegistry {
             description = "Legacy command reserved for a future AI ZIP workflow.",
             example = "/aizipper",
             available = false,
-            unavailableReason = "AI ZIP generation is not implemented yet. Use /appcreator or /projects instead."
+            unavailableReason = "AI ZIP generation is not implemented yet. Use /workspace, /appcreator, or /projects instead."
         )
     )
 

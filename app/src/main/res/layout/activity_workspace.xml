@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/workspace_title"
+            android:textColor="@color/z_text"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/workspace_subtitle"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <!-- Project Selector & Lifecycle Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_hero_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/tvActiveProjectTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Active Project: None"
+                android:textColor="@color/z_text"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvActiveProjectMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="monospace"
+                android:text="Kind: - • Entry: -"
+                android:textColor="@color/z_muted"
+                android:textSize="11sp" />
+
+            <!-- Row 1: Switch / New / Import ZIP -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnWsSwitchProject"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="Switch Project"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnWsNewTemplate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="@string/workspace_new_from_template"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnWsImportZip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="Import ZIP"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Row 2: Rename / Duplicate / Export ZIP -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnWsRename"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="@string/btn_rename"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnWsDuplicate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="@string/workspace_duplicate"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnWsExportZip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="@string/workspace_export_zip"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnWsPreviewHtml"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="42dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/z_orange"
+                    android:text="▶ Preview HTML (:3131)"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnWsStageTermux"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="42dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="Stage to Termux"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnWsUiPicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:minHeight="40dp"
+                android:background="@drawable/bg_chip_inactive"
+                app:backgroundTint="@null"
+                android:text="🎨 UI Component Picker &amp; Panel Assembly"
+                android:textAllCaps="false"
+                android:textColor="@color/z_blue"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- React / Node Engine Bar (Shown for React/Node projects) -->
+        <LinearLayout
+            android:id="@+id/layoutReactEngineBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="REACT / NODE ENGINE ACTIONS"
+                android:textColor="@color/z_green"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvReactEngineNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/workspace_react_engine_note"
+                android:textColor="@color/z_muted"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnNpmInstall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="npm install"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/btnNpmBuild"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/z_orange"
+                    android:text="npm run build"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnNpmDev"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="npm run dev"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/btnCancelEngineJob"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="Cancel Job"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="10sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- File Browser & Search -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvFilesHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="PROJECT FILES (0)"
+                    android:textColor="@color/z_orange"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnWsNewFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
+                    android:background="@drawable/bg_chip_inactive"
+                    app:backgroundTint="@null"
+                    android:text="@string/workspace_new_file"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etFileFilter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_search_bar"
+                android:hint="Filter files by name or path…"
+                android:importantForAutofill="no"
+                android:paddingHorizontal="12dp"
+                android:singleLine="true"
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/fileChipsContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <!-- Code / Text Editor with Unsaved-Change Protection -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvCurrentFileName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="monospace"
+                    android:text="No file selected"
+                    android:textColor="@color/z_text"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvUnsavedIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="● UNSAVED"
+                    android:textColor="@color/z_orange"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btnWsSaveFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="38dp"
+                    android:backgroundTint="@color/z_orange"
+                    android:text="@string/workspace_save_file"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etCodeEditor"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/z_code_bg"
+                android:fontFamily="monospace"
+                android:gravity="top|start"
+                android:hint="Select a file above to inspect and edit its source code…"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:padding="12dp"
+                android:scrollbars="vertical"
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvWorkspaceStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="monospace"
+                android:text="Workspace ready."
+                android:textColor="@color/z_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

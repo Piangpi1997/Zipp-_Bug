@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:background="#202020"
+            android:background="@color/z_surface_glass"
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             android:text="NOT TESTED"

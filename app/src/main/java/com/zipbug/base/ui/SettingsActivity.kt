@@ -3,28 +3,39 @@ package com.zipbug.base.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.R
 import com.zipbug.base.databinding.ActivitySettingsBinding
+import com.zipbug.base.engine.EngineConnectionClient
 import com.zipbug.base.security.SecretBackup
 import com.zipbug.base.security.SecretStore
+import com.zipbug.base.termux.TermuxBridge
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var secrets: SecretStore
 
+    private var activeSection: String = SECTION_HUB
     private var pendingBackupPassphrase: CharArray? = null
 
     private val createBackupFile =
@@ -85,6 +96,10 @@ class SettingsActivity : AppCompatActivity() {
             MODE_PRIVATE
         )
 
+        setupGroupedNavigation()
+        setupLanguageAndThemeButtons()
+        setupEngineHttpControls()
+
         // One-time convenience migration for users who pasted an
         // OpenRouter key into any old provider field.
         val savedOpenRouter = secrets.get("openrouter")
@@ -129,12 +144,18 @@ class SettingsActivity : AppCompatActivity() {
             "Claude"
         )
 
+        setupProviderConfigureToggles()
+
         binding.backupKeys.setOnClickListener {
             promptBackupPassphrase()
         }
 
         binding.restoreKeys.setOnClickListener {
             openBackupFile.launch(arrayOf("*/*"))
+        }
+
+        binding.btnOpenWorkspaceBackup.setOnClickListener {
+            startActivity(Intent(this, DeveloperToolsActivity::class.java))
         }
 
         val home = prefs.getString(
@@ -166,6 +187,8 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.save.setOnClickListener {
             saveSecrets()
+            EngineConnectionClient.saveUrl(this, binding.etEngineHttpUrl.text.toString())
+            EngineConnectionClient.saveToken(this, binding.etEngineToken.text.toString())
 
             prefs.edit()
                 .putString(
@@ -182,11 +205,226 @@ class SettingsActivity : AppCompatActivity() {
                 )
                 .apply()
 
+            refreshGroupSummaries()
             Snackbar.make(
                 binding.root,
                 "Encrypted settings saved",
                 Snackbar.LENGTH_SHORT
             ).show()
+        }
+
+        refreshGroupSummaries()
+
+        val initialSection = savedInstanceState?.getString(KEY_ACTIVE_SECTION)
+            ?: intent.getStringExtra(EXTRA_SECTION)
+            ?: SECTION_HUB
+        showSection(initialSection)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_ACTIVE_SECTION, activeSection)
+    }
+
+    private fun setupGroupedNavigation() {
+        binding.cardSettingsAppearance.setOnClickListener {
+            showSection(SECTION_APPEARANCE)
+        }
+        binding.cardSettingsEngine.setOnClickListener {
+            showSection(SECTION_ENGINE)
+        }
+        binding.cardSettingsAiProviders.setOnClickListener {
+            showSection(SECTION_AI)
+        }
+        binding.cardSettingsStorageBackup.setOnClickListener {
+            showSection(SECTION_STORAGE)
+        }
+        binding.cardSettingsPrivacyAbout.setOnClickListener {
+            showSection(SECTION_PRIVACY)
+        }
+
+        binding.btnSettingsBack.setOnClickListener {
+            if (activeSection != SECTION_HUB) {
+                showSection(SECTION_HUB)
+            } else {
+                finish()
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (activeSection != SECTION_HUB) {
+                    showSection(SECTION_HUB)
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+    }
+
+    private fun showSection(section: String) {
+        activeSection = section
+        binding.layoutSettingsHub.visibility = if (section == SECTION_HUB) View.VISIBLE else View.GONE
+        binding.panelSettingsAppearance.visibility = if (section == SECTION_APPEARANCE) View.VISIBLE else View.GONE
+        binding.panelSettingsEngine.visibility = if (section == SECTION_ENGINE) View.VISIBLE else View.GONE
+        binding.panelSettingsAiProviders.visibility = if (section == SECTION_AI) View.VISIBLE else View.GONE
+        binding.panelSettingsStorageBackup.visibility = if (section == SECTION_STORAGE) View.VISIBLE else View.GONE
+        binding.panelSettingsPrivacyAbout.visibility = if (section == SECTION_PRIVACY) View.VISIBLE else View.GONE
+
+        binding.tvSettingsHeaderTitle.text = when (section) {
+            SECTION_APPEARANCE -> getString(R.string.settings_group_appearance_title)
+            SECTION_ENGINE -> getString(R.string.settings_group_engine_title)
+            SECTION_AI -> getString(R.string.settings_group_ai_title)
+            SECTION_STORAGE -> getString(R.string.settings_group_storage_title)
+            SECTION_PRIVACY -> getString(R.string.settings_group_privacy_title)
+            else -> getString(R.string.settings_title)
+        }
+        refreshGroupSummaries()
+    }
+
+    private fun setupProviderConfigureToggles() {
+        fun bindToggle(btn: Button, editor: View) {
+            btn.setOnClickListener {
+                val visible = editor.visibility == View.VISIBLE
+                editor.visibility = if (visible) View.GONE else View.VISIBLE
+                btn.text = if (visible) "Configure" else "Done"
+            }
+        }
+        bindToggle(binding.btnConfigOpenRouter, binding.editorOpenRouter)
+        bindToggle(binding.btnConfigOpenAi, binding.editorOpenAi)
+        bindToggle(binding.btnConfigGemini, binding.editorGemini)
+        bindToggle(binding.btnConfigAnthropic, binding.editorAnthropic)
+    }
+
+    private fun refreshGroupSummaries() {
+        val lang = LocaleThemeHelper.getSavedLanguage(this)
+        val theme = LocaleThemeHelper.getSavedTheme(this)
+        val langLabel = when (lang) {
+            LocaleThemeHelper.LANG_MYANMAR -> "မြန်မာ"
+            LocaleThemeHelper.LANG_ENGLISH -> "English"
+            else -> "System"
+        }
+        val themeLabel = when (theme) {
+            LocaleThemeHelper.THEME_LIGHT -> "Light"
+            LocaleThemeHelper.THEME_SYSTEM -> "System"
+            else -> "Dark"
+        }
+        binding.tvSummaryAppearance.text = "$langLabel • $themeLabel Theme"
+
+        val termuxState = when {
+            TermuxBridge.isTermuxInstalled(this) && TermuxBridge.hasPermission(this) -> "Termux Ready"
+            TermuxBridge.isTermuxInstalled(this) -> "Termux Perm Needed"
+            else -> "Termux Not Installed"
+        }
+        val engineUrl = EngineConnectionClient.getSavedUrl(this)
+        binding.tvSummaryEngine.text = "$termuxState • $engineUrl"
+
+        val green = ContextCompat.getColor(this, R.color.z_green)
+        val muted = ContextCompat.getColor(this, R.color.z_muted)
+
+        fun updateProviderBadge(field: EditText, badge: TextView): Boolean {
+            val configured = field.text.toString().isNotBlank()
+            if (configured) {
+                badge.text = "● Configured (Encrypted)"
+                badge.setTextColor(green)
+            } else {
+                badge.text = "○ Not configured"
+                badge.setTextColor(muted)
+            }
+            return configured
+        }
+
+        var count = 0
+        if (updateProviderBadge(binding.openrouter, binding.tvStatusOpenRouter)) count++
+        if (updateProviderBadge(binding.openai, binding.tvStatusOpenAi)) count++
+        if (updateProviderBadge(binding.gemini, binding.tvStatusGemini)) count++
+        if (updateProviderBadge(binding.anthropic, binding.tvStatusAnthropic)) count++
+        binding.tvSummaryAiProviders.text = "$count of 4 providers configured • Encrypted"
+    }
+
+    private fun setupLanguageAndThemeButtons() {
+        val currentLang = LocaleThemeHelper.getSavedLanguage(this)
+        val currentTheme = LocaleThemeHelper.getSavedTheme(this)
+
+        binding.btnSetLangSystem.alpha = if (currentLang == LocaleThemeHelper.LANG_SYSTEM) 1.0f else 0.65f
+        binding.btnSetLangEnglish.alpha = if (currentLang == LocaleThemeHelper.LANG_ENGLISH) 1.0f else 0.65f
+        binding.btnSetLangMyanmar.alpha = if (currentLang == LocaleThemeHelper.LANG_MYANMAR) 1.0f else 0.65f
+
+        binding.btnSetThemeDark.alpha = if (currentTheme == LocaleThemeHelper.THEME_DARK) 1.0f else 0.65f
+        binding.btnSetThemeLight.alpha = if (currentTheme == LocaleThemeHelper.THEME_LIGHT) 1.0f else 0.65f
+        binding.btnSetThemeSystem.alpha = if (currentTheme == LocaleThemeHelper.THEME_SYSTEM) 1.0f else 0.65f
+
+        binding.btnSetLangSystem.setOnClickListener {
+            LocaleThemeHelper.setLanguage(this, LocaleThemeHelper.LANG_SYSTEM)
+            recreate()
+        }
+        binding.btnSetLangEnglish.setOnClickListener {
+            LocaleThemeHelper.setLanguage(this, LocaleThemeHelper.LANG_ENGLISH)
+            recreate()
+        }
+        binding.btnSetLangMyanmar.setOnClickListener {
+            LocaleThemeHelper.setLanguage(this, LocaleThemeHelper.LANG_MYANMAR)
+            recreate()
+        }
+
+        binding.btnSetThemeDark.setOnClickListener {
+            LocaleThemeHelper.setTheme(this, LocaleThemeHelper.THEME_DARK)
+            recreate()
+        }
+        binding.btnSetThemeLight.setOnClickListener {
+            LocaleThemeHelper.setTheme(this, LocaleThemeHelper.THEME_LIGHT)
+            recreate()
+        }
+        binding.btnSetThemeSystem.setOnClickListener {
+            LocaleThemeHelper.setTheme(this, LocaleThemeHelper.THEME_SYSTEM)
+            recreate()
+        }
+    }
+
+    private fun setupEngineHttpControls() {
+        binding.etEngineHttpUrl.setText(EngineConnectionClient.getSavedUrl(this))
+        binding.etEngineToken.setText(EngineConnectionClient.getSavedToken(this))
+
+        binding.btnTestEngineConnection.setOnClickListener {
+            val url = binding.etEngineHttpUrl.text.toString().trim()
+            val token = binding.etEngineToken.text.toString().trim()
+            EngineConnectionClient.saveUrl(this, url)
+            EngineConnectionClient.saveToken(this, token)
+            refreshGroupSummaries()
+
+            binding.tvEngineTestResult.text = "Testing connection to $url/health ..."
+            binding.tvEngineTestResult.setTextColor(ContextCompat.getColor(this, R.color.z_muted))
+
+            lifecycleScope.launch {
+                val res = EngineConnectionClient.checkHealth(url, token)
+                binding.tvEngineTestResult.text = buildString {
+                    appendLine("STATUS: ${if (res.connected) "CONNECTED (PASS)" else "UNREACHABLE / NOT RUNNING"}")
+                    appendLine("ENDPOINT: ${res.endpointUrl}")
+                    if (res.connected) {
+                        appendLine("VERSION: ${res.version}")
+                        appendLine("CAPABILITIES: ${if (res.capabilities.isEmpty()) "default" else res.capabilities.joinToString(", ")}")
+                        appendLine("LATENCY: ${res.latencyMs} ms")
+                    }
+                    append("DIAGNOSIS: ${res.diagnosticMessage}")
+                }
+                binding.tvEngineTestResult.setTextColor(
+                    ContextCompat.getColor(
+                        this@SettingsActivity,
+                        if (res.connected) R.color.z_green else R.color.z_orange
+                    )
+                )
+            }
+        }
+
+        binding.btnClearEngineToken.setOnClickListener {
+            binding.etEngineToken.setText("")
+            EngineConnectionClient.clearToken(this)
+            val remaining = secrets.contains("engine_token")
+            binding.tvEngineTestResult.text =
+                "Engine Bearer token cleared from encrypted store (contains=$remaining)."
+            binding.tvEngineTestResult.setTextColor(ContextCompat.getColor(this, R.color.z_orange))
+            Snackbar.make(binding.root, "Engine token removed", Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -375,6 +613,7 @@ class SettingsActivity : AppCompatActivity() {
                         secrets.put(name, value)
                     }
                     loadSecretFields()
+                    refreshGroupSummaries()
 
                     Snackbar.make(
                         binding.root,
@@ -433,5 +672,13 @@ class SettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val MAX_BACKUP_BYTES = 1024 * 1024
+        private const val KEY_ACTIVE_SECTION = "active_section"
+        const val EXTRA_SECTION = "extra_section"
+        const val SECTION_HUB = "hub"
+        const val SECTION_APPEARANCE = "appearance"
+        const val SECTION_ENGINE = "engine"
+        const val SECTION_AI = "ai"
+        const val SECTION_STORAGE = "storage"
+        const val SECTION_PRIVACY = "privacy"
     }
 }

@@ -1,213 +1,522 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Termux Build Engine"
-        android:textColor="@color/z_text"
-        android:textSize="26sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/engineState"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="ENGINE • IDLE"
-        android:textColor="@color/z_green"
-        android:textStyle="bold" />
-
-    <!-- Test Panel: Python, Java, Gradle, ffmpeg, aapt2 -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="COMMAND TEST PANEL"
-        android:textColor="@color/z_muted"
-        android:textSize="11sp"
-        android:textStyle="bold" />
+    android:background="@color/z_bg"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingBottom="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <Button
-            android:id="@+id/testPython"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:text="Python"
-            android:textSize="12sp" />
+        <!-- Header & Engine State Badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/testJava"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Java"
-            android:textSize="12sp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-        <Button
-            android:id="@+id/testGradle"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="Gradle"
-            android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="APK Build Studio"
+                    android:textColor="@color/z_text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/testFfmpeg"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="ffmpeg"
-            android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Select project → Check setup → Build → Install or Share"
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-        <Button
-            android:id="@+id/testAapt2"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="4dp"
-            android:layout_weight="1"
-            android:text="aapt2"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/engineState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_status_pill"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:text="ENGINE • IDLE"
+                android:textColor="@color/z_green"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Step 1 & 2 Card: Select Project & Check Setup -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_icon_badge_orange">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Project"
+                        android:src="@drawable/ic_nav_projects"
+                        app:tint="@color/z_orange" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="STEP 1 &amp; 2 • TARGET PROJECT &amp; SETUP"
+                        android:textColor="@color/z_orange"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBuildTargetProject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="2"
+                        android:text="Project: Zip_Bug_Antigravity"
+                        android:textColor="@color/z_text"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSelectBuildProject"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="1. Select Project"
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnDeviceProof"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="2. Check Setup"
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Step 3 Card: Build APK & Progress Stages -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_hero_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STEP 3 • BUILD WORKFLOW &amp; STAGES"
+                android:textColor="@color/z_orange"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/buildStages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_glass_card"
+                android:fontFamily="monospace"
+                android:padding="12dp"
+                android:text="1. Validation: IDLE\n2. Dependencies &amp; SDK: IDLE\n3. Compilation: IDLE\n4. Packaging &amp; Proof: IDLE"
+                android:textColor="@color/z_text"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buildApk"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1.3"
+                    android:text="3. Build Debug APK"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
+
+                <Button
+                    android:id="@+id/releaseApk"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="0.9"
+                    android:text="Release Info"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/cancelBuild"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:text="Cancel Active Build"
+                android:textSize="12sp"
+                android:visibility="gone"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+            <Button
+                android:id="@+id/btnFixErrorWithAi"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="8dp"
+                android:text="Analyze &amp; Fix Error with AI"
+                android:textStyle="bold"
+                android:visibility="gone"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+        </LinearLayout>
+
+        <!-- Step 4 Card: Understandable Build Result & Install/Share -->
+        <LinearLayout
+            android:id="@+id/cardBuildResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STEP 4 • RESULT &amp; ARTIFACT"
+                android:textColor="@color/z_green"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvBuildResultTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Ready to build"
+                android:textColor="@color/z_text"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvBuildResultSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Select a project and tap Build Debug APK. Install and Share actions unlock only after an APK artifact is verified."
+                android:textColor="@color/z_muted"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:id="@+id/artifactActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/openArtifact"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:text="Install / Open APK"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/shareArtifact"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Share APK"
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Collapsible "View Logs" Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:id="@+id/btnToggleBuildLogs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="View Logs (stdout / stderr / exitCode)"
+                    android:textColor="@color/z_text"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvToggleLogsIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Show ▾"
+                    android:textColor="@color/z_orange"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutBuildLogsSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/output"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/z_code_bg"
+                    android:fontFamily="monospace"
+                    android:minHeight="140dp"
+                    android:padding="12dp"
+                    android:text="Real stdout / stderr / exitCode will appear here."
+                    android:textColor="@color/z_green"
+                    android:textIsSelectable="true"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Collapsible "Advanced Command & Diagnostics" Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:id="@+id/btnToggleAdvancedTerminal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Advanced Command &amp; Tool Diagnostics"
+                    android:textColor="@color/z_text"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvToggleAdvancedIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Expand ▾"
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutAdvancedTerminalSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RUNTIME TOOL PROBES (DOES NOT BUILD APK)"
+                    android:textColor="@color/z_muted"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/testPython"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="Python"
+                        android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/testJava"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="Java"
+                        android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/testGradle"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="Gradle"
+                        android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/testFfmpeg"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="ffmpeg"
+                        android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/testAapt2"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="aapt2"
+                        android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/command"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_search_bar"
+                    android:hint="/termux [tool] [args]"
+                    android:paddingHorizontal="12dp"
+                    android:singleLine="true"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/run"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Run Command"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnDeviceProof"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="Device Proof &amp; Checks"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/buildApk"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:text="Debug APK"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/releaseApk"
-            android:layout_width="0dp"
-            android:layout_height="46dp"
-            android:layout_weight="1"
-            android:text="Release Signing"
-            android:textSize="11sp" />
-
-        <Button
-            android:id="@+id/cancelBuild"
-            android:layout_width="0dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:text="Cancel Build"
-            android:textSize="11sp"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/buildStages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:background="@color/z_surface"
-        android:fontFamily="monospace"
-        android:padding="10dp"
-        android:text="BUILD WORKFLOW\nValidation: IDLE\nDependencies: IDLE\nBuild: IDLE\nPackaging: IDLE"
-        android:textColor="@color/z_muted"
-        android:textSize="11sp" />
-
-    <LinearLayout
-        android:id="@+id/artifactActions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <Button
-            android:id="@+id/openArtifact"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:text="Open APK"
-            android:textSize="11sp" />
-
-        <Button
-            android:id="@+id/shareArtifact"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:text="Share APK"
-            android:textSize="11sp" />
-    </LinearLayout>
-
-    <EditText
-        android:id="@+id/command"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="6dp"
-        android:hint="/termux [tool] [args]"
-        android:singleLine="true"
-        android:textColor="@color/z_text"
-        android:textColorHint="@color/z_muted"
-        android:textSize="14sp" />
-
-    <Button
-        android:id="@+id/run"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="4dp"
-        android:text="Run Command" />
-
-    <TextView
-        android:id="@+id/output"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"
-        android:background="#101010"
-        android:fontFamily="monospace"
-        android:padding="12dp"
-        android:text="Real stdout / stderr / exitCode will appear here."
-        android:textColor="@color/z_green"
-        android:textIsSelectable="true"
-        android:textSize="13sp" />
-
-    <Button
-        android:id="@+id/btnFixErrorWithAi"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="6dp"
-        android:backgroundTint="@color/z_orange"
-        android:text="Fix Error with AI"
-        android:textColor="#111111"
-        android:visibility="gone" />
-</LinearLayout>
+</ScrollView>

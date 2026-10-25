@@ -1,21 +1,200 @@
 <resources>
     <string name="app_name">Zip_Bug Studio</string>
-    <string name="recap_studio_title">Zippy Cut // Recap စတူဒီယို</string>
-    <string name="recap_studio_subtitle">အစအဆုံး AI Recap နှင့် ဗီဒီယိုထုတ်လုပ်ရေး စနစ်</string>
-    <string name="tab_project">ပရောဂျက်</string>
-    <string name="tab_script">ဇာတ်ညွှန်း (၁-၄)</string>
-    <string name="tab_timeline">တည်းဖြတ်မှု</string>
-    <string name="tab_voiceover">အသံသွင်း</string>
-    <string name="tab_render">ထုတ်လုပ်ခြင်း</string>
+    <string name="nav_home">ပင်မ</string>
+    <string name="nav_studio">စတူဒီယို</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_terminal">တည်ဆောက်ရန်</string>
+    <string name="nav_projects">ပရောဂျက်</string>
+
+    <string name="engine_badge_ready">အင်ဂျင် အသင့်</string>
+    <string name="engine_badge_setup">အင်ဂျင် ချိတ်ရန်</string>
+    <string name="engine_badge_local">Web အသင့်</string>
+
+    <string name="recap_studio_title">ဗီဒီယို နှင့် Recap စတူဒီယို</string>
+    <string name="recap_studio_subtitle">ဗီဒီယိုဖြတ်တောက်မှု၊ နောက်ခံအသံ နှင့် FFmpeg ဗီဒီယိုထုတ်လုပ်ရေး</string>
     <string name="btn_new_project">ပရောဂျက်အသစ်</string>
     <string name="btn_rename">နာမည်ပြောင်းရန်</string>
-    <string name="btn_import_media">ဖိုင်ရွေးချယ်ရန် (SAF)</string>
-    <string name="btn_generate_script">ဇာတ်ညွှန်းထုတ်ယူရန်</string>
+    <string name="btn_cancel">ပယ်ဖျက်ရန်</string>
+    <string name="btn_import_media">ဗီဒီယို ရွေးရန်</string>
+    <string name="btn_generate_script">AI ဇာတ်ညွှန်းထုတ်ရန်</string>
     <string name="btn_preview_audio">အသံနမူနာ</string>
     <string name="btn_generate_voiceover">နောက်ခံအသံထုတ်ရန်</string>
-    <string name="btn_start_render">Render စတင်ရန်</string>
+    <string name="btn_start_render">ဗီဒီယို ထုတ်လုပ်ရန်</string>
     <string name="btn_cancel_render">ရပ်တန့်ရန်</string>
     <string name="btn_retry">ပြန်ကြိုးစားရန်</string>
     <string name="btn_open_video">ဗီဒီယိုဖွင့်ရန်</string>
     <string name="btn_share_video">မျှဝေရန်</string>
+
+    <!-- Home Launchpad -->
+    <string name="home_dashboard_title">Zip_Bug စတူဒီယို</string>
+    <string name="home_search_hint">ကိရိယာများ ရှာဖွေရန် (English သို့မဟုတ် မြန်မာ)…</string>
+    <string name="home_hero_title">အသစ်ဖန်တီးမည်</string>
+    <string name="home_hero_subtitle">ပရောဂျက်အသစ်တစ်ခုကို တစ်ချက်နှိပ်၍ စတင်ပါ</string>
+    <string name="home_hero_choice_app">App</string>
+    <string name="home_hero_choice_web">Website</string>
+    <string name="home_hero_choice_ui">UI ဒီဇိုင်း</string>
+
+    <string name="home_cat_all">အားလုံး</string>
+    <string name="home_cat_create">ဖန်တီးမှု</string>
+    <string name="home_cat_develop">ကုဒ်ရေးသားမှု</string>
+    <string name="home_cat_video">ဗီဒီယို</string>
+    <string name="home_cat_audio">အသံ</string>
+    <string name="home_cat_utilities">ကိရိယာ</string>
+
+    <string name="home_pinned_section_title">မှတ်သားထားသော ကိရိယာများ</string>
+    <string name="home_primary_tools_title">ပင်မ စတူဒီယို ကိရိယာများ</string>
+    <string name="home_utilities_section_title">Developer အသုံးချကိရိယာများ</string>
+    <string name="home_recent_projects_title">လတ်တလော ပရောဂျက်များ</string>
+    <string name="home_view_all_projects">အားလုံးကြည့်ရန်</string>
+
+    <!-- 6 Primary Tool Cards -->
+    <string name="tool_visual_studio_title">Visual Studio</string>
+    <string name="tool_visual_studio_desc">ဖုန်းမျက်နှာပြင် UI ဒီဇိုင်းနှင့် ကုဒ်ထုတ်ယူမှု</string>
+    <string name="tool_app_creator_title">App Creator</string>
+    <string name="tool_app_creator_desc">Android App ပရောဂျက်အသစ် တည်ဆောက်ရန်</string>
+    <string name="tool_react_web_title">React &amp; Web</string>
+    <string name="tool_react_web_desc">ကုဒ်တည်းဖြတ်မှု၊ npm build နှင့် တိုက်ရိုက်အစမ်းကြည့်မှု</string>
+    <string name="tool_apk_builder_title">APK Builder</string>
+    <string name="tool_apk_builder_desc">အဆင့်လိုက် APK တည်ဆောက်မှုနှင့် စစ်ဆေးမှု</string>
+    <string name="tool_video_recap_title">Video &amp; Recap</string>
+    <string name="tool_video_recap_desc">ဗီဒီယိုဖြတ်တောက်မှု၊ အသံနှင့် MP4 ထုတ်လုပ်မှု</string>
+    <string name="tool_audio_voice_title">Audio &amp; Voice</string>
+    <string name="tool_audio_voice_desc">မြန်မာ/နိုင်ငံတကာ TTS အသံနှင့် စာတန်းထိုး</string>
+
+    <!-- Utility Icon Tiles -->
+    <string name="util_zip_title">ZIP စစ်ဆေးရန်</string>
+    <string name="util_zip_desc">ZIP ဖိုင်စစ်ဆေးမှုနှင့် သွင်းယူမှု</string>
+    <string name="util_json_title">JSON Formatter</string>
+    <string name="util_json_desc">JSON စစ်ဆေးခြင်းနှင့် စီစဉ်ခြင်း</string>
+    <string name="util_hash_title">SHA-256 Hash</string>
+    <string name="util_hash_desc">ဖိုင် Hash တန်ဖိုး တွက်ချက်ရန်</string>
+    <string name="util_backup_title">Backup &amp; Restore</string>
+    <string name="util_backup_desc">ပရောဂျက်များ သိမ်းဆည်း/ပြန်သွင်းရန်</string>
+    <string name="util_html_preview_title">HTML Preview</string>
+    <string name="util_html_preview_desc">တိုက်ရိုက် Web မြင်ကွင်း (:3131)</string>
+    <string name="util_all_tools_title">ကိရိယာ အားလုံး</string>
+    <string name="util_all_tools_desc">ရှာဖွေမှုနှင့် စနစ်စစ်ဆေးချက်</string>
+
+    <string name="home_projects_count_label">ပရောဂျက်များ</string>
+    <string name="home_jobs_count_label">အလုပ်များ (JOBS)</string>
+    <string name="home_storage_used_label">နေရာသုံးစွဲမှု</string>
+    <string name="home_engine_status_label">အင်ဂျင် နှင့် RUNTIME အခြေအနေ</string>
+    <string name="home_resume_work_title">နောက်ဆုံးလုပ်ဆောင်ချက် ပြန်ဖွင့်ရန်</string>
+    <string name="home_no_recent_work">လတ်တလော ပရောဂျက် မရှိသေးပါ။ အပေါ်ရှိ App, Website သို့မဟုတ် UI ဒီဇိုင်းကို နှိပ်၍ စတင်ပါ။</string>
+    <string name="home_quick_actions">အမြန်လုပ်ဆောင်ချက်များ</string>
+    <string name="home_qa_open_workspace">Workspace ဖွင့်ရန်</string>
+    <string name="home_qa_preview_html">HTML အစမ်းကြည့်ရန်</string>
+    <string name="home_qa_connect_engine">အင်ဂျင် ချိတ်ဆက်ရန်</string>
+    <string name="home_qa_import_zip">ပရောဂျက် / ZIP</string>
+    <string name="home_dev_tools">Developer ကိရိယာများ</string>
+
+    <!-- Project Workspace -->
+    <string name="workspace_title">ပရောဂျက် Workspace</string>
+    <string name="workspace_subtitle">ပရောဂျက်များ၊ ဖိုင်များ၊ ကုဒ်တည်းဖြတ်မှုနှင့် HTML/React အစမ်းကြည့်ရှုခြင်း</string>
+    <string name="workspace_new_from_template">Template အသစ်</string>
+    <string name="workspace_duplicate">ပွားယူရန်</string>
+    <string name="workspace_export_zip">ZIP ထုတ်ရန်</string>
+    <string name="workspace_new_file">+ ဖိုင်အသစ်</string>
+    <string name="workspace_save_file">ဖိုင်သိမ်းရန်</string>
+    <string name="workspace_react_engine_note">React/Vite အပြည့်အဝ build လုပ်ရန် Termux သို့မဟုတ် PC LAN Engine တွင် Node.js နှင့် npm လိုအပ်ပါသည်။</string>
+    <string name="workspace_unsaved_title">မသိမ်းရသေးသော ပြင်ဆင်ချက်များ</string>
+    <string name="workspace_unsaved_message">လက်ရှိဖိုင်တွင် မသိမ်းရသေးသော ပြင်ဆင်ချက်များ ရှိနေပါသည်။ သိမ်းဆည်းမည်လား?</string>
+    <string name="workspace_template_html">HTML / CSS / JS Starter</string>
+    <string name="workspace_template_react">React + Vite Web Starter (Node/npm အင်ဂျင် လိုအပ်သည်)</string>
+    <string name="workspace_template_android">Android Kotlin Starter (Min SDK 24 / Target 34)</string>
+
+    <!-- HTML Preview -->
+    <string name="preview_mobile_mode">ဖုန်းမြင်ကွင်း</string>
+    <string name="preview_desktop_mode">ကွန်ပျူတာမြင်ကွင်း</string>
+    <string name="preview_refresh">ပြန်တင်ရန်</string>
+
+    <!-- Developer Toolbox -->
+    <string name="devtools_title">Developer အသုံးချကိရိယာများ</string>
+    <string name="devtools_subtitle">JSON စစ်ဆေးခြင်း၊ File Hash၊ ZIP စစ်ဆေးခြင်းနှင့် Backup စနစ်</string>
+    <string name="devtools_json_format">JSON စစ်ဆေး &amp; စီရန်</string>
+    <string name="devtools_json_minify">JSON ချုံ့ရန်</string>
+    <string name="devtools_hash_pick">Hash တွက်ရန် ဖိုင်ရွေးပါ</string>
+    <string name="devtools_zip_inspect">စစ်ဆေးရန် .ZIP ဖိုင်ရွေးပါ</string>
+    <string name="devtools_search_run">ရှာဖွေရန်</string>
+    <string name="devtools_backup_export">ပရောဂျက်အားလုံး Backup ထုတ်ရန် (.zip)</string>
+    <string name="devtools_backup_restore">Backup ပြန်သွင်းရန် (.zip)</string>
+
+    <!-- Settings & Engine -->
+    <string name="settings_title">စတူဒီယို ပြင်ဆင်ချက်များ</string>
+    <string name="settings_subtitle">ဘာသာစကား၊ အပြင်အဆင်၊ အင်ဂျင်ချိတ်ဆက်မှုနှင့် လုံခြုံရေးကီးများ စီမံရန်</string>
+    <string name="settings_group_appearance_title">ဘာသာစကား နှင့် အပြင်အဆင်</string>
+    <string name="settings_group_appearance_desc">English / မြန်မာ ဘာသာစကား နှင့် Dark / Light အပြင်အဆင်</string>
+    <string name="settings_group_engine_title">အင်ဂျင် ချိတ်ဆက်မှု</string>
+    <string name="settings_group_engine_desc">Termux Bridge နှင့် HTTP/LAN အင်ဂျင် ဆက်တင်များ</string>
+    <string name="settings_group_ai_title">AI Provider ကီးများ</string>
+    <string name="settings_group_ai_desc">OpenRouter, OpenAI, Gemini နှင့် Claude လျှို့ဝှက်ကီးများ</string>
+    <string name="settings_group_storage_title">သိုလှောင်မှု နှင့် Backup</string>
+    <string name="settings_group_storage_desc">API ကီး Backup နှင့် ပရောဂျက် သိမ်းဆည်းမှု</string>
+    <string name="settings_group_privacy_title">လုံခြုံရေး နှင့် အချက်အလက်</string>
+    <string name="settings_group_privacy_desc">Android Keystore လုံခြုံရေးနှင့် ဗားရှင်းအချက်အလက်</string>
+
+    <string name="settings_appearance_title">ဘာသာစကား နှင့် အပြင်အဆင်</string>
+    <string name="settings_language_label">App ဘာသာစကား / Language</string>
+    <string name="settings_lang_system">စနစ်အတိုင်း</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_myanmar">မြန်မာ</string>
+    <string name="settings_theme_label">အပြင်အဆင် / Appearance</string>
+    <string name="settings_theme_dark">Dark Studio</string>
+    <string name="settings_theme_light">Light Studio</string>
+    <string name="settings_theme_system">စနစ်အတိုင်း</string>
+    <string name="settings_engine_http_title">အင်ဂျင် ချိတ်ဆက်မှု</string>
+    <string name="settings_engine_http_note">မှတ်ချက် - 127.0.0.1:8090 သည် လက်ရှိဖုန်းပေါ်ရှိ Termux (သို့မဟုတ် adb reverse) ကို ရည်ညွှန်းပါသည်။ Wi-Fi တူသော PC နှင့် ချိတ်ဆက်လိုပါက PC ၏ LAN IP (ဥပမာ http://192.168.1.50:8090) ကို ထည့်သွင်းပါ။</string>
+    <string name="settings_engine_url_hint">အင်ဂျင် URL (ဥပမာ http://127.0.0.1:8090)</string>
+    <string name="settings_engine_token_hint">Engine Bearer Token (ရှိလျှင်)</string>
+    <string name="settings_test_engine_btn">အင်ဂျင် ချိတ်ဆက်မှု စမ်းသပ်ရန်</string>
+
+    <!-- Chat-First Studio -->
+    <string name="chat_greeting">ယနေ့ ဘာဖန်တီးမလဲ သို့မဟုတ် ဖြေရှင်းလိုပါသလဲ?</string>
+    <string name="chat_suggestion_app">App တစ်ခု တည်ဆောက်ရန်</string>
+    <string name="chat_suggestion_code">ကုဒ် အမှားပြင်ရန်</string>
+    <string name="chat_suggestion_web">Website အသစ် ဖန်တီးရန်</string>
+    <string name="chat_suggestion_file">ဖိုင်တစ်ခု စစ်ဆေး/စီမံရန်</string>
+
+    <string name="chat_prompt_app">သန့်ရှင်းလှပသော UI ပါဝင်သည့် Android Kotlin App အသစ်တစ်ခု တည်ဆောက်ပေးပါ။</string>
+    <string name="chat_prompt_code">အောက်ပါ ကုဒ်ကို စစ်ဆေး၍ အမှားများ ပြင်ဆင်ပေးပါ -\n\n```\n// ကုဒ်ထည့်သွင်းရန်\n```</string>
+    <string name="chat_prompt_web">ဖုန်းနှင့် ကွန်ပျူတာ အဆင်ပြေစေမည့် React + Vite Website အသစ်တစ်ခု ရေးပေးပါ။</string>
+    <string name="chat_prompt_file">ပရောဂျက်အတွင်းရှိ ဖိုင်တစ်ခုကို စစ်ဆေးတည်းဖြတ်လိုပါသည်။</string>
+
+    <string name="chat_composer_hint">မေးမြန်းလိုသည်များ ရေးပါ…</string>
+    <string name="chat_new_chat">စကားဝိုင်း အသစ်</string>
+    <string name="chat_history_title">ယခင် စကားဝိုင်းများ</string>
+    <string name="chat_no_history">စကားဝိုင်း မှတ်တမ်း မရှိသေးပါ</string>
+    <string name="chat_thinking">ZIP_BUG စဉ်းစားနေပါသည်…</string>
+    <string name="chat_copy_code">ကုဒ် ကူးယူရန်</string>
+    <string name="chat_open_in_workspace">Workspace တွင် ဖွင့်ရန်</string>
+    <string name="chat_code_copied">ကုဒ်ကို ကူးယူပြီးပါပြီ</string>
+    <string name="chat_message_copied">စာသားကို ကူးယူပြီးပါပြီ</string>
+    <string name="chat_tools_sheet_title">ကိရိယာများ နှင့် Workspace</string>
+    <string name="chat_model_sheet_title">AI မော်ဒယ် ရွေးချယ်ရန်</string>
+    <string name="chat_configure_keys">API ကီးများ ထည့်သွင်းရန်</string>
+    <string name="chat_keys_needed">%s အတွက် API Key လိုအပ်ပါသည်။ နှိပ်၍ ထည့်သွင်းပါ။</string>
+    <string name="chat_delete_dialog_title">စကားဝိုင်း ဖျက်ရန်</string>
+    <string name="chat_delete_dialog_message">\'%1$s\' စကားဝိုင်းကို ဖျက်ရန် သေချာပါသလား? ပြန်လည်ရယူ၍ မရနိုင်ပါ။</string>
+    <string name="chat_toast_opening_workspace">Workspace ဖွင့်နေသည်…</string>
+    <string name="chat_generation_cancelled">တုံ့ပြန်မှု ရပ်တန့်လိုက်ပါသည်။</string>
+    <string name="chat_retry">ထပ်ကြိုးစားရန်</string>
+    <string name="chat_error_prefix">ချိတ်ဆက်မှု အမှား (%1$s): %2$s</string>
+    <string name="chat_attachment_root">တွဲဆက်ထားသောဖိုင် - ပရောဂျက် Root</string>
+    <string name="btn_delete">ဖျက်ရန်</string>
+    <string name="btn_ok">လက်ခံသည်</string>
+    <string name="drawer_new_app">+ အက်ပ်အသစ်</string>
+    <string name="app_builder_title">AI အက်ပ်တည်ဆောက်စနစ်</string>
+    <string name="tab_ui_gallery">၃။ UI ပစ္စည်းများ</string>
+    <string name="tab_panel_assembly">၄။ Panel 1 တပ်ဆင်မှု</string>
+    <string name="btn_use_component">သုံးမည်</string>
+    <string name="btn_replace_component">အစားထိုးမည်</string>
+    <string name="btn_view_source">ကုဒ်ကြည့်မည်</string>
+    <string name="btn_export_ui_zip">UI ZIP ထုတ်မည်</string>
+    <string name="label_ambient_glow">အလင်းရောင်</string>
+    <string name="label_show_outline">အပြာရောင် Outline</string>
+    <string name="label_reduced_motion">လှုပ်ရှားမှုလျှော့ရန်</string>
+    <string name="card_heading_hint">ခေါင်းစဉ်</string>
+    <string name="card_desc_hint">ဖော်ပြချက်</string>
+    <string name="tool_tile_ui_picker">UI အစိတ်အပိုင်းများ</string>
+    <string name="tool_tile_ui_picker_desc">Uiverse component များနှင့် panel တပ်ဆင်ခြင်း</string>
 </resources>

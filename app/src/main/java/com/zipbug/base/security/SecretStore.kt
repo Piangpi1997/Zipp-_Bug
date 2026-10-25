@@ -36,14 +36,20 @@ class SecretStore(context: Context) {
 
     fun put(name: String, value: String) {
         if (value.isBlank()) {
-            prefs.edit().remove(name).apply()
+            delete(name)
             return
         }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key())
         val packed = cipher.iv + cipher.doFinal(value.toByteArray(Charsets.UTF_8))
-        prefs.edit().putString(name, Base64.encodeToString(packed, Base64.NO_WRAP)).apply()
+        prefs.edit().putString(name, Base64.encodeToString(packed, Base64.NO_WRAP)).commit()
     }
+
+    fun delete(name: String) {
+        prefs.edit().remove(name).commit()
+    }
+
+    fun contains(name: String): Boolean = prefs.contains(name)
 
     fun get(name: String): String {
         val packed = prefs.getString(name, null)

@@ -151,23 +151,23 @@ class MediaRecapActivity : AppCompatActivity() {
                 when (item.state) {
                     StageState.SUCCESS -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_green))
-                        setBackgroundColor(0xFF1E3A24.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
                     }
                     StageState.RUNNING -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_orange))
-                        setBackgroundColor(0xFF3E2D12.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_orange_soft)
                     }
                     StageState.FAILED -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_red))
-                        setBackgroundColor(0xFF3D1818.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_red_soft)
                     }
                     StageState.SKIPPED -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_muted))
-                        setBackgroundColor(0xFF222222.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_surface_glass)
                     }
                     StageState.PENDING -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_muted))
-                        setBackgroundColor(0xFF1B1B1B.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_surface_glass)
                     }
                 }
             }

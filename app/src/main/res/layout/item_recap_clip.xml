@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:background="#242424"
     android:orientation="vertical"
     android:padding="8dp">
 
@@ -71,6 +70,8 @@
             android:layout_height="38dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
+            android:hint="0"
+            android:importantForAutofill="no"
             android:inputType="number"
             android:text="0"
             android:textColor="@color/z_text"
@@ -90,6 +91,8 @@
             android:layout_height="38dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
+            android:hint="5000"
+            android:importantForAutofill="no"
             android:inputType="number"
             android:text="5000"
             android:textColor="@color/z_text"

@@ -22,6 +22,8 @@ object TermuxBridge {
     private val tools = mapOf(
         "python" to "python",
         "java" to "java",
+        "node" to "node",
+        "npm" to "npm",
         "ffmpeg" to "ffmpeg",
         "yt-dlp" to "yt-dlp",
         "gradle" to "gradle",
@@ -34,6 +36,8 @@ object TermuxBridge {
         "sh" to "sh",
         "bash" to "bash"
     )
+
+    fun isAllowedTool(tool: String): Boolean = tools.containsKey(tool)
 
     fun isTermuxInstalled(context: Context): Boolean =
         try {
@@ -48,6 +52,19 @@ object TermuxBridge {
             context,
             PERMISSION_RUN_COMMAND
         ) == PackageManager.PERMISSION_GRANTED
+
+    fun isEnvironmentReady(context: Context): Boolean {
+        if (!isTermuxInstalled(context) || !hasPermission(context)) return false
+        return try {
+            val intent = Intent("com.termux.RUN_COMMAND").setComponent(
+                ComponentName("com.termux", "com.termux.app.RunCommandService")
+            )
+            val resolves = context.packageManager.queryIntentServices(intent, 0)
+            resolves.isNotEmpty()
+        } catch (_: Exception) {
+            false
+        }
+    }
 
     data class Request(
         val tool: String,
@@ -100,7 +117,7 @@ object TermuxBridge {
             )
 
             val flags = PendingIntent.FLAG_ONE_SHOT or
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (Build.VERSION_CODES.S <= Build.VERSION.SDK_INT) {
                     PendingIntent.FLAG_MUTABLE
                 } else {
                     0

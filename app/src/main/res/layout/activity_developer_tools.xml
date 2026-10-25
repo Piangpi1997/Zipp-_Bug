@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/devtools_title"
+            android:textColor="@color/z_text"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/devtools_subtitle"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <!-- 1. JSON Validator & Formatter -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. JSON VALIDATOR &amp; FORMATTER"
+                android:textColor="@color/z_orange"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etJsonInput"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="monospace"
+                android:gravity="top"
+                android:hint="{&quot;app&quot;:&quot;Zip_Bug&quot;,&quot;version&quot;:2}"
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnFormatJson"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:text="@string/devtools_json_format"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnMinifyJson"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/devtools_json_minify"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnCopyJson"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:layout_marginStart="6dp"
+                    android:text="Copy"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvJsonStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Status: Ready"
+                android:textColor="@color/z_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 2. File Hash Calculator -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2. FILE HASH CALCULATOR (SHA-256 / SHA-1 / MD5)"
+                android:textColor="@color/z_orange"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPickHashFile"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="@string/devtools_hash_pick"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnCopyHash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:text="Copy SHA-256"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvHashOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@color/z_code_bg"
+                android:fontFamily="monospace"
+                android:padding="10dp"
+                android:text="Select any file to compute real SHA-256, SHA-1, and MD5 digests."
+                android:textColor="@color/z_text"
+                android:textIsSelectable="true"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 3. Safe ZIP Archive Inspector -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3. NON-DESTRUCTIVE ZIP ARCHIVE INSPECTOR"
+                android:textColor="@color/z_orange"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnInspectZip"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/devtools_zip_inspect" />
+
+            <TextView
+                android:id="@+id/tvZipInspectOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@color/z_code_bg"
+                android:fontFamily="monospace"
+                android:padding="10dp"
+                android:text="Inspects entries, sizes, compression ratios, and Zip-Slip safety without extracting to disk."
+                android:textColor="@color/z_text"
+                android:textIsSelectable="true"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 4. Workspace Text Search -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4. WORKSPACE TEXT SEARCH"
+                android:textColor="@color/z_orange"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etSearchQuery"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:hint="Search across all project files…"
+                    android:singleLine="true"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnRunSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/devtools_search_run"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSearchOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@color/z_code_bg"
+                android:fontFamily="monospace"
+                android:padding="10dp"
+                android:text="No search run yet."
+                android:textColor="@color/z_text"
+                android:textIsSelectable="true"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 5. Project Backup, Restore & Diagnostics -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5. PROJECT BACKUP, RESTORE &amp; DIAGNOSTICS"
+                android:textColor="@color/z_orange"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnExportBackup"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="@string/devtools_backup_export"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnRestoreBackup"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/devtools_backup_restore"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnGenerateDiagnostics"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="6dp"
+                android:text="Generate Sanitized Diagnostic Report (Copy)"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvBackupDiagOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@color/z_code_bg"
+                android:fontFamily="monospace"
+                android:padding="10dp"
+                android:text="Backup includes zipbug-backup-manifest.json (formatVersion: 1)."
+                android:textColor="@color/z_text"
+                android:textIsSelectable="true"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

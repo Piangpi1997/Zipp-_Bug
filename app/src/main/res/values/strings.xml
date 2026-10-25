@@ -1,21 +1,200 @@
 <resources>
     <string name="app_name">Zip_Bug Studio</string>
-    <string name="recap_studio_title">Zippy Cut // Long Recap Studio</string>
-    <string name="recap_studio_subtitle">Professional End-to-End Video Recap Engine</string>
-    <string name="tab_project">Project</string>
-    <string name="tab_script">Script (1-4)</string>
-    <string name="tab_timeline">Timeline</string>
-    <string name="tab_voiceover">Voiceover</string>
-    <string name="tab_render">Render</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_studio">Studio</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_terminal">Build</string>
+    <string name="nav_projects">Projects</string>
+
+    <string name="engine_badge_ready">Engine Ready</string>
+    <string name="engine_badge_setup">Setup Engine</string>
+    <string name="engine_badge_local">Web Ready</string>
+
+    <string name="recap_studio_title">Video &amp; Recap Studio</string>
+    <string name="recap_studio_subtitle">Clip timeline, multilingual voiceover &amp; FFmpeg video export</string>
     <string name="btn_new_project">New Project</string>
     <string name="btn_rename">Rename</string>
-    <string name="btn_import_media">Select Media (SAF)</string>
-    <string name="btn_generate_script">Generate Script</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_import_media">Import Video</string>
+    <string name="btn_generate_script">Generate AI Script</string>
     <string name="btn_preview_audio">Preview Voice</string>
-    <string name="btn_generate_voiceover">Generate Audio</string>
-    <string name="btn_start_render">Start Real Render</string>
+    <string name="btn_generate_voiceover">Generate Voiceover</string>
+    <string name="btn_start_render">Render Final Video</string>
     <string name="btn_cancel_render">Cancel Render</string>
     <string name="btn_retry">Retry</string>
     <string name="btn_open_video">Open Video</string>
     <string name="btn_share_video">Share Video</string>
+
+    <!-- Home Launchpad -->
+    <string name="home_dashboard_title">Zip_Bug Studio</string>
+    <string name="home_search_hint">Search tools (English or မြန်မာ)…</string>
+    <string name="home_hero_title">Create something</string>
+    <string name="home_hero_subtitle">Start a new project in one tap</string>
+    <string name="home_hero_choice_app">App</string>
+    <string name="home_hero_choice_web">Website</string>
+    <string name="home_hero_choice_ui">UI Design</string>
+
+    <string name="home_cat_all">All</string>
+    <string name="home_cat_create">Create</string>
+    <string name="home_cat_develop">Develop</string>
+    <string name="home_cat_video">Video</string>
+    <string name="home_cat_audio">Audio</string>
+    <string name="home_cat_utilities">Utilities</string>
+
+    <string name="home_pinned_section_title">Pinned Favorites</string>
+    <string name="home_primary_tools_title">Studio Tools</string>
+    <string name="home_utilities_section_title">Developer Utilities</string>
+    <string name="home_recent_projects_title">Recent Projects</string>
+    <string name="home_view_all_projects">View All</string>
+
+    <!-- 6 Primary Tool Cards -->
+    <string name="tool_visual_studio_title">Visual Studio</string>
+    <string name="tool_visual_studio_desc">Mobile canvas UI designer &amp; code export</string>
+    <string name="tool_app_creator_title">App Creator</string>
+    <string name="tool_app_creator_desc">Generate Android project specs &amp; screens</string>
+    <string name="tool_react_web_title">React &amp; Web</string>
+    <string name="tool_react_web_desc">Code workspace, npm build &amp; live preview</string>
+    <string name="tool_apk_builder_title">APK Builder</string>
+    <string name="tool_apk_builder_desc">Guided Android APK build &amp; verification</string>
+    <string name="tool_video_recap_title">Video &amp; Recap</string>
+    <string name="tool_video_recap_desc">Clip timeline, voiceover &amp; MP4 export</string>
+    <string name="tool_audio_voice_title">Audio &amp; Voice</string>
+    <string name="tool_audio_voice_desc">Multilingual neural TTS &amp; subtitles</string>
+
+    <!-- Utility Icon Tiles -->
+    <string name="util_zip_title">ZIP Inspector</string>
+    <string name="util_zip_desc">Verify &amp; import archives</string>
+    <string name="util_json_title">JSON Formatter</string>
+    <string name="util_json_desc">Validate, pretty-print &amp; minify</string>
+    <string name="util_hash_title">SHA-256 Hash</string>
+    <string name="util_hash_desc">Verify file checksums</string>
+    <string name="util_backup_title">Backup &amp; Restore</string>
+    <string name="util_backup_desc">Export or restore workspace</string>
+    <string name="util_html_preview_title">HTML Preview</string>
+    <string name="util_html_preview_desc">Live local server (:3131)</string>
+    <string name="util_all_tools_title">All Utilities</string>
+    <string name="util_all_tools_desc">Search, diagnostics &amp; tools</string>
+
+    <string name="home_projects_count_label">PROJECTS</string>
+    <string name="home_jobs_count_label">JOBS</string>
+    <string name="home_storage_used_label">STORAGE</string>
+    <string name="home_engine_status_label">ENGINE &amp; RUNTIME STATUS</string>
+    <string name="home_resume_work_title">RESUME LATEST WORK</string>
+    <string name="home_no_recent_work">No recent projects yet. Tap App, Website, or UI Design above to begin.</string>
+    <string name="home_quick_actions">QUICK ACTIONS</string>
+    <string name="home_qa_open_workspace">Open Workspace</string>
+    <string name="home_qa_preview_html">Preview HTML</string>
+    <string name="home_qa_connect_engine">Configure Engine</string>
+    <string name="home_qa_import_zip">Projects &amp; ZIP</string>
+    <string name="home_dev_tools">Developer Utilities</string>
+
+    <!-- Project Workspace -->
+    <string name="workspace_title">Project Workspace</string>
+    <string name="workspace_subtitle">Manage projects, templates, files, and HTML/React previews</string>
+    <string name="workspace_new_from_template">New Template</string>
+    <string name="workspace_duplicate">Duplicate</string>
+    <string name="workspace_export_zip">Export ZIP</string>
+    <string name="workspace_new_file">+ New File</string>
+    <string name="workspace_save_file">Save File</string>
+    <string name="workspace_react_engine_note">React/Vite bundling requires Node.js &amp; npm in a connected Termux or PC LAN engine. Actions below run only when tapped.</string>
+    <string name="workspace_unsaved_title">Unsaved Changes</string>
+    <string name="workspace_unsaved_message">You have unsaved edits in the current file. Save before continuing?</string>
+    <string name="workspace_template_html">HTML / CSS / JS Starter</string>
+    <string name="workspace_template_react">React + Vite Web Starter (Requires Node/npm Engine)</string>
+    <string name="workspace_template_android">Android Kotlin Starter (Min SDK 24 / Target 34)</string>
+
+    <!-- HTML Preview -->
+    <string name="preview_mobile_mode">Mobile View</string>
+    <string name="preview_desktop_mode">Desktop View</string>
+    <string name="preview_refresh">Refresh</string>
+
+    <!-- Developer Toolbox -->
+    <string name="devtools_title">Developer Utilities</string>
+    <string name="devtools_subtitle">JSON Validator, File Hash, Safe ZIP Inspector &amp; App Backup</string>
+    <string name="devtools_json_format">Validate &amp; Format</string>
+    <string name="devtools_json_minify">Minify JSON</string>
+    <string name="devtools_hash_pick">Select File for Hash</string>
+    <string name="devtools_zip_inspect">Select .ZIP Archive to Inspect</string>
+    <string name="devtools_search_run">Search</string>
+    <string name="devtools_backup_export">Backup All Projects (.zip)</string>
+    <string name="devtools_backup_restore">Restore Backup (.zip)</string>
+
+    <!-- Settings & Engine -->
+    <string name="settings_title">Studio Settings</string>
+    <string name="settings_subtitle">Manage appearance, runtime engines, AI providers &amp; encrypted storage</string>
+    <string name="settings_group_appearance_title">Appearance &amp; Language</string>
+    <string name="settings_group_appearance_desc">English / မြန်မာ language &amp; Dark / Light theme</string>
+    <string name="settings_group_engine_title">Engine Connection</string>
+    <string name="settings_group_engine_desc">Termux bridge &amp; HTTP/LAN companion server</string>
+    <string name="settings_group_ai_title">AI Providers</string>
+    <string name="settings_group_ai_desc">OpenRouter, OpenAI, Gemini &amp; Claude encrypted keys</string>
+    <string name="settings_group_storage_title">Storage &amp; Backup</string>
+    <string name="settings_group_storage_desc">Encrypted key backups &amp; workspace archives</string>
+    <string name="settings_group_privacy_title">Privacy &amp; About</string>
+    <string name="settings_group_privacy_desc">Android Keystore security, version &amp; architecture</string>
+
+    <string name="settings_appearance_title">Appearance &amp; Language</string>
+    <string name="settings_language_label">App Language / ဘာသာစကား</string>
+    <string name="settings_lang_system">System</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_myanmar">မြန်မာ</string>
+    <string name="settings_theme_label">Appearance / အပြင်အဆင်</string>
+    <string name="settings_theme_dark">Dark Studio</string>
+    <string name="settings_theme_light">Light Studio</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_engine_http_title">Engine Connection</string>
+    <string name="settings_engine_http_note">127.0.0.1:8090 connects to a local engine on this Android device (Termux or adb reverse). To connect to a PC on Wi-Fi, enter your PC LAN IP (e.g. http://192.168.1.50:8090).</string>
+    <string name="settings_engine_url_hint">Engine URL (e.g. http://127.0.0.1:8090)</string>
+    <string name="settings_engine_token_hint">Optional Engine Bearer Token</string>
+    <string name="settings_test_engine_btn">Test Engine Connection</string>
+
+    <!-- Chat-First Studio -->
+    <string name="chat_greeting">What would you like to build or solve today?</string>
+    <string name="chat_suggestion_app">Build an app</string>
+    <string name="chat_suggestion_code">Fix my code</string>
+    <string name="chat_suggestion_web">Create a website</string>
+    <string name="chat_suggestion_file">Work with a file</string>
+
+    <string name="chat_prompt_app">Help me create a new Android Kotlin application with a clean modern UI.</string>
+    <string name="chat_prompt_code">Here is my code snippet, please inspect and fix errors:\n\n```\n// paste code here\n```</string>
+    <string name="chat_prompt_web">Create a modern React + Vite website with a responsive layout.</string>
+    <string name="chat_prompt_file">I want to inspect and edit a project file. Let\'s explore the workspace files.</string>
+
+    <string name="chat_composer_hint">Ask ZIP_BUG anything…</string>
+    <string name="chat_new_chat">New Chat</string>
+    <string name="chat_history_title">Chat History</string>
+    <string name="chat_no_history">No previous chats</string>
+    <string name="chat_thinking">ZIP_BUG is thinking…</string>
+    <string name="chat_copy_code">Copy Code</string>
+    <string name="chat_open_in_workspace">Open in Workspace</string>
+    <string name="chat_code_copied">Code copied to clipboard</string>
+    <string name="chat_message_copied">Message copied to clipboard</string>
+    <string name="chat_tools_sheet_title">Tools &amp; Workspaces</string>
+    <string name="chat_model_sheet_title">Select AI Model</string>
+    <string name="chat_configure_keys">Configure API Keys</string>
+    <string name="chat_keys_needed">API key required for %s. Tap to configure.</string>
+    <string name="chat_delete_dialog_title">Delete Conversation?</string>
+    <string name="chat_delete_dialog_message">Are you sure you want to delete \'%1$s\'? This cannot be undone.</string>
+    <string name="chat_toast_opening_workspace">Opening Workspace…</string>
+    <string name="chat_generation_cancelled">Generation cancelled.</string>
+    <string name="chat_retry">Retry</string>
+    <string name="chat_error_prefix">Request error (%1$s): %2$s</string>
+    <string name="chat_attachment_root">Attachment: Project Root</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_ok">OK</string>
+    <string name="drawer_new_app">+ New App</string>
+    <string name="app_builder_title">AI App Builder</string>
+    <string name="tab_ui_gallery">3. UI Gallery</string>
+    <string name="tab_panel_assembly">4. Panel 1 Assembly</string>
+    <string name="btn_use_component">Use</string>
+    <string name="btn_replace_component">Replace</string>
+    <string name="btn_view_source">Source Code</string>
+    <string name="btn_export_ui_zip">Export UI ZIP</string>
+    <string name="label_ambient_glow">Ambient Glow</string>
+    <string name="label_show_outline">Blue Outline</string>
+    <string name="label_reduced_motion">Reduced Motion</string>
+    <string name="card_heading_hint">Card Heading</string>
+    <string name="card_desc_hint">Card Description</string>
+    <string name="tool_tile_ui_picker">UI Component Picker</string>
+    <string name="tool_tile_ui_picker_desc">Uiverse elements &amp; Panel assembly</string>
 </resources>

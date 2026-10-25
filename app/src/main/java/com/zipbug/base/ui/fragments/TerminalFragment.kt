@@ -156,6 +156,26 @@ class TerminalFragment : Fragment() {
             startActivity(android.content.Intent(requireContext(), com.zipbug.base.ui.DeviceVerificationActivity::class.java))
         }
 
+        val prefs = requireContext().getSharedPreferences("zipbug.settings", 0)
+        val initialRoot = prefs.getString("projectRoot", "/data/data/com.termux/files/home/OpenDots/Zip_Bug_Antigravity")!!
+        binding.tvBuildTargetProject.text = "Project: ${File(initialRoot).name}"
+
+        binding.btnSelectBuildProject.setOnClickListener {
+            (requireActivity() as? MainActivity)?.navigateToProjects()
+        }
+
+        binding.btnToggleBuildLogs.setOnClickListener {
+            val visible = binding.layoutBuildLogsSection.visibility == View.VISIBLE
+            binding.layoutBuildLogsSection.visibility = if (visible) View.GONE else View.VISIBLE
+            binding.tvToggleLogsIndicator.text = if (visible) "Show ▾" else "Hide ▴"
+        }
+
+        binding.btnToggleAdvancedTerminal.setOnClickListener {
+            val visible = binding.layoutAdvancedTerminalSection.visibility == View.VISIBLE
+            binding.layoutAdvancedTerminalSection.visibility = if (visible) View.GONE else View.VISIBLE
+            binding.tvToggleAdvancedIndicator.text = if (visible) "Expand ▾" else "Collapse ▴"
+        }
+
         binding.btnFixErrorWithAi.setOnClickListener {
             val job = lastFailedJob ?: return@setOnClickListener
             val rawLog = (job.stderr + "\n" + job.stdout + "\n" + job.errorMessage).trim()
@@ -332,8 +352,14 @@ class TerminalFragment : Fragment() {
             ) {
                 "APK EXPORTED • COPY EXIT 0"
             } else {
-                "ENGINE • ${job.status} • ${job.tool}"
+                "COMMAND • ${job.status} • ${job.tool}"
             }
+
+        binding.tvBuildResultTitle.text =
+            "Command '${job.tool}' ${job.status.lowercase(Locale.US)} (Not an APK Build)"
+        binding.tvBuildResultSummary.text =
+            "Tool command '${job.tool}' finished with exit code ${job.exitCode ?: 0}. " +
+                "No APK artifact was built by this diagnostic command. Tap 'View Logs' below to inspect stdout/stderr."
 
         binding.output.text = buildString {
             append("job: ${job.id}\n")
@@ -474,11 +500,24 @@ class TerminalFragment : Fragment() {
 
         if (proofComplete && artifact != null) {
             lastArtifact = artifact
+            binding.tvBuildResultTitle.text = "APK Build Succeeded • Verified Artifact"
+            binding.tvBuildResultSummary.text =
+                "${File(artifact.path).name} (${formatBytes(artifact.sizeBytes)}) • Signature: ${artifact.signatureVerification}"
             verifyArtifactForActions(artifact)
         } else {
             lastArtifact = null
             binding.artifactActions.visibility =
                 View.GONE
+            binding.tvBuildResultTitle.text = when {
+                running -> "APK Build in Progress…"
+                timedOut -> "APK Build Timed Out"
+                cancelled -> "APK Build Cancelled"
+                else -> "APK Build Failed"
+            }
+            binding.tvBuildResultSummary.text = when {
+                running -> "Executing controlled Gradle build stages in Termux…"
+                else -> buildSafeNextStep(validation, dependencies, build, packaging, timedOut, cancelled)
+            }
         }
 
         binding.output.text = buildString {
@@ -954,6 +993,24 @@ class TerminalFragment : Fragment() {
                     CommandHelpActivity.createIntent(
                         requireContext(),
                         CommandGroups.FUTURE
+                    )
+                )
+            }
+
+            "/workspace" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        com.zipbug.base.ui.WorkspaceActivity::class.java
+                    )
+                )
+            }
+
+            "/devtools" -> {
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        com.zipbug.base.ui.DeveloperToolsActivity::class.java
                     )
                 )
             }

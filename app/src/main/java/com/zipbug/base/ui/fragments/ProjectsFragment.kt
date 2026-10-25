@@ -22,10 +22,10 @@ import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.FragmentProjectsBinding
 import com.zipbug.base.engine.EngineManager
 import com.zipbug.base.project.ZipImporter
-import com.zipbug.base.termux.TermuxBridge
 import com.zipbug.base.ui.ApkDetailBottomSheetDialogFragment
 import com.zipbug.base.ui.SigningDiagnosticsActivity
 import com.zipbug.base.ui.WebRuntimeActivity
+import com.zipbug.base.ui.WorkspaceActivity
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -147,6 +147,12 @@ class ProjectsFragment : Fragment() {
         renderArtifacts()
     }
 
+    override fun onResume() {
+        super.onResume()
+        renderProjects()
+        renderArtifacts()
+    }
+
     private fun renderProjects() {
         viewLifecycleOwner.lifecycleScope.launch {
             val app = requireActivity().application as ZipBugApp
@@ -156,7 +162,7 @@ class ProjectsFragment : Fragment() {
 
             if (projects.isEmpty()) {
                 val emptyTv = TextView(requireContext()).apply {
-                    text = "No projects yet. Import a ZIP or scaffold using AI App Creator."
+                    text = "No projects yet. Import a ZIP or open Project Workspace."
                     setTextColor(ContextCompat.getColor(requireContext(), R.color.z_muted))
                     setPadding(12, 12, 12, 12)
                     textSize = 13f
@@ -171,16 +177,18 @@ class ProjectsFragment : Fragment() {
         }
     }
 
-    private fun createProjectCard(project: com.zipbug.base.data.ProjectEntity): View {
+    private fun createProjectCard(project: ProjectEntity): View {
+        val density = resources.displayMetrics.density
+        val pad = (14 * density).toInt()
         val card = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(ContextCompat.getColor(context, R.color.z_surface))
-            setPadding(16, 16, 16, 16)
+            setBackgroundResource(R.drawable.bg_glass_card)
+            setPadding(pad, pad, pad, pad)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                bottomMargin = 12
+                bottomMargin = (10 * density).toInt()
             }
         }
 
@@ -192,11 +200,12 @@ class ProjectsFragment : Fragment() {
         }
         card.addView(nameTv)
 
+        val entryLabel = project.entryFile.ifBlank { "index.html" }
         val metaTv = TextView(requireContext()).apply {
-            text = "${project.kind} • ${project.rootPath}"
+            text = "${project.kind.uppercase(Locale.US)} • Entry: $entryLabel"
             setTextColor(ContextCompat.getColor(context, R.color.z_muted))
             textSize = 12f
-            setPadding(0, 4, 0, 8)
+            setPadding(0, (4 * density).toInt(), 0, (10 * density).toInt())
         }
         card.addView(metaTv)
 
@@ -204,14 +213,36 @@ class ProjectsFragment : Fragment() {
             orientation = LinearLayout.HORIZONTAL
         }
 
+        val btnWorkspace = Button(requireContext()).apply {
+            text = "Open Workspace"
+            isAllCaps = false
+            backgroundTintList = null
+            setBackgroundResource(R.drawable.bg_chip_active)
+            setTextColor(ContextCompat.getColor(context, R.color.z_white))
+            textSize = 12f
+            layoutParams = LinearLayout.LayoutParams(0, (42 * density).toInt(), 1f).apply {
+                marginEnd = (6 * density).toInt()
+            }
+            setOnClickListener {
+                startActivity(
+                    Intent(requireContext(), WorkspaceActivity::class.java)
+                        .putExtra(WorkspaceActivity.EXTRA_PROJECT_ID, project.id)
+                )
+            }
+        }
+        btnRow.addView(btnWorkspace)
+
         val btnBuild = Button(requireContext()).apply {
             val termuxAccessible = project.rootPath.startsWith("/data/data/com.termux/files/")
-            text = if (termuxAccessible) "Build APK" else "Needs Termux workspace"
+            text = if (termuxAccessible) "Build APK" else "Stage & Build"
             visibility = if (isAndroidProject(project)) View.VISIBLE else View.GONE
-            setBackgroundColor(ContextCompat.getColor(context, R.color.z_orange))
-            setTextColor(0xFF111111.toInt())
-            layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
-                marginEnd = 6
+            isAllCaps = false
+            backgroundTintList = null
+            setBackgroundResource(R.drawable.bg_chip_inactive)
+            setTextColor(ContextCompat.getColor(context, R.color.z_text))
+            textSize = 12f
+            layoutParams = LinearLayout.LayoutParams(0, (42 * density).toInt(), 1f).apply {
+                marginEnd = (6 * density).toInt()
             }
             setOnClickListener {
                 if (termuxAccessible) {
@@ -219,7 +250,7 @@ class ProjectsFragment : Fragment() {
                 } else {
                     Snackbar.make(
                         binding.root,
-                        "This Android project is inside the Zip_Bug sandbox. Transfer it to a Termux workspace before a real Gradle build.",
+                        "Open Workspace → Stage to Termux before running a Gradle APK build.",
                         Snackbar.LENGTH_LONG
                     ).show()
                 }
@@ -228,12 +259,15 @@ class ProjectsFragment : Fragment() {
         btnRow.addView(btnBuild)
 
         val btnRun = Button(requireContext()).apply {
-            text = "Run :3131"
+            text = "Live Preview (:3131)"
             visibility = if (isWebProject(project)) View.VISIBLE else View.GONE
-            setBackgroundColor(0xFF2D2D2D.toInt())
+            isAllCaps = false
+            backgroundTintList = null
+            setBackgroundResource(R.drawable.bg_chip_inactive)
             setTextColor(ContextCompat.getColor(context, R.color.z_text))
-            layoutParams = LinearLayout.LayoutParams(0, 44 * resources.displayMetrics.density.toInt(), 1f).apply {
-                marginStart = 6
+            textSize = 12f
+            layoutParams = LinearLayout.LayoutParams(0, (42 * density).toInt(), 1f).apply {
+                marginStart = (6 * density).toInt()
             }
             setOnClickListener {
                 runWebProject(project)
@@ -280,6 +314,7 @@ class ProjectsFragment : Fragment() {
 
     private fun isWebProject(project: ProjectEntity): Boolean =
         project.kind.equals("web-mini-app", ignoreCase = true) ||
+            project.kind.equals("react-web", ignoreCase = true) ||
             project.entryFile.endsWith(".html", ignoreCase = true)
 
     private fun isAndroidProject(project: ProjectEntity): Boolean =
@@ -310,11 +345,10 @@ class ProjectsFragment : Fragment() {
 
             val job = app.database.buildJobDao().observe(jobId)
                 .filterNotNull()
-                .filter { it.status != com.zipbug.base.data.BuildJobEntity.RUNNING }
+                .filter { it.status != BuildJobEntity.RUNNING }
                 .first()
 
             if (job.status == BuildJobEntity.SUCCESS && job.exitCode == 0) {
-                // Discover and inspect newest APK
                 ApkArtifactScanner.scanAndPersist(requireContext(), listOf(File(project.rootPath)))
                 val artifacts = app.database.apkArtifactDao().listAll()
                 val newestApk = artifacts.firstOrNull {

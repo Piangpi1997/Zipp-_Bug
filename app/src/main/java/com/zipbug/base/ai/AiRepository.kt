@@ -171,18 +171,29 @@ class AiRepository {
         }
     }
 
-    private fun messages(r: AiRequest): JSONArray =
-        JSONArray()
-            .put(
+    private fun messages(r: AiRequest): JSONArray {
+        val arr = JSONArray()
+        if (r.system.isNotBlank()) {
+            arr.put(
                 JSONObject()
                     .put("role", "system")
                     .put("content", r.system)
             )
-            .put(
+        }
+        for (turn in r.history) {
+            arr.put(
                 JSONObject()
-                    .put("role", "user")
-                    .put("content", r.prompt)
+                    .put("role", turn.role)
+                    .put("content", turn.content)
             )
+        }
+        arr.put(
+            JSONObject()
+                .put("role", "user")
+                .put("content", r.prompt)
+        )
+        return arr
+    }
 
     private fun openRouter(r: AiRequest): String {
         val json = post(
@@ -223,19 +234,41 @@ class AiRepository {
 
     private fun gemini(r: AiRequest): String {
         val model = r.model.ifBlank { "gemini-2.5-flash" }
-        val contents = JSONArray().put(
-            JSONObject()
-                .put("role", "user")
-                .put(
-                    "parts",
-                    JSONArray().put(
-                        JSONObject().put(
-                            "text",
-                            r.system + "\n\n" + r.prompt
-                        )
-                    )
+        val contents = JSONArray()
+        if (r.history.isEmpty()) {
+            val text = if (r.system.isNotBlank()) r.system + "\n\n" + r.prompt else r.prompt
+            contents.put(
+                JSONObject()
+                    .put("role", "user")
+                    .put("parts", JSONArray().put(JSONObject().put("text", text)))
+            )
+        } else {
+            if (r.system.isNotBlank()) {
+                contents.put(
+                    JSONObject()
+                        .put("role", "user")
+                        .put("parts", JSONArray().put(JSONObject().put("text", "System: " + r.system)))
                 )
-        )
+                contents.put(
+                    JSONObject()
+                        .put("role", "model")
+                        .put("parts", JSONArray().put(JSONObject().put("text", "Understood.")))
+                )
+            }
+            for (turn in r.history) {
+                val role = if (turn.role == "assistant") "model" else "user"
+                contents.put(
+                    JSONObject()
+                        .put("role", role)
+                        .put("parts", JSONArray().put(JSONObject().put("text", turn.content)))
+                )
+            }
+            contents.put(
+                JSONObject()
+                    .put("role", "user")
+                    .put("parts", JSONArray().put(JSONObject().put("text", r.prompt)))
+            )
+        }
 
         val json = post(
             "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=${r.apiKey}",
@@ -264,11 +297,20 @@ class AiRepository {
                 .put("system", r.system)
                 .put(
                     "messages",
-                    JSONArray().put(
-                        JSONObject()
-                            .put("role", "user")
-                            .put("content", r.prompt)
-                    )
+                    JSONArray().apply {
+                        for (turn in r.history) {
+                            put(
+                                JSONObject()
+                                    .put("role", turn.role)
+                                    .put("content", turn.content)
+                            )
+                        }
+                        put(
+                            JSONObject()
+                                .put("role", "user")
+                                .put("content", r.prompt)
+                        )
+                    }
                 )
         )
 

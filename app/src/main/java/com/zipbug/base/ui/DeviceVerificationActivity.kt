@@ -123,15 +123,15 @@ class DeviceVerificationActivity : AppCompatActivity() {
         if (allMandatoryPassed) {
             binding.overallBadge.text = "READY"
             binding.overallBadge.setTextColor(0xFF39D98A.toInt())
-            binding.overallBadge.setBackgroundColor(0xFF1E3A24.toInt())
+            binding.overallBadge.setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
         } else if (failedMandatoryCount > 0) {
             binding.overallBadge.text = "NOT READY ($failedMandatoryCount FAILS)"
             binding.overallBadge.setTextColor(0xFFFF4D4D.toInt())
-            binding.overallBadge.setBackgroundColor(0xFF3D1818.toInt())
+            binding.overallBadge.setBackgroundResource(com.zipbug.base.R.color.z_red_soft)
         } else {
             binding.overallBadge.text = "UNVERIFIED ($unknownMandatoryCount PENDING)"
             binding.overallBadge.setTextColor(0xFFFF6B00.toInt())
-            binding.overallBadge.setBackgroundColor(0xFF2E2010.toInt())
+            binding.overallBadge.setBackgroundResource(com.zipbug.base.R.color.z_orange_soft)
         }
     }
 
@@ -161,19 +161,19 @@ class DeviceVerificationActivity : AppCompatActivity() {
                 when (check.status) {
                     DiagnosticStatus.PASS -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_green))
-                        setBackgroundColor(0xFF1E3A24.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
                     }
                     DiagnosticStatus.FAIL -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_red))
-                        setBackgroundColor(0xFF3D1818.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_red_soft)
                     }
                     DiagnosticStatus.CHECKING -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_orange))
-                        setBackgroundColor(0xFF3E2D12.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_orange_soft)
                     }
                     else -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_muted))
-                        setBackgroundColor(0xFF222222.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_surface_glass)
                     }
                 }
             }
@@ -222,19 +222,19 @@ class DeviceVerificationActivity : AppCompatActivity() {
                 when (test.status) {
                     "PASS" -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_green))
-                        setBackgroundColor(0xFF1E3A24.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
                     }
                     "RUNNING" -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_orange))
-                        setBackgroundColor(0xFF3E2D12.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_orange_soft)
                     }
                     "FAIL" -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_red))
-                        setBackgroundColor(0xFF3D1818.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_red_soft)
                     }
                     else -> {
                         setTextColor(ContextCompat.getColor(this@DeviceVerificationActivity, R.color.z_muted))
-                        setBackgroundColor(0xFF222222.toInt())
+                        setBackgroundResource(com.zipbug.base.R.color.z_surface_glass)
                     }
                 }
             }

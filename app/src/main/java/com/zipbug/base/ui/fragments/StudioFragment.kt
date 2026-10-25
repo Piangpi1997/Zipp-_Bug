@@ -5,6 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.databinding.FragmentStudioBinding
@@ -27,19 +31,37 @@ class StudioFragment : Fragment() {
         return binding.root
     }
 
+    @Suppress("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.web.settings.javaScriptEnabled = true
-        binding.web.settings.domStorageEnabled = true
+        val appFilesDir = requireContext().applicationContext.filesDir
+        binding.web.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            allowFileAccess = true
+            allowContentAccess = false
+            @Suppress("DEPRECATION")
+            allowFileAccessFromFileURLs = false
+            @Suppress("DEPRECATION")
+            allowUniversalAccessFromFileURLs = false
+            mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+        }
+        binding.web.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+                val url = request?.url?.toString().orEmpty()
+                return !url.startsWith(ALLOWED_ASSET_PREFIX)
+            }
+        }
         binding.web.addJavascriptInterface(
-            StudioBridge(),
-            "ZipBug"
+            StudioBridge(appFilesDir),
+            JS_BRIDGE_NAME
         )
-        binding.web.loadUrl(
-            "file:///android_asset/studio/index.html"
-        )
+        binding.web.loadUrl("${ALLOWED_ASSET_PREFIX}index.html")
     }
 
-    inner class StudioBridge {
+    inner class StudioBridge(private val appFilesDir: File) {
         @JavascriptInterface
         fun save(
             name: String,
@@ -49,9 +71,9 @@ class StudioFragment : Fragment() {
             val safeName = name.replace(
                 Regex("[^a-zA-Z0-9._-]"),
                 "_"
-            )
+            ).ifBlank { "screen" }
             val dir = File(
-                requireContext().filesDir,
+                appFilesDir,
                 "studio"
             ).apply { mkdirs() }
 
@@ -59,54 +81,64 @@ class StudioFragment : Fragment() {
             File(dir, "current_project.json").writeText(schema)
             File(dir, "$safeName.html").writeText(html)
 
-            requireActivity().runOnUiThread {
-                Snackbar.make(
-                    binding.root,
-                    "Saved $safeName",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
+            showStatus("Saved $safeName")
         }
 
         @JavascriptInterface
         fun loadProject(): String {
-            val file = File(File(requireContext().filesDir, "studio"), "current_project.json")
+            val file = File(File(appFilesDir, "studio"), "current_project.json")
             return if (file.exists()) file.readText() else ""
         }
 
         @JavascriptInterface
         fun exportXml(name: String, xmlContent: String) {
-            val safeName = name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
-            val dir = File(requireContext().filesDir, "studio").apply { mkdirs() }
+            val safeName = name.replace(Regex("[^a-zA-Z0-9._-]"), "_").ifBlank { "layout" }
+            val dir = File(appFilesDir, "studio").apply { mkdirs() }
             File(dir, "$safeName.xml").writeText(xmlContent)
 
-            requireActivity().runOnUiThread {
-                Snackbar.make(
-                    binding.root,
-                    "Exported Android XML ($safeName.xml)",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
+            showStatus("Exported Android XML ($safeName.xml)")
         }
 
         @JavascriptInterface
         fun exportCompose(name: String, composeContent: String) {
-            val safeName = name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
-            val dir = File(requireContext().filesDir, "studio").apply { mkdirs() }
+            val safeName = name.replace(Regex("[^a-zA-Z0-9._-]"), "_").ifBlank { "Screen" }
+            val dir = File(appFilesDir, "studio").apply { mkdirs() }
             File(dir, "$safeName.kt").writeText(composeContent)
 
-            requireActivity().runOnUiThread {
-                Snackbar.make(
-                    binding.root,
-                    "Exported Jetpack Compose ($safeName.kt)",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+            showStatus("Exported Jetpack Compose ($safeName.kt)")
+        }
+
+        @JavascriptInterface
+        fun navigateBack() {
+            val hostActivity = activity ?: return
+            hostActivity.runOnUiThread {
+                (hostActivity as? com.zipbug.base.ui.MainActivity)?.navigateToHome()
+            }
+        }
+
+        private fun showStatus(message: String) {
+            val hostActivity = activity ?: return
+            hostActivity.runOnUiThread {
+                val b = _binding ?: return@runOnUiThread
+                if (isAdded) {
+                    Snackbar.make(b.root, message, Snackbar.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     override fun onDestroyView() {
+        _binding?.web?.apply {
+            removeJavascriptInterface(JS_BRIDGE_NAME)
+            stopLoading()
+            destroy()
+        }
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val JS_BRIDGE_NAME = "ZipBug"
+        private const val ALLOWED_ASSET_PREFIX = "file:///android_asset/studio/"
     }
 }

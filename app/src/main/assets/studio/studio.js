@@ -9,6 +9,7 @@ let project = {
 
 let selected = null;
 let sequence = 0;
+let isPreviewMode = false;
 const canvas = document.querySelector('#canvas');
 const undoStack = [];
 const redoStack = [];
@@ -17,11 +18,59 @@ let gridSnapEnabled = true;
 const GRID_SIZE = 8;
 
 const DEVICE_PRESETS = {
-  small: { w: 360, h: 640 },
-  standard: { w: 390, h: 844 },
-  large: { w: 412, h: 915 }
+  small: { w: 320, h: 560 },
+  standard: { w: 340, h: 620 },
+  large: { w: 360, h: 680 }
 };
 let currentDevicePreset = 'standard';
+
+function navigateBack() {
+  if (window.ZipBug && window.ZipBug.navigateBack) {
+    window.ZipBug.navigateBack();
+  }
+}
+
+function openSheet(sheetId) {
+  closeAllSheets();
+  const backdrop = document.getElementById('sheet-backdrop');
+  const sheet = document.getElementById(sheetId);
+  if (backdrop) backdrop.classList.remove('hidden');
+  if (sheet) sheet.classList.remove('hidden');
+}
+
+function closeAllSheets() {
+  const backdrop = document.getElementById('sheet-backdrop');
+  if (backdrop) backdrop.classList.add('hidden');
+  document.querySelectorAll('.bottom-sheet').forEach(el => {
+    el.classList.add('hidden');
+  });
+}
+
+function togglePreviewMode() {
+  isPreviewMode = !isPreviewMode;
+  document.body.classList.toggle('preview-mode', isPreviewMode);
+  const btn = document.getElementById('btn-preview-toggle');
+  if (btn) {
+    btn.textContent = isPreviewMode ? '✎ Edit' : '▶ Preview';
+    btn.classList.toggle('active', isPreviewMode);
+  }
+  if (isPreviewMode) {
+    closeAllSheets();
+    save();
+  }
+}
+
+function clearSelectionIfBackdrop(e) {
+  if (e.target.id === 'canvas-stage' || e.target.id === 'canvas-wrapper' || e.target.id === 'canvas') {
+    selected = null;
+    render();
+  }
+}
+
+function addAndClose(type) {
+  add(type);
+  closeAllSheets();
+}
 
 function switchDevicePreset(presetKey) {
   const preset = DEVICE_PRESETS[presetKey] || DEVICE_PRESETS.standard;
@@ -170,7 +219,6 @@ function loadPersistedProject() {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.screens) && parsed.screens.length > 0) {
         project = parsed;
-        // update sequence counter to avoid collision
         let maxSeq = 0;
         project.screens.forEach(s => {
           s.nodes.forEach(n => {
@@ -213,6 +261,11 @@ function redo() {
 
 function renderScreenSelect() {
   const sel = document.querySelector('#screen-select');
+  const pillLabel = document.querySelector('#current-screen-label');
+  const active = getActiveScreen();
+  if (pillLabel && active) {
+    pillLabel.textContent = active.name;
+  }
   if (!sel) return;
   sel.innerHTML = '';
   project.screens.forEach(s => {
@@ -228,6 +281,7 @@ function switchScreen(id) {
   project.currentScreenId = id;
   selected = null;
   persistProject();
+  renderScreenSelect();
   render();
 }
 
@@ -284,41 +338,40 @@ function add(type) {
   pushState();
   sequence++;
   const defaultColors = {
-    Text: '#222222',
-    Button: '#ff6b00',
-    Input: '#2a2a2a',
-    Card: '#1e1e1e',
-    Image: '#333333'
+    Text: '#1E212B',
+    Button: '#FF6B00',
+    Input: '#242836',
+    Card: '#1E212B',
+    Image: '#282C3A'
   };
 
   const defaultSizes = {
-    Text: { w: 140, h: 40, font: 16, tc: '#ffffff', r: 0 },
-    Button: { w: 160, h: 48, font: 14, tc: '#111111', r: 12 },
-    Input: { w: 220, h: 48, font: 14, tc: '#ffffff', r: 8 },
-    Card: { w: 260, h: 140, font: 14, tc: '#ffffff', r: 16 },
-    Image: { w: 160, h: 120, font: 12, tc: '#aaaaaa', r: 12 }
+    Text: { w: 160, h: 40, font: 16, tc: '#F8FAFC', r: 8 },
+    Button: { w: 180, h: 48, font: 14, tc: '#0D0E12', r: 14 },
+    Input: { w: 230, h: 48, font: 14, tc: '#F8FAFC', r: 10 },
+    Card: { w: 260, h: 140, font: 14, tc: '#F8FAFC', r: 18 },
+    Image: { w: 180, h: 120, font: 12, tc: '#94A3B8', r: 14 }
   };
 
-  const cfg = defaultSizes[type] || { w: 120, h: 48, font: 14, tc: '#ffffff', r: 8 };
+  const cfg = defaultSizes[type] || { w: 140, h: 48, font: 14, tc: '#F8FAFC', r: 10 };
 
   const node = {
     id: 'n' + sequence,
     type: type,
     label: type + ' ' + sequence,
-    x: 30,
-    y: 30 + ((sequence % 8) * 36),
+    x: 24,
+    y: 24 + ((sequence % 7) * 40),
     width: cfg.w,
     height: cfg.h,
     fontSize: cfg.font,
     textColor: cfg.tc,
-    color: defaultColors[type] || '#ff6b00',
+    color: defaultColors[type] || '#FF6B00',
     radius: cfg.r,
     zIndex: sequence
   };
 
   getActiveNodes().push(node);
-  selected = node.id;
-  render();
+  selectNode(node.id);
 }
 
 function duplicateSelected() {
@@ -330,12 +383,11 @@ function duplicateSelected() {
   const copy = JSON.parse(JSON.stringify(current));
   copy.id = 'n' + sequence;
   copy.label = current.label + ' (copy)';
-  copy.x = Math.min(300, current.x + 16);
-  copy.y = Math.min(500, current.y + 16);
+  copy.x = Math.min(240, current.x + 16);
+  copy.y = Math.min(460, current.y + 16);
   copy.zIndex = sequence;
   nodes.push(copy);
-  selected = copy.id;
-  render();
+  selectNode(copy.id);
 }
 
 function deleteSelected() {
@@ -373,6 +425,23 @@ function render() {
   canvas.innerHTML = '';
   const nodes = getActiveNodes();
 
+  const layersCountEl = document.getElementById('layers-count-label');
+  if (layersCountEl) {
+    layersCountEl.textContent = 'Layers (' + nodes.length + ')';
+  }
+
+  const ctxBar = document.getElementById('contextual-bar');
+  const ctxLabel = document.getElementById('ctx-node-label');
+  const activeSelNode = nodes.find(n => n.id === selected);
+  if (ctxBar) {
+    if (activeSelNode && !isPreviewMode) {
+      ctxBar.classList.remove('hidden');
+      if (ctxLabel) ctxLabel.textContent = activeSelNode.label || activeSelNode.type;
+    } else {
+      ctxBar.classList.add('hidden');
+    }
+  }
+
   nodes.forEach(function(node, index) {
     const el = document.createElement('div');
     el.className = 'node' + (selected === node.id ? ' sel' : '');
@@ -386,27 +455,24 @@ function render() {
     el.style.fontSize = node.fontSize + 'px';
     el.style.zIndex = index + 1;
 
-    if (node.type === 'Input') {
-      el.style.border = '1px solid #555';
+    if (node.type === 'Input' || node.type === 'Card') {
+      el.style.border = '1px solid #3A4054';
     }
 
     el.textContent = node.label;
 
-    // Resize handle
     const handle = document.createElement('div');
     handle.className = 'handle';
     el.appendChild(handle);
 
-    // Click to select
     el.onclick = function(e) {
       e.stopPropagation();
       selectNode(node.id);
     };
 
-    // Drag to move
     let startX = 0, startY = 0, origX = 0, origY = 0;
     el.onpointerdown = function(e) {
-      if (e.target === handle) return;
+      if (isPreviewMode || e.target === handle) return;
       el.setPointerCapture(e.pointerId);
       startX = e.clientX;
       startY = e.clientY;
@@ -431,9 +497,9 @@ function render() {
       }
     };
 
-    // Drag to resize
     let startW = 0, startH = 0, resizeStartX = 0, resizeStartY = 0;
     handle.onpointerdown = function(e) {
+      if (isPreviewMode) return;
       e.stopPropagation();
       handle.setPointerCapture(e.pointerId);
       resizeStartX = e.clientX;
@@ -478,6 +544,8 @@ function selectNode(id) {
     document.querySelector('#prop-h').value = Math.round(node.height);
     document.querySelector('#prop-font').value = Math.round(node.fontSize);
     document.querySelector('#text-color').value = node.textColor || '#ffffff';
+    const sub = document.querySelector('#prop-selected-subtitle');
+    if (sub) sub.textContent = node.type + ' (' + node.id + ')';
   }
   render();
 }
@@ -536,7 +604,7 @@ function exportXml() {
     '    xmlns:app="http://schemas.android.com/apk/res-auto"\n' +
     '    android:layout_width="match_parent"\n' +
     '    android:layout_height="match_parent"\n' +
-    '    android:background="#121212">\n\n';
+    '    android:background="#0D0E12">\n\n';
 
   active.nodes.forEach(function(n) {
     if (n.type === 'Text') {
@@ -604,7 +672,7 @@ function exportCompose() {
   project.screens.forEach(s => {
     const fnName = s.name.replace(/[^a-zA-Z0-9]/g, '') || 'Screen';
     comp += '@Composable\nfun ' + fnName + 'Screen() {\n' +
-      '    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF121212))) {\n';
+      '    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0D0E12))) {\n';
     s.nodes.forEach(n => {
       comp += '        // ' + n.type + ' (' + n.label + ')\n' +
         '        Box(modifier = Modifier.offset(x = ' + Math.round(n.x) + '.dp, y = ' + Math.round(n.y) + '.dp)' +
@@ -622,7 +690,7 @@ function exportCompose() {
 
 function save() {
   const active = getActiveScreen();
-  let html = '<main style="position:relative;width:360px;min-height:640px;background:#1a1a1a">';
+  let html = '<main style="position:relative;width:360px;min-height:640px;background:#16181F">';
   active.nodes.forEach(function(node) {
     html += '<div style="position:absolute;left:' +
       node.x + 'px;top:' + node.y +
@@ -648,7 +716,6 @@ function save() {
   }
 }
 
-// Initial setup: load from persistence or add default node
 loadPersistedProject();
 renderScreenSelect();
 if (getActiveNodes().length === 0) {

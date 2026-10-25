@@ -6,12 +6,23 @@ object EdgeTtsHelper {
     const val VOICE_NILAR = "my-MM-NilarNeural"
     const val VOICE_THIHA = "my-MM-ThihaNeural"
     const val VOICE_JENNY = "en-US-JennyNeural"
+    const val VOICE_PREMWADEE = "th-TH-PremwadeeNeural"
+    const val VOICE_XIAOXIAO = "zh-CN-XiaoxiaoNeural"
 
     val AVAILABLE_VOICES = listOf(
         VOICE_NILAR,
         VOICE_THIHA,
-        VOICE_JENNY
+        VOICE_JENNY,
+        VOICE_PREMWADEE,
+        VOICE_XIAOXIAO
     )
+
+    fun defaultVoiceForLanguage(langCode: String): String = when (langCode.lowercase()) {
+        "en" -> VOICE_JENNY
+        "th" -> VOICE_PREMWADEE
+        "zh" -> VOICE_XIAOXIAO
+        else -> VOICE_NILAR
+    }
 
     fun buildRequest(
         text: String,
@@ -49,7 +60,7 @@ object EdgeTtsHelper {
     fun chunkText(text: String, maxChunkChars: Int = 500): List<String> {
         if (text.length <= maxChunkChars) return listOf(text)
         val chunks = mutableListOf<String>()
-        val sentences = text.split(Regex("(?<=[။\n.!?])"))
+        val sentences = text.split(Regex("(?<=[။\n.!?。！？])"))
         var current = StringBuilder()
         for (sentence in sentences) {
             if (current.length + sentence.length > maxChunkChars && current.isNotEmpty()) {
@@ -71,7 +82,7 @@ object EdgeTtsHelper {
         val trimmed = text.trim()
         if (trimmed.length <= maxChars) return trimmed
         val cut = trimmed.take(maxChars)
-        val lastSentenceEnd = cut.lastIndexOfAny(charArrayOf('။', '\n', '.'))
+        val lastSentenceEnd = cut.lastIndexOfAny(charArrayOf('။', '\n', '.', '。'))
         return if (lastSentenceEnd > 20) {
             cut.substring(0, lastSentenceEnd + 1)
         } else {

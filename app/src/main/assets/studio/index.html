@@ -1,107 +1,249 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <link rel="stylesheet" href="studio.css">
 </head>
 <body>
-  <header>
-    <b>ZIP_BUG // LIKEFIGMA STUDIO</b>
-    <button class="btn-tool" onclick="undo()" title="Undo">↩ Undo</button>
-    <button class="btn-tool" onclick="redo()" title="Redo">↪ Redo</button>
-    <button class="btn-export" onclick="exportXml()">Export XML</button>
-    <button class="btn-export" onclick="exportCompose()">Export Compose</button>
-    <button class="btn-save" onclick="save()">Save</button>
+  <!-- 1. Compact Mobile Top Toolbar -->
+  <header class="top-bar">
+    <button class="icon-btn" id="btn-back" onclick="navigateBack()" title="Back">←</button>
+    <button class="screen-pill" id="btn-screen-pill" onclick="openSheet('sheet-screens')">
+      <span class="dot">●</span>
+      <span id="current-screen-label">Main</span>
+      <span class="chev">▾</span>
+    </button>
+    <div class="spacer"></div>
+    <button class="icon-btn" onclick="undo()" title="Undo">↩</button>
+    <button class="icon-btn" onclick="redo()" title="Redo">↪</button>
+    <button class="preview-btn" id="btn-preview-toggle" onclick="togglePreviewMode()">▶ Preview</button>
+    <button class="icon-btn" id="btn-advanced" onclick="openSheet('sheet-advanced')" title="Code Export & Schema">⋯</button>
   </header>
-  <div class="screen-bar">
-    <label style="color:#aaa;font-size:11px">Screen:</label>
-    <select id="screen-select" onchange="switchScreen(this.value)"></select>
-    <button class="btn-small" onclick="newScreen()">+ Screen</button>
-    <button class="btn-small" onclick="renameScreen()">Rename</button>
-    <button class="btn-small" onclick="duplicateScreen()">Duplicate</button>
-    <button class="btn-small" onclick="deleteScreen()" style="background:#442222;color:#ff8888">Delete</button>
-    <span class="sep"></span>
-    <label style="color:#aaa;font-size:11px">Device:</label>
-    <select id="device-select" onchange="switchDevicePreset(this.value)">
-      <option value="small">Small (360x640)</option>
-      <option value="standard" selected>Standard (390x844)</option>
-      <option value="large">Large (412x915)</option>
-    </select>
-    <label style="color:#aaa;font-size:11px;margin-left:6px;display:flex;align-items:center;gap:4px">
-      <input type="checkbox" id="grid-snap-check" checked onchange="toggleGridSnap(this.checked)"> Snap 8px
-    </label>
-  </div>
-  <div class="toolbar">
-    <button onclick="add('Text')">+ Text</button>
-    <button onclick="add('Button')">+ Button</button>
-    <button onclick="add('Input')">+ Input</button>
-    <button onclick="add('Card')">+ Card</button>
-    <button onclick="add('Image')">+ Image</button>
-    <span class="sep"></span>
-    <button onclick="duplicateSelected()">Duplicate</button>
-    <button onclick="deleteSelected()" style="background:#ff4d4d;color:#fff">Delete</button>
-    <span class="sep"></span>
-    <button class="btn-tool" onclick="alignSelected('left')" title="Align Left">⯬ Left</button>
-    <button class="btn-tool" onclick="alignSelected('center')" title="Align Center">⯮ Center ⯬</button>
-    <button class="btn-tool" onclick="alignSelected('right')" title="Align Right">Right ⯮</button>
-    <button class="btn-tool" onclick="alignSelected('top')" title="Align Top">⯭ Top</button>
-    <button class="btn-tool" onclick="alignSelected('bottom')" title="Align Bottom">⯯ Bottom</button>
-    <span class="sep"></span>
-    <button class="btn-tool" onclick="distributeNodes('h')" title="Distribute Horizontally">⬌ Distribute H</button>
-    <button class="btn-tool" onclick="distributeNodes('v')" title="Distribute Vertically">⬍ Distribute V</button>
-  </div>
-  <main>
-    <section id="canvas-wrapper">
+
+  <!-- 2. Full-Height Mobile Canvas Area -->
+  <main id="canvas-stage" onclick="clearSelectionIfBackdrop(event)">
+    <div id="canvas-wrapper">
       <div id="canvas" class="phone"></div>
-    </section>
-    <aside>
-      <h3>Layers</h3>
-      <div id="layers-list"></div>
+    </div>
 
-      <h3>Inspector</h3>
-      <div class="field">
-        <label>Text / Content</label>
-        <input id="label" placeholder="Text" oninput="applyChanges()">
-      </div>
-      <div class="field-row">
-        <div>
-          <label>W</label>
-          <input id="prop-w" type="number" min="20" max="600" oninput="applyChanges()">
-        </div>
-        <div>
-          <label>H</label>
-          <input id="prop-h" type="number" min="20" max="800" oninput="applyChanges()">
-        </div>
-      </div>
-      <div class="field-row">
-        <div>
-          <label>Font Size</label>
-          <input id="prop-font" type="number" min="8" max="48" oninput="applyChanges()">
-        </div>
-        <div>
-          <label>Radius</label>
-          <input id="radius" type="range" min="0" max="32" value="12" oninput="applyChanges()">
-        </div>
-      </div>
-      <div class="field-row">
-        <div>
-          <label>Fill</label>
-          <input id="color" type="color" value="#ff6b00" oninput="applyChanges()">
-        </div>
-        <div>
-          <label>Text Color</label>
-          <input id="text-color" type="color" value="#ffffff" oninput="applyChanges()">
-        </div>
-      </div>
-      <div class="field-row">
-        <button class="btn-small" onclick="bringForward()">Bring Up</button>
-        <button class="btn-small" onclick="sendBackward()">Send Down</button>
-      </div>
-
-      <h3>Schema JSON</h3>
-      <pre id="schema"></pre>
-    </aside>
+    <!-- Contextual Selection Action Bar (Visible when an element is selected) -->
+    <div id="contextual-bar" class="contextual-bar hidden">
+      <span id="ctx-node-label" class="ctx-badge">Button 1</span>
+      <button class="ctx-btn" onclick="openSheet('sheet-properties')">✎ Edit</button>
+      <button class="ctx-btn" onclick="duplicateSelected()">⧉ Copy</button>
+      <button class="ctx-btn" onclick="openSheet('sheet-arrange')">⬌ Arrange</button>
+      <button class="ctx-btn danger" onclick="deleteSelected()">✕</button>
+    </div>
   </main>
+
+  <!-- 3. Bottom Studio Dock + Prominent "+" Button -->
+  <footer class="bottom-dock">
+    <button class="dock-btn" id="btn-open-layers" onclick="openSheet('sheet-layers')">
+      <span class="dock-icon">☰</span>
+      <span id="layers-count-label">Layers (1)</span>
+    </button>
+    <button class="dock-btn" id="btn-open-props" onclick="openSheet('sheet-properties')">
+      <span class="dock-icon">⚙</span>
+      <span>Properties</span>
+    </button>
+    <button class="dock-btn" id="btn-open-screens" onclick="openSheet('sheet-screens')">
+      <span class="dock-icon">▢</span>
+      <span>Screens</span>
+    </button>
+    <button class="fab-add" id="btn-open-picker" onclick="openSheet('sheet-components')">
+      <span class="plus-icon">＋</span>
+      <span>Add</span>
+    </button>
+  </footer>
+
+  <!-- Sheet Backdrop -->
+  <div id="sheet-backdrop" class="sheet-backdrop hidden" onclick="closeAllSheets()"></div>
+
+  <!-- 4A. Component Picker Bottom Sheet (Icon Tiles) -->
+  <section id="sheet-components" class="bottom-sheet hidden">
+    <div class="sheet-header">
+      <div>
+        <h4>Add UI Component</h4>
+        <small>Tap a tile to place on the active screen</small>
+      </div>
+      <button class="sheet-close" onclick="closeAllSheets()">✕</button>
+    </div>
+    <div class="tile-grid">
+      <button class="comp-tile" onclick="addAndClose('Text')">
+        <span class="tile-badge orange">T</span>
+        <b>Text</b>
+        <small>Heading or label</small>
+      </button>
+      <button class="comp-tile" onclick="addAndClose('Button')">
+        <span class="tile-badge green">◉</span>
+        <b>Button</b>
+        <small>Interactive CTA</small>
+      </button>
+      <button class="comp-tile" onclick="addAndClose('Input')">
+        <span class="tile-badge blue">⌨</span>
+        <b>Input</b>
+        <small>Text field box</small>
+      </button>
+      <button class="comp-tile" onclick="addAndClose('Card')">
+        <span class="tile-badge purple">▭</span>
+        <b>Card</b>
+        <small>Surface container</small>
+      </button>
+      <button class="comp-tile" onclick="addAndClose('Image')">
+        <span class="tile-badge orange">▣</span>
+        <b>Image</b>
+        <small>Media placeholder</small>
+      </button>
+    </div>
+  </section>
+
+  <!-- 4B. Layers Bottom Sheet -->
+  <section id="sheet-layers" class="bottom-sheet hidden">
+    <div class="sheet-header">
+      <div>
+        <h4>Layers</h4>
+        <small>Tap a layer to select and inspect</small>
+      </div>
+      <button class="sheet-close" onclick="closeAllSheets()">✕</button>
+    </div>
+    <div id="layers-list" class="layers-container"></div>
+    <div class="field-row" style="margin-top:10px">
+      <button class="btn-secondary" onclick="bringForward()">↑ Bring Forward</button>
+      <button class="btn-secondary" onclick="sendBackward()">↓ Send Backward</button>
+    </div>
+  </section>
+
+  <!-- 4C. Properties / Inspector Bottom Sheet -->
+  <section id="sheet-properties" class="bottom-sheet hidden">
+    <div class="sheet-header">
+      <div>
+        <h4>Element Properties</h4>
+        <small id="prop-selected-subtitle">Customize selected element</small>
+      </div>
+      <button class="sheet-close" onclick="closeAllSheets()">✕</button>
+    </div>
+    <div class="field">
+      <label>Text / Content Label</label>
+      <input id="label" placeholder="Enter label text" oninput="applyChanges()">
+    </div>
+    <div class="field-row">
+      <div>
+        <label>Width (dp)</label>
+        <input id="prop-w" type="number" min="20" max="600" oninput="applyChanges()">
+      </div>
+      <div>
+        <label>Height (dp)</label>
+        <input id="prop-h" type="number" min="20" max="800" oninput="applyChanges()">
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label>Font Size (sp)</label>
+        <input id="prop-font" type="number" min="8" max="48" oninput="applyChanges()">
+      </div>
+      <div>
+        <label>Corner Radius</label>
+        <input id="radius" type="range" min="0" max="32" value="12" oninput="applyChanges()">
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label>Fill Color</label>
+        <input id="color" type="color" value="#ff6b00" oninput="applyChanges()">
+      </div>
+      <div>
+        <label>Text Color</label>
+        <input id="text-color" type="color" value="#ffffff" oninput="applyChanges()">
+      </div>
+    </div>
+  </section>
+
+  <!-- 4D. Contextual Arrange & Align Bottom Sheet -->
+  <section id="sheet-arrange" class="bottom-sheet hidden">
+    <div class="sheet-header">
+      <div>
+        <h4>Arrange &amp; Align</h4>
+        <small>Position on canvas or distribute layers</small>
+      </div>
+      <button class="sheet-close" onclick="closeAllSheets()">✕</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-secondary" onclick="alignSelected('left')">⯬ Left</button>
+      <button class="btn-secondary" onclick="alignSelected('center')">⯮ Center</button>
+      <button class="btn-secondary" onclick="alignSelected('right')">Right ⯮</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-secondary" onclick="alignSelected('top')">⯭ Top</button>
+      <button class="btn-secondary" onclick="alignSelected('bottom')">⯯ Bottom</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-secondary" onclick="distributeNodes('h')">⬌ Distribute H</button>
+      <button class="btn-secondary" onclick="distributeNodes('v')">⬍ Distribute V</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-secondary" onclick="bringForward()">↑ Bring Up</button>
+      <button class="btn-secondary" onclick="sendBackward()">↓ Send Down</button>
+    </div>
+  </section>
+
+  <!-- 4E. Dedicated Screen Selector Bottom Sheet -->
+  <section id="sheet-screens" class="bottom-sheet hidden">
+    <div class="sheet-header">
+      <div>
+        <h4>Screen Management</h4>
+        <small>Switch screens or configure canvas frame</small>
+      </div>
+      <button class="sheet-close" onclick="closeAllSheets()">✕</button>
+    </div>
+    <div class="field">
+      <label>Active Screen</label>
+      <select id="screen-select" onchange="switchScreen(this.value)"></select>
+    </div>
+    <div class="field-row">
+      <button class="btn-primary" onclick="newScreen()">+ New Screen</button>
+      <button class="btn-secondary" onclick="renameScreen()">Rename</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-secondary" onclick="duplicateScreen()">Duplicate</button>
+      <button class="btn-danger" onclick="deleteScreen()">Delete</button>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Device Frame Preset</label>
+      <select id="device-select" onchange="switchDevicePreset(this.value)">
+        <option value="small">Compact Phone (360 × 640)</option>
+        <option value="standard" selected>Standard Phone (390 × 844)</option>
+        <option value="large">Large Phone (412 × 915)</option>
+      </select>
+    </div>
+    <label class="snap-row">
+      <input type="checkbox" id="grid-snap-check" checked onchange="toggleGridSnap(this.checked)">
+      <span>Snap elements to 8dp grid</span>
+    </label>
+  </section>
+
+  <!-- 4F. Advanced Code Export & Schema JSON Bottom Sheet -->
+  <section id="sheet-advanced" class="bottom-sheet hidden">
+    <div class="sheet-header">
+      <div>
+        <h4>Export &amp; Schema JSON</h4>
+        <small>Save project, generate Android code, or inspect JSON</small>
+      </div>
+      <button class="sheet-close" onclick="closeAllSheets()">✕</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-primary" onclick="save()">💾 Save Design</button>
+      <button class="btn-export" onclick="exportXml()">Export Android XML</button>
+    </div>
+    <div class="field-row">
+      <button class="btn-export" onclick="exportCompose()">Export Jetpack Compose</button>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Live Project Schema JSON</label>
+      <pre id="schema"></pre>
+    </div>
+  </section>
+
   <script src="studio.js"></script>
 </body>
 </html>

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/z_bg">
+    android:background="@color/z_bg"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +19,7 @@
             android:layout_height="wrap_content"
             android:text="@string/recap_studio_title"
             android:textColor="@color/z_text"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <TextView
@@ -29,14 +31,63 @@
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
 
+        <!-- Prominent Myanmar Drama Video Editor Entry Card -->
+        <LinearLayout
+            android:id="@+id/cardDramaEditorBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎭 Myanmar Drama Video Editor"
+                    android:textColor="@color/z_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="မြန်မာဒရာမာ တည်းဖြတ်စနစ် • Reels, Subtitles, Split, Blur, Logo &amp; Audio"
+                    android:textColor="@color/z_orange"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnLaunchDramaEditor"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/z_orange"
+                android:text="ဖွင့်မည် ↗"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
         <!-- Project Control Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@color/z_surface"
+            android:background="@drawable/bg_hero_card"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -59,7 +110,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="@string/btn_rename"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnNewProject"
@@ -67,7 +122,11 @@
                     android:layout_height="40dp"
                     android:layout_marginStart="6dp"
                     android:text="@string/btn_new_project"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
             <!-- Media Import Row -->
@@ -80,12 +139,37 @@
                 android:textColor="@color/z_muted"
                 android:textSize="12sp" />
 
-            <Button
-                android:id="@+id/btnSelectMedia"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="@string/btn_import_media" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSelectMedia"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_import_media"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLoadSampleMedia"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="Create Sample Video (4s)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Section 2: AI Script -->
@@ -93,9 +177,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/z_surface"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -118,7 +202,11 @@
                     android:layout_height="38dp"
                     android:layout_weight="1"
                     android:text="Recap"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnModeDialogue"
@@ -127,7 +215,11 @@
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="Dialogue"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnModeDub"
@@ -136,10 +228,14 @@
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="Dub"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
-            <!-- Language Row -->
+            <!-- Language Row (Myanmar, English, Thai, Chinese) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -151,8 +247,12 @@
                     android:layout_width="0dp"
                     android:layout_height="38dp"
                     android:layout_weight="1"
-                    android:text="မြန်မာ (Burmese)"
-                    android:textSize="11sp" />
+                    android:text="မြန်မာ"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnLangEnglish"
@@ -161,7 +261,37 @@
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="English"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLangThai"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="ไทย (TH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLangChinese"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="中文 (ZH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
             <!-- Script Topic/Transcript Input -->
@@ -181,7 +311,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
                 android:layout_marginTop="6dp"
-                android:text="@string/btn_generate_script" />
+                android:text="@string/btn_generate_script"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
 
             <!-- Script Parts 1 to 4 -->
             <TextView
@@ -259,6 +392,70 @@
                 android:textColor="@color/z_text"
                 android:textColorHint="@color/z_muted"
                 android:textSize="12sp" />
+
+            <!-- Subtitle & Transcript Export (TXT / SRT / VTT) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="SUBTITLE &amp; TRANSCRIPT EXPORT"
+                android:textColor="@color/z_orange"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnExportTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Export TXT"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnExportSrt"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Export SRT"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnExportVtt"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Export VTT"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSubtitleExportStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Subtitle Export: Ready (TXT, SRT, WebVTT)"
+                android:textColor="@color/z_muted"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <!-- Section 3: Clips & Timeline -->
@@ -266,9 +463,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/z_surface"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -291,7 +488,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:text="Auto Split"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnAddClip"
@@ -299,7 +500,11 @@
                     android:layout_height="36dp"
                     android:layout_marginStart="4dp"
                     android:text="+ Clip"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
             <TextView
@@ -320,24 +525,24 @@
                 android:orientation="vertical" />
         </LinearLayout>
 
-        <!-- Section 4: Myanmar Voiceover (Edge-TTS) -->
+        <!-- Section 4: Multilingual Voiceover (Edge-TTS) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/z_surface"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MYANMAR TTS VOICEOVER"
+                android:text="MULTILINGUAL TTS VOICEOVER (MY / EN / TH / ZH)"
                 android:textColor="@color/z_orange"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- Voice Selection -->
+            <!-- Voice Selection Row 1 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -349,8 +554,12 @@
                     android:layout_width="0dp"
                     android:layout_height="38dp"
                     android:layout_weight="1"
-                    android:text="Nilar (Female)"
-                    android:textSize="11sp" />
+                    android:text="Nilar (MY)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnVoiceThiha"
@@ -358,8 +567,12 @@
                     android:layout_height="38dp"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    android:text="Thiha (Male)"
-                    android:textSize="11sp" />
+                    android:text="Thiha (MY)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                 <Button
                     android:id="@+id/btnVoiceJenny"
@@ -368,7 +581,44 @@
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="Jenny (EN)"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- Voice Selection Row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnVoiceThai"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:text="Premwadee (TH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnVoiceChinese"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Xiaoxiao (ZH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
             <TextView
@@ -413,7 +663,11 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/btn_preview_audio"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
             <Button
@@ -421,7 +675,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
                 android:layout_marginTop="6dp"
-                android:text="@string/btn_generate_voiceover" />
+                android:text="@string/btn_generate_voiceover"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
 
             <TextView
                 android:id="@+id/tvTtsStatus"
@@ -438,9 +695,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/z_surface"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -490,7 +747,10 @@
                     android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:layout_weight="1"
-                    android:text="@string/btn_start_render" />
+                    android:text="@string/btn_start_render"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
 
                 <Button
                     android:id="@+id/btnCancelRender"
@@ -498,7 +758,11 @@
                     android:layout_height="44dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    android:text="@string/btn_cancel_render" />
+                    android:text="@string/btn_cancel_render"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
 
             <!-- Real Execution Log -->
@@ -516,7 +780,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:background="#0A0A0A"
+                android:background="@color/z_code_bg"
                 android:fontFamily="monospace"
                 android:maxLines="10"
                 android:padding="8dp"
@@ -531,7 +795,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="#152B1E"
+                android:background="@color/z_green_soft"
                 android:orientation="vertical"
                 android:padding="10dp"
                 android:visibility="gone">
@@ -574,7 +838,11 @@
                         android:layout_width="0dp"
                         android:layout_height="40dp"
                         android:layout_weight="1"
-                        android:text="@string/btn_open_video" />
+                        android:text="@string/btn_open_video"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
 
                     <Button
                         android:id="@+id/btnShareVideo"
@@ -582,7 +850,11 @@
                         android:layout_height="40dp"
                         android:layout_marginStart="6dp"
                         android:layout_weight="1"
-                        android:text="@string/btn_share_video" />
+                        android:text="@string/btn_share_video"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -592,7 +864,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="#2E1414"
+                android:background="@color/z_red_soft"
                 android:orientation="vertical"
                 android:padding="10dp"
                 android:visibility="gone">
@@ -618,7 +890,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginTop="8dp"
-                    android:text="@string/btn_retry" />
+                    android:text="@string/btn_retry"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
             </LinearLayout>
         </LinearLayout>
 

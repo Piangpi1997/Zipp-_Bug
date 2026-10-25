@@ -12,16 +12,19 @@ import java.util.UUID
 
 object RecapScriptGenerator {
 
+    fun languageDisplayName(targetLanguage: String): String = when (targetLanguage.lowercase()) {
+        RecapProjectEntity.LANG_ENGLISH -> "English"
+        RecapProjectEntity.LANG_THAI -> "Thai (ภาษาไทย)"
+        RecapProjectEntity.LANG_CHINESE -> "Chinese (Simplified 中文)"
+        else -> "Myanmar (Burmese)"
+    }
+
     fun buildPrompt(
         transcriptOrTopic: String,
         mode: String,
         targetLanguage: String
     ): String {
-        val langLabel = if (targetLanguage.equals(RecapProjectEntity.LANG_ENGLISH, ignoreCase = true)) {
-            "English"
-        } else {
-            "Myanmar (Burmese)"
-        }
+        val langLabel = languageDisplayName(targetLanguage)
 
         val modeGuidance = when (mode) {
             RecapProjectEntity.MODE_RECAP_DIALOGUE ->
@@ -96,11 +99,7 @@ $transcriptOrTopic
         output: String,
         targetLanguage: String
     ): List<RecapScriptEntity> {
-        val defaultVoice = if (targetLanguage.equals(RecapProjectEntity.LANG_ENGLISH, ignoreCase = true)) {
-            EdgeTtsHelper.VOICE_JENNY
-        } else {
-            EdgeTtsHelper.VOICE_NILAR
-        }
+        val defaultVoice = EdgeTtsHelper.defaultVoiceForLanguage(targetLanguage)
 
         val regex = Regex("\\[PART\\s*([1-4])[:\\s]*(.*?)\\]([\\s\\S]*?)(?=\\[PART\\s*[1-4]|$)", RegexOption.IGNORE_CASE)
         val matches = regex.findAll(output).toList()

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Base64
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 
 class RecapStudioActivity : AppCompatActivity() {
@@ -53,14 +52,25 @@ class RecapStudioActivity : AppCompatActivity() {
     private var selectedScriptMode = RecapProjectEntity.MODE_RECAP
     private var selectedLanguage = RecapProjectEntity.LANG_MYANMAR
     private var selectedVoice = EdgeTtsHelper.VOICE_NILAR
+    private var pendingSubtitleExportFormat = SubtitleExporter.FORMAT_SRT
 
     private var renderObserverJob: Job? = null
+    private var ttsObserverJob: Job? = null
     private var currentRenderJobId: String? = null
+    private var lastSyncedRenderJobId: String? = null
     private var lastRenderOutputVerification: RecapRenderCoordinator.FileVerification? = null
 
     private val safMediaPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             handleMediaSelected(uri)
+        }
+    }
+
+    private val safSubtitleExporter = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        if (uri != null) {
+            exportSubtitleToUri(uri, pendingSubtitleExportFormat)
         }
     }
 
@@ -75,10 +85,20 @@ class RecapStudioActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        binding.cardDramaEditorBanner.setOnClickListener {
+            startActivity(Intent(this, MyanmarDramaEditorActivity::class.java))
+        }
+        binding.btnLaunchDramaEditor.setOnClickListener {
+            startActivity(Intent(this, MyanmarDramaEditorActivity::class.java))
+        }
+
         binding.btnNewProject.setOnClickListener { promptCreateNewProject() }
         binding.btnRenameProject.setOnClickListener { promptRenameProject() }
         binding.btnSelectMedia.setOnClickListener {
             safMediaPicker.launch(arrayOf("video/*", "audio/*"))
+        }
+        binding.btnLoadSampleMedia.setOnClickListener {
+            createSampleMediaInTermux()
         }
 
         // Script Mode selection
@@ -86,11 +106,18 @@ class RecapStudioActivity : AppCompatActivity() {
         binding.btnModeDialogue.setOnClickListener { setScriptMode(RecapProjectEntity.MODE_RECAP_DIALOGUE) }
         binding.btnModeDub.setOnClickListener { setScriptMode(RecapProjectEntity.MODE_DUB) }
 
-        // Language selection
+        // Language selection (MY / EN / TH / ZH)
         binding.btnLangMyanmar.setOnClickListener { setScriptLanguage(RecapProjectEntity.LANG_MYANMAR) }
         binding.btnLangEnglish.setOnClickListener { setScriptLanguage(RecapProjectEntity.LANG_ENGLISH) }
+        binding.btnLangThai.setOnClickListener { setScriptLanguage(RecapProjectEntity.LANG_THAI) }
+        binding.btnLangChinese.setOnClickListener { setScriptLanguage(RecapProjectEntity.LANG_CHINESE) }
 
         binding.btnGenerateScript.setOnClickListener { generateAiScript() }
+
+        // Subtitle & Transcript export buttons
+        binding.btnExportTxt.setOnClickListener { triggerSubtitleExport(SubtitleExporter.FORMAT_TXT) }
+        binding.btnExportSrt.setOnClickListener { triggerSubtitleExport(SubtitleExporter.FORMAT_SRT) }
+        binding.btnExportVtt.setOnClickListener { triggerSubtitleExport(SubtitleExporter.FORMAT_VTT) }
 
         // Timeline actions
         binding.btnResetTimeline.setOnClickListener { resetTimelineClips() }
@@ -100,6 +127,8 @@ class RecapStudioActivity : AppCompatActivity() {
         binding.btnVoiceNilar.setOnClickListener { setTtsVoice(EdgeTtsHelper.VOICE_NILAR) }
         binding.btnVoiceThiha.setOnClickListener { setTtsVoice(EdgeTtsHelper.VOICE_THIHA) }
         binding.btnVoiceJenny.setOnClickListener { setTtsVoice(EdgeTtsHelper.VOICE_JENNY) }
+        binding.btnVoiceThai.setOnClickListener { setTtsVoice(EdgeTtsHelper.VOICE_PREMWADEE) }
+        binding.btnVoiceChinese.setOnClickListener { setTtsVoice(EdgeTtsHelper.VOICE_XIAOXIAO) }
         binding.btnPreviewVoice.setOnClickListener { previewTtsVoice() }
         binding.btnGenerateVoiceover.setOnClickListener { generateTtsVoiceover() }
 
@@ -180,15 +209,22 @@ class RecapStudioActivity : AppCompatActivity() {
         }
     }
 
+    private fun styleSegmentChip(btn: android.widget.Button, active: Boolean) {
+        btn.backgroundTintList = null
+        btn.setBackgroundResource(if (active) R.drawable.bg_chip_active else R.drawable.bg_chip_inactive)
+        btn.setTextColor(ContextCompat.getColor(this, if (active) R.color.z_white else R.color.z_text))
+    }
+
     private fun updateModeButtonsUi() {
-        binding.btnModeRecap.setBackgroundColor(if (selectedScriptMode == RecapProjectEntity.MODE_RECAP) 0xFF4A3412.toInt() else 0xFF2A2A2A.toInt())
-        binding.btnModeDialogue.setBackgroundColor(if (selectedScriptMode == RecapProjectEntity.MODE_RECAP_DIALOGUE) 0xFF4A3412.toInt() else 0xFF2A2A2A.toInt())
-        binding.btnModeDub.setBackgroundColor(if (selectedScriptMode == RecapProjectEntity.MODE_DUB) 0xFF4A3412.toInt() else 0xFF2A2A2A.toInt())
+        styleSegmentChip(binding.btnModeRecap, selectedScriptMode == RecapProjectEntity.MODE_RECAP)
+        styleSegmentChip(binding.btnModeDialogue, selectedScriptMode == RecapProjectEntity.MODE_RECAP_DIALOGUE)
+        styleSegmentChip(binding.btnModeDub, selectedScriptMode == RecapProjectEntity.MODE_DUB)
     }
 
     private fun setScriptLanguage(lang: String) {
         selectedLanguage = lang
         updateLanguageButtonsUi()
+        setTtsVoice(EdgeTtsHelper.defaultVoiceForLanguage(lang))
         activeProject?.let { p ->
             val updated = p.copy(language = lang, updatedAt = System.currentTimeMillis())
             activeProject = updated
@@ -197,17 +233,83 @@ class RecapStudioActivity : AppCompatActivity() {
     }
 
     private fun updateLanguageButtonsUi() {
-        val isMy = selectedLanguage == RecapProjectEntity.LANG_MYANMAR
-        binding.btnLangMyanmar.setBackgroundColor(if (isMy) 0xFF1E3A24.toInt() else 0xFF2A2A2A.toInt())
-        binding.btnLangEnglish.setBackgroundColor(if (!isMy) 0xFF1E3A24.toInt() else 0xFF2A2A2A.toInt())
+        styleSegmentChip(binding.btnLangMyanmar, selectedLanguage == RecapProjectEntity.LANG_MYANMAR)
+        styleSegmentChip(binding.btnLangEnglish, selectedLanguage == RecapProjectEntity.LANG_ENGLISH)
+        styleSegmentChip(binding.btnLangThai, selectedLanguage == RecapProjectEntity.LANG_THAI)
+        styleSegmentChip(binding.btnLangChinese, selectedLanguage == RecapProjectEntity.LANG_CHINESE)
     }
 
     private fun setTtsVoice(voice: String) {
         selectedVoice = voice
         binding.tvSelectedVoice.text = "Voice: $voice"
-        binding.btnVoiceNilar.setBackgroundColor(if (voice == EdgeTtsHelper.VOICE_NILAR) 0xFF1E3A24.toInt() else 0xFF2A2A2A.toInt())
-        binding.btnVoiceThiha.setBackgroundColor(if (voice == EdgeTtsHelper.VOICE_THIHA) 0xFF1E3A24.toInt() else 0xFF2A2A2A.toInt())
-        binding.btnVoiceJenny.setBackgroundColor(if (voice == EdgeTtsHelper.VOICE_JENNY) 0xFF1E3A24.toInt() else 0xFF2A2A2A.toInt())
+        styleSegmentChip(binding.btnVoiceNilar, voice == EdgeTtsHelper.VOICE_NILAR)
+        styleSegmentChip(binding.btnVoiceThiha, voice == EdgeTtsHelper.VOICE_THIHA)
+        styleSegmentChip(binding.btnVoiceJenny, voice == EdgeTtsHelper.VOICE_JENNY)
+        styleSegmentChip(binding.btnVoiceThai, voice == EdgeTtsHelper.VOICE_PREMWADEE)
+        styleSegmentChip(binding.btnVoiceChinese, voice == EdgeTtsHelper.VOICE_XIAOXIAO)
+    }
+
+    private fun triggerSubtitleExport(format: String) {
+        persistScriptsFromUi()
+        val hasText = scripts.any { it.scriptText.isNotBlank() }
+        if (!hasText) {
+            Toast.makeText(this, "Enter or generate script parts before exporting subtitles", Toast.LENGTH_SHORT).show()
+            return
+        }
+        pendingSubtitleExportFormat = format
+        val ext = when (format) {
+            SubtitleExporter.FORMAT_SRT -> "srt"
+            SubtitleExporter.FORMAT_VTT -> "vtt"
+            else -> "txt"
+        }
+        val projectSlug = (activeProject?.name ?: "recap")
+            .lowercase(Locale.US)
+            .replace(Regex("[^a-z0-9_-]"), "_")
+            .ifBlank { "recap" }
+
+        // Save an immediate verified copy in app-managed files directory and launch SAF picker
+        val localDir = File(filesDir, "subtitles").apply { mkdirs() }
+        val localFile = File(localDir, "${projectSlug}_subtitles.$ext")
+        val totalDuration = clips.sumOf { (it.endMs - it.startMs).coerceAtLeast(0L) }
+            .takeIf { it > 0L } ?: (activeProject?.sourceDurationMs ?: 60_000L)
+
+        SubtitleExporter.exportToFile(localFile, format, scripts, totalDuration).fold(
+            onSuccess = { bytes ->
+                binding.tvSubtitleExportStatus.text =
+                    "Verified $format ($bytes bytes • estimated timing from text length): ${localFile.absolutePath}"
+                binding.tvSubtitleExportStatus.setTextColor(ContextCompat.getColor(this, R.color.z_green))
+                com.google.android.material.snackbar.Snackbar.make(
+                    binding.root,
+                    "Verified $format ($bytes B, estimated timing)",
+                    com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                ).setAction("Save As…") {
+                    runCatching { safSubtitleExporter.launch("${projectSlug}_subtitles.$ext") }
+                }.show()
+            },
+            onFailure = { err ->
+                binding.tvSubtitleExportStatus.text = "Export failed: ${err.message}"
+                binding.tvSubtitleExportStatus.setTextColor(ContextCompat.getColor(this, R.color.z_red))
+            }
+        )
+    }
+
+    private fun exportSubtitleToUri(uri: Uri, format: String) {
+        val totalDuration = clips.sumOf { (it.endMs - it.startMs).coerceAtLeast(0L) }
+            .takeIf { it > 0L } ?: (activeProject?.sourceDurationMs ?: 60_000L)
+        runCatching {
+            contentResolver.openOutputStream(uri)?.use { out ->
+                SubtitleExporter.exportToStream(out, format, scripts, totalDuration).getOrThrow()
+            } ?: error("Could not open selected destination URI")
+        }.fold(
+            onSuccess = { bytes ->
+                binding.tvSubtitleExportStatus.text = "Exported $format ($bytes bytes) to user storage"
+                binding.tvSubtitleExportStatus.setTextColor(ContextCompat.getColor(this, R.color.z_green))
+                Toast.makeText(this, "Saved $format ($bytes bytes)", Toast.LENGTH_SHORT).show()
+            },
+            onFailure = { err ->
+                Toast.makeText(this, "SAF save failed: ${err.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     private fun handleMediaSelected(uri: Uri) {
@@ -222,9 +324,13 @@ class RecapStudioActivity : AppCompatActivity() {
                 // Not all SAF pickers grant persistable permission
             }
 
-            // Stage to Termux-accessible home or app files
-            val stagingDir = File("/data/data/com.termux/files/home/recap/projects/${project.id}")
-            if (!stagingDir.exists()) stagingDir.mkdirs()
+            // Stage to Termux-accessible home or app files fallback
+            val termuxDir = File("/data/data/com.termux/files/home/recap/projects/${project.id}")
+            val stagingDir = if (termuxDir.mkdirs() || termuxDir.exists()) {
+                termuxDir
+            } else {
+                File(filesDir, "recap/projects/${project.id}").apply { mkdirs() }
+            }
 
             val fileName = "source_${System.currentTimeMillis()}.mp4"
             val targetFile = File(stagingDir, fileName)
@@ -275,6 +381,104 @@ class RecapStudioActivity : AppCompatActivity() {
                 bindProject(updatedProject)
                 Toast.makeText(this@RecapStudioActivity, "Media imported: $fileName", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun createSampleMediaInTermux() {
+        val project = activeProject ?: return
+        val remoteDir = "/data/data/com.termux/files/home/recap/projects/${project.id}"
+        val remotePath = "$remoteDir/sample_source_4s.mp4"
+        binding.tvMediaSourceStatus.text = "Source: Generating 4s sample MP4 via FFmpeg..."
+        val pyGen = """
+            import os, subprocess, sys
+            out_dir = sys.argv[1]
+            out_file = sys.argv[2]
+            os.makedirs(out_dir, exist_ok=True)
+            os.makedirs("/data/data/com.termux/files/home/recap", exist_ok=True)
+            cmd = [
+                "ffmpeg", "-y",
+                "-f", "lavfi", "-i", "testsrc=duration=4:size=640x360:rate=24",
+                "-f", "lavfi", "-i", "sine=frequency=440:duration=4",
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-b:a", "64k",
+                out_file
+            ]
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            if r.returncode != 0 or not os.path.exists(out_file) or os.path.getsize(out_file) == 0:
+                sys.stderr.write(r.stderr)
+                sys.exit(1)
+            print("SAMPLE_READY:" + str(os.path.getsize(out_file)))
+        """.trimIndent()
+
+        lifecycleScope.launch {
+            TermuxBridge.send(
+                this@RecapStudioActivity,
+                TermuxBridge.Request(
+                    tool = "python",
+                    args = listOf("-c", pyGen, remoteDir, remotePath),
+                    workDir = "/data/data/com.termux/files/home",
+                    label = "Generate 4s Sample Media"
+                )
+            ).fold(
+                onSuccess = { jobId ->
+                    ttsObserverJob?.cancel()
+                    ttsObserverJob = lifecycleScope.launch {
+                        db.buildJobDao().observe(jobId).filterNotNull().collect { job ->
+                            if (job.status == BuildJobEntity.SUCCESS) {
+                                val updatedProject = project.copy(
+                                    sourceUri = "file://$remotePath",
+                                    sourceFileName = "sample_source_4s.mp4",
+                                    sourceLocalPath = remotePath,
+                                    sourceDurationMs = 4000L,
+                                    updatedAt = System.currentTimeMillis()
+                                )
+                                db.recapProjectDao().upsert(updatedProject)
+                                val sampleClips = listOf(
+                                    RecapClipEntity(
+                                        id = UUID.randomUUID().toString(),
+                                        projectId = project.id,
+                                        orderIndex = 0,
+                                        sourcePath = remotePath,
+                                        startMs = 0L,
+                                        endMs = 2000L,
+                                        durationMs = 4000L,
+                                        effectType = RecapClipEntity.EFFECT_NONE
+                                    ),
+                                    RecapClipEntity(
+                                        id = UUID.randomUUID().toString(),
+                                        projectId = project.id,
+                                        orderIndex = 1,
+                                        sourcePath = remotePath,
+                                        startMs = 2000L,
+                                        endMs = 4000L,
+                                        durationMs = 4000L,
+                                        effectType = RecapClipEntity.EFFECT_NONE
+                                    )
+                                )
+                                db.recapClipDao().deleteClipsForProject(project.id)
+                                db.recapClipDao().upsertAll(sampleClips)
+                                if (scripts.all { it.scriptText.isBlank() }) {
+                                    val defaultScripts = listOf(
+                                        RecapScriptEntity(UUID.randomUUID().toString(), project.id, 1, "Hook & Introduction", "မင်္ဂလာပါ၊ Zip_Bug Studio မှ ကြိုဆိုပါတယ်။", selectedVoice),
+                                        RecapScriptEntity(UUID.randomUUID().toString(), project.id, 2, "Rising Action", "ယခု ဗီဒီယိုနမူနာကို Termux FFmpeg ဖြင့် တိုက်ရိုက်ထုတ်လုပ်ထားပါသည်။", selectedVoice),
+                                        RecapScriptEntity(UUID.randomUUID().toString(), project.id, 3, "Climax", "အသံနှင့် စာတန်းထိုးများကို စနစ်တကျ ချိတ်ဆက်ထားပါသည်။", selectedVoice),
+                                        RecapScriptEntity(UUID.randomUUID().toString(), project.id, 4, "Resolution & Conclusion", "ကြည့်ရှုပေးတဲ့အတွက် ကျေးဇူးတင်ပါတယ်။", selectedVoice)
+                                    )
+                                    db.recapScriptDao().deleteScriptsForProject(project.id)
+                                    db.recapScriptDao().upsertAll(defaultScripts)
+                                }
+                                bindProject(updatedProject)
+                                Toast.makeText(this@RecapStudioActivity, "4s sample MP4 ready in Termux!", Toast.LENGTH_SHORT).show()
+                            } else if (job.status == BuildJobEntity.FAILED) {
+                                binding.tvMediaSourceStatus.text = "Source: Sample generation failed (${job.stderr.take(80)})"
+                            }
+                        }
+                    }
+                },
+                onFailure = { err ->
+                    binding.tvMediaSourceStatus.text = "Source: Sample generation error (${err.message})"
+                }
+            )
         }
     }
 
@@ -333,7 +537,6 @@ class RecapStudioActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val secretStore = SecretStore(this@RecapStudioActivity)
-            // Use active provider or fallback to OpenRouter
             val provider = AiProvider.OPENROUTER
             val apiKey = secretStore.get(provider.name)
 
@@ -609,12 +812,30 @@ class RecapStudioActivity : AppCompatActivity() {
         lifecycleScope.launch {
             TermuxBridge.send(this@RecapStudioActivity, reqResult.getOrThrow()).fold(
                 onSuccess = { jobId ->
-                    binding.tvTtsStatus.text = "Voiceover: Queued ($outAudio)"
-                    // Associate audio path with project scripts
-                    val updatedScripts = scripts.map { it.copy(ttsAudioPath = outAudio) }
-                    scripts.clear()
-                    scripts.addAll(updatedScripts)
-                    db.recapScriptDao().upsertAll(updatedScripts)
+                    binding.tvTtsStatus.text = "Voiceover: Queued ($jobId)"
+                    ttsObserverJob?.cancel()
+                    ttsObserverJob = lifecycleScope.launch {
+                        db.buildJobDao().observe(jobId).filterNotNull().collect { job ->
+                            when (job.status) {
+                                BuildJobEntity.RUNNING -> {
+                                    binding.tvTtsStatus.text = "Voiceover: RUNNING ($selectedVoice)..."
+                                }
+                                BuildJobEntity.SUCCESS -> {
+                                    binding.tvTtsStatus.text = "Voiceover: SUCCESS ($outAudio)"
+                                    val updatedScripts = scripts.map { s -> s.copy(ttsAudioPath = outAudio) }
+                                    scripts.clear()
+                                    scripts.addAll(updatedScripts)
+                                    db.recapScriptDao().upsertAll(updatedScripts)
+                                }
+                                BuildJobEntity.FAILED -> {
+                                    binding.tvTtsStatus.text = "Voiceover: FAILED (exit ${job.exitCode})"
+                                    showFailureDiagnosis(
+                                        RecapFailureDiagnosis.missingVoiceover(1, job.stderr.ifBlank { job.errorMessage })
+                                    )
+                                }
+                            }
+                        }
+                    }
                 },
                 onFailure = { err ->
                     showFailureDiagnosis(RecapFailureDiagnosis.missingVoiceover(1, err.message ?: "TTS failed"))
@@ -623,7 +844,6 @@ class RecapStudioActivity : AppCompatActivity() {
         }
     }
 
-    // 8-stage pipeline UI badges
     private fun setupPipelineBadges() {
         binding.pipelineStagesContainer.removeAllViews()
         for (stage in RecapRenderJobEntity.PIPELINE_STAGES) {
@@ -642,7 +862,7 @@ class RecapStudioActivity : AppCompatActivity() {
                 text = "PENDING"
                 textSize = 10f
                 setTextColor(ContextCompat.getColor(this@RecapStudioActivity, R.color.z_muted))
-                setBackgroundColor(0xFF1B1B1B.toInt())
+                setBackgroundResource(com.zipbug.base.R.color.z_surface_glass)
                 setPadding(8, 2, 8, 2)
             }
             row.addView(title)
@@ -657,19 +877,19 @@ class RecapStudioActivity : AppCompatActivity() {
         when (status) {
             "RUNNING" -> {
                 badge.setTextColor(ContextCompat.getColor(this, R.color.z_orange))
-                badge.setBackgroundColor(0xFF3E2D12.toInt())
+                badge.setBackgroundResource(com.zipbug.base.R.color.z_orange_soft)
             }
             "SUCCESS" -> {
                 badge.setTextColor(ContextCompat.getColor(this, R.color.z_green))
-                badge.setBackgroundColor(0xFF1E3A24.toInt())
+                badge.setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
             }
             "FAILED" -> {
                 badge.setTextColor(ContextCompat.getColor(this, R.color.z_red))
-                badge.setBackgroundColor(0xFF3D1818.toInt())
+                badge.setBackgroundResource(com.zipbug.base.R.color.z_red_soft)
             }
             else -> {
                 badge.setTextColor(ContextCompat.getColor(this, R.color.z_muted))
-                badge.setBackgroundColor(0xFF1B1B1B.toInt())
+                badge.setBackgroundResource(com.zipbug.base.R.color.z_surface_glass)
             }
         }
     }
@@ -678,7 +898,6 @@ class RecapStudioActivity : AppCompatActivity() {
         persistScriptsFromUi()
         val project = activeProject ?: return
 
-        // 1. STAGE: VALIDATION
         updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "RUNNING")
         val timelineVal = RecapTimelineManager.validateTimeline(clips)
         if (timelineVal.isFailure) {
@@ -688,7 +907,6 @@ class RecapStudioActivity : AppCompatActivity() {
         }
         updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "SUCCESS")
 
-        // 2. STAGE: MEDIA PREPARATION
         updateStageBadge(RecapRenderJobEntity.STAGE_MEDIA_PREPARATION, "RUNNING")
         val outputDir = "/storage/emulated/0/Download"
         val planResult = RecapRenderCoordinator.preparePlan(
@@ -706,7 +924,6 @@ class RecapStudioActivity : AppCompatActivity() {
         val plan = planResult.getOrThrow()
         updateStageBadge(RecapRenderJobEntity.STAGE_MEDIA_PREPARATION, "SUCCESS")
 
-        // Create Room Render Job
         val renderJob = RecapRenderJobEntity(
             jobId = plan.jobId,
             projectId = project.id,
@@ -757,13 +974,14 @@ class RecapStudioActivity : AppCompatActivity() {
     }
 
     private fun renderProgressUpdate(recapJobId: String, job: BuildJobEntity, outputPath: String) {
+        val cleanedStdout = job.stdout.replace(Regex("VIDEO_B64_START:[A-Za-z0-9+/=\\s]+:VIDEO_B64_END"), "[VIDEO_SYNCED_TO_APP_STORAGE]")
         binding.tvRenderStatus.text = "Status: ${job.status}" + (job.exitCode?.let { " • Exit $it" } ?: "")
         binding.tvRenderLog.text = LogSanitizer.sanitize(
             buildString {
                 append("JOB ID: ").append(recapJobId).append("\n")
                 append("TOOL: ").append(job.tool).append("\n")
                 append("STATUS: ").append(job.status).append("\n")
-                if (job.stdout.isNotBlank()) append("\nSTDOUT:\n").append(job.stdout)
+                if (cleanedStdout.isNotBlank()) append("\nSTDOUT:\n").append(cleanedStdout)
                 if (job.stderr.isNotBlank()) append("\nSTDERR:\n").append(job.stderr)
                 if (job.errorMessage.isNotBlank()) append("\nERROR:\n").append(job.errorMessage)
             }
@@ -775,23 +993,68 @@ class RecapStudioActivity : AppCompatActivity() {
                 updateStageBadge(RecapRenderJobEntity.STAGE_FINAL_ENCODE, "RUNNING")
             }
             BuildJobEntity.SUCCESS -> {
-                // STAGE: OUTPUT VERIFICATION
+                updateStageBadge(RecapRenderJobEntity.STAGE_CLIP_PROCESSING, "SUCCESS")
+                updateStageBadge(RecapRenderJobEntity.STAGE_VOICEOVER, "SUCCESS")
                 updateStageBadge(RecapRenderJobEntity.STAGE_FINAL_ENCODE, "SUCCESS")
                 updateStageBadge(RecapRenderJobEntity.STAGE_OUTPUT_VERIFICATION, "RUNNING")
 
-                val verifyResult = RecapRenderCoordinator.verifyRenderResult(job.exitCode, outputPath)
+                var targetVerifyPath = outputPath
+                if (job.tool == "python" && job.stdout.contains("VIDEO_B64_START:")) {
+                    val b64 = job.stdout.substringAfter("VIDEO_B64_START:").substringBefore(":VIDEO_B64_END").trim()
+                    if (b64.isNotEmpty()) {
+                        val localDir = File(filesDir, "recap/renders").apply { mkdirs() }
+                        val localCopy = File(localDir, File(outputPath).name)
+                        runCatching {
+                            localCopy.writeBytes(Base64.decode(b64, Base64.DEFAULT))
+                        }
+                        if (localCopy.exists() && localCopy.length() > 0L) {
+                            targetVerifyPath = localCopy.absolutePath
+                        }
+                    }
+                }
+
+                val verifyResult = RecapRenderCoordinator.verifyRenderResult(job.exitCode, targetVerifyPath)
+                if (verifyResult.isFailure && job.tool == "ffmpeg" && lastSyncedRenderJobId != job.id) {
+                    lastSyncedRenderJobId = job.id
+                    syncRenderedVideoFromTermux(recapJobId, outputPath)
+                    return
+                }
+
                 if (verifyResult.isSuccess) {
                     val verification = verifyResult.getOrThrow()
                     lastRenderOutputVerification = verification
                     binding.renderProgressBar.progress = 100
                     updateStageBadge(RecapRenderJobEntity.STAGE_OUTPUT_VERIFICATION, "SUCCESS")
+                    var durSecStr = ""
+                    runCatching {
+                        val retriever = MediaMetadataRetriever()
+                        retriever.setDataSource(verification.filePath)
+                        val durMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+                        retriever.release()
+                        if (durMs > 0L) {
+                            durSecStr = " • ${String.format(Locale.US, "%.1fs", durMs / 1000.0)}"
+                        }
+                    }
+                    if (durSecStr.isEmpty()) {
+                        val timeMatches = Regex("time=(\\d{2}):(\\d{2}):(\\d{2}\\.\\d+)").findAll(job.stderr).toList()
+                        val lastMatch = timeMatches.lastOrNull()
+                        if (lastMatch != null) {
+                            val h = lastMatch.groupValues[1].toLongOrNull() ?: 0L
+                            val m = lastMatch.groupValues[2].toLongOrNull() ?: 0L
+                            val s = lastMatch.groupValues[3].toDoubleOrNull() ?: 0.0
+                            val totalSec = h * 3600.0 + m * 60.0 + s
+                            if (totalSec > 0.0) {
+                                durSecStr = " • ${String.format(Locale.US, "%.1fs", totalSec)}"
+                            }
+                        }
+                    }
                     binding.tvRenderStatus.text = "Status: SUCCESS • Verified Output"
                     binding.tvRenderStatus.setTextColor(ContextCompat.getColor(this, R.color.z_green))
 
                     binding.layoutOutputDetails.visibility = View.VISIBLE
                     binding.tvOutputFilename.text = "File: ${verification.fileName}"
-                    binding.tvOutputSize.text = "Size: ${verification.sizeBytes} bytes"
-                    binding.tvOutputPath.text = "Path: ${verification.filePath}"
+                    binding.tvOutputSize.text = "Size: ${verification.sizeBytes} bytes$durSecStr"
+                    binding.tvOutputPath.text = "Path: ${verification.filePath} (Download: $outputPath)"
 
                     lifecycleScope.launch {
                         db.recapRenderJobDao().markFinished(
@@ -812,6 +1075,39 @@ class RecapStudioActivity : AppCompatActivity() {
             BuildJobEntity.FAILED -> {
                 handleRenderFailure(recapJobId, "Exit ${job.exitCode}: ${job.errorMessage.ifBlank { job.stderr }}")
             }
+        }
+    }
+
+    private fun syncRenderedVideoFromTermux(recapJobId: String, remoteOutputPath: String) {
+        binding.tvRenderStatus.text = "Status: VERIFYING & SYNCING ARTIFACT..."
+        val pySync = """
+            import base64, os, sys
+            p = sys.argv[1]
+            if not os.path.exists(p) or os.path.getsize(p) == 0:
+                sys.stderr.write("Missing or 0-byte output: " + p + "\n")
+                sys.exit(2)
+            with open(p, "rb") as f:
+                data = f.read()
+            sys.stdout.write("VIDEO_SIZE:" + str(len(data)) + "\n")
+            sys.stdout.write("VIDEO_B64_START:" + base64.b64encode(data).decode("ascii") + ":VIDEO_B64_END\n")
+        """.trimIndent()
+        lifecycleScope.launch {
+            TermuxBridge.send(
+                this@RecapStudioActivity,
+                TermuxBridge.Request(
+                    tool = "python",
+                    args = listOf("-c", pySync, remoteOutputPath),
+                    workDir = "/data/data/com.termux/files/home",
+                    label = "Verify Recap Render (${File(remoteOutputPath).name})"
+                )
+            ).fold(
+                onSuccess = { syncJobId ->
+                    observeRenderExecution(recapJobId, syncJobId, remoteOutputPath)
+                },
+                onFailure = { err ->
+                    handleRenderFailure(recapJobId, err.message ?: "Artifact sync failed")
+                }
+            )
         }
     }
 
@@ -893,6 +1189,7 @@ class RecapStudioActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         renderObserverJob?.cancel()
+        ttsObserverJob?.cancel()
         super.onDestroy()
     }
 }

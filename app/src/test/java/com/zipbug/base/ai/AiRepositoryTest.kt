@@ -110,4 +110,24 @@ class AiRepositoryTest {
         val result = AiRepository.validateRequest(req)
         assertTrue(result.isSuccess)
     }
+    @Test
+    fun testAiRequestWithConversationHistory() {
+        val turns = listOf(
+            ChatHistoryTurn(role = "user", content = "Hello"),
+            ChatHistoryTurn(role = "assistant", content = "Hi there!")
+        )
+        val req = AiRequest(
+            provider = AiProvider.OPENROUTER,
+            apiKey = "sk-or-v1-validkey1234567890",
+            model = "openrouter/free",
+            system = "System prompt",
+            prompt = "What did I say earlier?",
+            history = turns
+        )
+        val result = AiRepository.validateRequest(req)
+        assertTrue(result.isSuccess)
+        assertEquals(2, req.history.size)
+        assertEquals("user", req.history[0].role)
+        assertEquals("assistant", req.history[1].role)
+    }
 }

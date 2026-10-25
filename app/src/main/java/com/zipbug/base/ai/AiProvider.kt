@@ -22,11 +22,17 @@ enum class AiProvider(
     )
 }
 
+data class ChatHistoryTurn(
+    val role: String,
+    val content: String
+)
+
 data class AiRequest(
     val provider: AiProvider,
     val apiKey: String,
     val model: String,
     val system: String,
     val prompt: String,
-    val mode: AiMode = AiMode.CHAT
+    val mode: AiMode = AiMode.CHAT,
+    val history: List<ChatHistoryTurn> = emptyList()
 )

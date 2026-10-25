@@ -3,10 +3,46 @@
     android:height="48dp"
     android:viewportWidth="48"
     android:viewportHeight="48">
+
+    <!-- Stylized Bug Antennae with Tech Nodes -->
+    <path
+        android:fillColor="#FF9533"
+        android:pathData="M16,6a2.5,2.5 0 1,0 0.001,0z" />
+    <path
+        android:strokeColor="#FF9533"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M17.5,8 L20.5,13" />
+
+    <path
+        android:fillColor="#FF9533"
+        android:pathData="M32,6a2.5,2.5 0 1,0 0.001,0z" />
+    <path
+        android:strokeColor="#FF9533"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M30.5,8 L27.5,13" />
+
+    <!-- Hexagonal Tech Shield Body (ZIP_BUG Outer Shell) -->
     <path
         android:fillColor="#FF6B00"
-        android:pathData="M4,4h40v40h-40z" />
+        android:pathData="M24,11 L38,18.5 L38,33.5 L24,42 L10,33.5 L10,18.5 Z" />
+
     <path
-        android:fillColor="#121212"
-        android:pathData="M12,12h24v6l-14,12h14v6h-24v-6l14,-12h-14z" />
+        android:fillColor="#E55600"
+        android:pathData="M24,11 L38,18.5 L38,33.5 L24,42 L24,11 Z" />
+
+    <!-- Inner Dark Core Shield -->
+    <path
+        android:fillColor="#12141A"
+        android:pathData="M24,14 L35,20 L35,31.5 L24,38.5 L13,31.5 L13,20 Z" />
+
+    <!-- Dynamic Z-Lightning Glyph (White Core) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17,20.5 H31 V24 L22.5,30 H31 V33.5 H17 V30 L25.5,24 H17 Z" />
+
+    <path
+        android:fillColor="#FF9533"
+        android:pathData="M22.5,25.5 L25.5,25.5 L23.5,28.5 L20.5,28.5 Z" />
 </vector>

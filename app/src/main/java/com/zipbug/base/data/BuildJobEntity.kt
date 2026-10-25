@@ -24,5 +24,6 @@ data class BuildJobEntity(
         const val RUNNING = "RUNNING"
         const val SUCCESS = "SUCCESS"
         const val FAILED = "FAILED"
+        const val CANCELLED = "CANCELLED"
     }
 }

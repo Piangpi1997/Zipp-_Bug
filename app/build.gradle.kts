@@ -12,7 +12,7 @@ android {
         applicationId = "com.zipbug.base"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
+        versionCode = 5
         versionName = "2.0.0-alpha01"
     }
 

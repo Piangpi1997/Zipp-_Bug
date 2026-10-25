@@ -16,9 +16,11 @@ import com.zipbug.base.data.recap.*
         RecapProjectEntity::class,
         RecapClipEntity::class,
         RecapScriptEntity::class,
-        RecapRenderJobEntity::class
+        RecapRenderJobEntity::class,
+        ChatSessionEntity::class,
+        ChatMessageEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class ZipBugDatabase : RoomDatabase() {
@@ -29,6 +31,7 @@ abstract class ZipBugDatabase : RoomDatabase() {
     abstract fun recapClipDao(): RecapClipDao
     abstract fun recapScriptDao(): RecapScriptDao
     abstract fun recapRenderJobDao(): RecapRenderJobDao
+    abstract fun chatDao(): ChatDao
 
     companion object {
         @Volatile private var INSTANCE: ZipBugDatabase? = null
@@ -183,13 +186,52 @@ abstract class ZipBugDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS chat_sessions (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        title TEXT NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL,
+                        model TEXT NOT NULL,
+                        provider TEXT NOT NULL,
+                        isPinned INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS chat_messages (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        sessionId TEXT NOT NULL,
+                        sender TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        timestamp INTEGER NOT NULL,
+                        status TEXT NOT NULL,
+                        codeSnippet TEXT,
+                        codeLanguage TEXT,
+                        toolAttachment TEXT
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE INDEX IF NOT EXISTS index_chat_messages_sessionId 
+                    ON chat_messages(sessionId)
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun get(context: Context): ZipBugDatabase = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Room.databaseBuilder(
                 context.applicationContext,
                 ZipBugDatabase::class.java,
                 "zipbug.db"
             )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
                 .also { INSTANCE = it }
         }
