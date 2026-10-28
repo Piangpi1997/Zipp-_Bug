@@ -701,8 +701,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun showVideoChoice() {
         AlertDialog.Builder(this).setTitle("Video tools / ဗီဒီယို ကိရိယာများ")
-            .setItems(arrayOf("Video & Recap Studio", "Myanmar Drama Editor / မြန်မာဒရာမာ")) { _, index ->
-                val screen = if (index == 0) RecapStudioActivity::class.java else MyanmarDramaEditorActivity::class.java
+            .setItems(arrayOf("Zippy Cut Studio / Zippy ပုံစံ တည်းဖြတ်ခန်း", "Video & Recap Studio", "Myanmar Drama Editor / မြန်မာဒရာမာ")) { _, index ->
+                val screen = when (index) {
+                    0 -> ZippyCutStudioActivity::class.java
+                    1 -> RecapStudioActivity::class.java
+                    else -> MyanmarDramaEditorActivity::class.java
+                }
                 startActivity(Intent(this, screen))
             }.setNegativeButton(R.string.btn_cancel, null).show()
     }

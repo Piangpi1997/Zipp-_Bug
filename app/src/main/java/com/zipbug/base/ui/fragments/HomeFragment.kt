@@ -26,6 +26,7 @@ import com.zipbug.base.ui.AppCreatorActivity
 import com.zipbug.base.ui.DeveloperToolsActivity
 import com.zipbug.base.ui.MainActivity
 import com.zipbug.base.ui.RecapStudioActivity
+import com.zipbug.base.ui.ZippyCutStudioActivity
 import com.zipbug.base.ui.SettingsActivity
 import com.zipbug.base.ui.TtsStudioActivity
 import com.zipbug.base.ui.WebRuntimeActivity
@@ -95,7 +96,7 @@ class HomeFragment : Fragment() {
         val openAppCreator = { startActivity(Intent(requireContext(), AppCreatorActivity::class.java)) }
         val openReactWeb = { startActivity(Intent(requireContext(), WorkspaceActivity::class.java)) }
         val openApkBuilder = { main.navigateToTerminal("/apkbuilder --debug") }
-        val openVideoRecap = { startActivity(Intent(requireContext(), RecapStudioActivity::class.java)) }
+        val openVideoRecap = { startActivity(Intent(requireContext(), ZippyCutStudioActivity::class.java)) }
         val openAudioVoice = { startActivity(Intent(requireContext(), TtsStudioActivity::class.java)) }
 
         binding.studio.setOnClickListener { openStudio() }

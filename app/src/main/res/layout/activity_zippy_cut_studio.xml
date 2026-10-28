@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#090C0F"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/tvZippyTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Zippy Cut Studio"
+            android:textColor="#EEF3F6"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvZippySub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Video editor • Termux ffmpeg engine"
+            android:textColor="#8D99A5"
+            android:textSize="12sp" />
+
+        <!-- Preview panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#11171C"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <VideoView
+                android:id="@+id/videoPreview"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="#000000" />
+
+            <SeekBar
+                android:id="@+id/seekPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPlayPause"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#D97757"
+                    android:text="▶ Play" />
+
+                <TextView
+                    android:id="@+id/tvMeta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="No video selected"
+                    android:textColor="#8D99A5"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnPickVideo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:backgroundTint="#2B3640"
+                android:text="Import video / ဗီဒီယို ရွေးပါ" />
+        </LinearLayout>
+
+        <!-- Timeline panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#11171C"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TIMELINE • Trim / Split"
+                android:textColor="#FF9F43"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etTrimStart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Start (sec)"
+                    android:inputType="numberDecimal"
+                    android:textColor="#EEF3F6"
+                    android:textColorHint="#8D99A5" />
+
+                <EditText
+                    android:id="@+id/etTrimEnd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="End (sec)"
+                    android:inputType="numberDecimal"
+                    android:textColor="#EEF3F6"
+                    android:textColorHint="#8D99A5" />
+
+                <EditText
+                    android:id="@+id/etSplit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Split (sec, optional)"
+                    android:inputType="numberDecimal"
+                    android:textColor="#EEF3F6"
+                    android:textColorHint="#8D99A5" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSegments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Segments: —"
+                android:textColor="#8D99A5"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Title / audio panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#11171C"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <EditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Title overlay / ခေါင်းစဉ်"
+                android:inputType="text"
+                android:textColor="#EEF3F6"
+                android:textColorHint="#8D99A5" />
+
+            <CheckBox
+                android:id="@+id/cbKeepAudio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Keep original audio / မူရင်းအသံ ထားမည်"
+                android:textColor="#EEF3F6" />
+        </LinearLayout>
+
+        <!-- Subtitles panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#11171C"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SUBTITLES • Manual editor (output timeline, seconds)"
+                android:textColor="#FF9F43"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/subtitleRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etSubStart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Start"
+                    android:inputType="numberDecimal"
+                    android:textColor="#EEF3F6"
+                    android:textColorHint="#8D99A5" />
+
+                <EditText
+                    android:id="@+id/etSubEnd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="End"
+                    android:inputType="numberDecimal"
+                    android:textColor="#EEF3F6"
+                    android:textColorHint="#8D99A5" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etSubText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Subtitle text / စာသား (မြန်မာ ရသည်)"
+                android:inputType="textMultiLine"
+                android:textColor="#EEF3F6"
+                android:textColorHint="#8D99A5" />
+
+            <Button
+                android:id="@+id/btnAddSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#2B3640"
+                android:text="+ Add subtitle / စာတန်း ထည့်ပါ" />
+
+            <TextView
+                android:id="@+id/tvAutoCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Auto Caption: DISABLED — a transcription provider / API key is required. Manual subtitles work fully."
+                android:textColor="#FFB347"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Export panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#11171C"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/btnExport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#D97757"
+                android:text="Export video / ဗီဒီယို ထုတ်ပါ" />
+
+            <TextView
+                android:id="@+id/tvExportStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Export status: idle"
+                android:textColor="#8D99A5"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPreviewOutput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:text="Preview output" />
+
+                <Button
+                    android:id="@+id/btnShareOutput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:text="Share output" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
