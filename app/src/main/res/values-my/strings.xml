@@ -186,6 +186,11 @@
     <string name="app_builder_title">AI အက်ပ်တည်ဆောက်စနစ်</string>
     <string name="tab_ui_gallery">၃။ UI ပစ္စည်းများ</string>
     <string name="tab_panel_assembly">၄။ Panel 1 တပ်ဆင်မှု</string>
+    <string name="tab_project">ပရောဂျက်</string>
+    <string name="tab_script">ဇာတ်ညွှန်း (1-4)</string>
+    <string name="tab_timeline">တိုင်းလိုင်း</string>
+    <string name="tab_voiceover">နောက်ခံအသံ</string>
+    <string name="tab_render">ထုတ်လုပ်ရန်</string>
     <string name="btn_use_component">သုံးမည်</string>
     <string name="btn_replace_component">အစားထိုးမည်</string>
     <string name="btn_view_source">ကုဒ်ကြည့်မည်</string>
