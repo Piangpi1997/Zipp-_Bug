@@ -10,7 +10,6 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
-import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -20,8 +19,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import com.zipbug.base.ZipBugApp
 import com.zipbug.base.data.BuildJobEntity
+import com.zipbug.base.data.ZipBugDatabase
 import com.zipbug.base.databinding.ActivityZippyCutStudioBinding
 import com.zipbug.base.recap.RecapMediaStager
 import com.zipbug.base.recap.RecapRenderCoordinator
@@ -32,21 +31,27 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
- * Zippy Cut Studio — a native (not WebView) video studio modelled on the
- * reference Zippy_Cut UI (dark panels, coral accent, timeline-first layout)
- * but wired to ZIP_BUG's real engines:
- * - metadata/preview: Android MediaMetadataRetriever + VideoView
+ * Zippy Cut Studio — a native (not WebView) multi-clip video studio modelled
+ * on the reference Zippy_Cut UI (dark panels, coral accent, timeline-first
+ * layout) but wired to ZIP_BUG's real engines:
+ * - metadata/preview: MediaMetadataRetriever + VideoView
  * - staged media: RecapMediaStager (shared Downloads copy Termux can read)
- * - render: ffmpeg argument list from ZippyCutPlan, executed by the existing
- *   TermuxBridge job pipeline (queued/running/success/failed are the real
- *   Room job states; no progress percentage is invented)
- * - drafts: edit state JSON in app-private storage, restored on launch.
- *   The original media file is never modified.
+ * - edit model/render plan: ZippyCutPlan (pure, unit-tested) — multi-clip
+ *   reorder, per-clip trim, split, manual subtitles, title + text overlay,
+ *   logo overlay, audio keep/mute/replace
+ * - render: ffmpeg argument list executed by the existing TermuxBridge job
+ *   pipeline (QUEUED/RUNNING/SUCCESS/FAILED are the real Room job states;
+ *   no progress percentage is invented)
+ * - drafts: edit-state JSON in app-private storage, restored on launch.
+ *   Original media is never modified.
  */
 class ZippyCutStudioActivity : AppCompatActivity() {
 
@@ -63,9 +68,15 @@ class ZippyCutStudioActivity : AppCompatActivity() {
 
     private val pickVideo = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) onVideoPicked(uri)
-    }
+    ) { uri -> if (uri != null) onClipPicked(uri) }
+
+    private val pickLogo = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> if (uri != null) onLogoPicked(uri) }
+
+    private val pickAudio = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> if (uri != null) onAudioPicked(uri) }
 
     private val seekTicker = object : Runnable {
         override fun run() {
@@ -95,13 +106,14 @@ class ZippyCutStudioActivity : AppCompatActivity() {
 
         restoreDraft()
         bindActions()
+        refreshAll()
         seekHandler.post(seekTicker)
     }
 
     private fun bindActions() {
-        binding.btnPickVideo.setOnClickListener {
-            pickVideo.launch(arrayOf("video/*"))
-        }
+        binding.btnPickVideo.setOnClickListener { pickVideo.launch(arrayOf("video/*")) }
+        binding.btnPickLogo.setOnClickListener { pickLogo.launch(arrayOf("image/*")) }
+        binding.btnPickAudio.setOnClickListener { pickAudio.launch(arrayOf("audio/*")) }
         binding.btnPlayPause.setOnClickListener {
             val vv = binding.videoPreview
             if (vv.isPlaying) {
@@ -119,6 +131,7 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(bar: SeekBar?) = Unit
             override fun onStopTrackingTouch(bar: SeekBar?) = Unit
         })
+        binding.btnApplySplit.setOnClickListener { applySplit() }
         binding.btnAddSubtitle.setOnClickListener { addSubtitleFromInputs() }
         binding.btnExport.setOnClickListener { startExport() }
         binding.btnPreviewOutput.setOnClickListener {
@@ -128,71 +141,28 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             }
         }
         binding.btnShareOutput.setOnClickListener { shareOutput() }
-    }
-
-    // -------- import / metadata --------
-
-    private fun onVideoPicked(uri: Uri) {
-        runCatching {
-            contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        }
-        val meta = readMetadata(uri)
-        state = state.copy(
-            sourceUri = uri.toString(),
-            sourceName = meta.name,
-            durationMs = meta.durationMs,
-            width = meta.width,
-            height = meta.height,
-            trimStartMs = 0L,
-            trimEndMs = meta.durationMs,
-            splitMs = null,
-            stagedPath = ""
-        )
-        binding.videoPreview.setVideoURI(uri)
-        binding.seekPreview.max = meta.durationMs.toInt().coerceAtLeast(0)
-        binding.etTrimStart.setText("0")
-        binding.etTrimEnd.setText(String.format(Locale.US, "%.3f", meta.durationMs / 1000.0))
-        binding.etSplit.setText("")
-        updateMetaText()
-        refreshSegmentsText()
-        saveDraft()
-        // Stage a Termux-readable copy, exactly like Recap Studio does.
-        binding.tvExportStatus.text = L(
-            "အခြေအနေ: ဗီဒီယိုကို Termux ဖတ်နိုင်အောင် ကူးနေသည်…",
-            "Status: staging a Termux-readable copy…"
-        )
-        lifecycleScope.launch {
-            val staged = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                RecapMediaStager.stage(this@ZippyCutStudioActivity, uri, "zippycut")
-            }
-            staged.fold(
-                onSuccess = { media ->
-                    state = state.copy(stagedPath = media.localPath)
-                    binding.tvExportStatus.text = L(
-                        "အခြေအနေ: အဆင်သင့်ဖြစ်ပြီ (staged copy ရပြီး)",
-                        "Status: ready (staged copy available)"
-                    )
-                    saveDraft()
-                },
-                onFailure = { err ->
-                    binding.tvExportStatus.text = L(
-                        "အခြေအနေ: staging မအောင်မြင်ပါ — ${err.message}",
-                        "Status: staging failed — ${err.message}"
-                    )
+        binding.rgAudioMode.setOnCheckedChangeListener { _, checkedId ->
+            state = state.copy(
+                audioMode = when (checkedId) {
+                    binding.rbAudioMute.id -> ZippyCutPlan.AudioMode.MUTE
+                    binding.rbAudioReplace.id -> ZippyCutPlan.AudioMode.REPLACE
+                    else -> ZippyCutPlan.AudioMode.KEEP
                 }
             )
+            saveDraft()
         }
     }
+
+    // -------- clip import / staging --------
 
     private data class Meta(val name: String, val durationMs: Long, val width: Int, val height: Int)
 
     private fun readMetadata(uri: Uri): Meta {
         var name = "video"
         runCatching {
-            contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)
-                ?.use { c -> if (c.moveToFirst()) name = c.getString(0) ?: name }
+            contentResolver.query(
+                uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null
+            )?.use { c -> if (c.moveToFirst()) name = c.getString(0) ?: name }
         }
         var duration = 0L
         var width = 0
@@ -208,12 +178,225 @@ class ZippyCutStudioActivity : AppCompatActivity() {
         return Meta(name, duration, width, height)
     }
 
+    private fun displayNameOf(uri: Uri): String {
+        var name = "file"
+        runCatching {
+            contentResolver.query(
+                uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null
+            )?.use { c -> if (c.moveToFirst()) name = c.getString(0) ?: name }
+        }
+        return name
+    }
+
+    private fun takeReadPermission(uri: Uri) {
+        runCatching {
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+    }
+
+    private fun onClipPicked(uri: Uri) {
+        takeReadPermission(uri)
+        val meta = readMetadata(uri)
+        val clip = ZippyCutPlan.Clip(
+            id = UUID.randomUUID().toString().take(8),
+            sourceUri = uri.toString(),
+            sourceName = meta.name,
+            durationMs = meta.durationMs,
+            width = meta.width,
+            height = meta.height,
+            trimStartMs = 0L,
+            trimEndMs = meta.durationMs
+        )
+        state = state.copy(
+            clips = state.clips + clip,
+            selectedClip = state.clips.size
+        )
+        binding.videoPreview.setVideoURI(uri)
+        binding.seekPreview.max = meta.durationMs.toInt().coerceAtLeast(0)
+        refreshAll()
+        saveDraft()
+        stageClip(clip.id, uri)
+    }
+
+    private fun stageClip(clipId: String, uri: Uri) {
+        setStatus(L("အခြေအနေ: clip ကို Termux ဖတ်နိုင်အောင် ကူးနေသည်…", "Status: staging a Termux-readable copy…"))
+        lifecycleScope.launch {
+            val staged = withContext(Dispatchers.IO) {
+                RecapMediaStager.stage(this@ZippyCutStudioActivity, uri, "zippycut")
+            }
+            staged.fold(
+                onSuccess = { media ->
+                    val idx = state.clips.indexOfFirst { it.id == clipId }
+                    if (idx >= 0) {
+                        val updated = state.clips.toMutableList()
+                        updated[idx] = updated[idx].copy(stagedPath = media.localPath)
+                        state = state.copy(clips = updated)
+                        saveDraft()
+                    }
+                    setStatus(L("အခြေအနေ: အဆင်သင့်ဖြစ်ပြီ (staged copy ရပြီး)", "Status: ready (staged copy available)"))
+                },
+                onFailure = { err ->
+                    setStatus(L("အခြေအနေ: staging မအောင်မြင်ပါ — ${err.message}", "Status: staging failed — ${err.message}"))
+                }
+            )
+        }
+    }
+
+    private fun onLogoPicked(uri: Uri) {
+        takeReadPermission(uri)
+        val name = displayNameOf(uri)
+        state = state.copy(logoUri = uri.toString(), logoPath = "")
+        binding.tvLogoName.text = name
+        saveDraft()
+        lifecycleScope.launch {
+            val staged = withContext(Dispatchers.IO) {
+                RecapMediaStager.stage(this@ZippyCutStudioActivity, uri, "zippycut-logo")
+            }
+            staged.fold(
+                onSuccess = { media ->
+                    state = state.copy(logoPath = media.localPath)
+                    binding.tvLogoName.text = "$name ✓"
+                    saveDraft()
+                },
+                onFailure = { err ->
+                    binding.tvLogoName.text = L("Logo staging မအောင်မြင်: ${err.message}", "Logo staging failed: ${err.message}")
+                }
+            )
+        }
+    }
+
+    private fun onAudioPicked(uri: Uri) {
+        takeReadPermission(uri)
+        val name = displayNameOf(uri)
+        state = state.copy(
+            replaceAudioUri = uri.toString(),
+            replaceAudioPath = "",
+            replaceAudioName = name,
+            audioMode = ZippyCutPlan.AudioMode.REPLACE
+        )
+        binding.rbAudioReplace.isChecked = true
+        binding.tvReplaceAudioName.text = name
+        saveDraft()
+        lifecycleScope.launch {
+            val staged = withContext(Dispatchers.IO) {
+                RecapMediaStager.stage(this@ZippyCutStudioActivity, uri, "zippycut-audio")
+            }
+            staged.fold(
+                onSuccess = { media ->
+                    state = state.copy(replaceAudioPath = media.localPath)
+                    binding.tvReplaceAudioName.text = "$name ✓"
+                    saveDraft()
+                },
+                onFailure = { err ->
+                    binding.tvReplaceAudioName.text = L("အသံ staging မအောင်မြင်: ${err.message}", "Audio staging failed: ${err.message}")
+                }
+            )
+        }
+    }
+
+    // -------- clip list UI --------
+
+    private fun selectedClip(): ZippyCutPlan.Clip? = state.clips.getOrNull(state.selectedClip)
+
+    private fun refreshAll() {
+        renderClipRows()
+        renderSubtitleRows()
+        updateMetaText()
+        refreshSegmentsText()
+        val sel = selectedClip()
+        if (sel != null) {
+            binding.etTrimStart.setText(String.format(Locale.US, "%.3f", sel.trimStartMs / 1000.0))
+            binding.etTrimEnd.setText(String.format(Locale.US, "%.3f", sel.trimEndMs / 1000.0))
+        }
+        binding.etTitle.setText(state.title)
+        binding.etTextOverlay.setText(state.textOverlay)
+        binding.tvLogoName.text = state.logoUri.substringAfterLast('/').ifBlank {
+            L("Logo မရှိပါ", "No logo")
+        }
+        binding.tvReplaceAudioName.text = state.replaceAudioName.ifBlank {
+            L("အသံဖိုင် မရှိပါ", "No audio file")
+        }
+        when (state.audioMode) {
+            ZippyCutPlan.AudioMode.KEEP -> binding.rbAudioKeep.isChecked = true
+            ZippyCutPlan.AudioMode.MUTE -> binding.rbAudioMute.isChecked = true
+            ZippyCutPlan.AudioMode.REPLACE -> binding.rbAudioReplace.isChecked = true
+        }
+    }
+
+    private fun renderClipRows() {
+        val box = binding.clipsRows
+        box.removeAllViews()
+        state.clips.forEachIndexed { idx, clip ->
+            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+            val label = TextView(this).apply {
+                text = "${idx + 1}. ${clip.sourceName} • " +
+                    String.format(Locale.US, "%.1fs", clip.trimmedDurationMs / 1000.0) +
+                    if (clip.stagedPath.isBlank()) " (staging…)" else ""
+                setTextColor(
+                    if (idx == state.selectedClip) 0xFFD97757.toInt() else 0xFFEEF3F6.toInt()
+                )
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                setOnClickListener { selectClip(idx) }
+            }
+            val up = Button(this).apply {
+                text = "↑"
+                isEnabled = idx > 0
+                setOnClickListener {
+                    collectState()
+                    state = ZippyCutPlan.moveClip(state, idx, idx - 1)
+                    refreshAll()
+                    saveDraft()
+                }
+            }
+            val down = Button(this).apply {
+                text = "↓"
+                isEnabled = idx < state.clips.lastIndex
+                setOnClickListener {
+                    collectState()
+                    state = ZippyCutPlan.moveClip(state, idx, idx + 1)
+                    refreshAll()
+                    saveDraft()
+                }
+            }
+            val del = Button(this).apply {
+                text = "✕"
+                setOnClickListener {
+                    val updated = state.clips.toMutableList()
+                    updated.removeAt(idx)
+                    state = state.copy(
+                        clips = updated,
+                        selectedClip = state.selectedClip.coerceIn(0, maxOf(0, updated.size - 1))
+                    )
+                    refreshAll()
+                    saveDraft()
+                }
+            }
+            row.addView(label)
+            row.addView(up)
+            row.addView(down)
+            row.addView(del)
+            box.addView(row)
+        }
+    }
+
+    private fun selectClip(idx: Int) {
+        collectState()
+        val clip = state.clips.getOrNull(idx) ?: return
+        state = state.copy(selectedClip = idx)
+        if (clip.sourceUri.isNotBlank()) {
+            binding.videoPreview.setVideoURI(Uri.parse(clip.sourceUri))
+            binding.seekPreview.max = clip.durationMs.toInt().coerceAtLeast(0)
+        }
+        refreshAll()
+        saveDraft()
+    }
+
     private fun updateMetaText() {
-        binding.tvMeta.text = if (state.durationMs > 0) {
-            "${state.sourceName} • ${String.format(Locale.US, "%.1fs", state.durationMs / 1000.0)}" +
-                if (state.width > 0) " • ${state.width}×${state.height}" else ""
-        } else {
-            L("ဗီဒီယို မရွေးရသေးပါ", "No video selected")
+        val sel = selectedClip()
+        binding.tvMeta.text = when {
+            sel == null -> L("ဗီဒီယို မရွေးရသေးပါ", "No video selected")
+            else -> "${sel.sourceName} • ${String.format(Locale.US, "%.1fs", sel.durationMs / 1000.0)}" +
+                if (sel.width > 0) " • ${sel.width}×${sel.height}" else ""
         }
     }
 
@@ -222,18 +405,21 @@ class ZippyCutStudioActivity : AppCompatActivity() {
     private fun secondsToMs(text: String): Long? =
         text.trim().toDoubleOrNull()?.let { (it * 1000).toLong() }
 
+    /** Writes the on-screen fields back into the edit state. */
     private fun collectState() {
-        val subStart = state.trimStartMs
-        val start = secondsToMs(binding.etTrimStart.text.toString()) ?: subStart
-        val end = secondsToMs(binding.etTrimEnd.text.toString()) ?: state.trimEndMs
-        val splitText = binding.etSplit.text.toString().trim()
-        val split = if (splitText.isEmpty()) null else secondsToMs(splitText)
+        val sel = selectedClip()
+        var clips = state.clips
+        if (sel != null) {
+            val start = secondsToMs(binding.etTrimStart.text.toString()) ?: sel.trimStartMs
+            val end = secondsToMs(binding.etTrimEnd.text.toString()) ?: sel.trimEndMs
+            val updated = clips.toMutableList()
+            updated[state.selectedClip] = sel.copy(trimStartMs = start, trimEndMs = end)
+            clips = updated
+        }
         state = state.copy(
-            trimStartMs = start,
-            trimEndMs = end,
-            splitMs = split,
+            clips = clips,
             title = binding.etTitle.text.toString(),
-            keepAudio = binding.cbKeepAudio.isChecked
+            textOverlay = binding.etTextOverlay.text.toString()
         )
     }
 
@@ -244,8 +430,35 @@ class ZippyCutStudioActivity : AppCompatActivity() {
         } else {
             "Segments: " + ZippyCutPlan.segments(state).joinToString("  +  ") {
                 "${ZippyCutPlan.formatSeconds(it.startMs)}s–${ZippyCutPlan.formatSeconds(it.endMs)}s"
-            }
+            } + "  •  total " + String.format(
+                Locale.US, "%.1fs", ZippyCutPlan.totalDurationMs(state) / 1000.0
+            )
         }
+    }
+
+    private fun applySplit() {
+        collectState()
+        val idx = state.selectedClip
+        if (selectedClip() == null) {
+            Toast.makeText(this, L("အရင် clip ရွေးပါ", "Select a clip first"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val at = secondsToMs(binding.etSplit.text.toString())
+        if (at == null) {
+            Toast.makeText(this, L("Split အချိန် (စက္ကန့်) ထည့်ပါ", "Enter a split time in seconds"), Toast.LENGTH_SHORT).show()
+            return
+        }
+        ZippyCutPlan.splitClip(state, idx, at).fold(
+            onSuccess = { newState ->
+                state = newState
+                binding.etSplit.setText("")
+                refreshAll()
+                saveDraft()
+            },
+            onFailure = { err ->
+                Toast.makeText(this, err.message, Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     private fun addSubtitleFromInputs() {
@@ -302,48 +515,34 @@ class ZippyCutStudioActivity : AppCompatActivity() {
 
     private fun restoreDraft() {
         val file = draftFile()
-        if (!file.exists()) {
-            updateMetaText()
-            return
-        }
+        if (!file.exists()) return
         runCatching {
             state = ZippyCutPlan.fromJson(file.readText(Charsets.UTF_8))
-            binding.etTitle.setText(state.title)
-            binding.cbKeepAudio.isChecked = state.keepAudio
-            binding.etTrimStart.setText(String.format(Locale.US, "%.3f", state.trimStartMs / 1000.0))
-            binding.etTrimEnd.setText(String.format(Locale.US, "%.3f", state.trimEndMs / 1000.0))
-            binding.etSplit.setText(state.splitMs?.let { String.format(Locale.US, "%.3f", it / 1000.0) } ?: "")
-            renderSubtitleRows()
-            if (state.sourceUri.isNotBlank()) {
-                val uri = Uri.parse(state.sourceUri)
-                binding.videoPreview.setVideoURI(uri)
-                binding.seekPreview.max = state.durationMs.toInt().coerceAtLeast(0)
+            val sel = selectedClip()
+            if (sel != null && sel.sourceUri.isNotBlank()) {
+                binding.videoPreview.setVideoURI(Uri.parse(sel.sourceUri))
+                binding.seekPreview.max = sel.durationMs.toInt().coerceAtLeast(0)
             }
         }
-        updateMetaText()
-        refreshSegmentsText()
     }
 
     // -------- export via Termux engine (same path as Recap Studio) --------
+
+    private fun setStatus(text: String) {
+        binding.tvExportStatus.text = text
+    }
 
     private fun startExport() {
         collectState()
         refreshSegmentsText()
         val validation = ZippyCutPlan.validate(state)
         if (validation != null) {
-            binding.tvExportStatus.text = "Export status: FAILED — $validation"
+            setStatus("Export status: FAILED — $validation")
             return
         }
-        if (state.stagedPath.isBlank()) {
-            binding.tvExportStatus.text = L(
-                "Export အခြေအနေ: FAILED — staged copy မရှိသေးပါ (ဗီဒီယို ပြန်ရွေးပြီး staging စောင့်ပါ)",
-                "Export status: FAILED — no staged copy yet (re-pick the video and wait for staging)"
-            )
-            return
-        }
-        val inputPath = state.stagedPath
         val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val safeName = state.sourceName.replace(Regex("[^a-zA-Z0-9_-]"), "_").ifBlank { "zippy" }
+        val firstName = state.clips.firstOrNull()?.sourceName?.substringBeforeLast('.') ?: "zippy"
+        val safeName = firstName.replace(Regex("[^a-zA-Z0-9_-]"), "_").ifBlank { "zippy" }
         outputPath = "/storage/emulated/0/Download/ZippyCut_${safeName}_$ts.mp4"
 
         var srtPath: String? = null
@@ -352,10 +551,10 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             runCatching { File(File(filesDir, "zippycut"), "draft.srt").writeText(srt, Charsets.UTF_8) }
             srtPath = stageSrtToShared(srt, "ZippyCut_$ts.srt")
             if (srtPath == null) {
-                binding.tvExportStatus.text = L(
+                setStatus(L(
                     "Export အခြေအနေ: FAILED — စာတန်း .srt ကို shared storage သို့ မတင်နိုင်ပါ",
                     "Export status: FAILED — could not place the .srt file in shared storage"
-                )
+                ))
                 return
             }
         }
@@ -367,20 +566,19 @@ class ZippyCutStudioActivity : AppCompatActivity() {
 
         val argsResult = ZippyCutPlan.buildFfmpegArgs(
             state = state,
-            inputPath = inputPath,
             outputPath = outputPath,
             subtitlesPath = srtPath,
             fontFile = font
         )
         if (argsResult.isFailure) {
-            binding.tvExportStatus.text = "Export status: FAILED — ${argsResult.exceptionOrNull()?.message}"
+            setStatus("Export status: FAILED — ${argsResult.exceptionOrNull()?.message}")
             return
         }
         binding.btnExport.isEnabled = false
-        binding.tvExportStatus.text = L(
+        setStatus(L(
             "Export အခြေအနေ: QUEUED • Termux သို့ ပို့နေသည်… (ရာခိုင်နှုန်း မပြပါ — တကယ့် အခြေအနေကိုသာ ပြသည်)",
             "Export status: QUEUED • dispatching to Termux… (no fake percentage — real status only)"
-        )
+        ))
         lifecycleScope.launch {
             TermuxBridge.send(
                 this@ZippyCutStudioActivity,
@@ -393,7 +591,7 @@ class ZippyCutStudioActivity : AppCompatActivity() {
                 onSuccess = { termuxJobId -> observeExport(termuxJobId) },
                 onFailure = { ex ->
                     binding.btnExport.isEnabled = true
-                    binding.tvExportStatus.text = "Export status: FAILED — ${ex.message}"
+                    setStatus("Export status: FAILED — ${ex.message}")
                 }
             )
         }
@@ -435,9 +633,9 @@ class ZippyCutStudioActivity : AppCompatActivity() {
 
     private fun observeExport(termuxJobId: String) {
         observerJob?.cancel()
-        val db = (application as ZipBugApp).database
+        val dao = ZipBugDatabase.get(this).buildJobDao()
         observerJob = lifecycleScope.launch {
-            db.buildJobDao().observe(termuxJobId).filterNotNull().collect { job ->
+            dao.observe(termuxJobId).filterNotNull().collect { job ->
                 onExportJobUpdate(job)
             }
         }
@@ -446,20 +644,18 @@ class ZippyCutStudioActivity : AppCompatActivity() {
     private fun onExportJobUpdate(job: BuildJobEntity) {
         when (job.status) {
             BuildJobEntity.QUEUED, BuildJobEntity.RUNNING -> {
-                binding.tvExportStatus.text = "Export status: ${job.status} • processing in Termux (ffmpeg)…"
+                setStatus("Export status: ${job.status} • processing in Termux (ffmpeg)…")
             }
             BuildJobEntity.SUCCESS -> {
                 val verify = RecapRenderCoordinator.verifyRenderResult(job.exitCode, outputPath)
                 binding.btnExport.isEnabled = true
                 if (verify.isSuccess) {
                     val info = verify.getOrThrow()
-                    binding.tvExportStatus.text =
-                        "Export status: SUCCESS • ${info.fileName} • ${info.sizeBytes} bytes • $outputPath"
+                    setStatus("Export status: SUCCESS • ${info.fileName} • ${info.sizeBytes} bytes • $outputPath")
                     binding.btnPreviewOutput.isEnabled = true
                     binding.btnShareOutput.isEnabled = true
                 } else {
-                    binding.tvExportStatus.text =
-                        "Export status: FAILED — output verification failed: ${verify.exceptionOrNull()?.message}"
+                    setStatus("Export status: FAILED — output verification failed: ${verify.exceptionOrNull()?.message}")
                 }
             }
             else -> {
@@ -467,7 +663,7 @@ class ZippyCutStudioActivity : AppCompatActivity() {
                 val detail = LogSanitizer.sanitize(
                     job.errorMessage.ifBlank { job.stderr.take(300) }
                 )
-                binding.tvExportStatus.text = "Export status: FAILED • exit ${job.exitCode} • $detail"
+                setStatus("Export status: FAILED • exit ${job.exitCode} • $detail")
             }
         }
     }

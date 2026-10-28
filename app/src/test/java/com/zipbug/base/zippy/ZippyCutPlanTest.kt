@@ -8,90 +8,134 @@ import org.junit.Test
 
 class ZippyCutPlanTest {
 
-    private fun state(
+    private fun clip(
+        id: String = "c1",
+        name: String = "a.mp4",
         durationMs: Long = 60_000L,
         trimStartMs: Long = 5_000L,
-        trimEndMs: Long = 35_000L,
-        splitMs: Long? = null,
-        keepAudio: Boolean = true,
+        trimEndMs: Long = 35_000L
+    ) = ZippyCutPlan.Clip(
+        id = id,
+        sourceUri = "content://media/$id",
+        sourceName = name,
+        stagedPath = "/storage/emulated/0/Download/Zip_Bug/Recap/$name",
+        durationMs = durationMs,
+        width = 1920,
+        height = 1080,
+        trimStartMs = trimStartMs,
+        trimEndMs = trimEndMs
+    )
+
+    private fun state(
+        clips: List<ZippyCutPlan.Clip> = listOf(clip()),
+        audioMode: ZippyCutPlan.AudioMode = ZippyCutPlan.AudioMode.KEEP,
+        replaceAudioPath: String = "",
         title: String = "",
+        textOverlay: String = "",
+        logoPath: String = "",
         subtitles: List<ZippyCutPlan.SubtitleLine> = emptyList()
     ) = ZippyCutPlan.EditState(
-        sourceUri = "content://media/video/1",
-        sourceName = "sample.mp4",
-        stagedPath = "/storage/emulated/0/Download/Zip_Bug/Recap/sample.mp4",
-        durationMs = durationMs,
-        trimStartMs = trimStartMs,
-        trimEndMs = trimEndMs,
-        splitMs = splitMs,
+        clips = clips,
         title = title,
-        keepAudio = keepAudio,
+        textOverlay = textOverlay,
+        logoPath = logoPath,
+        audioMode = audioMode,
+        replaceAudioPath = replaceAudioPath,
         subtitles = subtitles
     )
 
     @Test
-    fun validationAcceptsValidTrim() {
+    fun validationAcceptsValidState() {
         assertNull(ZippyCutPlan.validate(state()))
     }
 
     @Test
-    fun validationRejectsInvertedTrimAndOverflow() {
+    fun validationRejectsEmptyClipsAndBadTrims() {
+        assertTrue(ZippyCutPlan.validate(state(clips = emptyList()))!!.contains("at least one"))
         assertTrue(
-            ZippyCutPlan.validate(state(trimStartMs = 20_000, trimEndMs = 10_000))!!
+            ZippyCutPlan.validate(state(clips = listOf(clip(trimStartMs = 20_000, trimEndMs = 10_000))))!!
                 .contains("after trim start")
         )
         assertTrue(
-            ZippyCutPlan.validate(state(trimEndMs = 61_000))!!
-                .contains("exceeds video duration")
+            ZippyCutPlan.validate(state(clips = listOf(clip(trimEndMs = 61_000))))!!
+                .contains("exceeds clip duration")
+        )
+        assertTrue(
+            ZippyCutPlan.validate(state(clips = listOf(clip().copy(stagedPath = ""))))!!
+                .contains("no staged copy")
         )
     }
 
     @Test
-    fun validationRejectsSplitOutsideTrimAndSubtitleOverflow() {
+    fun validationRejectsReplaceWithoutAudioAndSubtitleOverflow() {
         assertTrue(
-            ZippyCutPlan.validate(state(splitMs = 35_000))!!
-                .contains("Split point")
+            ZippyCutPlan.validate(state(audioMode = ZippyCutPlan.AudioMode.REPLACE))!!
+                .contains("REPLACE")
         )
         val badSub = ZippyCutPlan.SubtitleLine(0, 31_000, "too long")
         assertTrue(
             ZippyCutPlan.validate(state(subtitles = listOf(badSub)))!!
-                .contains("trimmed video length")
+                .contains("edited video length")
         )
     }
 
     @Test
-    fun segmentsWithoutSplitIsSingleTrimRange() {
-        val segments = ZippyCutPlan.segments(state())
-        assertEquals(1, segments.size)
-        assertEquals(5_000L, segments[0].startMs)
-        assertEquals(35_000L, segments[0].endMs)
-        assertEquals(30_000L, segments[0].durationMs)
-    }
-
-    @Test
-    fun splitProducesTwoContiguousExportSegments() {
-        val segments = ZippyCutPlan.segments(state(splitMs = 20_000))
+    fun segmentsFollowClipOrderAndTrims() {
+        val s = state(
+            clips = listOf(
+                clip(id = "c1", name = "a.mp4"),
+                clip(id = "c2", name = "b.mp4", trimStartMs = 0, trimEndMs = 10_000)
+            )
+        )
+        val segments = ZippyCutPlan.segments(s)
         assertEquals(2, segments.size)
-        assertEquals(segments[0].endMs, segments[1].startMs)
-        assertEquals(15_000L, segments[0].durationMs)
-        assertEquals(15_000L, segments[1].durationMs)
+        assertTrue(segments[0].inputPath.endsWith("a.mp4"))
+        assertEquals(30_000L, segments[0].durationMs)
+        assertTrue(segments[1].inputPath.endsWith("b.mp4"))
+        assertEquals(40_000L, ZippyCutPlan.totalDurationMs(s))
     }
 
     @Test
-    fun ffmpegArgsAreStructuredTrimSplitAndAudioKept() {
-        val result = ZippyCutPlan.buildFfmpegArgs(
-            state = state(splitMs = 20_000),
-            inputPath = "/storage/src.mp4",
-            outputPath = "/storage/out.mp4"
-        )
+    fun moveClipReordersAndTracksSelection() {
+        val s = state(
+            clips = listOf(clip(id = "c1", name = "a.mp4"), clip(id = "c2", name = "b.mp4"))
+        ).copy(selectedClip = 0)
+        val moved = ZippyCutPlan.moveClip(s, 0, 1)
+        assertEquals("b.mp4", moved.clips[0].sourceName)
+        assertEquals("a.mp4", moved.clips[1].sourceName)
+        assertEquals(1, moved.selectedClip)
+        // Out-of-range move is a no-op.
+        assertEquals(s, ZippyCutPlan.moveClip(s, 0, 5))
+    }
+
+    @Test
+    fun splitClipProducesTwoAdjacentClips() {
+        val s = state()
+        val result = ZippyCutPlan.splitClip(s, 0, 20_000)
         assertTrue(result.isSuccess)
-        val args = result.getOrThrow()
-        // Two segments => the same input is opened twice, each with -ss/-to.
+        val split = result.getOrThrow()
+        assertEquals(2, split.clips.size)
+        assertEquals(15_000L, split.clips[0].trimmedDurationMs)
+        assertEquals(15_000L, split.clips[1].trimmedDurationMs)
+        assertEquals(split.clips[0].trimEndMs, split.clips[1].trimStartMs)
+        // Split outside the trim range fails.
+        assertTrue(ZippyCutPlan.splitClip(s, 0, 35_000).isFailure)
+        assertTrue(ZippyCutPlan.splitClip(s, 3, 20_000).isFailure)
+    }
+
+    @Test
+    fun ffmpegArgsMultiClipKeepAudio() {
+        val s = state(
+            clips = listOf(
+                clip(id = "c1", name = "a.mp4"),
+                clip(id = "c2", name = "b.mp4", trimStartMs = 0, trimEndMs = 10_000)
+            )
+        )
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
         assertEquals(2, args.count { it == "-i" })
         assertEquals(2, args.count { it == "-ss" })
         assertTrue(args.contains("libx264"))
         assertTrue(args.contains("aac"))
-        assertTrue(args.contains("/storage/out.mp4"))
         val filter = args[args.indexOf("-filter_complex") + 1]
         assertTrue(filter.contains("concat=n=2:v=1:a=1"))
         for (arg in args) {
@@ -101,11 +145,9 @@ class ZippyCutPlanTest {
     }
 
     @Test
-    fun ffmpegArgsMuteDropsAudioMapping() {
+    fun ffmpegArgsMuteDropsAudio() {
         val args = ZippyCutPlan.buildFfmpegArgs(
-            state = state(keepAudio = false),
-            inputPath = "/storage/src.mp4",
-            outputPath = "/storage/out.mp4"
+            state(audioMode = ZippyCutPlan.AudioMode.MUTE), "/storage/out.mp4"
         ).getOrThrow()
         assertFalse(args.contains("aac"))
         val filter = args[args.indexOf("-filter_complex") + 1]
@@ -113,39 +155,67 @@ class ZippyCutPlanTest {
     }
 
     @Test
-    fun titleIsMetadataOnlyWithoutFontAndDrawtextWithFont() {
+    fun ffmpegArgsReplaceAudioUsesExtraInputTrimmedToTotal() {
+        val s = state(
+            audioMode = ZippyCutPlan.AudioMode.REPLACE,
+            replaceAudioPath = "/storage/music.mp3"
+        )
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
+        // Clip input + replacement audio input.
+        assertEquals(2, args.count { it == "-i" })
+        assertTrue(args.contains("/storage/music.mp3"))
+        assertTrue(args.contains("aac"))
+        val filter = args[args.indexOf("-filter_complex") + 1]
+        assertTrue(filter.contains("concat=n=1:v=1:a=0"))
+        assertTrue(filter.contains("[1:a]atrim=0:30.000"))
+    }
+
+    @Test
+    fun ffmpegArgsLogoOverlayUsesImageInput() {
+        val s = state(logoPath = "/storage/logo.png")
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
+        assertEquals(2, args.count { it == "-i" })
+        assertTrue(args.contains("/storage/logo.png"))
+        val filter = args[args.indexOf("-filter_complex") + 1]
+        assertTrue(filter.contains("[1:v]overlay=16:16"))
+    }
+
+    @Test
+    fun titleMetadataFallbackAndDrawtextWithFont() {
         val noFont = ZippyCutPlan.buildFfmpegArgs(
-            state = state(title = "My Title"),
-            inputPath = "/storage/src.mp4",
-            outputPath = "/storage/out.mp4",
-            fontFile = null
+            state(title = "My Title"), "/storage/out.mp4", fontFile = null
         ).getOrThrow()
         assertTrue(noFont.contains("title=My Title"))
-        val noFontFilter = noFont[noFont.indexOf("-filter_complex") + 1]
-        assertFalse(noFontFilter.contains("drawtext"))
+        assertFalse(noFont[noFont.indexOf("-filter_complex") + 1].contains("drawtext"))
 
         val withFont = ZippyCutPlan.buildFfmpegArgs(
-            state = state(title = "My Title"),
-            inputPath = "/storage/src.mp4",
-            outputPath = "/storage/out.mp4",
+            state(title = "My Title"), "/storage/out.mp4",
+            fontFile = "/system/fonts/Roboto-Regular.ttf"
+        ).getOrThrow()
+        assertTrue(withFont[withFont.indexOf("-filter_complex") + 1].contains("drawtext"))
+    }
+
+    @Test
+    fun textOverlayNeedsFontAndRendersAtBottom() {
+        val noFont = ZippyCutPlan.buildFfmpegArgs(
+            state(textOverlay = "Hello"), "/storage/out.mp4", fontFile = null
+        )
+        assertTrue(noFont.isFailure)
+        val withFont = ZippyCutPlan.buildFfmpegArgs(
+            state(textOverlay = "Hello"), "/storage/out.mp4",
             fontFile = "/system/fonts/Roboto-Regular.ttf"
         ).getOrThrow()
         val filter = withFont[withFont.indexOf("-filter_complex") + 1]
-        assertTrue(filter.contains("drawtext"))
-        assertTrue(filter.contains("My Title"))
+        assertTrue(filter.contains("Hello"))
+        assertTrue(filter.contains("y=h-64"))
     }
 
     @Test
     fun subtitlesBurnUsesGivenSrtPath() {
         val args = ZippyCutPlan.buildFfmpegArgs(
-            state = state(),
-            inputPath = "/storage/src.mp4",
-            outputPath = "/storage/out.mp4",
-            subtitlesPath = "/storage/subs.srt"
+            state(), "/storage/out.mp4", subtitlesPath = "/storage/subs.srt"
         ).getOrThrow()
-        val filter = args[args.indexOf("-filter_complex") + 1]
-        assertTrue(filter.contains("subtitles="))
-        assertTrue(filter.contains("subs.srt"))
+        assertTrue(args[args.indexOf("-filter_complex") + 1].contains("subtitles="))
     }
 
     @Test
@@ -163,22 +233,37 @@ class ZippyCutPlanTest {
     }
 
     @Test
-    fun draftJsonRoundTrip() {
+    fun draftJsonRoundTripV2() {
         val original = state(
-            splitMs = 20_000,
+            clips = listOf(clip(id = "c1", name = "a.mp4"), clip(id = "c2", name = "b.mp4")),
+            audioMode = ZippyCutPlan.AudioMode.REPLACE,
+            replaceAudioPath = "/storage/music.mp3",
             title = "ခေါင်းစဉ်",
-            keepAudio = false,
+            textOverlay = "Overlay",
+            logoPath = "/storage/logo.png",
             subtitles = listOf(ZippyCutPlan.SubtitleLine(0, 2_000, "စာတန်း"))
-        ).copy(width = 1280, height = 720)
+        ).copy(selectedClip = 1, replaceAudioName = "music.mp3")
         val restored = ZippyCutPlan.fromJson(ZippyCutPlan.toJson(original))
         assertEquals(original, restored)
     }
 
     @Test
-    fun draftJsonRoundTripWithoutSplit() {
-        val original = state()
-        val restored = ZippyCutPlan.fromJson(ZippyCutPlan.toJson(original))
-        assertEquals(original, restored)
-        assertNull(restored.splitMs)
+    fun draftJsonMigratesV1SingleSource() {
+        val v1 = """
+            {"sourceUri":"content://x","sourceName":"old.mp4","stagedPath":"/s/old.mp4",
+             "durationMs":60000,"width":1280,"height":720,"trimStartMs":1000,"trimEndMs":9000,
+             "title":"Old","keepAudio":false,"splitMs":5000,
+             "subtitles":[{"startMs":0,"endMs":2000,"text":"hi"}]}
+        """.trimIndent()
+        val restored = ZippyCutPlan.fromJson(v1)
+        // The v1 split point (5000, inside trim 1000-9000) is preserved as
+        // two migrated clips.
+        assertEquals(2, restored.clips.size)
+        assertEquals("old.mp4", restored.clips[0].sourceName)
+        assertEquals(5_000L, restored.clips[0].trimEndMs)
+        assertEquals(5_000L, restored.clips[1].trimStartMs)
+        assertEquals(ZippyCutPlan.AudioMode.MUTE, restored.audioMode)
+        assertEquals("Old", restored.title)
+        assertEquals(1, restored.subtitles.size)
     }
 }

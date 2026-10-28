@@ -80,7 +80,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:backgroundTint="#2B3640"
-                android:text="Import video / ဗီဒီယို ရွေးပါ" />
+                android:text="+ Add video clip / ဗီဒီယို clip ထည့်ပါ" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="CLIPS • tap to select, ↑ ↓ to reorder"
+                android:textColor="#FF9F43"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/clipsRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
         </LinearLayout>
 
         <!-- Timeline panel -->
@@ -130,11 +145,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Split (sec, optional)"
+                    android:hint="Split at (sec)"
                     android:inputType="numberDecimal"
                     android:textColor="#EEF3F6"
                     android:textColorHint="#8D99A5" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btnApplySplit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#2B3640"
+                android:text="✂ Split selected clip / ရွေးထားသော clip ကို ခွဲပါ" />
 
             <TextView
                 android:id="@+id/tvSegments"
@@ -164,13 +186,100 @@
                 android:textColor="#EEF3F6"
                 android:textColorHint="#8D99A5" />
 
-            <CheckBox
-                android:id="@+id/cbKeepAudio"
+            <EditText
+                android:id="@+id/etTextOverlay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Keep original audio / မူရင်းအသံ ထားမည်"
-                android:textColor="#EEF3F6" />
+                android:hint="Text overlay (bottom) / အောက်ခြေ စာတန်း"
+                android:inputType="text"
+                android:textColor="#EEF3F6"
+                android:textColorHint="#8D99A5" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPickLogo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#2B3640"
+                    android:text="Pick logo image / Logo ရွေးပါ" />
+
+                <TextView
+                    android:id="@+id/tvLogoName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="No logo"
+                    android:textColor="#8D99A5"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="AUDIO"
+                android:textColor="#FF9F43"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgAudioMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rbAudioKeep"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Keep original audio / မူရင်းအသံ ထားမည်"
+                    android:textColor="#EEF3F6" />
+
+                <RadioButton
+                    android:id="@+id/rbAudioMute"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mute / အသံပိတ်မည်"
+                    android:textColor="#EEF3F6" />
+
+                <RadioButton
+                    android:id="@+id/rbAudioReplace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Replace with selected audio / ရွေးထားသောအသံနှင့် လဲမည်"
+                    android:textColor="#EEF3F6" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPickAudio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="#2B3640"
+                    android:text="Pick replacement audio / အသံဖိုင် ရွေးပါ" />
+
+                <TextView
+                    android:id="@+id/tvReplaceAudioName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="No audio file"
+                    android:textColor="#8D99A5"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Subtitles panel -->

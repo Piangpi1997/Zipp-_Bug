@@ -131,13 +131,15 @@ was **added** (see §E), nothing was removed.
 | Video import (picker) + real metadata | Exists | Recap/Drama already; new studio reuses `RecapMediaStager` |
 | Preview play/pause/seek | Exists | `VideoView` in Drama editor; new studio adds its own |
 | Trim | Exists | Recap clips (start/end per clip) |
-| Split into segments | Reconnect | Recap had multi-clip timelines; a single-source split point is new in `ZippyCutPlan.segments()` |
-| Reorder clips | Exists (Recap multi-clip) | Not in the new single-source studio (documented scope) |
+| Split into segments | Reconnect | Recap had multi-clip timelines; splitting the selected clip at a source-time point is new in `ZippyCutPlan.splitClip()` |
+| Reorder clips | Reconnect | Multi-clip list with ↑/↓ reorder in the new studio (`ZippyCutPlan.moveClip`, selection tracked) |
 | Manual subtitles (Myanmar/EN) + SRT | Exists | `SubtitleExporter.cuesToSrt` reused by `ZippyCutPlan.subtitlesToSrt` |
-| Title overlay | Reconnect | New: drawtext when a system font exists, otherwise container metadata — both in `ZippyCutPlan.buildFfmpegArgs` |
-| Logo overlay | Missing in new studio | Exists partially in Drama editor (logo picker); not ported in this pass |
+| Title overlay | Reconnect | drawtext when a system font exists, otherwise container metadata — in `ZippyCutPlan.buildFfmpegArgs` |
+| Text overlay (bottom) | Reconnect | New: second drawtext line (`y=h-64`); fails loudly without a font instead of being silently dropped |
+| Logo overlay | Reconnect | New: logo image picked + staged like other media, applied as an extra ffmpeg input with `overlay=16:16` in the plan |
 | Audio keep/mute | Reconnect | New in the plan builder (`concat` with/without audio) |
-| Blur / overlay effects | Exists (Recap `boxblur` clip effect) | Not exposed in the new studio's single-source flow in this pass |
+| Audio replace with selected file | Reconnect | New: replacement audio staged, added as an extra input, trimmed to the total output duration (`atrim`) |
+| Blur / overlay effects | Exists (Recap `boxblur` clip effect) | Not exposed in the new studio's flow in this pass |
 | Real render/export | Exists | Termux ffmpeg via `TermuxBridge` (Recap path) |
 | Output preview / save / share | Exists | FileProvider + public Downloads output, as in Recap |
 | Draft restore (edit state, original media untouched) | Reconnect | New: JSON draft in app-private storage (`zippycut/draft.json`) |
@@ -176,3 +178,45 @@ text — the reference's own tokens), wired to ZIP_BUG's real engines:
   debug certificate** and cannot update-install over the owner's alpha04
   APK; that is a signing-identity fact, not data loss — do not uninstall or
   clear data to work around it.
+
+---
+
+## F. APK size — why the reference is ~75 MB and this one is not
+
+The owner asked for a unified APK of roughly 80 MB **with real components
+only — no dummy files, duplicates or padding**. The honest breakdown:
+
+**What makes the reference Zippy APK ~75 MB:** almost all of it is the
+bundled in-process FFmpegKit native libraries — roughly **31 MB
+(arm64-v8a) + 37 MB (x86_64)** of uncompressed `.so` files (`libavcodec`,
+`libavformat`, `libavfilter`, `libavdevice`, `libavutil`, `libswscale`,
+`libswresample`, `libffmpegkit`, `libc++_shared`). The actual product
+content is small: `assets/index.html` ≈ 1 MB, `voicer_panel.html`,
+`zippy_chat.json` and 33 poster images ≈ a few MB, plus the DEX/resources.
+
+**What the unified ZIP_BUG APK contains instead:** ZIP_BUG's architecture
+deliberately ships **no native ffmpeg** — rendering runs in Termux's system
+ffmpeg through `TermuxBridge`. The unified APK is therefore the ZIP_BUG app
+itself (Kotlin DEX, resources, studio WebView assets) plus this integration's
+new code (one Activity, one layout, one pure-Kotlin plan module — kilobytes).
+A realistic debug APK size is roughly **8–20 MB**, and that is the correct,
+honest size for this architecture.
+
+**Why we do NOT copy Zippy's `.so` files in:** they would only be callable
+through Zippy's own JNI/Java bridge classes (`FfmpegRenderer` etc.), which
+belong to the reference app's render pipeline, not ZIP_BUG's. Bundling
+~68 MB of native libraries that no code in this app invokes is exactly the
+dead weight / padding the owner forbade. If in-app (non-Termux) rendering is
+ever wanted, the legitimate route is a dependency that is actually wired —
+e.g. androidx.media3 Transformer — added via Gradle and used by the studio,
+not copied binaries.
+
+**Media3 evaluation (2026-10-28):** androidx.media3 Transformer/Effect was
+evaluated as the in-app export route. It cannot be adopted in this sandbox:
+Gradle itself cannot run here (the daemon protocol fails before any
+dependency resolution — see the build notes in the task report), so the
+dependencies cannot be resolved, compiled, or tested. Adopting an
+unverifiable dependency would violate the "only label PASS what was
+executed" rule. The studio therefore keeps the Termux export path, which is
+ZIP_BUG's real, existing engine; the media3 route remains a documented
+option for a future pass on a machine where Gradle runs.
