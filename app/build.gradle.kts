@@ -49,6 +49,16 @@ android {
             versionNameSuffix = "-zippy-next"
         }
 
+        // Side-by-side preview build: installs next to the .next debug app
+        // (e.g. alpha04) without touching it, because the package ID differs
+        // (com.zipbug.base.preview). Data is NOT shared with or copied from
+        // the .next app. Build with: gradle assemblePreview
+        create("preview") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".preview"
+            versionNameSuffix = "-preview"
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
