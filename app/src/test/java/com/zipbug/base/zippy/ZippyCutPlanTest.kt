@@ -13,7 +13,8 @@ class ZippyCutPlanTest {
         name: String = "a.mp4",
         durationMs: Long = 60_000L,
         trimStartMs: Long = 5_000L,
-        trimEndMs: Long = 35_000L
+        trimEndMs: Long = 35_000L,
+        hasAudio: Boolean = true
     ) = ZippyCutPlan.Clip(
         id = id,
         sourceUri = "content://media/$id",
@@ -23,7 +24,8 @@ class ZippyCutPlanTest {
         width = 1920,
         height = 1080,
         trimStartMs = trimStartMs,
-        trimEndMs = trimEndMs
+        trimEndMs = trimEndMs,
+        hasAudio = hasAudio
     )
 
     private fun state(
@@ -33,9 +35,11 @@ class ZippyCutPlanTest {
         title: String = "",
         textOverlay: String = "",
         logoPath: String = "",
-        subtitles: List<ZippyCutPlan.SubtitleLine> = emptyList()
+        subtitles: List<ZippyCutPlan.SubtitleLine> = emptyList(),
+        aspect: ZippyCutPlan.OutputAspect = ZippyCutPlan.OutputAspect.LANDSCAPE_16_9
     ) = ZippyCutPlan.EditState(
         clips = clips,
+        aspect = aspect,
         title = title,
         textOverlay = textOverlay,
         logoPath = logoPath,
@@ -43,6 +47,8 @@ class ZippyCutPlanTest {
         replaceAudioPath = replaceAudioPath,
         subtitles = subtitles
     )
+
+    private fun filterOf(args: List<String>): String = args[args.indexOf("-filter_complex") + 1]
 
     @Test
     fun validationAcceptsValidState() {
@@ -248,8 +254,7 @@ class ZippyCutPlanTest {
     }
 
     @Test
-    fun draftJsonMigratesV1SingleSource() {
-        val v1 = """
+    fun draftJsonMigratesV1SingleSource() {        val v1 = """
             {"sourceUri":"content://x","sourceName":"old.mp4","stagedPath":"/s/old.mp4",
              "durationMs":60000,"width":1280,"height":720,"trimStartMs":1000,"trimEndMs":9000,
              "title":"Old","keepAudio":false,"splitMs":5000,
@@ -265,5 +270,145 @@ class ZippyCutPlanTest {
         assertEquals(ZippyCutPlan.AudioMode.MUTE, restored.audioMode)
         assertEquals("Old", restored.title)
         assertEquals(1, restored.subtitles.size)
+    }
+
+    // -------- v3: output aspect --------
+
+    @Test
+    fun ffmpegArgsPortraitCanvas() {
+        val args = ZippyCutPlan.buildFfmpegArgs(
+            state(aspect = ZippyCutPlan.OutputAspect.PORTRAIT_9_16), "/storage/out.mp4"
+        ).getOrThrow()
+        val filter = filterOf(args)
+        assertTrue(filter.contains("scale=720:1280"))
+        assertTrue(filter.contains("pad=720:1280"))
+        assertFalse(filter.contains("1280:720"))
+        assertFalse(filter.contains("scale=1280"))
+    }
+
+    @Test
+    fun ffmpegArgsLandscapeCanvasUnchanged() {
+        val args = ZippyCutPlan.buildFfmpegArgs(state(), "/storage/out.mp4").getOrThrow()
+        val filter = filterOf(args)
+        assertTrue(filter.contains("scale=1280:720"))
+        assertTrue(filter.contains("pad=1280:720"))
+        assertFalse(filter.contains("720:1280"))
+    }
+
+    // -------- v3: clips without an audio stream --------
+
+    @Test
+    fun ffmpegArgsSilentClipSynthesizesSilence() {
+        val s = state(clips = listOf(clip(hasAudio = false)))
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
+        val filter = filterOf(args)
+        // Silence is synthesized for the segment; the missing [0:a] input
+        // stream is never referenced.
+        assertTrue(filter.contains("anullsrc=channel_layout=stereo:sample_rate=44100"))
+        assertTrue(filter.contains("atrim=0:30.000"))
+        assertFalse(filter.contains("[0:a]"))
+        assertTrue(filter.contains("concat=n=1:v=1:a=1"))
+        assertTrue(args.contains("aac"))
+    }
+
+    @Test
+    fun ffmpegArgsMixedTimelineGraphIsValid() {
+        val s = state(
+            clips = listOf(
+                clip(id = "c1", name = "a.mp4"),
+                clip(id = "c2", name = "b.mp4", trimStartMs = 0, trimEndMs = 10_000, hasAudio = false)
+            )
+        )
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
+        val filter = filterOf(args)
+        // Audio clip uses its real stream; silent clip (input 1) does not.
+        assertTrue(filter.contains("[0:a]atrim=0:30.000"))
+        assertFalse(filter.contains("[1:a]"))
+        assertEquals(1, filter.split("anullsrc").size - 1)
+        // Every concat input label is defined exactly once before concat.
+        assertTrue(filter.contains("[v0][a0][v1][a1]concat=n=2:v=1:a=1"))
+        for (label in listOf("v0", "a0", "v1", "a1")) {
+            assertEquals(
+                "label [$label] must be defined exactly once",
+                1, filter.split("[$label];").size - 1
+            )
+        }
+    }
+
+    @Test
+    fun ffmpegArgsSilentClipMuteStillHasNoAudio() {
+        val s = state(
+            clips = listOf(clip(hasAudio = false)),
+            audioMode = ZippyCutPlan.AudioMode.MUTE
+        )
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
+        val filter = filterOf(args)
+        assertFalse(filter.contains("anullsrc"))
+        assertFalse(filter.contains("[0:a]"))
+        assertTrue(filter.contains("concat=n=1:v=1:a=0"))
+        assertFalse(args.contains("aac"))
+    }
+
+    @Test
+    fun ffmpegArgsReplaceAudioWithSilentClipsUsesReplaceTrack() {
+        val s = state(
+            clips = listOf(
+                clip(id = "c1", name = "a.mp4", hasAudio = false),
+                clip(id = "c2", name = "b.mp4", trimStartMs = 0, trimEndMs = 10_000, hasAudio = false)
+            ),
+            audioMode = ZippyCutPlan.AudioMode.REPLACE,
+            replaceAudioPath = "/storage/music.mp3"
+        )
+        val args = ZippyCutPlan.buildFfmpegArgs(s, "/storage/out.mp4").getOrThrow()
+        // Inputs: 2 clips + replacement audio (index 2). Total = 30s + 10s.
+        assertEquals(3, args.count { it == "-i" })
+        val filter = filterOf(args)
+        assertFalse(filter.contains("anullsrc"))
+        assertFalse(filter.contains("[0:a]"))
+        assertFalse(filter.contains("[1:a]"))
+        assertTrue(filter.contains("[2:a]atrim=0:40.000"))
+        assertTrue(filter.contains("concat=n=2:v=1:a=0"))
+        assertTrue(args.contains("aac"))
+    }
+
+    // -------- v3: draft JSON --------
+
+    @Test
+    fun draftJsonRoundTripV3() {
+        val original = state(
+            clips = listOf(
+                clip(id = "c1", name = "a.mp4"),
+                clip(id = "c2", name = "b.mp4", hasAudio = false)
+            ),
+            aspect = ZippyCutPlan.OutputAspect.PORTRAIT_9_16,
+            title = "Portrait"
+        )
+        val json = ZippyCutPlan.toJson(original)
+        assertTrue(json.contains("\"version\":3"))
+        val restored = ZippyCutPlan.fromJson(json)
+        assertEquals(original, restored)
+        assertEquals(ZippyCutPlan.OutputAspect.PORTRAIT_9_16, restored.aspect)
+        assertFalse(restored.clips[1].hasAudio)
+    }
+
+    @Test
+    fun draftJsonMigratesV2Defaults() {
+        // A real v2 draft: no "aspect", no per-clip "hasAudio".
+        val v2 = """
+            {"version":2,
+             "clips":[{"id":"c1","sourceUri":"content://a","sourceName":"a.mp4",
+               "stagedPath":"/s/a.mp4","durationMs":60000,"width":1920,"height":1080,
+               "trimStartMs":0,"trimEndMs":30000}],
+             "selectedClip":0,"title":"T","textOverlay":"","logoUri":"","logoPath":"",
+             "audioMode":"KEEP","replaceAudioUri":"","replaceAudioPath":"",
+             "replaceAudioName":"","subtitles":[]}
+        """.trimIndent()
+        val restored = ZippyCutPlan.fromJson(v2)
+        assertEquals(ZippyCutPlan.OutputAspect.LANDSCAPE_16_9, restored.aspect)
+        assertEquals(1, restored.clips.size)
+        assertTrue(restored.clips[0].hasAudio)
+        // And the migrated state renders on the landscape canvas.
+        val filter = filterOf(ZippyCutPlan.buildFfmpegArgs(restored, "/storage/out.mp4").getOrThrow())
+        assertTrue(filter.contains("pad=1280:720"))
     }
 }

@@ -35,16 +35,25 @@ object ZippyCutPlan {
         val width: Int = 0,
         val height: Int = 0,
         val trimStartMs: Long = 0L,
-        val trimEndMs: Long = 0L
+        val trimEndMs: Long = 0L,
+        /** False when the source has no audio stream (detected at import). */
+        val hasAudio: Boolean = true
     ) {
         val trimmedDurationMs: Long get() = trimEndMs - trimStartMs
     }
 
     enum class AudioMode { KEEP, MUTE, REPLACE }
 
+    /** Output canvas. LANDSCAPE_16_9 = 1280x720, PORTRAIT_9_16 = 720x1280. */
+    enum class OutputAspect(val width: Int, val height: Int) {
+        LANDSCAPE_16_9(1280, 720),
+        PORTRAIT_9_16(720, 1280)
+    }
+
     data class EditState(
         val clips: List<Clip> = emptyList(),
         val selectedClip: Int = 0,
+        val aspect: OutputAspect = OutputAspect.LANDSCAPE_16_9,
         val title: String = "",
         val textOverlay: String = "",
         val logoUri: String = "",
@@ -142,8 +151,14 @@ object ZippyCutPlan {
 
     /**
      * Builds the ffmpeg argument list (executed by Termux, never a shell
-     * string). Video is normalised to 1280x720-padded H.264, matching the
-     * Recap renderer's output contract.
+     * string). Video is normalised to the state's output canvas
+     * ([OutputAspect]: 1280x720 landscape or 720x1280 portrait) padded
+     * H.264, matching the Recap renderer's output contract.
+     *
+     * Clips without an audio stream ([Clip.hasAudio] = false) get a
+     * synthesized silent segment (anullsrc) in KEEP mode so the concat
+     * still receives one audio segment per clip instead of failing on a
+     * missing [i:a] reference.
      *
      * Input order is deterministic: clip inputs 0..N-1, then the logo image
      * input (if any), then the replacement-audio input (if REPLACE).
@@ -182,12 +197,22 @@ object ZippyCutPlan {
         } else -1
 
         val filter = StringBuilder()
+        val canvasW = state.aspect.width
+        val canvasH = state.aspect.height
         segments.forEachIndexed { i, seg ->
-            filter.append("[$i:v]scale=1280:720:force_original_aspect_ratio=decrease,")
-                .append("pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v$i];")
+            filter.append("[$i:v]scale=$canvasW:$canvasH:force_original_aspect_ratio=decrease,")
+                .append("pad=$canvasW:$canvasH:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v$i];")
             if (state.audioMode == AudioMode.KEEP) {
-                filter.append("[$i:a]atrim=0:${formatSeconds(seg.durationMs)},")
-                    .append("asetpts=PTS-STARTPTS[a$i];")
+                if (state.clips[seg.clipIndex].hasAudio) {
+                    filter.append("[$i:a]atrim=0:${formatSeconds(seg.durationMs)},")
+                        .append("asetpts=PTS-STARTPTS[a$i];")
+                } else {
+                    // No audio stream in this clip: synthesize a silent
+                    // segment of the same length so concat stays valid.
+                    filter.append("anullsrc=channel_layout=stereo:sample_rate=44100,")
+                        .append("atrim=0:${formatSeconds(seg.durationMs)},")
+                        .append("asetpts=PTS-STARTPTS[a$i];")
+                }
             }
         }
         val concatInputs = segments.indices.joinToString("") { i ->
@@ -257,7 +282,7 @@ object ZippyCutPlan {
     private fun escapeFilterPath(path: String): String =
         path.replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'")
 
-    // -------- Draft JSON (schema v2, with v1 migration) --------
+    // -------- Draft JSON (schema v3, with v2/v1 migration) --------
 
     fun toJson(state: EditState): String {
         val clips = JSONArray()
@@ -273,6 +298,7 @@ object ZippyCutPlan {
                     .put("height", clip.height)
                     .put("trimStartMs", clip.trimStartMs)
                     .put("trimEndMs", clip.trimEndMs)
+                    .put("hasAudio", clip.hasAudio)
             )
         }
         val subs = JSONArray()
@@ -285,9 +311,10 @@ object ZippyCutPlan {
             )
         }
         return JSONObject()
-            .put("version", 2)
+            .put("version", 3)
             .put("clips", clips)
             .put("selectedClip", state.selectedClip)
+            .put("aspect", state.aspect.name)
             .put("title", state.title)
             .put("textOverlay", state.textOverlay)
             .put("logoUri", state.logoUri)
@@ -316,7 +343,10 @@ object ZippyCutPlan {
                     width = c.optInt("width"),
                     height = c.optInt("height"),
                     trimStartMs = c.optLong("trimStartMs"),
-                    trimEndMs = c.optLong("trimEndMs")
+                    trimEndMs = c.optLong("trimEndMs"),
+                    // v2 drafts have no hasAudio: default to true (the old
+                    // graph assumed every clip had an audio stream).
+                    hasAudio = c.optBoolean("hasAudio", true)
                 )
             }
         } else if (obj.optString("sourceUri").isNotBlank()) {
@@ -352,11 +382,16 @@ object ZippyCutPlan {
         val mode = runCatching {
             AudioMode.valueOf(obj.optString("audioMode", "KEEP"))
         }.getOrDefault(AudioMode.KEEP)
+        // v2 drafts have no aspect: default to landscape (the old canvas).
+        val aspect = runCatching {
+            OutputAspect.valueOf(obj.optString("aspect", "LANDSCAPE_16_9"))
+        }.getOrDefault(OutputAspect.LANDSCAPE_16_9)
         val keepAudioLegacy = if (obj.has("keepAudio")) obj.optBoolean("keepAudio", true) else true
         return EditState(
             clips = clips,
             selectedClip = obj.optInt("selectedClip", 0)
                 .coerceIn(0, maxOf(0, clips.size - 1)),
+            aspect = aspect,
             title = obj.optString("title"),
             textOverlay = obj.optString("textOverlay"),
             logoUri = obj.optString("logoUri"),

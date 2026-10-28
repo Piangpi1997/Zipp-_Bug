@@ -1,6 +1,7 @@
 <resources>
-    <color name="z_bg">#0D0E12</color>
-    <color name="z_surface">#16181F</color>
+    <!-- Night values aligned to the canonical Zippy tokens (bg/panel). -->
+    <color name="z_bg">#090C0F</color>
+    <color name="z_surface">#11171C</color>
     <color name="z_surface_glass">#1E212B</color>
     <color name="z_surface_subtle">#12141A</color>
     <color name="z_border">#282C3A</color>
@@ -19,4 +20,14 @@
     <color name="z_muted">#94A3B8</color>
     <color name="z_white">#FFFFFF</color>
     <color name="z_code_bg">#0B0C10</color>
+
+    <!-- Zippy design tokens: keep identical to values/colors.xml. -->
+    <color name="zippy_bg">#090C0F</color>
+    <color name="zippy_panel">#11171C</color>
+    <color name="zippy_panel_raised">#2B3640</color>
+    <color name="zippy_accent">#D97757</color>
+    <color name="zippy_accent2">#FF9F43</color>
+    <color name="zippy_warn">#FFB347</color>
+    <color name="zippy_text">#EEF3F6</color>
+    <color name="zippy_muted">#8D99A5</color>
 </resources>

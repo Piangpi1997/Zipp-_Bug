@@ -220,3 +220,147 @@ unverifiable dependency would violate the "only label PASS what was
 executed" rule. The studio therefore keeps the Termux export path, which is
 ZIP_BUG's real, existing engine; the media3 route remains a documented
 option for a future pass on a machine where Gradle runs.
+
+---
+
+## G. UI Redesign + Editor Correctness Pass (2026-10-28, v3)
+
+### G.1 Design tokens
+
+Canonical Zippy tokens now exist as named resources, identical in
+`values/colors.xml` and `values-night/colors.xml`:
+
+| Token | Value | Use |
+|---|---|---|
+| `zippy_bg` | `#090C0F` | screen background |
+| `zippy_panel` | `#11171C` | panel / card |
+| `zippy_panel_raised` | `#2B3640` | buttons / raised rows |
+| `zippy_accent` | `#D97757` | primary accent (coral) |
+| `zippy_accent2` | `#FF9F43` | secondary accent (orange) |
+| `zippy_warn` | `#FFB347` | status / warning text |
+| `zippy_text` | `#EEF3F6` | primary text on dark |
+| `zippy_muted` | `#8D99A5` | secondary text on dark |
+
+Night alignment: `values-night` `z_bg` changed `#0D0E12 → #090C0F` and
+`z_surface` `#16181F → #11171C`, so every screen that already references the
+legacy `z_*` tokens (chat, home, sheets) renders on the canonical
+background/panel at night (the app's default theme mode is dark —
+`LocaleThemeHelper` defaults to `THEME_DARK`). No token was renamed;
+existing references keep working.
+
+**Surfaces aligned in this pass**
+- Zippy Cut Studio layout: every hardcoded hex replaced with
+  `@color/zippy_*` references; the Activity's two dynamic text colours now
+  use `getColor(R.color.zippy_*)` too.
+- Chat / Home / bottom sheets / all `z_*`-based screens: aligned at night
+  via the `z_bg`/`z_surface` value alignment above.
+- MainActivity manifest entry now declares
+  `windowSoftInputMode="adjustResize"` (it had none) so the chat composer
+  is not covered by the keyboard; the studio already had `adjustResize`.
+
+**Legacy scope (honest)**: day (light) `z_*` values are untouched, and
+screens with their own programmatic styling (e.g. WebView studios under
+`assets/`, drama/recap custom views) were not restyled in this pass.
+
+### G.2 Chat-first verification (code evidence, no behaviour change needed)
+
+- **Opens into AI Chat**: `MainActivity` is the LAUNCHER activity and its
+  layout is the chat screen itself (message RecyclerView + composer +
+  drawer sidebar) — `MainActivity.onCreate` sets up chat directly.
+- **Header provider/model pill**: `updateModelPillLabel()` renders from the
+  real `currentProvider` state, which is updated on session select
+  (MainActivity ~L117-121), on initial session load (~L279-281) and in the
+  model picker (~L575+). The pill shows a per-provider display label
+  (e.g. "Gemini 2.5 Flash") rather than the raw model id string — wired to
+  real state, left as-is.
+- **Suggestion chips**: `setupEmptyStateSuggestions()` (~L232-244) sets the
+  composer text from the chip's prompt string and calls `requestFocus()` —
+  chips fill the composer, they do not auto-send. ✔ as required.
+- **Message copy**: `ChatAdapter` already provides `btnCopyMessage` and
+  `btnCopyCode` actions backed by `copyToClipboard()` with a confirmation
+  toast (~L101-114, L149+). ✔ present, unchanged.
+- No provider logic was touched; no-key/network states keep their existing
+  honest status messages.
+
+### G.3 Editor correctness: output aspect + no-audio clips
+
+**Aspect (`ZippyCutPlan.OutputAspect`)**: `LANDSCAPE_16_9` (1280×720) and
+`PORTRAIT_9_16` (720×1280). `buildFfmpegArgs` now scales/pads to the
+selected canvas (`scale=<W>:<H>:force_original_aspect_ratio=decrease,
+pad=<W>:<H>:...`). Logo stays at `overlay=16:16` (inside both canvases);
+the bottom text overlay keeps the relative `y=h-64`. The studio has a
+16:9 / 9:16 toggle in the preview panel that updates the plan state and
+resizes the preview frame (220dp-high full-width for landscape; 360dp-high,
+9:16-width, centred for portrait).
+
+**No-audio clips (`Clip.hasAudio`)**: detected at import in the studio via
+`MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO` (absent metadata defaults
+to `true`, preserving legacy behaviour). In KEEP mode the filter graph no
+longer references `[i:a]` for a silent clip; it synthesizes a matching
+silent segment instead:
+`anullsrc=channel_layout=stereo:sample_rate=44100,atrim=0:<dur>,asetpts=PTS-STARTPTS[a<i>]`,
+so `concat` still receives exactly one audio segment per clip and mixed
+timelines (some clips with, some without audio) render. REPLACE mode is
+unaffected (uses the replacement track); MUTE mode never references clip
+audio. Clip rows and the metadata line show a "no audio" marker.
+
+**Draft schema v3**: stores `aspect` and per-clip `hasAudio`.
+`fromJson` migrates v2 drafts (missing fields default to
+`LANDSCAPE_16_9` / `hasAudio=true`) and the v1 single-source chain
+(including split preservation) still works.
+
+### G.4 Tests (all executed 2026-10-28)
+
+Standalone JVM (kotlinc 2.0.21 + JUnit 4.13.2, the established method —
+Gradle cannot run in the sandbox):
+
+- `ZippyCutPlanTest`: **OK (24 tests)** — the previous 16 plus 8 new:
+  portrait canvas (720:1280 present, 1280:720 absent), landscape canvas
+  unchanged, silent-clip `anullsrc` synthesis with no `[0:a]` reference,
+  mixed-timeline graph validity (labels defined exactly once,
+  `concat=n=2:v=1:a=1`), silent+MUTE, REPLACE with silent clips (uses the
+  replacement input only), JSON v3 round-trip, v2→v3 migration defaults.
+  No first-run failures in this pass.
+
+**Real ffmpeg render smoke test** (`scripts/render-smoke/`, harness only —
+not app code): synthetic lavfi media (clip A = video+audio, clip B =
+video with NO audio stream, portrait source P, generated music track) was
+rendered with the plan builder's actual argument lists on ffmpeg 8.1.2 and
+verified with ffprobe. **8/8 PASS**:
+
+| Case | Result (ffprobe evidence) |
+|---|---|
+| audio-only, landscape | 1280×720, audio stream, 3.0s |
+| silent-only, portrait | 720×1280, audio (synthesized silence), 3.0s |
+| mixed A+B, portrait | 720×1280, audio, 6.0s |
+| mixed A+B, landscape | 1280×720, audio, 6.0s |
+| mixed + REPLACE | 1280×720, audio, 6.0s |
+| mixed + MUTE, portrait | 720×1280, NO audio stream, 6.0s |
+| portrait source → landscape | 1280×720, audio, 3.0s |
+| mixed + title/text drawtext, portrait (DejaVuSans) | 720×1280, audio, 6.0s |
+
+Reproduce with `scripts/render-smoke/run-render-smoke.sh` (needs JDK,
+kotlinc, ffmpeg; JUnit + org.json are fetched/located by the script).
+
+**Gradle `:app:assembleDebug`: BLOCKED** in this sandbox (attempted once
+this pass): `Could not receive a message from the daemon.` — the known VM
+daemon-protocol failure (`MessageIOException … Unexpected type tag 109`
+in the full trace). The APK is built by the owner on Termux (below), as
+before; the previous v2 code built successfully there in 4 minutes.
+
+### G.5 Owner rebuild (Termux)
+
+```bash
+cd ~/zipbug-unified
+git pull   # branch integration/zippy-zipbug-unified-20261028
+export JAVA_HOME=$PREFIX/lib/jvm/java-17-openjdk
+export ANDROID_HOME=$HOME/android-sdk
+export ANDROID_SDK_ROOT=$ANDROID_HOME
+printf 'sdk.dir=%s\n' "$HOME/android-sdk" > local.properties
+bash scripts/build-termux.sh --debug --timeout-seconds 3600
+```
+
+Output: `Download/Zip_Bug-debug.apk`. Signing note (unchanged): the Termux
+debug certificate differs from alpha04's, so this APK cannot update-install
+over alpha04 and alpha04 must not be uninstalled / its data cleared; test
+side-by-side only via a different package id, which starts with empty data.

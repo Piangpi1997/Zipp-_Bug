@@ -132,6 +132,12 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(bar: SeekBar?) = Unit
         })
         binding.btnApplySplit.setOnClickListener { applySplit() }
+        binding.btnAspectLandscape.setOnClickListener {
+            setAspect(ZippyCutPlan.OutputAspect.LANDSCAPE_16_9)
+        }
+        binding.btnAspectPortrait.setOnClickListener {
+            setAspect(ZippyCutPlan.OutputAspect.PORTRAIT_9_16)
+        }
         binding.btnAddSubtitle.setOnClickListener { addSubtitleFromInputs() }
         binding.btnExport.setOnClickListener { startExport() }
         binding.btnPreviewOutput.setOnClickListener {
@@ -153,9 +159,51 @@ class ZippyCutStudioActivity : AppCompatActivity() {
         }
     }
 
+    private fun setAspect(aspect: ZippyCutPlan.OutputAspect) {
+        if (state.aspect == aspect) {
+            applyAspectToPreview()
+            return
+        }
+        state = state.copy(aspect = aspect)
+        applyAspectToPreview()
+        saveDraft()
+    }
+
+    /** Sizes the preview frame to the selected output aspect and marks the toggle. */
+    private fun applyAspectToPreview() {
+        val portrait = state.aspect == ZippyCutPlan.OutputAspect.PORTRAIT_9_16
+        val density = resources.displayMetrics.density
+        val params = binding.videoPreview.layoutParams as LinearLayout.LayoutParams
+        if (portrait) {
+            // 9:16 frame: fixed height, width derived, centred in the panel.
+            params.height = (360 * density).toInt()
+            params.width = (360 * 9 * density / 16).toInt()
+            params.gravity = android.view.Gravity.CENTER_HORIZONTAL
+        } else {
+            params.width = LinearLayout.LayoutParams.MATCH_PARENT
+            params.height = (220 * density).toInt()
+            params.gravity = android.view.Gravity.NO_GRAVITY
+        }
+        binding.videoPreview.layoutParams = params
+        binding.btnAspectLandscape.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(
+                getColor(if (portrait) com.zipbug.base.R.color.zippy_panel_raised else com.zipbug.base.R.color.zippy_accent)
+            )
+        binding.btnAspectPortrait.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(
+                getColor(if (portrait) com.zipbug.base.R.color.zippy_accent else com.zipbug.base.R.color.zippy_panel_raised)
+            )
+    }
+
     // -------- clip import / staging --------
 
-    private data class Meta(val name: String, val durationMs: Long, val width: Int, val height: Int)
+    private data class Meta(
+        val name: String,
+        val durationMs: Long,
+        val width: Int,
+        val height: Int,
+        val hasAudio: Boolean
+    )
 
     private fun readMetadata(uri: Uri): Meta {
         var name = "video"
@@ -167,15 +215,20 @@ class ZippyCutStudioActivity : AppCompatActivity() {
         var duration = 0L
         var width = 0
         var height = 0
+        var hasAudio = true
         runCatching {
             val r = MediaMetadataRetriever()
             r.setDataSource(this, uri)
             duration = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
             width = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
             height = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+            // "yes"/"no"; absent metadata keeps the true default so legacy
+            // behaviour is unchanged for sources that don't report it.
+            hasAudio = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
+                ?.equals("yes", ignoreCase = true) ?: true
             r.release()
         }
-        return Meta(name, duration, width, height)
+        return Meta(name, duration, width, height, hasAudio)
     }
 
     private fun displayNameOf(uri: Uri): String {
@@ -205,7 +258,8 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             width = meta.width,
             height = meta.height,
             trimStartMs = 0L,
-            trimEndMs = meta.durationMs
+            trimEndMs = meta.durationMs,
+            hasAudio = meta.hasAudio
         )
         state = state.copy(
             clips = state.clips + clip,
@@ -303,6 +357,7 @@ class ZippyCutStudioActivity : AppCompatActivity() {
         renderSubtitleRows()
         updateMetaText()
         refreshSegmentsText()
+        applyAspectToPreview()
         val sel = selectedClip()
         if (sel != null) {
             binding.etTrimStart.setText(String.format(Locale.US, "%.3f", sel.trimStartMs / 1000.0))
@@ -331,9 +386,14 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             val label = TextView(this).apply {
                 text = "${idx + 1}. ${clip.sourceName} • " +
                     String.format(Locale.US, "%.1fs", clip.trimmedDurationMs / 1000.0) +
+                    (if (clip.hasAudio) "" else " • no audio") +
                     if (clip.stagedPath.isBlank()) " (staging…)" else ""
                 setTextColor(
-                    if (idx == state.selectedClip) 0xFFD97757.toInt() else 0xFFEEF3F6.toInt()
+                    if (idx == state.selectedClip) {
+                        getColor(com.zipbug.base.R.color.zippy_accent)
+                    } else {
+                        getColor(com.zipbug.base.R.color.zippy_text)
+                    }
                 )
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 setOnClickListener { selectClip(idx) }
@@ -396,7 +456,8 @@ class ZippyCutStudioActivity : AppCompatActivity() {
         binding.tvMeta.text = when {
             sel == null -> L("ဗီဒီယို မရွေးရသေးပါ", "No video selected")
             else -> "${sel.sourceName} • ${String.format(Locale.US, "%.1fs", sel.durationMs / 1000.0)}" +
-                if (sel.width > 0) " • ${sel.width}×${sel.height}" else ""
+                (if (sel.width > 0) " • ${sel.width}×${sel.height}" else "") +
+                (if (sel.hasAudio) "" else " • no audio track")
         }
     }
 
@@ -485,7 +546,7 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
             val label = TextView(this).apply {
                 text = "${ZippyCutPlan.formatSeconds(line.startMs)}s–${ZippyCutPlan.formatSeconds(line.endMs)}s  ${line.text}"
-                setTextColor(0xFFEEF3F6.toInt())
+                setTextColor(getColor(com.zipbug.base.R.color.zippy_text))
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
             val del = Button(this).apply {

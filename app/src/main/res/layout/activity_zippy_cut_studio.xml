@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#090C0F"
+    android:background="@color/zippy_bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Zippy Cut Studio"
-            android:textColor="#EEF3F6"
+            android:textColor="@color/zippy_text"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Video editor • Termux ffmpeg engine"
-            android:textColor="#8D99A5"
+            android:textColor="@color/zippy_muted"
             android:textSize="12sp" />
 
         <!-- Preview panel -->
@@ -34,15 +34,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#11171C"
+            android:background="@color/zippy_panel"
             android:orientation="vertical"
             android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="OUTPUT"
+                    android:textColor="@color/zippy_accent2"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnAspectLandscape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/zippy_panel_raised"
+                    android:text="16:9 Landscape" />
+
+                <Button
+                    android:id="@+id/btnAspectPortrait"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:backgroundTint="@color/zippy_panel_raised"
+                    android:text="9:16 Portrait" />
+            </LinearLayout>
 
             <VideoView
                 android:id="@+id/videoPreview"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:background="#000000" />
+                android:background="@android:color/black" />
 
             <SeekBar
                 android:id="@+id/seekPreview"
@@ -60,7 +92,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:backgroundTint="#D97757"
+                    android:backgroundTint="@color/zippy_accent"
                     android:text="▶ Play" />
 
                 <TextView
@@ -70,7 +102,7 @@
                     android:layout_weight="2"
                     android:gravity="center"
                     android:text="No video selected"
-                    android:textColor="#8D99A5"
+                    android:textColor="@color/zippy_muted"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -79,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:backgroundTint="#2B3640"
+                android:backgroundTint="@color/zippy_panel_raised"
                 android:text="+ Add video clip / ဗီဒီယို clip ထည့်ပါ" />
 
             <TextView
@@ -87,7 +119,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="CLIPS • tap to select, ↑ ↓ to reorder"
-                android:textColor="#FF9F43"
+                android:textColor="@color/zippy_accent2"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -103,7 +135,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#11171C"
+            android:background="@color/zippy_panel"
             android:orientation="vertical"
             android:padding="10dp">
 
@@ -111,7 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TIMELINE • Trim / Split"
-                android:textColor="#FF9F43"
+                android:textColor="@color/zippy_accent2"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -127,8 +159,8 @@
                     android:layout_weight="1"
                     android:hint="Start (sec)"
                     android:inputType="numberDecimal"
-                    android:textColor="#EEF3F6"
-                    android:textColorHint="#8D99A5" />
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
 
                 <EditText
                     android:id="@+id/etTrimEnd"
@@ -137,8 +169,8 @@
                     android:layout_weight="1"
                     android:hint="End (sec)"
                     android:inputType="numberDecimal"
-                    android:textColor="#EEF3F6"
-                    android:textColorHint="#8D99A5" />
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
 
                 <EditText
                     android:id="@+id/etSplit"
@@ -147,15 +179,15 @@
                     android:layout_weight="1"
                     android:hint="Split at (sec)"
                     android:inputType="numberDecimal"
-                    android:textColor="#EEF3F6"
-                    android:textColorHint="#8D99A5" />
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
             </LinearLayout>
 
             <Button
                 android:id="@+id/btnApplySplit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#2B3640"
+                android:backgroundTint="@color/zippy_panel_raised"
                 android:text="✂ Split selected clip / ရွေးထားသော clip ကို ခွဲပါ" />
 
             <TextView
@@ -164,7 +196,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Segments: —"
-                android:textColor="#8D99A5"
+                android:textColor="@color/zippy_muted"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -173,7 +205,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#11171C"
+            android:background="@color/zippy_panel"
             android:orientation="vertical"
             android:padding="10dp">
 
@@ -183,8 +215,8 @@
                 android:layout_height="wrap_content"
                 android:hint="Title overlay / ခေါင်းစဉ်"
                 android:inputType="text"
-                android:textColor="#EEF3F6"
-                android:textColorHint="#8D99A5" />
+                android:textColor="@color/zippy_text"
+                android:textColorHint="@color/zippy_muted" />
 
             <EditText
                 android:id="@+id/etTextOverlay"
@@ -192,8 +224,8 @@
                 android:layout_height="wrap_content"
                 android:hint="Text overlay (bottom) / အောက်ခြေ စာတန်း"
                 android:inputType="text"
-                android:textColor="#EEF3F6"
-                android:textColorHint="#8D99A5" />
+                android:textColor="@color/zippy_text"
+                android:textColorHint="@color/zippy_muted" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -205,7 +237,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:backgroundTint="#2B3640"
+                    android:backgroundTint="@color/zippy_panel_raised"
                     android:text="Pick logo image / Logo ရွေးပါ" />
 
                 <TextView
@@ -215,7 +247,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="No logo"
-                    android:textColor="#8D99A5"
+                    android:textColor="@color/zippy_muted"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -224,7 +256,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="AUDIO"
-                android:textColor="#FF9F43"
+                android:textColor="@color/zippy_accent2"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -240,21 +272,21 @@
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="Keep original audio / မူရင်းအသံ ထားမည်"
-                    android:textColor="#EEF3F6" />
+                    android:textColor="@color/zippy_text" />
 
                 <RadioButton
                     android:id="@+id/rbAudioMute"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Mute / အသံပိတ်မည်"
-                    android:textColor="#EEF3F6" />
+                    android:textColor="@color/zippy_text" />
 
                 <RadioButton
                     android:id="@+id/rbAudioReplace"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Replace with selected audio / ရွေးထားသောအသံနှင့် လဲမည်"
-                    android:textColor="#EEF3F6" />
+                    android:textColor="@color/zippy_text" />
             </RadioGroup>
 
             <LinearLayout
@@ -267,7 +299,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:backgroundTint="#2B3640"
+                    android:backgroundTint="@color/zippy_panel_raised"
                     android:text="Pick replacement audio / အသံဖိုင် ရွေးပါ" />
 
                 <TextView
@@ -277,7 +309,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="No audio file"
-                    android:textColor="#8D99A5"
+                    android:textColor="@color/zippy_muted"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
@@ -287,7 +319,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#11171C"
+            android:background="@color/zippy_panel"
             android:orientation="vertical"
             android:padding="10dp">
 
@@ -295,7 +327,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="SUBTITLES • Manual editor (output timeline, seconds)"
-                android:textColor="#FF9F43"
+                android:textColor="@color/zippy_accent2"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -317,8 +349,8 @@
                     android:layout_weight="1"
                     android:hint="Start"
                     android:inputType="numberDecimal"
-                    android:textColor="#EEF3F6"
-                    android:textColorHint="#8D99A5" />
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
 
                 <EditText
                     android:id="@+id/etSubEnd"
@@ -327,8 +359,8 @@
                     android:layout_weight="1"
                     android:hint="End"
                     android:inputType="numberDecimal"
-                    android:textColor="#EEF3F6"
-                    android:textColorHint="#8D99A5" />
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
             </LinearLayout>
 
             <EditText
@@ -337,14 +369,14 @@
                 android:layout_height="wrap_content"
                 android:hint="Subtitle text / စာသား (မြန်မာ ရသည်)"
                 android:inputType="textMultiLine"
-                android:textColor="#EEF3F6"
-                android:textColorHint="#8D99A5" />
+                android:textColor="@color/zippy_text"
+                android:textColorHint="@color/zippy_muted" />
 
             <Button
                 android:id="@+id/btnAddSubtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#2B3640"
+                android:backgroundTint="@color/zippy_panel_raised"
                 android:text="+ Add subtitle / စာတန်း ထည့်ပါ" />
 
             <TextView
@@ -353,7 +385,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Auto Caption: DISABLED — a transcription provider / API key is required. Manual subtitles work fully."
-                android:textColor="#FFB347"
+                android:textColor="@color/zippy_warn"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -362,7 +394,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#11171C"
+            android:background="@color/zippy_panel"
             android:orientation="vertical"
             android:padding="10dp">
 
@@ -370,7 +402,7 @@
                 android:id="@+id/btnExport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#D97757"
+                android:backgroundTint="@color/zippy_accent"
                 android:text="Export video / ဗီဒီယို ထုတ်ပါ" />
 
             <TextView
@@ -379,7 +411,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Export status: idle"
-                android:textColor="#8D99A5"
+                android:textColor="@color/zippy_muted"
                 android:textSize="12sp" />
 
             <LinearLayout
