@@ -20,7 +20,9 @@ class StudioActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, StudioFragment())
+                .replace(R.id.fragmentContainer, StudioFragment().apply {
+                    arguments = Bundle().apply { putString("variant", intent.getStringExtra("variant")) }
+                })
                 .commit()
         }
     }

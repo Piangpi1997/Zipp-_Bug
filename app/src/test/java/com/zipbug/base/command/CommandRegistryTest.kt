@@ -18,6 +18,22 @@ class CommandRegistryTest {
     }
 
     @Test
+    fun recapAliasesResolveToZippyCut() {
+        assertEquals(
+            "/zippycut",
+            CommandRegistry.canonical("/longrecap")
+        )
+        assertEquals(
+            "/zippycut",
+            CommandRegistry.canonical("/recap")
+        )
+
+        val spec = CommandRegistry.resolve("/longrecap")
+        assertNotNull(spec)
+        assertEquals(CommandGroups.TOOLS, spec?.group)
+    }
+
+    @Test
     fun topLevelCategoriesResolveAndFilter() {
         val categoryCommands = listOf(
             "/ui" to CommandGroups.UI,
@@ -61,4 +77,36 @@ class CommandRegistryTest {
     fun unknownCommandDoesNotResolve() {
         assertEquals(null, CommandRegistry.resolve("/does-not-exist"))
     }
+
+    @Test
+    fun reactCreatorAliasResolvesAndIsSearchable() {
+        assertEquals(
+            "/reactcreator",
+            CommandRegistry.canonical("/react")
+        )
+
+        val spec = CommandRegistry.resolve("/reactcreator")
+        assertNotNull(spec)
+        assertEquals(CommandGroups.CODING, spec?.group)
+        assertTrue(CommandRegistry.search("react").contains(spec))
+    }
+
+
+    @Test
+    fun reactNativeAliasesResolveAndAreSearchable() {
+        assertEquals(
+            "/reactnative",
+            CommandRegistry.canonical("/rncreator")
+        )
+        assertEquals(
+            "/reactnative",
+            CommandRegistry.canonical("/expo")
+        )
+
+        val spec = CommandRegistry.resolve("/reactnative")
+        assertNotNull(spec)
+        assertEquals(CommandGroups.CODING, spec?.group)
+        assertTrue(CommandRegistry.search("expo").contains(spec))
+    }
+
 }

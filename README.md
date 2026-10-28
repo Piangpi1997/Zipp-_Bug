@@ -7,7 +7,7 @@ Zip_Bug is a **real Android development/runtime studio**. It is not a fake demo 
 - **Encrypted secrets** — provider keys are encrypted with Android Keystore / AES-GCM.
 - **App Creator** — generates real Kotlin/XML Android source ZIPs.
 - **Web Mini-App Creator** — generates real `app.json + HTML + CSS + JavaScript` ZIPs.
-- **LIKEFIGMA Studio** — draggable visual components, inspector, portable JSON screen schema and HTML export.
+- **LIKEFIGMA Studio** — versioned and migration-aware project schema; multi-selection, touch drag/resize, grid snapping, align/distribute, layer order, undo/redo, debounced autosave/recovery, JSON import, and validated Android XML / Compose export.
 - **AI ZIP Import** — safe `app.json + www/` import with canonical-path and extraction limits.
 - **Local Runtime** — localhost web runtime on `127.0.0.1:3131`.
 - **Termux Engine** — allow-listed Java/Python/Gradle/ffmpeg/yt-dlp/git/aapt2/zipalign commands.
@@ -18,7 +18,7 @@ Zip_Bug is a **real Android development/runtime studio**. It is not a fake demo 
 - **Termux Doctor** — checks Java, Gradle, Python, aapt2, SDK 34, ffmpeg and yt-dlp using a real Python process in Termux.
 - **Social Recap Lab** — real authorized yt-dlp/ffmpeg audio-preparation job with captured logs, plus recap/dialogue/dub prompt workflow.
 - **TTS Studio** — real Termux Edge-TTS setup/generation jobs with Burmese Nilar/Thiha voice presets and factual exit-code status.
-- **CI** — Java 17 + Gradle 8.9 + SDK 34 unit tests, APK build and APK signature verification.
+- **CI** — Studio Node tests plus Java 17 + Gradle 8.9 + SDK 34 Android tests, debug APK build and APK signature verification.
 
 ## Command surface
 - `/termux <approved-tool> [args]`

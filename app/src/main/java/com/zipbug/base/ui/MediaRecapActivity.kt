@@ -28,7 +28,7 @@ enum class PipelineStage(val title: String, val maturity: StageMaturity) {
     DOWNLOAD("2. DOWNLOAD", StageMaturity.IMPLEMENTED),
     AUDIO("3. AUDIO (ffmpeg)", StageMaturity.IMPLEMENTED),
     TRANSCRIBE("4. TRANSCRIBE", StageMaturity.PARTIAL),
-    AI_RECAP("5. AI RECAP", StageMaturity.IMPLEMENTED),
+    AI_RECAP("5. AI RECAP", StageMaturity.PARTIAL),
     TTS("6. TTS (Edge-TTS)", StageMaturity.IMPLEMENTED),
     SUBTITLE("7. SUBTITLE", StageMaturity.PARTIAL),
     RENDER("8. RENDER", StageMaturity.PARTIAL)
@@ -36,6 +36,7 @@ enum class PipelineStage(val title: String, val maturity: StageMaturity) {
 
 enum class StageState(val label: String) {
     PENDING("PENDING"),
+    READY("READY"),
     RUNNING("RUNNING"),
     SUCCESS("SUCCESS"),
     FAILED("FAILED"),
@@ -79,7 +80,7 @@ class MediaRecapActivity : AppCompatActivity() {
                 "Structured Summary",
                 "Provide an objective, structured summary of the content with key takeaways, timestamps/chapters if applicable, and main conclusions."
             )
-            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Summary prompt constructed")
+            updateStage(PipelineStage.AI_RECAP, StageState.READY, "Summary prompt ready; run it in AI")
         }
 
         binding.btnSocialCaption.setOnClickListener {
@@ -87,7 +88,7 @@ class MediaRecapActivity : AppCompatActivity() {
                 "Social Media Caption",
                 "Write a high-engagement social media caption with a strong hook, 3-5 bullet points of core value, a clear call-to-action, and relevant hashtags."
             )
-            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Caption prompt constructed")
+            updateStage(PipelineStage.AI_RECAP, StageState.READY, "Caption prompt ready; run it in AI")
         }
 
         binding.btnTitle.setOnClickListener {
@@ -95,20 +96,20 @@ class MediaRecapActivity : AppCompatActivity() {
                 "Title Variations",
                 "Generate 5 compelling title variations:\n1. Curiosity hook\n2. Direct & informative\n3. Question style\n4. Numbered list / guide\n5. Viral / high-CTR"
             )
-            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Title ideas prompt constructed")
+            updateStage(PipelineStage.AI_RECAP, StageState.READY, "Title prompt ready; run it in AI")
         }
 
         binding.recap.setOnClickListener {
             buildPrompt("Recap")
-            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Recap prompt constructed")
+            updateStage(PipelineStage.AI_RECAP, StageState.READY, "Recap prompt ready; run it in AI")
         }
         binding.dialogue.setOnClickListener {
             buildPrompt("Recap + Dialogue")
-            updateStage(PipelineStage.AI_RECAP, StageState.SUCCESS, "Dialogue recap prompt constructed")
+            updateStage(PipelineStage.AI_RECAP, StageState.READY, "Dialogue prompt ready; run it in AI")
         }
         binding.dub.setOnClickListener {
             buildPrompt("Dub")
-            updateStage(PipelineStage.TTS, StageState.RUNNING, "Dub script prepared")
+            updateStage(PipelineStage.TTS, StageState.READY, "Dub prompt prepared; TTS not started")
         }
     }
 
@@ -152,6 +153,10 @@ class MediaRecapActivity : AppCompatActivity() {
                     StageState.SUCCESS -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_green))
                         setBackgroundResource(com.zipbug.base.R.color.z_green_soft)
+                    }
+                    StageState.READY -> {
+                        setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_green))
+                        setBackgroundColor(0xFF153126.toInt())
                     }
                     StageState.RUNNING -> {
                         setTextColor(ContextCompat.getColor(this@MediaRecapActivity, R.color.z_orange))
@@ -252,7 +257,7 @@ class MediaRecapActivity : AppCompatActivity() {
             }
             BuildJobEntity.SUCCESS -> {
                 updateStage(PipelineStage.DOWNLOAD, StageState.SUCCESS, "Downloaded")
-                updateStage(PipelineStage.AUDIO, StageState.SUCCESS, "Extracted MP3 via ffmpeg")
+                updateStage(PipelineStage.AUDIO, StageState.SUCCESS, "yt-dlp exited 0 after audio extraction; verify file in Download")
                 updateStage(PipelineStage.TRANSCRIBE, StageState.PENDING, "Ready for audio transcription")
             }
             BuildJobEntity.FAILED -> {
@@ -278,7 +283,7 @@ class MediaRecapActivity : AppCompatActivity() {
             }
 
             if (job.status == BuildJobEntity.SUCCESS) {
-                append("\n\nAudio extraction completed. Use the Termux log above to confirm file.")
+                append("\n\nTool exited 0 after audio extraction. Confirm the reported MP3 exists in Download before continuing.")
             }
         }
     }

@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.zipbug.base.R
 import com.zipbug.base.ai.*
+import com.zipbug.base.command.ZippyCommandAction
+import com.zipbug.base.command.ZippyCommandRouter
 import com.zipbug.base.data.ChatMessageEntity
 import com.zipbug.base.data.ChatSessionEntity
 import com.zipbug.base.data.ZipBugDatabase
@@ -162,7 +164,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.drawerItemStudio.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, StudioActivity::class.java))
+            showStudioChoice()
         }
         binding.drawerItemReact.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -341,6 +343,28 @@ class MainActivity : AppCompatActivity() {
         if (activeJob != null && activeJob?.isActive == true) return
         val text = binding.etChatMessage.text.toString().trim()
         if (text.isBlank()) return
+        if (text.startsWith("/") || text.startsWith("fix:", ignoreCase = true) ||
+            ZippyCommandRouter.route(text) is ZippyCommandAction.Create) {
+            val action = ZippyCommandRouter.route(text)
+            if (action !is ZippyCommandAction.Ask) {
+                binding.etChatMessage.setText("")
+                when (action) {
+                    is ZippyCommandAction.Create -> startActivity(AiModeActivity.createIntent(this, action.prompt, AiMode.APP_CREATOR))
+                    is ZippyCommandAction.Fix -> startActivity(AiModeActivity.createIntent(this, action.prompt, AiMode.FIX_ERROR))
+                    ZippyCommandAction.BuildDebug -> navigateToTerminal("/apkbuilder --debug")
+                    ZippyCommandAction.OpenStudio -> navigateToStudio()
+                    ZippyCommandAction.OpenProjects -> navigateToProjects()
+                    ZippyCommandAction.OpenAppCreator -> startActivity(Intent(this, AppCreatorActivity::class.java))
+                    ZippyCommandAction.UndoLastChange -> {
+                        val target = getSharedPreferences("zipbug.settings", 0).getString("lastReviewedPatchTarget", "").orEmpty()
+                        if (target.isBlank()) Toast.makeText(this, "No reviewed change to restore", Toast.LENGTH_SHORT).show()
+                        else navigateToTerminal("/restorepatch $target")
+                    }
+                    else -> Unit
+                }
+                return
+            }
+        }
 
         val userMsgId = UUID.randomUUID().toString()
         val userMsg = ChatMessageEntity(
@@ -497,7 +521,7 @@ class MainActivity : AppCompatActivity() {
         }
         sheetBinding.toolTileStudio.setOnClickListener {
             dialog.dismiss()
-            startActivity(Intent(this, StudioActivity::class.java))
+            showStudioChoice()
         }
         sheetBinding.toolTileReact.setOnClickListener {
             dialog.dismiss()
@@ -672,12 +696,23 @@ class MainActivity : AppCompatActivity() {
         prompt: String,
         mode: AiMode = AiMode.CHAT
     ) {
-        binding.etChatMessage.setText(prompt)
-        sendMessage()
+        if (mode != AiMode.CHAT) {
+            startActivity(AiModeActivity.createIntent(this, prompt, mode))
+        } else {
+            binding.etChatMessage.setText(prompt)
+            if (prompt.isNotBlank()) sendMessage()
+        }
+    }
+
+    private fun showStudioChoice() {
+        AlertDialog.Builder(this).setTitle("Choose Studio / Studio ရွေးပါ")
+            .setItems(arrayOf("Visual Studio", "Advanced Studio", "LikeFigma Studio • မြန်မာ / English")) { _, index ->
+                startActivity(Intent(this, StudioActivity::class.java).putExtra("variant", when (index) { 1 -> "advanced"; 2 -> "likefigma"; else -> "visual" }))
+            }.setNegativeButton(R.string.btn_cancel, null).show()
     }
 
     fun navigateToStudio() {
-        startActivity(Intent(this, StudioActivity::class.java))
+        showStudioChoice()
     }
 
     fun navigateToHome() {

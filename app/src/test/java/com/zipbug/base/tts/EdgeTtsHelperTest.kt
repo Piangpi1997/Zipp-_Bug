@@ -33,6 +33,7 @@ class EdgeTtsHelperTest {
         assertTrue(chunks.size >= 2)
         chunks.forEach { chunk ->
             assertTrue(chunk.isNotBlank())
+            assertTrue(chunk.length <= 35)
         }
     }
 
@@ -43,4 +44,20 @@ class EdgeTtsHelperTest {
         assertTrue(preview.length <= 55)
         assertTrue(preview.isNotBlank())
     }
+
+    @Test
+    fun testChunkTextHardSplitsSingleOversizedSentence() {
+        val longWord = "က".repeat(180)
+        val chunks = EdgeTtsHelper.chunkText(longWord, maxChunkChars = 40)
+
+        assertTrue(chunks.size >= 4)
+        assertTrue(chunks.all { it.isNotBlank() && it.length <= 40 })
+        assertEquals(longWord, chunks.joinToString(""))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testChunkTextRejectsUnsafeTinyChunkSize() {
+        EdgeTtsHelper.chunkText("မင်္ဂလာပါ", maxChunkChars = 8)
+    }
+
 }

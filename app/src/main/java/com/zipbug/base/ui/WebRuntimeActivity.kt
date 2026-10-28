@@ -1,5 +1,7 @@
 package com.zipbug.base.ui
 
+import java.io.ByteArrayInputStream
+import java.net.URI
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
@@ -120,6 +122,8 @@ class WebRuntimeActivity : AppCompatActivity() {
             allowFileAccessFromFileURLs = false
             @Suppress("DEPRECATION")
             allowUniversalAccessFromFileURLs = false
+            javaScriptCanOpenWindowsAutomatically = false
+            setSupportMultipleWindows(false)
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
             useWideViewPort = false
             loadWithOverviewMode = false
@@ -153,6 +157,38 @@ class WebRuntimeActivity : AppCompatActivity() {
                     return true
                 }
                 return false
+            }
+
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                val url = request?.url?.toString().orEmpty()
+                val scheme = runCatching {
+                    URI(url).scheme?.lowercase()
+                }.getOrNull()
+
+                if (
+                    (scheme == "http" || scheme == "https") &&
+                    !isAllowedRuntimeUrl(url)
+                ) {
+                    return WebResourceResponse(
+                        "text/plain",
+                        "utf-8",
+                        403,
+                        "Blocked",
+                        mapOf("Cache-Control" to "no-store"),
+                        ByteArrayInputStream(
+                            "Blocked: Zip_Bug runtime is localhost-only."
+                                .toByteArray()
+                        )
+                    )
+                }
+
+                return super.shouldInterceptRequest(
+                    view,
+                    request
+                )
             }
 
             override fun onReceivedError(
@@ -214,9 +250,7 @@ class WebRuntimeActivity : AppCompatActivity() {
         webView.loadUrl(url)
     }
 
-    private fun isAllowedLocalRuntimeUrl(candidate: String): Boolean =
-        candidate.startsWith("http://127.0.0.1:3131/") ||
-            candidate.startsWith("http://localhost:3131/")
+    private fun isAllowedLocalRuntimeUrl(candidate: String): Boolean = isAllowedRuntimeUrl(candidate)
 
     private fun toggleViewportMode() {
         isDesktopViewport = !isDesktopViewport
@@ -256,5 +290,24 @@ class WebRuntimeActivity : AppCompatActivity() {
             webView.destroy()
         }
         super.onDestroy()
+    }
+
+    companion object {
+        fun isAllowedRuntimeUrl(url: String): Boolean {
+            val uri = runCatching { URI(url) }
+                .getOrNull()
+                ?: return false
+
+            if (!uri.scheme.equals("http", ignoreCase = true)) {
+                return false
+            }
+
+            val host = uri.host?.lowercase() ?: return false
+            if (host != "127.0.0.1" && host != "localhost") {
+                return false
+            }
+
+            return uri.port == 3131
+        }
     }
 }

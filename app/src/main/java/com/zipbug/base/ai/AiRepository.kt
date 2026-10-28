@@ -7,6 +7,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import com.zipbug.base.termux.LogSanitizer
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 enum class HealthStatus(val label: String) {
@@ -28,8 +30,11 @@ data class ProviderHealthResult(
 
 class AiRepository {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .callTimeout(120, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .build()
 
     companion object {
@@ -39,13 +44,68 @@ class AiRepository {
             return key.take(4) + "••••••••" + key.takeLast(4)
         }
 
+        internal fun safeErrorMessage(error: Throwable): String =
+            LogSanitizer.sanitize(
+                error.message ?: error.javaClass.simpleName
+            )
+
+        internal fun isTransientNetworkError(error: Throwable): Boolean {
+            if (error is IOException) return true
+            val message = safeErrorMessage(error).lowercase()
+            return listOf(
+                "connection abort",
+                "connection reset",
+                "broken pipe",
+                "unexpected end of stream",
+                "stream was reset",
+                "timeout",
+                "timed out"
+            ).any(message::contains)
+        }
+
+        internal fun friendlyNetworkMessage(error: Throwable): String {
+            val safe = safeErrorMessage(error)
+            return if (isTransientNetworkError(error)) {
+                "Network connection was interrupted before the AI response completed. " +
+                    "Your prompt is still here. Check Wi‑Fi/mobile data, run Health Check, " +
+                    "then tap Retry Request. Detail: $safe"
+            } else {
+                safe
+            }
+        }
+
         fun validateRequest(req: AiRequest): Result<Unit> {
             if (req.apiKey.isBlank()) {
                 return Result.failure(IllegalArgumentException("API key is empty"))
             }
-            if ((req.provider == AiProvider.OPENAI || req.provider == AiProvider.ANTHROPIC) && req.apiKey.startsWith("sk-or-")) {
-                return Result.failure(IllegalArgumentException("Keys starting with 'sk-or-' must not be sent to ${req.provider.label}."))
+            val key = req.apiKey.trim()
+            val recognizedKey = when {
+                key.startsWith("sk-or-") ->
+                    Triple("sk-or-", AiProvider.OPENROUTER, "OpenRouter")
+                key.startsWith("sk-ant-") ->
+                    Triple("sk-ant-", AiProvider.ANTHROPIC, "Anthropic")
+                key.startsWith("sk-proj-") ->
+                    Triple("sk-proj-", AiProvider.OPENAI, "OpenAI")
+                key.startsWith("AIza") ->
+                    Triple("AIza", AiProvider.GEMINI, "Gemini")
+                else -> null
             }
+
+            if (
+                recognizedKey != null &&
+                req.provider != recognizedKey.second
+            ) {
+                return Result.failure(
+                    IllegalArgumentException(
+                        "API key prefix '${recognizedKey.first}' belongs to " +
+                            recognizedKey.third +
+                            " and will not be sent to " +
+                            req.provider.label +
+                            "."
+                    )
+                )
+            }
+
             if (req.provider != AiProvider.OPENROUTER && req.model.startsWith("openrouter/")) {
                 return Result.failure(IllegalArgumentException("OpenRouter model '${req.model}' cannot be used with provider ${req.provider.label}."))
             }
@@ -100,7 +160,7 @@ class AiRepository {
                     )
                 },
                 onFailure = { ex ->
-                    val msg = ex.message.orEmpty()
+                    val msg = safeErrorMessage(ex)
                     val status = when {
                         msg.contains("HTTP 401") || msg.contains("HTTP 403") -> HealthStatus.AUTH_ERROR
                         msg.contains("HTTP 429") -> HealthStatus.RATE_LIMITED
@@ -119,7 +179,7 @@ class AiRepository {
             ProviderHealthResult(
                 provider = provider,
                 status = HealthStatus.NETWORK_ERROR,
-                message = e.message ?: "Network error",
+                message = safeErrorMessage(e).ifBlank { "Network error" },
                 maskedKey = masked
             )
         }
@@ -135,7 +195,17 @@ class AiRepository {
                 AiProvider.GEMINI -> gemini(req)
                 AiProvider.ANTHROPIC -> anthropic(req)
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = {
+                Result.failure(
+                    IllegalStateException(
+                        friendlyNetworkMessage(it),
+                        it
+                    )
+                )
+            }
+        )
     }
 
     private fun post(

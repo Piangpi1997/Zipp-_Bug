@@ -204,9 +204,15 @@ function getActiveNodes() {
   return getActiveScreen().nodes;
 }
 
+let recoveryTimer;
 function persistProject() {
   try {
-    localStorage.setItem('zipbug_studio_project', JSON.stringify(project));
+    const serialized = JSON.stringify(project);
+    localStorage.setItem('zipbug_studio_project', serialized);
+    clearTimeout(recoveryTimer);
+    recoveryTimer = setTimeout(() => {
+      if (window.ZipBug && window.ZipBug.autosave) window.ZipBug.autosave(serialized);
+    }, 400);
   } catch (e) {
     console.warn('LocalStorage save failed:', e);
   }
@@ -214,7 +220,8 @@ function persistProject() {
 
 function loadPersistedProject() {
   try {
-    const raw = localStorage.getItem('zipbug_studio_project');
+    const raw = localStorage.getItem('zipbug_studio_project') ||
+      (window.ZipBug && window.ZipBug.loadProject ? window.ZipBug.loadProject() : '');
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.screens) && parsed.screens.length > 0) {

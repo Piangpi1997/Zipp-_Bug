@@ -20,22 +20,77 @@ import com.zipbug.base.data.ApkArtifactEntity
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.FragmentProjectsBinding
+import com.zipbug.base.creator.ProjectDirectoryZipWriter
 import com.zipbug.base.engine.EngineManager
+import com.zipbug.base.project.ProjectWorkspaceManager
 import com.zipbug.base.project.ZipImporter
 import com.zipbug.base.ui.ApkDetailBottomSheetDialogFragment
+import com.zipbug.base.ui.MainActivity
 import com.zipbug.base.ui.SigningDiagnosticsActivity
 import com.zipbug.base.ui.WebRuntimeActivity
 import com.zipbug.base.ui.WorkspaceActivity
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
 
 class ProjectsFragment : Fragment() {
     private var _binding: FragmentProjectsBinding? = null
     private val binding get() = _binding!!
+    private var pendingSourceExport: ProjectEntity? = null
+
+    private val exportProjectSource = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val project = pendingSourceExport
+        pendingSourceExport = null
+
+        if (uri == null || project == null) {
+            if (_binding != null) {
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export cancelled",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            return@registerForActivityResult
+        }
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    ProjectDirectoryZipWriter(requireContext())
+                        .writeAndValidate(
+                            uri,
+                            File(project.rootPath)
+                        )
+                }
+            }
+
+            if (_binding == null) return@launch
+
+            result.onSuccess { validation ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP verified: " +
+                        validation.entryCount +
+                        " files. Unzip it in a Termux workspace, then build with /apkbuilder --debug.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }.onFailure { error ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export failed: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 
     private val pickZip = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -209,6 +264,26 @@ class ProjectsFragment : Fragment() {
         }
         card.addView(metaTv)
 
+        if (
+            project.kind.equals("react-vite-source", ignoreCase = true) ||
+                project.kind.equals("react-native-expo-source", ignoreCase = true)
+        ) {
+            val sourceNote = TextView(requireContext()).apply {
+                text =
+                    "React source only. Build it in a reviewed Node/npm/Expo workspace; " +
+                        "Zip_Bug does not auto-run package lifecycle scripts from imported ZIPs."
+                setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.z_muted
+                    )
+                )
+                textSize = 12f
+                setPadding(0, 0, 0, 8)
+            }
+            card.addView(sourceNote)
+        }
+
         val btnRow = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
         }
@@ -233,8 +308,8 @@ class ProjectsFragment : Fragment() {
         btnRow.addView(btnWorkspace)
 
         val btnBuild = Button(requireContext()).apply {
-            val termuxAccessible = project.rootPath.startsWith("/data/data/com.termux/files/")
-            text = if (termuxAccessible) "Build APK" else "Stage & Build"
+            val termuxAccessible = ProjectWorkspaceManager.isTermuxAccessible(project.rootPath)
+            text = if (termuxAccessible) "Build APK" else "Export Source ZIP"
             visibility = if (isAndroidProject(project)) View.VISIBLE else View.GONE
             isAllCaps = false
             backgroundTintList = null
@@ -246,13 +321,21 @@ class ProjectsFragment : Fragment() {
             }
             setOnClickListener {
                 if (termuxAccessible) {
-                    buildAndInspectProject(project)
+                    (activity as? MainActivity)?.navigateToTerminal(
+                        "/apkbuilder --debug \"" +
+                            project.rootPath +
+                            "\""
+                    )
                 } else {
-                    Snackbar.make(
-                        binding.root,
-                        "Open Workspace → Stage to Termux before running a Gradle APK build.",
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                    pendingSourceExport = project
+                    val filename = project.name
+                        .replace(
+                            Regex("[^a-zA-Z0-9._-]"),
+                            "_"
+                        )
+                        .ifBlank { "ZipBugProject" } +
+                        "-source.zip"
+                    exportProjectSource.launch(filename)
                 }
             }
         }
@@ -313,9 +396,12 @@ class ProjectsFragment : Fragment() {
     }
 
     private fun isWebProject(project: ProjectEntity): Boolean =
-        project.kind.equals("web-mini-app", ignoreCase = true) ||
-            project.kind.equals("react-web", ignoreCase = true) ||
-            project.entryFile.endsWith(".html", ignoreCase = true)
+        !project.kind.equals("react-vite-source", ignoreCase = true) &&
+            !project.kind.equals("react-native-expo-source", ignoreCase = true) &&
+            (
+                project.kind.equals("web-mini-app", ignoreCase = true) ||
+                    project.entryFile.endsWith(".html", ignoreCase = true)
+            )
 
     private fun isAndroidProject(project: ProjectEntity): Boolean =
         project.kind.contains("ANDROID", ignoreCase = true) ||
@@ -441,6 +527,7 @@ class ProjectsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        pendingSourceExport = null
         super.onDestroyView()
         _binding = null
     }

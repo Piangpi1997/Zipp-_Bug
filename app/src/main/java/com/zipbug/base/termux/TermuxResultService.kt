@@ -99,12 +99,10 @@ class TermuxResultService : IntentService("ZipBugTermuxResult") {
         )!!
 
         require(
-            destination.startsWith("/storage/emulated/0/") ||
-                destination.startsWith(
-                    "/data/data/com.termux/files/home/storage/"
-                )
+            destination.startsWith("/storage/emulated/0/Download/") &&
+                destination.endsWith(".apk", ignoreCase = true)
         ) {
-            "APK export path must be shared storage"
+            "APK export path must be an .apk file inside shared Download"
         }
 
         TermuxBridge.send(

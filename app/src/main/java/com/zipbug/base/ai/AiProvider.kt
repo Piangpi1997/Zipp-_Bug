@@ -14,7 +14,7 @@ enum class AiProvider(
     ),
     GEMINI(
         "Gemini",
-        "gemini-2.5-flash"
+        "gemini-3.8-flash"
     ),
     ANTHROPIC(
         "Claude",

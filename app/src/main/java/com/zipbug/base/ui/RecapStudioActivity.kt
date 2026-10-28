@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 
 class RecapStudioActivity : AppCompatActivity() {
@@ -189,6 +190,7 @@ class RecapStudioActivity : AppCompatActivity() {
             clips.addAll(initial)
         }
         renderClipsUi()
+        updateRenderAvailability()
 
         // Load scripts
         val loadedScripts = db.recapScriptDao().getScriptsForProject(project.id)
@@ -324,46 +326,45 @@ class RecapStudioActivity : AppCompatActivity() {
                 // Not all SAF pickers grant persistable permission
             }
 
-            // Stage to Termux-accessible home or app files fallback
-            val termuxDir = File("/data/data/com.termux/files/home/recap/projects/${project.id}")
-            val stagingDir = if (termuxDir.mkdirs() || termuxDir.exists()) {
-                termuxDir
-            } else {
-                File(filesDir, "recap/projects/${project.id}").apply { mkdirs() }
-            }
+            val stagedResult = RecapMediaStager.stage(
+                context = this@RecapStudioActivity,
+                uri = uri,
+                projectId = project.id
+            )
 
-            val fileName = "source_${System.currentTimeMillis()}.mp4"
-            val targetFile = File(stagingDir, fileName)
-
-            try {
-                contentResolver.openInputStream(uri)?.use { input ->
-                    FileOutputStream(targetFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            } catch (e: Exception) {
+            if (stagedResult.isFailure) {
+                val reason = stagedResult.exceptionOrNull()
+                    ?.message
+                    ?: "Media staging failed"
                 withContext(Dispatchers.Main) {
                     showFailureDiagnosis(
-                        RecapFailureDiagnosis.missingMediaFile(uri.toString())
+                        RecapFailureDiagnosis.mediaStagingFailed(
+                            uri = uri.toString(),
+                            reason = reason
+                        )
                     )
                 }
                 return@launch
             }
 
-            // Extract duration
+            val staged = stagedResult.getOrThrow()
+
+            // Extract duration from the shared staged copy that Termux/ffmpeg can read.
             var durationMs = 60_000L
             runCatching {
                 val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(targetFile.absolutePath)
-                val durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                retriever.setDataSource(staged.localPath)
+                val durStr = retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_DURATION
+                )
                 durStr?.toLongOrNull()?.let { durationMs = it }
                 retriever.release()
             }
 
             val updatedProject = project.copy(
-                sourceUri = uri.toString(),
-                sourceFileName = fileName,
-                sourceLocalPath = targetFile.absolutePath,
+                sourceUri = staged.sourceUri,
+                sourceFileName = staged.displayName,
+                sourceLocalPath = staged.localPath,
                 sourceDurationMs = durationMs,
                 updatedAt = System.currentTimeMillis()
             )
@@ -371,7 +372,7 @@ class RecapStudioActivity : AppCompatActivity() {
 
             val initialClips = RecapTimelineManager.createInitialClips(
                 projectId = project.id,
-                sourcePath = targetFile.absolutePath,
+                sourcePath = staged.localPath,
                 totalDurationMs = durationMs
             )
             db.recapClipDao().deleteClipsForProject(project.id)
@@ -379,7 +380,12 @@ class RecapStudioActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 bindProject(updatedProject)
-                Toast.makeText(this@RecapStudioActivity, "Media imported: $fileName", Toast.LENGTH_SHORT).show()
+                hideFailureDiagnosis()
+                Toast.makeText(
+                    this@RecapStudioActivity,
+                    "Media imported: ${staged.displayName}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -618,13 +624,31 @@ class RecapStudioActivity : AppCompatActivity() {
         val count = clips.size
         binding.tvClipsHeader.text = "TIMELINE & CLIPS ($count / 18)"
 
-        val validation = RecapTimelineManager.validateTimeline(clips)
-        if (validation.isSuccess) {
-            binding.tvTimelineValidation.text = "Status: Valid ($count clips)"
-            binding.tvTimelineValidation.setTextColor(ContextCompat.getColor(this, R.color.z_green))
+        if (clips.isEmpty()) {
+            binding.tvTimelineValidation.text =
+                "No clips yet. Select media, then use Auto Split or + Clip."
+            binding.tvTimelineValidation.setTextColor(
+                ContextCompat.getColor(this, R.color.z_muted)
+            )
         } else {
-            binding.tvTimelineValidation.text = "Status: Invalid - ${validation.exceptionOrNull()?.message?.take(80)}"
-            binding.tvTimelineValidation.setTextColor(ContextCompat.getColor(this, R.color.z_red))
+            val validation = RecapTimelineManager.validateTimeline(clips)
+            if (validation.isSuccess) {
+                binding.tvTimelineValidation.text = "Status: Valid ($count clips)"
+                binding.tvTimelineValidation.setTextColor(
+                    ContextCompat.getColor(this, R.color.z_green)
+                )
+            } else {
+                val reason = validation.exceptionOrNull()
+                    ?.message
+                    ?.lineSequence()
+                    ?.firstOrNull()
+                    ?.take(120)
+                    ?: "Timeline needs attention"
+                binding.tvTimelineValidation.text = "Status: Needs attention — $reason"
+                binding.tvTimelineValidation.setTextColor(
+                    ContextCompat.getColor(this, R.color.z_red)
+                )
+            }
         }
 
         for ((index, clip) in clips.withIndex()) {
@@ -729,6 +753,7 @@ class RecapStudioActivity : AppCompatActivity() {
         clips.addAll(initial)
         persistClips()
         renderClipsUi()
+        updateRenderAvailability()
     }
 
     private fun addNewClip() {
@@ -737,7 +762,15 @@ class RecapStudioActivity : AppCompatActivity() {
             Toast.makeText(this, "Max 18 clips allowed per project", Toast.LENGTH_SHORT).show()
             return
         }
-        val src = project.sourceLocalPath ?: ""
+        val src = project.sourceLocalPath
+        if (src.isNullOrBlank()) {
+            Toast.makeText(
+                this,
+                "Select source media before adding timeline clips",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
         val lastEnd = clips.lastOrNull()?.endMs ?: 0L
         val newClip = RecapClipEntity(
             id = UUID.randomUUID().toString(),
@@ -752,6 +785,29 @@ class RecapStudioActivity : AppCompatActivity() {
         clips.add(newClip)
         persistClips()
         renderClipsUi()
+        updateRenderAvailability()
+    }
+
+    private fun updateRenderAvailability() {
+        val sourcePath = activeProject?.sourceLocalPath
+        val sourceReady =
+            !sourcePath.isNullOrBlank() &&
+                !sourcePath.startsWith("content://", ignoreCase = true) &&
+                File(sourcePath).isFile &&
+                File(sourcePath).length() > 0L
+        val timelineReady = clips.isNotEmpty()
+
+        binding.btnStartRender.isEnabled = sourceReady && timelineReady
+        if (!sourceReady) {
+            binding.tvRenderStatus.text =
+                "Status: WAITING • Select media to enable render"
+        } else if (!timelineReady) {
+            binding.tvRenderStatus.text =
+                "Status: WAITING • Add at least one clip"
+        } else if (binding.tvRenderStatus.text.toString().startsWith("Status: WAITING")) {
+            binding.tvRenderStatus.text =
+                "Status: IDLE • Ready to render"
+        }
     }
 
     private fun previewTtsVoice() {
@@ -899,10 +955,27 @@ class RecapStudioActivity : AppCompatActivity() {
         val project = activeProject ?: return
 
         updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "RUNNING")
+
+        val sourcePath = project.sourceLocalPath
+        if (
+            sourcePath.isNullOrBlank() ||
+                sourcePath.startsWith("content://", ignoreCase = true) ||
+                !File(sourcePath).isFile ||
+                File(sourcePath).length() <= 0L
+        ) {
+            updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "FAILED")
+            showFailureDiagnosis(
+                RecapFailureDiagnosis.missingMediaFile(sourcePath)
+            )
+            updateRenderAvailability()
+            return
+        }
+
         val timelineVal = RecapTimelineManager.validateTimeline(clips)
         if (timelineVal.isFailure) {
             updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "FAILED")
             showFailureDiagnosis(RecapFailureDiagnosis.invalidClipCount(clips.size))
+            updateRenderAvailability()
             return
         }
         updateStageBadge(RecapRenderJobEntity.STAGE_VALIDATION, "SUCCESS")

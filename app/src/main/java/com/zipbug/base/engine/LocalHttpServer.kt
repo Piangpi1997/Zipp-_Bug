@@ -17,28 +17,45 @@ class LocalHttpServer(
     private var server: ServerSocket? = null
     private val pool = Executors.newCachedThreadPool()
 
+    @Synchronized
     fun start() {
         if (running) return
+
+        val boundServer = ServerSocket(
+            port,
+            20,
+            InetAddress.getByName("127.0.0.1")
+        )
+
+        server = boundServer
         running = true
+
         pool.execute {
-            runCatching {
-                val srv = ServerSocket()
-                srv.reuseAddress = true
-                srv.bind(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), 20)
-                server = srv
+            try {
                 while (running) {
-                    runCatching { srv.accept() }
-                        .getOrNull()
-                        ?.let { socket -> pool.execute { serve(socket) } }
+                    val socket = runCatching {
+                        boundServer.accept()
+                    }.getOrNull() ?: continue
+
+                    pool.execute {
+                        serve(socket)
+                    }
                 }
+            } finally {
+                runCatching { boundServer.close() }
+                .getOrNull()
+                ?: Unit
+                running = false
             }
         }
     }
 
+    @Synchronized
     fun stop() {
         running = false
         runCatching { server?.close() }
         server = null
+        pool.shutdownNow()
     }
 
     private fun serve(socket: Socket) {
@@ -92,10 +109,23 @@ class LocalHttpServer(
                 else -> "application/octet-stream"
             }
 
+            val contentSecurityPolicy =
+                "default-src 'self' data: blob:; " +
+                    "connect-src 'self'; " +
+                    "img-src 'self' data: blob:; " +
+                    "media-src 'self' data: blob:; " +
+                    "style-src 'self' 'unsafe-inline'; " +
+                    "script-src 'self' 'unsafe-inline'; " +
+                    "object-src 'none'; frame-src 'none'; base-uri 'none'"
+
             val head = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: $mime\r\n" +
                 "Content-Length: ${file.length()}\r\n" +
-                "Cache-Control: no-store\r\n\r\n"
+                "Cache-Control: no-store\r\n" +
+                "Content-Security-Policy: $contentSecurityPolicy\r\n" +
+                "X-Content-Type-Options: nosniff\r\n" +
+                "Referrer-Policy: no-referrer\r\n" +
+                "Cross-Origin-Resource-Policy: same-origin\r\n\r\n"
 
             out.write(head.toByteArray())
             file.inputStream().use { it.copyTo(out) }

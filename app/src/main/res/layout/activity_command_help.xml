@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Command Help"
+            android:text="@string/ui_56bd8f3adb"
             android:textColor="@color/z_text"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Search supported slash commands. Examples are safe to paste into Zip_Bug Terminal."
+            android:text="@string/ui_ed3f53d1a3"
             android:textColor="@color/z_muted"
             android:textSize="14sp" />
 
@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="14dp"
-            android:hint="Search commands, e.g. build, studio, tts"
+            android:hint="@string/ui_6aca638815"
             android:inputType="text"
             android:singleLine="true"
             android:textColor="@color/z_text"

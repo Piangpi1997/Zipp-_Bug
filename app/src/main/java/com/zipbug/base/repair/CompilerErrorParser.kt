@@ -87,28 +87,79 @@ Analyze the compiler errors and provide a targeted patch proposal in JSON format
         }
     }
 
-    fun applyPatch(projectRoot: java.io.File, patch: PatchProposal): Result<java.io.File> {
+    fun applyPatch(
+        projectRoot: java.io.File,
+        patch: PatchProposal
+    ): Result<java.io.File> {
         return runCatching {
-            val cleanRelPath = patch.targetFile.trimStart('/', '\\')
-            require(!cleanRelPath.contains("..")) { "Path traversal rejected: ${patch.targetFile}" }
+            val root = projectRoot.canonicalFile
+            require(root.isDirectory) {
+                "Project root is missing or not a directory"
+            }
 
-            val targetFile = java.io.File(projectRoot, cleanRelPath)
-            if (!targetFile.exists()) {
-                throw java.io.FileNotFoundException("Target file not found: ${targetFile.absolutePath}")
+            val cleanRelPath = patch.targetFile
+                .trim()
+                .replace('\\', '/')
+                .trimStart('/')
+
+            require(
+                cleanRelPath.isNotBlank() &&
+                    cleanRelPath.split('/').none {
+                        it.isBlank() || it == "." || it == ".."
+                    }
+            ) {
+                "Patch target must be a clean relative path"
+            }
+
+            val targetFile = java.io.File(
+                root,
+                cleanRelPath
+            ).canonicalFile
+            require(
+                targetFile.path.startsWith(
+                    root.path + java.io.File.separator
+                )
+            ) {
+                "Patch target escapes the project sandbox"
+            }
+
+            if (!targetFile.isFile) {
+                throw java.io.FileNotFoundException(
+                    "Target file not found: " +
+                        targetFile.absolutePath
+                )
+            }
+
+            require(patch.originalSnippet.isNotEmpty()) {
+                "Original snippet cannot be empty"
             }
 
             val content = targetFile.readText(Charsets.UTF_8)
             if (!content.contains(patch.originalSnippet)) {
-                throw IllegalStateException("Original snippet not found in ${targetFile.name}")
+                throw IllegalStateException(
+                    "Original snippet not found in " +
+                        targetFile.name
+                )
             }
 
-            // Create automatic backup before modifying
-            val backupFile = java.io.File(targetFile.parentFile, "${targetFile.name}.bak_${System.currentTimeMillis()}")
+            val backupFile = java.io.File(
+                targetFile.parentFile,
+                targetFile.name +
+                    ".bak_" +
+                    System.currentTimeMillis()
+            )
             targetFile.copyTo(backupFile, overwrite = true)
 
-            val newContent = content.replace(patch.originalSnippet, patch.replacementSnippet)
-            targetFile.writeText(newContent, Charsets.UTF_8)
+            val newContent = content.replaceFirst(
+                patch.originalSnippet,
+                patch.replacementSnippet
+            )
+            targetFile.writeText(
+                newContent,
+                Charsets.UTF_8
+            )
             targetFile
         }
     }
+
 }

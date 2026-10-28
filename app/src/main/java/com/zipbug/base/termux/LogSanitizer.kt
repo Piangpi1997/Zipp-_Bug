@@ -5,10 +5,20 @@ object LogSanitizer {
 
     private val SECRET_PATTERNS = listOf(
         Regex("""sk-or-[a-zA-Z0-9_\-]{16,}"""),
-        Regex("""AIzaSy[a-zA-Z0-9_\-]{20,}"""),
+        Regex("""sk-ant-[a-zA-Z0-9_\-]{16,}"""),
+        Regex("""sk-proj-[a-zA-Z0-9_\-]{16,}"""),
+        Regex("""sk-[a-zA-Z0-9_\-]{16,}"""),
+        Regex("""AIza[a-zA-Z0-9_\-]{20,}"""),
         Regex("""(?i)(bearer\s+)[a-zA-Z0-9_\-\.]{16,}"""),
         Regex("""(?i)(api[_-]?key\s*[:=]\s*)[a-zA-Z0-9_\-\.]{16,}""")
     )
+
+    fun containsRecognizableSecret(raw: String?): Boolean {
+        if (raw.isNullOrBlank()) return false
+        return SECRET_PATTERNS.any { pattern ->
+            pattern.containsMatchIn(raw)
+        }
+    }
 
     /**
      * Redacts known API keys and tokens, then bounds total text length to prevent
@@ -24,12 +34,21 @@ object LogSanitizer {
                 val full = matchResult.value
                 when {
                     full.startsWith("sk-or-", ignoreCase = true) -> "sk-or-[REDACTED]"
-                    full.startsWith("AIzaSy") -> "AIzaSy[REDACTED]"
+                    full.startsWith("sk-ant-", ignoreCase = true) -> "sk-ant-[REDACTED]"
+                    full.startsWith("sk-proj-", ignoreCase = true) -> "sk-proj-[REDACTED]"
+                    full.startsWith("sk-", ignoreCase = true) -> "sk-[REDACTED]"
+                    full.startsWith("AIza") -> "AIza[REDACTED]"
                     full.startsWith("bearer ", ignoreCase = true) -> "Bearer [REDACTED]"
                     full.contains("key", ignoreCase = true) -> {
-                        val prefix = full.substringBefore(":")
-                            .ifEmpty { full.substringBefore("=") }
-                        "$prefix:[REDACTED]"
+                        val colon = full.indexOf(':').takeIf { it >= 0 }
+                        val equals = full.indexOf('=').takeIf { it >= 0 }
+                        val separator = listOfNotNull(colon, equals).minOrNull()
+                        val prefix = if (separator != null) {
+                            full.substring(0, separator + 1)
+                        } else {
+                            "api_key:"
+                        }
+                        "$prefix[REDACTED]"
                     }
                     else -> "[REDACTED_SECRET]"
                 }

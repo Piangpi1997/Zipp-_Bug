@@ -240,4 +240,102 @@ class StudioModelsTest {
         )
         assertTrue(validScreen.validate().isSuccess)
     }
+
+    @Test
+    fun studioSchemaValidatorReportsActionableFieldPath() {
+        val schema = """
+            {
+              "screens": [
+                {
+                  "id": "main",
+                  "name": "Main",
+                  "nodes": [
+                    {
+                      "id": "Bad-Id",
+                      "type": "Button",
+                      "label": "Build",
+                      "x": 0,
+                      "y": 0,
+                      "width": 120,
+                      "height": 48,
+                      "fontSize": 14,
+                      "radius": 12,
+                      "color": "#FF6B00",
+                      "textColor": "#FFFFFF"
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val issues = StudioSchemaValidator.validate(schema)
+        assertTrue(issues.any { it.path == "screens[0].nodes[0].id" })
+        assertTrue(issues.any { it.display().contains("Android id pattern") })
+    }
+
+    @Test
+    fun studioSchemaValidatorAcceptsLegacyComponentsForMigrationCompatibility() {
+        val schema = """
+            {
+              "id": "legacy",
+              "name": "Legacy",
+              "screens": [
+                {
+                  "id": "screen_1",
+                  "name": "Main",
+                  "components": [
+                    {
+                      "id": "title_text",
+                      "type": "Text",
+                      "x": 16,
+                      "y": 24,
+                      "width": 160,
+                      "height": 40
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        assertTrue(StudioSchemaValidator.validate(schema).isEmpty())
+    }
+
+    @Test
+    fun studioSchemaValidatorBlocksDuplicateComposeFunctionNames() {
+        val schema = """
+            {
+              "screens": [
+                {"id":"one","name":"A-B","nodes":[]},
+                {"id":"two","name":"AB","nodes":[]}
+              ]
+            }
+        """.trimIndent()
+
+        val issues = StudioSchemaValidator.validate(schema, requireComposeNames = true)
+        assertTrue(issues.any { it.path == "screens[1].name" && it.message.contains("duplicate Compose function") })
+    }
+
+    @Test
+    fun studioSchemaValidatorBlocksDuplicateLayerIdsPerScreen() {
+        val schema = """
+            {
+              "screens": [
+                {
+                  "id":"main",
+                  "name":"Main",
+                  "nodes":[
+                    {"id":"same","type":"Text","x":0,"y":0,"width":100,"height":40},
+                    {"id":"same","type":"Button","x":0,"y":50,"width":100,"height":48}
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val issues = StudioSchemaValidator.validate(schema)
+        assertTrue(issues.any { it.path == "screens[0].nodes[1].id" && it.message.contains("duplicate id") })
+    }
+
 }

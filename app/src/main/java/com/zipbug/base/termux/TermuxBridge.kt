@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ZipBugDatabase
 import org.json.JSONArray
+import java.io.File
 import java.util.UUID
 
 object TermuxBridge {
@@ -70,7 +71,8 @@ object TermuxBridge {
         val tool: String,
         val args: List<String>,
         val workDir: String = "/data/data/com.termux/files/home",
-        val label: String = "Zip_Bug command"
+        val label: String = "Zip_Bug command",
+        val allowInlineCode: Boolean = false
     )
 
     suspend fun send(
@@ -84,14 +86,14 @@ object TermuxBridge {
         val job = BuildJobEntity(
             id = jobId,
             tool = request.tool,
-            argsJson = JSONArray(request.args).toString(),
+            argsJson = LogSanitizer.sanitize(JSONArray(request.args).toString()),
             workDir = request.workDir,
             status = BuildJobEntity.QUEUED
         )
 
         dao.upsert(job)
 
-        return runCatching {
+        val result = runCatching {
             require(isTermuxInstalled(appContext)) {
                 "Termux package (com.termux) is not installed on this device"
             }
@@ -102,11 +104,19 @@ object TermuxBridge {
             val binary = tools[request.tool]
                 ?: error("Tool not allowed: ${request.tool}")
 
-            require(request.workDir.startsWith("/data/data/com.termux/files/")) {
-                "Work directory must be inside Termux storage"
+            val canonicalWorkDir = File(request.workDir).canonicalPath
+            require(
+                canonicalWorkDir == "/data/data/com.termux/files" ||
+                    canonicalWorkDir.startsWith("/data/data/com.termux/files/")
+            ) {
+                "Work directory must resolve inside Termux storage"
             }
 
-            validateArguments(request.tool, request.args)
+            validateArguments(
+                request.tool,
+                request.args,
+                request.allowInlineCode
+            )
 
             val resultIntent = Intent(
                 appContext,
@@ -171,7 +181,13 @@ object TermuxBridge {
 
             dao.markStarted(jobId)
             jobId
-        }.onFailure { error ->
+        }
+
+        val error = result.exceptionOrNull()
+        if (error != null) {
+            val safeMessage = LogSanitizer.sanitize(
+                error.message ?: error.javaClass.simpleName
+            )
             dao.finish(
                 id = jobId,
                 status = BuildJobEntity.FAILED,
@@ -179,25 +195,62 @@ object TermuxBridge {
                 stderr = "",
                 exitCode = null,
                 errorCode = null,
-                errorMessage = error.message ?: error.javaClass.simpleName
+                errorMessage = safeMessage
+            )
+            return Result.failure(
+                IllegalArgumentException(safeMessage)
             )
         }
+
+        return result
     }
 
-    fun validateArguments(tool: String, args: List<String>) {
+    fun validateArguments(
+        tool: String,
+        args: List<String>,
+        allowInlineCode: Boolean = false
+    ) {
         require(
             args.none { arg ->
                 arg.contains('\u0000') || arg.length > 4096
             }
         ) { "Invalid argument: contains null byte or exceeds 4096 characters" }
 
+        if (tool == "python" && args.contains("-c")) {
+            require(allowInlineCode) {
+                "Inline Python code is reserved for reviewed Zip_Bug internal workflows"
+            }
+        }
+
         if (tool == "sh" || tool == "bash") {
+            require(args.none { it == "-c" || it == "--command" }) {
+                "Shell command-string mode (-c/--command) is not allowed"
+            }
             for (arg in args) {
-                if (arg.contains(";") || arg.contains("&&") || arg.contains("||") || arg.contains("|") || arg.contains("`") || arg.contains("$(")) {
-                    throw IllegalArgumentException("Forbidden shell operator in argument: $arg")
+                if (
+                    arg.contains(';') ||
+                    arg.contains("&&") ||
+                    arg.contains("||") ||
+                    arg.contains('|') ||
+                    arg.contains('`') ||
+                    arg.contains("$(") ||
+                    arg.contains('\n') ||
+                    arg.contains('\r') ||
+                    arg.contains('>') ||
+                    arg.contains('<')
+                ) {
+                    throw IllegalArgumentException(
+                        "Forbidden shell operator in argument"
+                    )
                 }
-                if (arg.contains("rm -rf") || arg.contains("rm -r -f") || arg.contains("mkfs")) {
-                    throw IllegalArgumentException("Destructive command forbidden in shell runner")
+                if (
+                    arg.contains("rm -rf", ignoreCase = true) ||
+                    arg.contains("rm -r -f", ignoreCase = true) ||
+                    arg.contains("mkfs", ignoreCase = true)
+                ) {
+                    throw IllegalArgumentException(
+                        "Destructive command forbidden in shell runner"
+                    )
                 }
             }
         }

@@ -11,6 +11,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.creator.AppScaffolder
 import com.zipbug.base.creator.AppSpec
 import com.zipbug.base.creator.ProjectZipWriter
+import com.zipbug.base.creator.ReactViteScaffolder
+import com.zipbug.base.creator.ReactNativeExpoScaffolder
 import com.zipbug.base.creator.WebMiniAppScaffolder
 import com.zipbug.base.databinding.ActivityAppCreatorBinding
 import java.util.Locale
@@ -104,6 +106,14 @@ class AppCreatorActivity : AppCompatActivity() {
             createWebMiniApp()
         }
 
+        binding.createReact.setOnClickListener {
+            createReactProject()
+        }
+
+        binding.createReactNative.setOnClickListener {
+            createReactNativeProject()
+        }
+
         binding.openExport.setOnClickListener {
             lastExportUri?.let(::openZip)
         }
@@ -169,6 +179,78 @@ class AppCreatorActivity : AppCompatActivity() {
             export(
                 files,
                 safeFilename(name) + "-mini-app.zip"
+            )
+        }.onFailure {
+            showError(
+                stage = "INPUT VALIDATION",
+                error = it,
+                nextStep = "Enter a valid app name and try again."
+            )
+        }
+    }
+
+    private fun createReactProject() {
+        binding.exportActions.visibility = View.GONE
+        binding.result.text =
+            "INPUT VALIDATION • RUNNING\n" +
+                "Preparing React + Vite source project…"
+
+        val name = binding.appName.text.toString().trim()
+        val goal = binding.goal.text.toString().trim()
+
+        runCatching {
+            ReactViteScaffolder.files(
+                name = name,
+                goal = goal
+            )
+        }.onSuccess { files ->
+            binding.result.text =
+                "INPUT VALIDATION • PASS\n" +
+                    "REACT SOURCE PLAN • PASS\n" +
+                    "Prepared ${files.size} files. " +
+                    "This source ZIP does not auto-run npm scripts. " +
+                    "Choose a ZIP save location."
+
+            export(
+                files,
+                safeFilename(name) + "-react-vite.zip"
+            )
+        }.onFailure {
+            showError(
+                stage = "INPUT VALIDATION",
+                error = it,
+                nextStep = "Enter a valid app name and try again."
+            )
+        }
+    }
+
+    private fun createReactNativeProject() {
+        binding.exportActions.visibility = View.GONE
+        binding.result.text =
+            "INPUT VALIDATION • RUNNING\n" +
+                "Preparing React Native + Expo TypeScript source…"
+
+        val name = binding.appName.text.toString().trim()
+        val packageName = binding.packageName.text.toString().trim()
+        val goal = binding.goal.text.toString().trim()
+
+        runCatching {
+            ReactNativeExpoScaffolder.files(
+                name = name,
+                packageName = packageName,
+                goal = goal
+            )
+        }.onSuccess { files ->
+            binding.result.text =
+                "INPUT VALIDATION • PASS\n" +
+                    "REACT NATIVE SOURCE PLAN • PASS\n" +
+                    "Prepared ${files.size} files. " +
+                    "This source ZIP does not auto-run npm/npx scripts. " +
+                    "Choose a ZIP save location."
+
+            export(
+                files,
+                safeFilename(name) + "-react-native-expo.zip"
             )
         }.onFailure {
             showError(

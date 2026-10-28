@@ -6,9 +6,17 @@
 - Encrypted BYO AI keys.
 - Safe ZIP import and app manifest validation.
 - Local web runtime on :3131.
-- Termux allow-list bridge.
 - Figma-like visual editor foundation.
 - Social Recap workspace.
+
+## Phase A2 — LIKEFIGMA Studio reliability — DONE
+- [x] Versioned schema and migration from the earlier `components` model.
+- [x] Shared project state for preview, inspector, layers and exports.
+- [x] Multi-selection, touch-safe coordinate mapping, drag/resize and 8-unit snapping.
+- [x] Align/distribute and layer reordering.
+- [x] Transactional undo/redo and debounced autosave/recovery.
+- [x] Validated JSON import plus safe XML / Compose code generation.
+- [x] Coordinate, snap, history, recovery, migration and export-validation tests.
 
 ## Phase B — Real Build Engine — ACTIVE
 - [x] Environment doctor for Java 17 / Gradle 8.9 / SDK 34 / aapt2.

@@ -6,16 +6,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.creator.AppCreatorParser
+import com.zipbug.base.ZipBugApp
 import com.zipbug.base.creator.AppProjectGenerator
+import com.zipbug.base.creator.GeneratedProjectTermuxHandoff
 import com.zipbug.base.creator.GeneratedProjectSpec
+import com.zipbug.base.creator.ProjectZipWriter
+import com.zipbug.base.data.BuildJobEntity
 import com.zipbug.base.data.ProjectEntity
 import com.zipbug.base.databinding.DialogAppSpecReviewBinding
+import com.zipbug.base.project.ProjectWorkspaceManager
 import com.zipbug.base.termux.TermuxBridge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.Locale
 
 class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
@@ -26,6 +37,79 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var currentSpec: GeneratedProjectSpec? = null
     private var rawJson: String = ""
     private var generatedProject: ProjectEntity? = null
+    private var pendingExportProject: ProjectEntity? = null
+    private var handoffObserverJob: Job? = null
+
+    private val exportGeneratedSource = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        val project = pendingExportProject
+        pendingExportProject = null
+
+        if (uri == null || project == null) {
+            if (_binding != null) {
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export cancelled",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            return@registerForActivityResult
+        }
+
+        val appContext = context?.applicationContext
+            ?: return@registerForActivityResult
+
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val root = File(project.rootPath).canonicalFile
+                    require(root.isDirectory) {
+                        "Generated project folder is no longer available."
+                    }
+
+                    val files = linkedMapOf<String, String>()
+                    root.walkTopDown()
+                        .filter { it.isFile }
+                        .forEach { file ->
+                            val relative = file
+                                .relativeTo(root)
+                                .invariantSeparatorsPath
+                            require(file.length() <= MAX_EXPORT_SOURCE_FILE_BYTES) {
+                                "Source file is too large to export safely: " + relative
+                            }
+                            files[relative] = file.readText(Charsets.UTF_8)
+                        }
+
+                    require(files.isNotEmpty()) {
+                        "Generated project contains no source files."
+                    }
+
+                    val writer = ProjectZipWriter(appContext)
+                    writer.write(uri, files)
+                    writer.validate(uri, files.keys)
+                }
+            }
+
+            if (_binding == null) return@launch
+
+            result.onSuccess { validation ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP verified: " + validation.entryCount +
+                        " files. Save/unzip it in your Termux workspace before building.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }.onFailure { error ->
+                Snackbar.make(
+                    binding.root,
+                    "Source ZIP export failed: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 
     var onRegenerateRequested: (() -> Unit)? = null
     var onSpecEdited: ((String) -> Unit)? = null
@@ -33,6 +117,7 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "AppSpecReviewBottomSheet"
         private const val ARG_SPEC_JSON = "arg_spec_json"
+        private const val MAX_EXPORT_SOURCE_FILE_BYTES = 4L * 1024 * 1024
 
         fun newInstance(specJson: String): AppSpecReviewBottomSheetDialogFragment {
             return AppSpecReviewBottomSheetDialogFragment().apply {
@@ -55,6 +140,9 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.btnBuildProject.isEnabled = false
+        binding.btnBuildProject.text = "Generate Project First"
+
         rawJson = arguments?.getString(ARG_SPEC_JSON).orEmpty()
         val parsed = AppCreatorParser.parse(rawJson)
 
@@ -62,8 +150,12 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
             currentSpec = spec
             bindSpec(spec)
         }.onFailure { err ->
-            binding.projectSummary.text = "Failed to parse spec JSON:\n${err.message}"
+            binding.projectSummary.text =
+                "Spec validation failed:\n${err.message}\n\n" +
+                    "Regenerate the spec before creating a project."
             binding.btnGenerateProject.isEnabled = false
+            binding.btnBuildProject.isEnabled = false
+            binding.btnBuildProject.text = "Fix Spec First"
         }
 
         binding.btnEditSpec.setOnClickListener {
@@ -84,18 +176,15 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     generatedProject = proj
 
                     val termuxAccessible =
-                        proj.rootPath.startsWith(
-                            "/data/data/com.termux/files/"
-                        )
+                        ProjectWorkspaceManager.isTermuxAccessible(proj.rootPath)
 
-                    binding.btnBuildProject.isEnabled =
-                        termuxAccessible
+                    binding.btnBuildProject.isEnabled = true
 
                     binding.btnBuildProject.text =
                         if (termuxAccessible) {
                             "Build Debug APK"
                         } else {
-                            "Move to Termux First"
+                            "Move to Termux & Build"
                         }
 
                     Snackbar.make(
@@ -123,24 +212,186 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 generatedProject
                     ?: return@setOnClickListener
 
-            if (
-                !proj.rootPath.startsWith(
-                    "/data/data/com.termux/files/"
-                )
-            ) {
-                Snackbar.make(
-                    binding.root,
-                    "Build not started: project is not in a Termux workspace. No fake build was queued.",
-                    Snackbar.LENGTH_LONG
-                ).show()
+            val termuxAccessible =
+                ProjectWorkspaceManager.isTermuxAccessible(proj.rootPath)
+
+            if (!termuxAccessible) {
+                showHandoffOptions(proj)
                 return@setOnClickListener
             }
 
-            Snackbar.make(
-                binding.root,
-                "Use /apkbuilder --debug with this Termux project root so validation, timeout, packaging, and APK verification are enforced.",
-                Snackbar.LENGTH_LONG
-            ).show()
+            dismiss()
+            (activity as? MainActivity)?.navigateToTerminal(
+                "/apkbuilder --debug \"" + proj.rootPath + "\""
+            )
+        }
+    }
+
+    private fun showHandoffOptions(project: ProjectEntity) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Move generated project")
+            .setMessage(
+                "Zip_Bug generated this project in private app storage. " +
+                    "Choose Move & Build to stage a verified ZIP in Downloads, " +
+                    "extract it into a unique Termux workspace, then start the " +
+                    "controlled debug APK workflow. Imported ZIPs still cannot " +
+                    "trigger shell commands."
+            )
+            .setNegativeButton("Cancel", null)
+            .setNeutralButton("Export ZIP") { _, _ ->
+                exportProjectSource(project)
+            }
+            .setPositiveButton("Move & Build") { _, _ ->
+                moveProjectToTermuxAndBuild(project)
+            }
+            .show()
+    }
+
+    private fun exportProjectSource(project: ProjectEntity) {
+        pendingExportProject = project
+        val filename = project.name
+            .replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            .ifBlank { "ZipBugGeneratedApp" } +
+            "-source.zip"
+        exportGeneratedSource.launch(filename)
+    }
+
+    private fun moveProjectToTermuxAndBuild(project: ProjectEntity) {
+        binding.btnBuildProject.isEnabled = false
+        binding.btnBuildProject.text = "Staging Source…"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val staged = GeneratedProjectTermuxHandoff.stage(
+                requireContext(),
+                project
+            )
+
+            staged.onFailure { error ->
+                if (_binding == null) return@onFailure
+                binding.btnBuildProject.isEnabled = true
+                binding.btnBuildProject.text = "Move to Termux & Build"
+                Snackbar.make(
+                    binding.root,
+                    "Handoff staging failed: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+
+            val plan = staged.getOrNull() ?: return@launch
+
+            binding.btnBuildProject.text = "Moving to Termux…"
+
+            TermuxBridge.send(
+                requireContext(),
+                TermuxBridge.Request(
+                    tool = "python",
+                    args = listOf(
+                        "-m",
+                        "zipfile",
+                        "-e",
+                        plan.stagedZipPath,
+                        plan.termuxRootPath
+                    ),
+                    workDir = "/data/data/com.termux/files/home",
+                    label = "Generated Project Handoff"
+                )
+            ).onSuccess { jobId ->
+                observeHandoffJob(
+                    project = project,
+                    plan = plan,
+                    jobId = jobId
+                )
+            }.onFailure { error ->
+                if (_binding == null) return@onFailure
+                binding.btnBuildProject.isEnabled = true
+                binding.btnBuildProject.text = "Move to Termux & Build"
+                Snackbar.make(
+                    binding.root,
+                    "Termux handoff could not start: " +
+                        (error.message ?: "unknown error"),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun observeHandoffJob(
+        project: ProjectEntity,
+        plan: com.zipbug.base.creator.GeneratedProjectHandoffPlan,
+        jobId: String
+    ) {
+        handoffObserverJob?.cancel()
+        val database =
+            (requireActivity().application as ZipBugApp).database
+
+        handoffObserverJob = viewLifecycleOwner.lifecycleScope.launch {
+            database.buildJobDao()
+                .observe(jobId)
+                .filterNotNull()
+                .collect { job ->
+                    when (job.status) {
+                        BuildJobEntity.SUCCESS -> {
+                            handoffObserverJob?.cancel()
+
+                            val moved = project.copy(
+                                rootPath = plan.termuxRootPath,
+                                entryFile = File(
+                                    plan.termuxRootPath,
+                                    plan.entryRelativePath
+                                ).absolutePath,
+                                lastOpenedAt = System.currentTimeMillis()
+                            )
+                            database.projectDao().upsert(moved)
+                            generatedProject = moved
+
+                            if (_binding == null) return@collect
+
+                            binding.btnBuildProject.isEnabled = true
+                            binding.btnBuildProject.text = "Build Debug APK"
+
+                            Snackbar.make(
+                                binding.root,
+                                "Moved and verified " +
+                                    plan.validation.entryCount +
+                                    " files in Termux. Starting debug build…",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+
+                            dismiss()
+                            (activity as? MainActivity)?.navigateToTerminal(
+                                "/apkbuilder --debug \"" +
+                                    moved.rootPath +
+                                    "\""
+                            )
+                        }
+
+                        BuildJobEntity.FAILED -> {
+                            handoffObserverJob?.cancel()
+                            if (_binding == null) return@collect
+
+                            binding.btnBuildProject.isEnabled = true
+                            binding.btnBuildProject.text =
+                                "Move to Termux & Build"
+
+                            val detail = sequenceOf(
+                                job.errorMessage,
+                                job.stderr,
+                                job.stdout
+                            ).firstOrNull { it.isNotBlank() }
+                                ?.lineSequence()
+                                ?.firstOrNull()
+                                ?.take(180)
+                                ?: "Termux could not extract the staged source."
+
+                            Snackbar.make(
+                                binding.root,
+                                "Handoff failed: $detail",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
         }
     }
 
@@ -192,7 +443,11 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 parsed.onSuccess {
                     rawJson = newJson
                     currentSpec = it
+                    generatedProject = null
                     bindSpec(it)
+                    binding.btnGenerateProject.isEnabled = true
+                    binding.btnBuildProject.isEnabled = false
+                    binding.btnBuildProject.text = "Generate Project First"
                     onSpecEdited?.invoke(newJson)
                 }.onFailure {
                     Snackbar.make(binding.root, "Invalid JSON: ${it.message}", Snackbar.LENGTH_LONG).show()
@@ -203,6 +458,9 @@ class AppSpecReviewBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     override fun onDestroyView() {
+        handoffObserverJob?.cancel()
+        handoffObserverJob = null
+        pendingExportProject = null
         super.onDestroyView()
         _binding = null
     }

@@ -21,6 +21,7 @@ import com.zipbug.base.command.CommandRegistry
 import com.zipbug.base.build.BuildArtifactProof
 import com.zipbug.base.build.BuildWorkflowParser
 import com.zipbug.base.data.BuildJobEntity
+import com.zipbug.base.repair.CompilerPatchTermux
 import com.zipbug.base.databinding.FragmentTerminalBinding
 import com.zipbug.base.termux.CommandLineParser
 import com.zipbug.base.termux.DiagnosticStatus
@@ -34,6 +35,9 @@ import com.zipbug.base.ui.MediaRecapActivity
 import com.zipbug.base.ui.RecapStudioActivity
 import com.zipbug.base.ui.TtsStudioActivity
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Locale
@@ -174,6 +178,10 @@ class TerminalFragment : Fragment() {
             val visible = binding.layoutAdvancedTerminalSection.visibility == View.VISIBLE
             binding.layoutAdvancedTerminalSection.visibility = if (visible) View.GONE else View.VISIBLE
             binding.tvToggleAdvancedIndicator.text = if (visible) "Expand ▾" else "Collapse ▴"
+        }
+
+        binding.syncProject.setOnClickListener {
+            syncProjectFromOrigin()
         }
 
         binding.btnFixErrorWithAi.setOnClickListener {
@@ -384,6 +392,21 @@ class TerminalFragment : Fragment() {
             if (job.errorMessage.isNotBlank()) {
                 append("\n\nERROR\n")
                 append(job.errorMessage)
+            }
+
+            val combinedLog =
+                (job.stdout + "\n" + job.stderr + "\n" + job.errorMessage)
+            if (
+                isFailed &&
+                job.tool == "bash" &&
+                combinedLog.contains("Set ANDROID_HOME", ignoreCase = true)
+            ) {
+                append(
+                    "\n\nSAFE NEXT STEP\n" +
+                        "This Termux checkout is using an older build script. " +
+                        "Tap 'Sync Termux Project (ff-only)', then run " +
+                        "'Device Proof & Checks' and retry Debug APK."
+                )
             }
         }
     }
@@ -863,6 +886,66 @@ class TerminalFragment : Fragment() {
         )
     }
 
+    private fun syncProjectFromOrigin() {
+        val prefs = requireContext()
+            .getSharedPreferences("zipbug.settings", 0)
+        val home = prefs.getString(
+            "termuxHome",
+            "/data/data/com.termux/files/home"
+        )!!
+        val savedRoot = prefs.getString(
+            "projectRoot",
+            "$home/OpenDots/Zip_Bug_Antigravity"
+        )!!
+        val projectRoot =
+            if (savedRoot == "$home/OpenDots/Zip_Bug") {
+                "$home/OpenDots/Zip_Bug_Antigravity"
+            } else {
+                savedRoot
+            }
+
+        val args = listOf(
+            "pull",
+            "--ff-only",
+            "origin",
+            "feat/antigravity-studio-v2"
+        )
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sync Termux project")
+            .setMessage(
+                "This updates only the configured Git checkout and refuses merges.\n\n" +
+                    "Tool: /data/data/com.termux/files/usr/bin/git\n" +
+                    "Work dir: $projectRoot\n" +
+                    "Arguments: ${args.joinToString(" ")}"
+            )
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Sync") { _, _ ->
+                binding.engineState.text = "ENGINE • SYNC QUEUING"
+                viewLifecycleOwner.lifecycleScope.launch {
+                    TermuxBridge.send(
+                        requireContext(),
+                        TermuxBridge.Request(
+                            tool = "git",
+                            args = args,
+                            workDir = projectRoot,
+                            label = "Zip_Bug Project Sync"
+                        )
+                    ).onSuccess { id ->
+                        binding.output.text =
+                            "Queued safe ff-only project sync:\n$id\n\n" +
+                                "Local edits will not be merged automatically. " +
+                                "Wait for the real Termux result before building."
+                    }.onFailure { error ->
+                        binding.engineState.text = "ENGINE • SYNC FAILED"
+                        binding.output.text =
+                            "Project sync could not start:\n${error.message}"
+                    }
+                }
+            }
+            .show()
+    }
+
     private fun runDoctor() {
         val home = requireContext()
             .getSharedPreferences("zipbug.settings", 0)
@@ -1015,7 +1098,9 @@ class TerminalFragment : Fragment() {
                 )
             }
 
-            "/appcreator" -> {
+            "/appcreator",
+            "/reactcreator",
+            "/reactnative" -> {
                 startActivity(
                     Intent(
                         requireContext(),
@@ -1034,6 +1119,30 @@ class TerminalFragment : Fragment() {
                     ?.navigateToAiWithPrompt(
                         "",
                         AiMode.APP_CREATOR
+                    )
+            }
+
+            "/askzippy" -> {
+                val instruction = parts.drop(1).joinToString(" ").trim()
+                (requireActivity() as? MainActivity)
+                    ?.navigateToAiWithPrompt(
+                        instruction,
+                        AiMode.PROJECT_EDIT
+                    )
+            }
+
+            "/fix" -> {
+                val failureContext = parts.drop(1).joinToString(" ").trim()
+                val prompt = if (failureContext.isBlank()) {
+                    "Analyze the current build or runtime failure. Identify the smallest safe fix and return a targeted patch proposal."
+                } else {
+                    failureContext
+                }
+
+                (requireActivity() as? MainActivity)
+                    ?.navigateToAiWithPrompt(
+                        prompt,
+                        AiMode.FIX_ERROR
                     )
             }
 
@@ -1069,6 +1178,19 @@ class TerminalFragment : Fragment() {
                     ?.navigateToProjects()
             }
 
+            "/restorepatch" -> {
+                val target = parts.drop(1).joinToString(" ").trim()
+                if (target.isBlank()) {
+                    binding.output.text =
+                        "Usage: /restorepatch <relative-project-file>\n" +
+                            "Example: /restorepatch app/src/main/java/com/example/MainActivity.kt"
+                } else {
+                    withTermuxPermission {
+                        restoreReviewedPatch(target)
+                    }
+                }
+            }
+
             "/termux",
             "/apkbuilder" -> {
                 withTermuxPermission {
@@ -1084,6 +1206,88 @@ class TerminalFragment : Fragment() {
                     "Command is registered but has no executable action. Use /help."
             }
         }
+    }
+
+    private fun restoreReviewedPatch(targetFile: String) {
+        val prefs = requireContext()
+            .getSharedPreferences("zipbug.settings", 0)
+
+        val home = prefs.getString(
+            "termuxHome",
+            "/data/data/com.termux/files/home"
+        )!!
+
+        val projectRoot = prefs.getString(
+            "projectRoot",
+            "$home/OpenDots/Zip_Bug_Antigravity"
+        )!!
+
+        val request = CompilerPatchTermux
+            .buildRestoreRequest(projectRoot, targetFile)
+            .getOrElse { error ->
+                binding.output.text =
+                    "Restore request rejected:\n" +
+                        (error.message ?: "invalid reviewed patch target")
+                return
+            }
+
+        binding.engineState.text = "ENGINE • RESTORE QUEUED"
+        binding.output.text =
+            "Restoring last reviewed backup:\n" +
+                targetFile +
+                "\n\nWaiting for real Termux result…"
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val sent = TermuxBridge.send(requireContext(), request)
+            if (sent.isFailure) {
+                binding.engineState.text = "ENGINE • RESTORE FAILED"
+                binding.output.text =
+                    "Restore dispatch failed:\n" +
+                        (sent.exceptionOrNull()?.message ?: "unknown error")
+                return@launch
+            }
+
+            val jobId = sent.getOrThrow()
+            val app = requireActivity().application as ZipBugApp
+            val finalJob = app.database.buildJobDao()
+                .observe(jobId)
+                .filterNotNull()
+                .filter {
+                    it.status != BuildJobEntity.QUEUED &&
+                        it.status != BuildJobEntity.RUNNING
+                }
+                .first()
+
+            val restored =
+                finalJob.status == BuildJobEntity.SUCCESS &&
+                    finalJob.exitCode == 0 &&
+                    finalJob.stdout.contains("ZIPBUG_RESTORE_OK|")
+
+            if (restored) {
+                binding.engineState.text = "ENGINE • RESTORE SUCCESS"
+                binding.output.text =
+                    "Last reviewed change restored:\n" +
+                        targetFile +
+                        "\n\nOpening controlled rebuild…"
+                navigateToTerminalRebuild(projectRoot)
+            } else {
+                binding.engineState.text = "ENGINE • RESTORE FAILED"
+                val detail = sequenceOf(
+                    finalJob.errorMessage,
+                    finalJob.stderr,
+                    finalJob.stdout
+                ).firstOrNull { it.isNotBlank() }
+                    ?: "No restorable backup was found."
+                binding.output.text =
+                    "Restore failed:\n" + detail
+            }
+        }
+    }
+
+    private fun navigateToTerminalRebuild(projectRoot: String) {
+        (requireActivity() as? MainActivity)?.navigateToTerminal(
+            "/apkbuilder --debug \"" + projectRoot + "\""
+        )
     }
 
     private fun runTermuxCommand(
@@ -1214,46 +1418,80 @@ class TerminalFragment : Fragment() {
             else -> return
         }
 
-        binding.engineState.text = "ENGINE • QUEUING"
+        fun dispatchRequest() {
+            binding.engineState.text = "ENGINE • QUEUING"
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            val result = TermuxBridge.send(
-                requireContext(),
-                request
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = TermuxBridge.send(
+                    requireContext(),
+                    request
+                )
 
-            result.onSuccess { id ->
-                if (canonicalCommand == "/apkbuilder") {
-                    activeBuildJobId = id
-                    activeBuildCancelPath =
-                        buildCancelPath
-                    activeBuildWorkDir =
-                        buildWorkDir
-                    observeBuildJob(id)
+                result.onSuccess { id ->
+                    if (canonicalCommand == "/apkbuilder") {
+                        activeBuildJobId = id
+                        activeBuildCancelPath =
+                            buildCancelPath
+                        activeBuildWorkDir =
+                            buildWorkDir
+                        observeBuildJob(id)
+
+                        binding.output.text =
+                            "Queued controlled debug build:\n$id\n\n" +
+                                "Timeout: 1200 seconds\n" +
+                                "Release signing: untouched\n" +
+                                "Waiting for the Termux result callback…"
+                    } else {
+                        binding.output.text =
+                            "Queued real Termux job:\n$id\n\n" +
+                                "Waiting for Termux result callback…"
+                    }
+                }.onFailure {
+                    if (canonicalCommand == "/apkbuilder") {
+                        activeBuildJobId = null
+                        activeBuildCancelPath = null
+                        activeBuildWorkDir = null
+                        binding.cancelBuild.visibility =
+                            View.GONE
+                    }
 
                     binding.output.text =
-                        "Queued controlled debug build:\n$id\n\n" +
-                            "Timeout: 1200 seconds\n" +
-                            "Release signing: untouched\n" +
-                            "Waiting for the Termux result callback…"
-                } else {
-                    binding.output.text =
-                        "Queued real Termux job:\n$id\n\n" +
-                            "Waiting for Termux result callback…"
+                        "Command failed before execution:\n${it.message}"
                 }
-            }.onFailure {
-                if (canonicalCommand == "/apkbuilder") {
-                    activeBuildJobId = null
-                    activeBuildCancelPath = null
-                    activeBuildWorkDir = null
-                    binding.cancelBuild.visibility =
-                        View.GONE
-                }
-
-                binding.output.text =
-                    "Command failed before execution:\n${it.message}"
             }
         }
+
+        if (canonicalCommand == "/termux") {
+            val preview = buildString {
+                append("Tool: /data/data/com.termux/files/usr/bin/")
+                append(request.tool)
+                append("\nWork dir: ")
+                append(request.workDir)
+                append("\nArguments:")
+                if (request.args.isEmpty()) {
+                    append(" (none)")
+                } else {
+                    request.args.forEachIndexed { index, arg ->
+                        append("\n  [")
+                        append(index)
+                        append("] ")
+                        append(arg)
+                    }
+                }
+            }
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Review Termux command")
+                .setMessage(preview)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Run") { _, _ ->
+                    dispatchRequest()
+                }
+                .show()
+            return
+        }
+
+        dispatchRequest()
     }
 
     override fun onDestroyView() {

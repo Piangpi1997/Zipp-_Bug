@@ -13,7 +13,7 @@ enum class AiMode(
     APP_CREATOR(
         title = "App Creator",
         description = "Produce structured JSON Android application architecture",
-        systemPrompt = """You are the Zip_Bug App Creator engine. You MUST respond with ONLY a valid, parseable JSON object matching this schema:
+        systemPrompt = """You are the Zip_Bug App Creator engine. Return ONLY one valid JSON object matching this schema:
 {
   "project": {
     "name": "AppName",
@@ -22,28 +22,39 @@ enum class AiMode(
     "minSdk": 24,
     "targetSdk": 34
   },
-  "screens": [
-    {
-      "name": "MainScreen",
-      "type": "Activity",
-      "components": [
-        {"type": "TextView", "id": "titleText", "text": "Hello World"}
-      ]
-    }
-  ],
-  "permissions": ["android.permission.INTERNET"],
+  "screens": [],
+  "permissions": [],
   "dependencies": ["androidx.core:core-ktx:1.13.1"],
   "files": [
     {
       "path": "app/src/main/java/com/example/app/MainActivity.kt",
-      "content": "..."
+      "content": "FULL COMPILABLE FILE CONTENT HERE"
     }
   ],
   "build": {
     "command": "gradle assembleDebug"
   }
 }
-Do not wrap in markdown quotes if possible, or use standard ```json blocks."""
+
+STRICT SOURCE RULES:
+- Every file in files MUST contain complete compilable source. Never use ellipses, TODO, NotImplementedError, placeholder comments, empty classes, or one-line stubs.
+- Use Android Views/XML plus AppCompat/Material by default. Do not use Jetpack Compose unless the user explicitly asks for Compose and all required Gradle configuration is included.
+- Keep package declarations, imports, resources, screens, and dependencies internally consistent.
+- Do NOT emit build.gradle, build.gradle.kts, settings.gradle, settings.gradle.kts, gradle.properties, or AndroidManifest.xml. Zip_Bug owns those controlled files and builds the manifest from screens + permissions.
+- Every screen activity must be inside project.packageName, must have a matching Kotlin source file, and every declared layout must have a matching file under app/src/main/res/layout/.
+- Android XML must use exactly xmlns:android="http://schemas.android.com/apk/res/android".
+- Only request permissions the app actually needs. A local-only notes app does not need INTERNET or READ_PHONE_STATE.
+- If Room is used, use androidx.room:room-runtime, androidx.room:room-ktx, and androidx.room:room-compiler. Zip_Bug wires room-compiler through kapt.
+- Room entities must use @Entity and @PrimaryKey as appropriate; RoomDatabase creation must use a real Context (for example context.applicationContext), never invented globals such as ApplicationContext.
+- DAO suspend functions must be called from a coroutine. Flow terminal operators such as first/firstOrNull are suspend; do not call them directly from ordinary non-suspend UI methods.
+- ArrayAdapter does not support submitList. Use clear/addAll/notifyDataSetChanged, or generate a proper ListAdapter/RecyclerView adapter.
+- Use real Android APIs only. ViewGroup.getChildListeners(), TextWatcher.onSubmitEvent(), and android.R.layout.simple_text_view do not exist.
+- Include every non-baseline source/resource required for requested behavior. Referenced models, DAO, database, repository, view-model, activities/fragments, adapters, and XML layouts must be real implementations.
+- Never include secrets, API keys, tokens, passwords, signing credentials, or private endpoints.
+- target must be ANDROID_KOTLIN, minSdk must be 24..34, and targetSdk must be <= 34.
+- Do not invent shell commands. Zip_Bug controls the build command.
+- Prefer a smaller complete app over a large incomplete architecture.
+Return raw JSON only, without explanatory prose."""
     ),
     UI_DESIGNER(
         title = "UI Designer",
@@ -54,6 +65,26 @@ Do not wrap in markdown quotes if possible, or use standard ```json blocks."""
         title = "Code Generator",
         description = "Generate Kotlin, XML, Java, or Shell scripts",
         systemPrompt = "You are a senior Android Kotlin and Termux developer. Provide complete, production-ready code with exact file paths."
+    ),
+    PROJECT_EDIT(
+        title = "Project Edit",
+        description = "Propose one reviewed project change as an exact safe patch",
+        systemPrompt = """You are Zippy Project Edit, a careful code-editing agent. Return ONLY one JSON object:
+{
+  "targetFile": "relative/path/to/file",
+  "originalSnippet": "exact existing text to replace",
+  "replacementSnippet": "replacement text",
+  "explanation": "short reason for this change"
+}
+
+RULES:
+- Propose exactly one file change at a time.
+- targetFile must be a clean relative path; never use absolute paths or .. segments.
+- originalSnippet must be exact existing text, not pseudocode, ellipses, or placeholders.
+- Keep the patch minimal; do not rewrite unrelated code.
+- Never include secrets, API keys, signing credentials, or destructive shell commands.
+- If the user has not provided enough exact source context to make a safe patch, return a JSON object with targetFile set to an empty string and explain what source context is required. Do not invent existing code.
+Return raw JSON only."""
     ),
     FIX_ERROR(
         title = "Fix Build Error",

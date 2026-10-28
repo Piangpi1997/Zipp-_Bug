@@ -24,13 +24,43 @@ data class RecapFailureDiagnosis(
                 retryNote = "Configure API key in Settings and retry"
             )
 
-        fun missingMediaFile(path: String?): RecapFailureDiagnosis =
-            RecapFailureDiagnosis(
+        fun missingMediaFile(path: String?): RecapFailureDiagnosis {
+            val normalized = path.orEmpty()
+            val reason = when {
+                normalized.isBlank() ->
+                    "No staged source media is attached to this project."
+                normalized.startsWith("content://", ignoreCase = true) ->
+                    "This project only has a stale document URI. " +
+                        "Render requires the staged shared-media copy."
+                else ->
+                    "The staged source file is missing, empty, or unreadable: $normalized"
+            }
+
+            return RecapFailureDiagnosis(
                 whatFailed = "Media Input Verification",
-                why = "Source file ${path ?: "unspecified"} cannot be read or does not exist.",
-                safeNextStep = "Reselect a valid video or audio file using the Storage Access Framework.",
+                why = reason,
+                safeNextStep =
+                    "Tap Select Media (SAF), choose the source again, " +
+                        "and wait for 'Media imported' before rendering.",
                 canRetry = true,
-                retryNote = "Reselect source file and retry"
+                retryNote = "Reselect source media, then retry"
+            )
+        }
+
+        fun mediaStagingFailed(
+            uri: String,
+            reason: String
+        ): RecapFailureDiagnosis =
+            RecapFailureDiagnosis(
+                whatFailed = "Media Staging",
+                why =
+                    "The selected media could not be copied into shared storage " +
+                        "for Termux/FFmpeg. Source: $uri. Reason: ${reason.take(180)}",
+                safeNextStep =
+                    "Reselect the media. Zip_Bug will copy it into " +
+                        "Download/Zip_Bug/Recap before rendering.",
+                canRetry = true,
+                retryNote = "Reselect source media and retry"
             )
 
         fun invalidClipCount(count: Int): RecapFailureDiagnosis =

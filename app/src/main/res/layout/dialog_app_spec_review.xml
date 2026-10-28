@@ -11,7 +11,7 @@
         android:id="@+id/reviewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="AI App Creator • Review Spec"
+        android:text="@string/ui_8c201a5104"
         android:textColor="@color/z_orange"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -39,7 +39,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Permissions"
+                android:text="@string/ui_d06d555709"
                 android:textColor="@color/z_muted"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dependencies"
+                android:text="@string/ui_0562f32dc5"
                 android:textColor="@color/z_muted"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -73,7 +73,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="File Plan"
+                android:text="@string/ui_c6a16a17f5"
                 android:textColor="@color/z_muted"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -102,7 +102,7 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:backgroundTint="#2D2D2D"
-            android:text="Edit Spec"
+            android:text="@string/ui_e2618b6869"
             android:textColor="@color/z_text"
             android:textSize="11sp" />
 
@@ -113,7 +113,7 @@
             android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:backgroundTint="#2D2D2D"
-            android:text="Regenerate"
+            android:text="@string/ui_b04c991e58"
             android:textColor="@color/z_text"
             android:textSize="11sp" />
     </LinearLayout>
@@ -131,7 +131,7 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:backgroundTint="@color/z_orange"
-            android:text="Generate Project"
+            android:text="@string/ui_fb155f17af"
             android:textColor="#111111"
             android:textSize="11sp" />
 
@@ -143,7 +143,7 @@
             android:layout_weight="1"
             android:backgroundTint="@color/z_green"
             android:enabled="false"
-            android:text="Build Project"
+            android:text="@string/ui_26b3ae1585"
             android:textColor="#111111"
             android:textSize="11sp" />
     </LinearLayout>

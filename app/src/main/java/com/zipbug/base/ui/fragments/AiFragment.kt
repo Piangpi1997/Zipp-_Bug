@@ -13,12 +13,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.R
 import com.zipbug.base.ai.AiMode
 import com.zipbug.base.ai.AiProvider
 import com.zipbug.base.ai.AiRepository
 import com.zipbug.base.ai.AiRequest
 import com.zipbug.base.databinding.FragmentAiBinding
 import com.zipbug.base.security.SecretStore
+import com.zipbug.base.termux.LogSanitizer
 import kotlinx.coroutines.launch
 
 class AiFragment : Fragment() {
@@ -64,9 +66,11 @@ class AiFragment : Fragment() {
 
         binding.provider.adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.item_spinner_dark,
             AiProvider.values().map { it.label }
-        )
+        ).apply {
+            setDropDownViewResource(R.layout.item_spinner_dark)
+        }
 
         binding.provider.setSelection(
             AiProvider.OPENROUTER.ordinal
@@ -77,9 +81,11 @@ class AiFragment : Fragment() {
 
         binding.mode.adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.item_spinner_dark,
             AiMode.values().map { it.title }
-        )
+        ).apply {
+            setDropDownViewResource(R.layout.item_spinner_dark)
+        }
 
         if (!initialModeName.isNullOrBlank()) {
             val modeEnum = runCatching { AiMode.valueOf(initialModeName) }.getOrDefault(AiMode.CHAT)
@@ -144,6 +150,7 @@ class AiFragment : Fragment() {
                         AiMode.APP_CREATOR -> binding.prompt.hint = "Describe the app to generate structured JSON spec…"
                         AiMode.TTS_SCRIPT -> binding.prompt.hint = "Describe the Myanmar or English voiceover script…"
                         AiMode.FIX_ERROR -> binding.prompt.hint = "Paste compiler errors or build failure log…"
+                        AiMode.PROJECT_EDIT -> binding.prompt.hint = "Describe one safe change. Include exact source context when possible…"
                         AiMode.SOCIAL_RECAP -> binding.prompt.hint = "Paste video transcript for social recap timeline…"
                         else -> binding.prompt.hint = "Describe the task, code, or architecture…"
                     }
@@ -203,7 +210,11 @@ class AiFragment : Fragment() {
                 append("Provider: ${result.provider.label}\n")
                 append("Status: ${result.status.label}\n")
                 append("Masked Key: ${result.maskedKey}\n")
-                append("Detail: ${result.message}\n\n")
+                append(
+                    "Detail: " +
+                        LogSanitizer.sanitize(result.message) +
+                        "\n\n"
+                )
                 if (result.status != com.zipbug.base.ai.HealthStatus.READY) {
                     append("FIX:\n")
                     when (result.status) {
@@ -240,6 +251,19 @@ class AiFragment : Fragment() {
         // Common typo seen during testing.
         if (model == "openrouter/tree") {
             model = "openrouter/free"
+            binding.model.setText(model)
+        }
+
+        // Migrate retired/legacy Gemini defaults automatically.
+        if (
+            selected == AiProvider.GEMINI &&
+            model in setOf(
+                "gemini-2.5-flash",
+                "models/gemini-2.5-flash",
+                "gemini-3.5-flash"
+            )
+        ) {
+            model = AiProvider.GEMINI.defaultModel
             binding.model.setText(model)
         }
 
@@ -331,25 +355,62 @@ class AiFragment : Fragment() {
                             sheet.onRegenerateRequested = { sendPrompt() }
                             sheet.show(parentFragmentManager, com.zipbug.base.ui.AppSpecReviewBottomSheetDialogFragment.TAG)
                         } else {
-                            binding.reviewAction.isVisible = false
+                            val reason = parsed.exceptionOrNull()
+                                ?.message
+                                ?.let(LogSanitizer::sanitize)
+                                ?: "Generated project spec is incomplete."
+
+                            binding.reviewAction.isVisible = true
+                            binding.reviewAction.text = "Regenerate Complete Spec"
+                            binding.reviewAction.setOnClickListener {
+                                sendPrompt()
+                            }
+
+                            binding.output.append(
+                                "\n\nSPEC VALIDATION FAILED\n" +
+                                    reason +
+                                    "\n\nNo project was generated. " +
+                                    "Tap 'Regenerate Complete Spec' to ask AI for full compilable files."
+                            )
                         }
                     }
 
-                    AiMode.FIX_ERROR -> {
+                    AiMode.FIX_ERROR,
+                    AiMode.PROJECT_EDIT -> {
                         val parsedPatch = com.zipbug.base.repair.CompilerErrorParser.parsePatchProposal(text)
                         if (parsedPatch.isSuccess) {
+                            val patch = parsedPatch.getOrThrow()
+                            if (patch.targetFile.isBlank()) {
+                                binding.reviewAction.isVisible = false
+                                binding.output.append(
+                                    "\n\nZIPPY CONTEXT REQUIRED\n" +
+                                        "This request needs project source context before a safe edit can be proposed. " +
+                                        "For a brand-new app, use App Creator. For an existing project edit, open/import the project first."
+                                )
+                                return@onSuccess
+                            }
+
                             val prefs = requireContext().getSharedPreferences("zipbug.settings", 0)
                             val home = prefs.getString("termuxHome", "/data/data/com.termux/files/home")!!
                             val projectRoot = prefs.getString("projectRoot", "$home/OpenDots/Zip_Bug_Antigravity")!!
 
                             binding.reviewAction.isVisible = true
-                            binding.reviewAction.text = "Review Patch"
+                            binding.reviewAction.text =
+                                if (selectedMode == AiMode.PROJECT_EDIT) "Preview Change" else "Review Patch"
                             binding.reviewAction.setOnClickListener {
-                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                                val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(
+                                    text,
+                                    projectRoot,
+                                    selectedMode == AiMode.PROJECT_EDIT
+                                )
                                 sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
                             }
                             // Proactively present review sheet
-                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(text, projectRoot)
+                            val sheet = com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.newInstance(
+                                text,
+                                projectRoot,
+                                selectedMode == AiMode.PROJECT_EDIT
+                            )
                             sheet.show(parentFragmentManager, com.zipbug.base.ui.PatchReviewBottomSheetDialogFragment.TAG)
                         } else {
                             binding.reviewAction.isVisible = false
@@ -361,8 +422,26 @@ class AiFragment : Fragment() {
                     }
                 }
             }.onFailure { err ->
-                binding.reviewAction.isVisible = false
-                binding.output.setText("Error: ${err.message}")
+                val transientNetwork =
+                    AiRepository.isTransientNetworkError(
+                        err.cause ?: err
+                    )
+
+                if (transientNetwork) {
+                    binding.reviewAction.isVisible = true
+                    binding.reviewAction.text = "Retry Request"
+                    binding.reviewAction.setOnClickListener {
+                        sendPrompt()
+                    }
+                } else {
+                    binding.reviewAction.isVisible = false
+                }
+
+                binding.output.setText(
+                    "Error: " + LogSanitizer.sanitize(
+                        err.message ?: err.javaClass.simpleName
+                    )
+                )
             }
         }
     }

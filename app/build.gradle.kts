@@ -4,6 +4,20 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
 }
 
+val releaseKeystorePath = System.getenv("ZIPBUG_RELEASE_KEYSTORE")
+val releaseKeystorePassword = System.getenv("ZIPBUG_KEYSTORE_PASSWORD")
+val releaseKeyAlias = System.getenv("ZIPBUG_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("ZIPBUG_KEY_PASSWORD")
+
+val releaseSigningReady =
+    listOf(
+        releaseKeystorePath,
+        releaseKeystorePassword,
+        releaseKeyAlias,
+        releaseKeyPassword
+    ).all { !it.isNullOrBlank() } &&
+        releaseKeystorePath?.let { file(it).isFile } == true
+
 android {
     namespace = "com.zipbug.base"
     compileSdk = 34
@@ -12,14 +26,38 @@ android {
         applicationId = "com.zipbug.base"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5
-        versionName = "2.0.0-alpha01"
+        versionCode = 6
+        versionName = "2.0.0-alpha03"
+    }
+
+    signingConfigs {
+        if (releaseSigningReady) {
+            create("release") {
+                storeFile = file(requireNotNull(releaseKeystorePath))
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+                enableV1Signing = true
+                enableV2Signing = true
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".next"
+            versionNameSuffix = "-zippy-next"
+        }
+
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (releaseSigningReady) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

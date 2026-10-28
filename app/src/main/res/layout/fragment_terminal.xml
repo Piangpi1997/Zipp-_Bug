@@ -518,5 +518,10 @@
                     android:textColor="@color/z_text" />
             </LinearLayout>
         </LinearLayout>
+        <Button
+            android:id="@+id/syncProject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sync project from Git" />
     </LinearLayout>
 </ScrollView>

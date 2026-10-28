@@ -113,9 +113,9 @@ if [ -z "$EXPORT_PATH" ]; then
 fi
 
 case "$EXPORT_PATH" in
-  /storage/emulated/0/*|/data/data/com.termux/files/home/storage/*) ;;
+  /storage/emulated/0/Download/*.apk) ;;
   *)
-    fail_stage "VALIDATION" "APK export path must be shared storage." 2
+    fail_stage "VALIDATION" "APK export path must be an .apk file inside /storage/emulated/0/Download/." 2
     ;;
 esac
 
