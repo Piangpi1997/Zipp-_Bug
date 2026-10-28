@@ -321,11 +321,10 @@ class ProjectsFragment : Fragment() {
             }
             setOnClickListener {
                 if (termuxAccessible) {
-                    (activity as? MainActivity)?.navigateToTerminal(
-                        "/apkbuilder --debug \"" +
-                            project.rootPath +
-                            "\""
-                    )
+                    startActivity(Intent(requireContext(), com.zipbug.base.ui.TerminalActivity::class.java).apply {
+                        putExtra(com.zipbug.base.ui.TerminalActivity.EXTRA_COMMAND,
+                            "/apkbuilder --debug \"" + project.rootPath + "\"")
+                    })
                 } else {
                     pendingSourceExport = project
                     val filename = project.name

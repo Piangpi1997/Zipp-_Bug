@@ -165,7 +165,7 @@ class TerminalFragment : Fragment() {
         binding.tvBuildTargetProject.text = "Project: ${File(initialRoot).name}"
 
         binding.btnSelectBuildProject.setOnClickListener {
-            (requireActivity() as? MainActivity)?.navigateToProjects()
+            startActivity(Intent(requireContext(), com.zipbug.base.ui.WorkspaceActivity::class.java))
         }
 
         binding.btnToggleBuildLogs.setOnClickListener {
@@ -194,10 +194,7 @@ class TerminalFragment : Fragment() {
             } else {
                 "Build job '${job.tool}' failed with exitCode ${job.exitCode}.\n\nFailure Log:\n${rawLog.take(2000)}\n\nPlease analyze the root cause and propose a targeted patch."
             }
-            (requireActivity() as? com.zipbug.base.ui.MainActivity)?.navigateToAiWithPrompt(
-                prompt,
-                com.zipbug.base.ai.AiMode.FIX_ERROR
-            )
+            startActivity(com.zipbug.base.ui.AiModeActivity.createIntent(requireContext(), prompt, AiMode.FIX_ERROR))
         }
 
         observeLatestJob()
@@ -1110,25 +1107,16 @@ class TerminalFragment : Fragment() {
             }
 
             "/likefigma" -> {
-                (requireActivity() as? MainActivity)
-                    ?.navigateToStudio()
+                startActivity(Intent(requireContext(), com.zipbug.base.ui.StudioActivity::class.java).putExtra("variant", "likefigma"))
             }
 
             "/aicreator" -> {
-                (requireActivity() as? MainActivity)
-                    ?.navigateToAiWithPrompt(
-                        "",
-                        AiMode.APP_CREATOR
-                    )
+                startActivity(com.zipbug.base.ui.AiModeActivity.createIntent(requireContext(), "", AiMode.APP_CREATOR))
             }
 
             "/askzippy" -> {
                 val instruction = parts.drop(1).joinToString(" ").trim()
-                (requireActivity() as? MainActivity)
-                    ?.navigateToAiWithPrompt(
-                        instruction,
-                        AiMode.PROJECT_EDIT
-                    )
+                startActivity(com.zipbug.base.ui.AiModeActivity.createIntent(requireContext(), instruction, AiMode.PROJECT_EDIT))
             }
 
             "/fix" -> {
@@ -1139,11 +1127,7 @@ class TerminalFragment : Fragment() {
                     failureContext
                 }
 
-                (requireActivity() as? MainActivity)
-                    ?.navigateToAiWithPrompt(
-                        prompt,
-                        AiMode.FIX_ERROR
-                    )
+                startActivity(com.zipbug.base.ui.AiModeActivity.createIntent(requireContext(), prompt, AiMode.FIX_ERROR))
             }
 
             "/tts" -> {
@@ -1174,8 +1158,7 @@ class TerminalFragment : Fragment() {
             }
 
             "/projects" -> {
-                (requireActivity() as? MainActivity)
-                    ?.navigateToProjects()
+                startActivity(Intent(requireContext(), com.zipbug.base.ui.WorkspaceActivity::class.java))
             }
 
             "/restorepatch" -> {
@@ -1285,9 +1268,8 @@ class TerminalFragment : Fragment() {
     }
 
     private fun navigateToTerminalRebuild(projectRoot: String) {
-        (requireActivity() as? MainActivity)?.navigateToTerminal(
-            "/apkbuilder --debug \"" + projectRoot + "\""
-        )
+        binding.command.setText("/apkbuilder --debug \"" + projectRoot + "\"")
+        binding.command.requestFocus()
     }
 
     private fun runTermuxCommand(

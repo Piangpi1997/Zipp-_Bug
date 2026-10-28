@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.drawerItemVideo.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-            startActivity(Intent(this, RecapStudioActivity::class.java))
+            showVideoChoice()
         }
         binding.drawerItemDevTools.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -537,12 +537,7 @@ class MainActivity : AppCompatActivity() {
         }
         sheetBinding.toolTileVideo.setOnClickListener {
             dialog.dismiss()
-            startActivity(Intent(this, RecapStudioActivity::class.java))
-        }
-        sheetBinding.toolTileVideo.setOnLongClickListener {
-            dialog.dismiss()
-            startActivity(Intent(this, MyanmarDramaEditorActivity::class.java))
-            true
+            showVideoChoice()
         }
         sheetBinding.toolTileDevTools.setOnClickListener {
             dialog.dismiss()
@@ -702,6 +697,14 @@ class MainActivity : AppCompatActivity() {
             binding.etChatMessage.setText(prompt)
             if (prompt.isNotBlank()) sendMessage()
         }
+    }
+
+    private fun showVideoChoice() {
+        AlertDialog.Builder(this).setTitle("Video tools / ဗီဒီယို ကိရိယာများ")
+            .setItems(arrayOf("Video & Recap Studio", "Myanmar Drama Editor / မြန်မာဒရာမာ")) { _, index ->
+                val screen = if (index == 0) RecapStudioActivity::class.java else MyanmarDramaEditorActivity::class.java
+                startActivity(Intent(this, screen))
+            }.setNegativeButton(R.string.btn_cancel, null).show()
     }
 
     private fun showStudioChoice() {

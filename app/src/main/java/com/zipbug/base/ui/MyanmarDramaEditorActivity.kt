@@ -646,8 +646,8 @@ class MyanmarDramaEditorActivity : AppCompatActivity() {
 
     private fun startRenderPipeline(resolution: String) {
         binding.layoutRenderProgress.visibility = View.VISIBLE
-        binding.pbRenderProgress.progress = 15
-        binding.tvRenderStatus.text = "Render Progress: စတင်ပြင်ဆင်နေပါသည် (15%)..."
+        binding.pbRenderProgress.isIndeterminate = true
+        binding.tvRenderStatus.text = "Render Progress: စတင်ပြင်ဆင်နေပါသည်..."
 
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val outFileName = "Drama_Reel_${resolution}_$timeStamp.mp4"
@@ -677,8 +677,8 @@ class MyanmarDramaEditorActivity : AppCompatActivity() {
         }
 
         val plan = planResult.getOrThrow()
-        binding.pbRenderProgress.progress = 30
-        binding.tvRenderStatus.text = "Render Progress: FFmpeg စတင် run နေပါသည် (30%)..."
+        binding.pbRenderProgress.isIndeterminate = true
+        binding.tvRenderStatus.text = "Render Progress: FFmpeg စတင် run နေပါသည်..."
 
         lifecycleScope.launch {
             TermuxBridge.send(
@@ -741,12 +741,12 @@ class MyanmarDramaEditorActivity : AppCompatActivity() {
             db.buildJobDao().observe(jobId).filterNotNull().collect { job ->
                 when (job.status) {
                     BuildJobEntity.RUNNING -> {
-                        binding.pbRenderProgress.progress = 65
-                        binding.tvRenderStatus.text = "Render Progress: ဗီဒီယို တည်းဖြတ်ပေါင်းစပ်နေပါသည် (65%)..."
+                        binding.pbRenderProgress.isIndeterminate = true
+                        binding.tvRenderStatus.text = "Render Progress: ဗီဒီယို တည်းဖြတ်ပေါင်းစပ်နေပါသည်..."
                     }
                     BuildJobEntity.SUCCESS -> {
-                        binding.pbRenderProgress.progress = 90
-                        binding.tvRenderStatus.text = "Render Progress: စစ်ဆေးနေပါသည် (90%)..."
+                        binding.pbRenderProgress.isIndeterminate = true
+                        binding.tvRenderStatus.text = "Render Progress: စစ်ဆေးနေပါသည်..."
 
                         val verify = MyanmarDramaRenderCoordinator.verifyRenderedOutput(targetOutputPath)
                         if (verify.isSuccess) {
@@ -785,7 +785,7 @@ class MyanmarDramaEditorActivity : AppCompatActivity() {
     }
 
     private fun syncRenderedVideoFromTermux(remotePath: String) {
-        binding.tvRenderStatus.text = "Render Progress: ဖိုင်ကူးယူစစ်ဆေးနေပါသည် (92%)..."
+        binding.tvRenderStatus.text = "Render Progress: ဖိုင်ကူးယူစစ်ဆေးနေပါသည်..."
         val pySync = """
             import base64, os, sys
             p = sys.argv[1]
