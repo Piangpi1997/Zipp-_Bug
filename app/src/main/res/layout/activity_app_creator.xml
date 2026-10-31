@@ -97,6 +97,20 @@
             android:text="Create HTML App — Android ZIP (WebView)" />
 
         <Button
+            android:id="@+id/openWizard"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/creator_open_wizard" />
+
+        <Button
+            android:id="@+id/openTemplates"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/creator_open_templates" />
+
+        <Button
             android:id="@+id/createWeb"
             android:layout_width="match_parent"
             android:layout_height="54dp"
