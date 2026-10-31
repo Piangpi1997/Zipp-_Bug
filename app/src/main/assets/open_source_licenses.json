@@ -530,6 +530,19 @@
     ]
   },
   {
+    "name": "com.arthenica:ffmpeg-kit-full",
+    "displayName": "FFmpegKit (full) — in-app FFmpeg engine",
+    "version": "6.0.LTS",
+    "author": "ARTHENICA",
+    "license": "LGPL 3.0",
+    "licenseUrl": "https://www.gnu.org/licenses/lgpl-3.0.txt",
+    "category": "other",
+    "scope": [
+      "app"
+    ],
+    "notes": "In-app FFmpeg engine; native libraries bundled in the APK (arm64-v8a). The FFmpeg libraries are LGPL-2.1+ and the FFmpegKit wrapper is LGPL-3.0. This 'full' build enables dav1d, fontconfig, freetype, libass, libvpx, opus and other LGPL libraries; it includes no GPL libraries (no x264/x265)."
+  },
+  {
     "name": "androidx.fragment:fragment",
     "displayName": "fragment",
     "version": "1.8.5 · 1.5.4",
@@ -1078,6 +1091,30 @@
     "license": "Apache License 2.0",
     "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
     "category": "apache",
+    "scope": [
+      "app"
+    ]
+  },
+  {
+    "name": "com.arthenica:smart-exception-common",
+    "displayName": "smart-exception-common",
+    "version": "0.2.1",
+    "author": "Taner Sener",
+    "license": "BSD 3-Clause License",
+    "licenseUrl": "https://opensource.org/licenses/BSD-3-Clause",
+    "category": "bsd",
+    "scope": [
+      "app"
+    ]
+  },
+  {
+    "name": "com.arthenica:smart-exception-java",
+    "displayName": "smart-exception-java",
+    "version": "0.2.1",
+    "author": "Taner Sener",
+    "license": "BSD 3-Clause License",
+    "licenseUrl": "https://opensource.org/licenses/BSD-3-Clause",
+    "category": "bsd",
     "scope": [
       "app"
     ]
