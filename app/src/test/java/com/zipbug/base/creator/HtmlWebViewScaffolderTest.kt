@@ -312,6 +312,8 @@ class HtmlWebViewScaffolderTest {
         val main = mainActivity(files)
         assertTrue(main.contains("runUserScripts"))
         assertTrue(main.contains("USER_SCRIPTS"))
+        // The @match glob is embedded with standard (RFC 4648) Base64.
+        assertTrue(main.contains("aHR0cHM6Ly9leGFtcGxlLmNvbS8q"))
         // The raw script text is never pasted into the generated code.
         assertFalse(main.contains("2px solid red"))
         assertTrue(main.contains("userScriptMatches"))
