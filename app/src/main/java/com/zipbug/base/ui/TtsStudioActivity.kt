@@ -44,6 +44,9 @@ class TtsStudioActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTtsStudioBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        intent.getStringExtra(ZippyWebStudioActivity.EXTRA_TTS_TEXT)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { binding.text.setText(it) }
 
         fun selectVoicePill(activeBtn: android.widget.Button, voiceId: String) {
             binding.voice.setText(voiceId)
