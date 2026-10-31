@@ -1,1 +1,333 @@
-cGFja2FnZSBjb20uemlwYnVnLmJhc2UuY3JlYXRvcgoKaW1wb3J0IG9yZy5qdW5pdC5Bc3NlcnQuYXNzZXJ0RXF1YWxzCmltcG9ydCBvcmcuanVuaXQuQXNzZXJ0LmFzc2VydEZhbHNlCmltcG9ydCBvcmcuanVuaXQuQXNzZXJ0LmFzc2VydFRydWUKaW1wb3J0IG9yZy5qdW5pdC5Bc3NlcnQuZmFpbAppbXBvcnQgb3JnLmp1bml0LlRlc3QKCmNsYXNzIEh0bWxXZWJWaWV3U2NhZmZvbGRlclRlc3QgewoKICAgIHByaXZhdGUgZnVuIGxvY2FsU3BlYygKICAgICAgICB3ZWJGaWxlczogTWFwPFN0cmluZywgU3RyaW5nPiA9IG1hcE9mKAogICAgICAgICAgICAiaW5kZXguaHRtbCIgdG8gIjxodG1sPjxib2R5PkhlbGxvPC9ib2R5PjwvaHRtbD4iCiAgICAgICAgKQogICAgKSA9IFdlYkFwcFNwZWMoCiAgICAgICAgbmFtZSA9ICJNeSBXZWIgQXBwIiwKICAgICAgICBwYWNrYWdlTmFtZSA9ICJjb20uZXhhbXBsZS53ZWJhcHAiLAogICAgICAgIGdvYWwgPSAiV3JhcCBteSBzaXRlIiwKICAgICAgICB3ZWJGaWxlcyA9IHdlYkZpbGVzCiAgICApCgogICAgcHJpdmF0ZSBmdW4gbWFpbkFjdGl2aXR5KGZpbGVzOiBNYXA8U3RyaW5nLCBTdHJpbmc+KTogU3RyaW5nID0KICAgICAgICBmaWxlcy5nZXRWYWx1ZSgKICAgICAgICAgICAgImFwcC9zcmMvbWFpbi9qYXZhL2NvbS9leGFtcGxlL3dlYmFwcC9NYWluQWN0aXZpdHkua3QiCiAgICAgICAgKQoKICAgIHByaXZhdGUgZnVuIG1hbmlmZXN0KGZpbGVzOiBNYXA8U3RyaW5nLCBTdHJpbmc+KTogU3RyaW5nID0KICAgICAgICBmaWxlcy5nZXRWYWx1ZSgiYXBwL3NyYy9tYWluL0FuZHJvaWRNYW5pZmVzdC54bWwiKQoKICAgIEBUZXN0CiAgICBmdW4gbG9jYWxBcHBCdW5kbGVzSW5kZXhBbmRXZWJWaWV3U2hlbGwoKSB7CiAgICAgICAgdmFsIGZpbGVzID0gSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKGxvY2FsU3BlYygpKQoKICAgICAgICBhc3NlcnRFcXVhbHMoCiAgICAgICAgICAgICI8aHRtbD48Ym9keT5IZWxsbzwvYm9keT48L2h0bWw+IiwKICAgICAgICAgICAgZmlsZXNbImFwcC9zcmMvbWFpbi9hc3NldHMvd3d3L2luZGV4Lmh0bWwiXQogICAgICAgICkKICAgICAgICB2YWwgbWFpbiA9IG1haW5BY3Rpdml0eShmaWxlcykKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoImZpbGU6Ly8vYW5kcm9pZF9hc3NldC93d3cvaW5kZXguaHRtbCIpKQogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygic2V0dGluZ3MuamF2YVNjcmlwdEVuYWJsZWQgPSB0cnVlIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJzZXR0aW5ncy5kb21TdG9yYWdlRW5hYmxlZCA9IHRydWUiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoImFkZEphdmFzY3JpcHRJbnRlcmZhY2UoQW5kcm9pZEFwaSgpLCBcIkFuZHJvaWRBUElcIikiKSkKICAgICAgICBhc3NlcnRUcnVlKG1hbmlmZXN0KGZpbGVzKS5jb250YWlucygiYW5kcm9pZC5wZXJtaXNzaW9uLklOVEVSTkVUIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYW5pZmVzdChmaWxlcykuY29udGFpbnMoImFuZHJvaWQucGVybWlzc2lvbi5WSUJSQVRFIikpCiAgICAgICAgLy8gV2ViIHNoZWxsIGNyZWF0ZXMgaXRzIFdlYlZpZXcgaW4gY29kZTogbm8gdGVtcGxhdGUgbGF5b3V0IGZpbGUuCiAgICAgICAgYXNzZXJ0RmFsc2UoZmlsZXMuY29udGFpbnNLZXkoImFwcC9zcmMvbWFpbi9yZXMvbGF5b3V0L2FjdGl2aXR5X21haW4ueG1sIikpCiAgICAgICAgLy8gT3BlbiBTb3VyY2UgTGljZW5zZXMgZmlsZXMgcmlkZSBhbG9uZyBmcm9tIEFwcFNjYWZmb2xkZXIuCiAgICAgICAgYXNzZXJ0VHJ1ZShmaWxlcy5jb250YWluc0tleSgiYXBwL3NyYy9tYWluL2Fzc2V0cy90aGlyZF9wYXJ0eV9ub3RpY2VzLnR4dCIpKQogICAgICAgIGFzc2VydFRydWUoZmlsZXMuY29udGFpbnNLZXkoImxpY2Vuc2UtbWFuaWZlc3QuanNvbiIpKQogICAgICAgIC8vIDE0IGJhc2UgZmlsZXMgLSAxIHJlbW92ZWQgbGF5b3V0ICsgMSB3ZWIgZmlsZSArIDEgQ0kgd29ya2Zsb3cuCiAgICAgICAgYXNzZXJ0RXF1YWxzKDE1LCBmaWxlcy5zaXplKQogICAgICAgIGFzc2VydFRydWUoZmlsZXMuY29udGFpbnNLZXkoIi5naXRodWIvd29ya2Zsb3dzL2J1aWxkLWFway55bWwiKSkKICAgICAgICBhc3NlcnRUcnVlKAogICAgICAgICAgICBmaWxlc1siLmdpdGh1Yi93b3JrZmxvd3MvYnVpbGQtYXBrLnltbCJdISEKICAgICAgICAgICAgICAgIC5jb250YWlucygiYXNzZW1ibGVEZWJ1ZyIpCiAgICAgICAgKQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gdXJsQXBwTG9hZHNSZW1vdGVTdGFydFdpdGhvdXRMb2NhbEZpbGVzKCkgewogICAgICAgIHZhbCBmaWxlcyA9IEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcygKICAgICAgICAgICAgbG9jYWxTcGVjKHdlYkZpbGVzID0gZW1wdHlNYXAoKSkuY29weSgKICAgICAgICAgICAgICAgIHN0YXJ0VXJsID0gImh0dHBzOi8vZXhhbXBsZS5jb20vYXBwIgogICAgICAgICAgICApCiAgICAgICAgKQogICAgICAgIHZhbCBtYWluID0gbWFpbkFjdGl2aXR5KGZpbGVzKQogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygiXCJodHRwczovL2V4YW1wbGUuY29tL2FwcFwiIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJcImh0dHBzOi8vZXhhbXBsZS5jb20vXCIiKSkKICAgICAgICBhc3NlcnRGYWxzZShmaWxlcy5jb250YWluc0tleSgiYXBwL3NyYy9tYWluL2Fzc2V0cy93d3cvaW5kZXguaHRtbCIpKQogICAgICAgIGFzc2VydFRydWUobWFuaWZlc3QoZmlsZXMpLmNvbnRhaW5zKCJhbmRyb2lkLnBlcm1pc3Npb24uSU5URVJORVQiKSkKICAgIH0KCiAgICBAVGVzdAogICAgZnVuIGhhcmR3YXJlUGVybWlzc2lvbnNBcmVEZWNsYXJlZEFuZFdpcmVkKCkgewogICAgICAgIHZhbCBmaWxlcyA9IEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcygKICAgICAgICAgICAgbG9jYWxTcGVjKCkuY29weSgKICAgICAgICAgICAgICAgIGhhcmR3YXJlID0gc2V0T2YoV2ViSGFyZHdhcmUuQ0FNRVJBLCBXZWJIYXJkd2FyZS5MT0NBVElPTikKICAgICAgICAgICAgKQogICAgICAgICkKICAgICAgICB2YWwgbWFuaWZlc3QgPSBtYW5pZmVzdChmaWxlcykKICAgICAgICBhc3NlcnRUcnVlKG1hbmlmZXN0LmNvbnRhaW5zKCJhbmRyb2lkLnBlcm1pc3Npb24uQ0FNRVJBIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYW5pZmVzdC5jb250YWlucygiYW5kcm9pZC5wZXJtaXNzaW9uLkFDQ0VTU19GSU5FX0xPQ0FUSU9OIikpCiAgICAgICAgdmFsIG1haW4gPSBtYWluQWN0aXZpdHkoZmlsZXMpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJQZXJtaXNzaW9uUmVxdWVzdC5SRVNPVVJDRV9WSURFT19DQVBUVVJFIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJzZXR0aW5ncy5zZXRHZW9sb2NhdGlvbkVuYWJsZWQodHJ1ZSkiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoInJlcXVlc3RQZXJtaXNzaW9ucygiKSkKICAgIH0KCiAgICBAVGVzdAogICAgZnVuIGRpc3BsYXlGbGFnc1JlYWNoVGhlU2hlbGxBbmRNYW5pZmVzdCgpIHsKICAgICAgICB2YWwgZmlsZXMgPSBIdG1sV2ViVmlld1NjYWZmb2xkZXIuZmlsZXMoCiAgICAgICAgICAgIGxvY2FsU3BlYygpLmNvcHkoCiAgICAgICAgICAgICAgICBmdWxsc2NyZWVuID0gdHJ1ZSwKICAgICAgICAgICAgICAgIGtlZXBTY3JlZW5PbiA9IHRydWUsCiAgICAgICAgICAgICAgICBvcmllbnRhdGlvbiA9IFdlYk9yaWVudGF0aW9uLlBPUlRSQUlULAogICAgICAgICAgICAgICAgdXNlckFnZW50ID0gIlppcEJ1Z1dlYi8xLjAiCiAgICAgICAgICAgICkKICAgICAgICApCiAgICAgICAgdmFsIG1haW4gPSBtYWluQWN0aXZpdHkoZmlsZXMpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJGTEFHX0ZVTExTQ1JFRU4iKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoIkZMQUdfS0VFUF9TQ1JFRU5fT04iKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoInNldHRpbmdzLnVzZXJBZ2VudFN0cmluZyA9IFwiWmlwQnVnV2ViLzEuMFwiIikpCiAgICAgICAgYXNzZXJ0VHJ1ZSgKICAgICAgICAgICAgbWFuaWZlc3QoZmlsZXMpLmNvbnRhaW5zKCJhbmRyb2lkOnNjcmVlbk9yaWVudGF0aW9uPVwicG9ydHJhaXRcIiIpCiAgICAgICAgKQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gbG9jYWxNb2RlUmVxdWlyZXNJbmRleEh0bWwoKSB7CiAgICAgICAgdHJ5IHsKICAgICAgICAgICAgSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKAogICAgICAgICAgICAgICAgbG9jYWxTcGVjKHdlYkZpbGVzID0gbWFwT2YoInN0eWxlLmNzcyIgdG8gImJvZHl7fSIpKQogICAgICAgICAgICApCiAgICAgICAgICAgIGZhaWwoIkV4cGVjdGVkIG1pc3NpbmcgaW5kZXguaHRtbCB0byBiZSByZWplY3RlZCIpCiAgICAgICAgfSBjYXRjaCAoZXhwZWN0ZWQ6IElsbGVnYWxBcmd1bWVudEV4Y2VwdGlvbikgewogICAgICAgICAgICBhc3NlcnRUcnVlKGV4cGVjdGVkLm1lc3NhZ2UhIS5jb250YWlucygiaW5kZXguaHRtbCIpKQogICAgICAgIH0KICAgIH0KCiAgICBAVGVzdAogICAgZnVuIHJlamVjdHNFc2NhcGluZ1dlYlBhdGhzKCkgewogICAgICAgIGZvciAoYmFkIGluIGxpc3RPZigiLi4vZXZpbC5odG1sIiwgIi9hYnMuaHRtbCIsICJhLy4uLy4uL2IuaHRtbCIpKSB7CiAgICAgICAgICAgIHRyeSB7CiAgICAgICAgICAgICAgICBIdG1sV2ViVmlld1NjYWZmb2xkZXIuZmlsZXMoCiAgICAgICAgICAgICAgICAgICAgbG9jYWxTcGVjKAogICAgICAgICAgICAgICAgICAgICAgICB3ZWJGaWxlcyA9IG1hcE9mKAogICAgICAgICAgICAgICAgICAgICAgICAgICAgImluZGV4Lmh0bWwiIHRvICI8aHRtbC8+IiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJhZCB0byAieCIKICAgICAgICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgIGZhaWwoIkV4cGVjdGVkIHBhdGggdG8gYmUgcmVqZWN0ZWQ6ICRiYWQiKQogICAgICAgICAgICB9IGNhdGNoIChleHBlY3RlZDogSWxsZWdhbEFyZ3VtZW50RXhjZXB0aW9uKSB7CiAgICAgICAgICAgICAgICAvLyBleHBlY3RlZAogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gcmVqZWN0c1BsYWluSHR0cFN0YXJ0VXJsKCkgewogICAgICAgIHRyeSB7CiAgICAgICAgICAgIEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcygKICAgICAgICAgICAgICAgIGxvY2FsU3BlYyh3ZWJGaWxlcyA9IGVtcHR5TWFwKCkpLmNvcHkoCiAgICAgICAgICAgICAgICAgICAgc3RhcnRVcmwgPSAiaHR0cDovL2V4YW1wbGUuY29tIgogICAgICAgICAgICAgICAgKQogICAgICAgICAgICApCiAgICAgICAgICAgIGZhaWwoIkV4cGVjdGVkIGh0dHA6Ly8gc3RhcnQgVVJMIHRvIGJlIHJlamVjdGVkIikKICAgICAgICB9IGNhdGNoIChleHBlY3RlZDogSWxsZWdhbEFyZ3VtZW50RXhjZXB0aW9uKSB7CiAgICAgICAgICAgIGFzc2VydFRydWUoZXhwZWN0ZWQubWVzc2FnZSEhLmNvbnRhaW5zKCJodHRwczovLyIpKQogICAgICAgIH0KICAgIH0KCiAgICBAVGVzdAogICAgZnVuIHN0YXJ0ZXJQYWdlVXNlc05hbWVHb2FsQW5kQnJpZGdlKCkgewogICAgICAgIHZhbCBodG1sID0gSHRtbFdlYlZpZXdTY2FmZm9sZGVyLnN0YXJ0ZXJJbmRleEh0bWwoCiAgICAgICAgICAgICJTaG9wIDxPbmU+IiwKICAgICAgICAgICAgIlNlbGwgdGhpbmdzIgogICAgICAgICkKICAgICAgICBhc3NlcnRUcnVlKGh0bWwuY29udGFpbnMoIlNob3AgJmx0O09uZSZndDsiKSkKICAgICAgICBhc3NlcnRUcnVlKGh0bWwuY29udGFpbnMoIlNlbGwgdGhpbmdzIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShodG1sLmNvbnRhaW5zKCJ3aW5kb3cuQW5kcm9pZEFQSSIpKQogICAgICAgIGFzc2VydFRydWUoaHRtbC5jb250YWlucygiQW5kcm9pZEFQSS50b2FzdCIpKQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gYnJpZGdlVjJNZXRob2RzQW5kRXZlbnRDaGFubmVsQXJlR2VuZXJhdGVkKCkgewogICAgICAgIHZhbCBtYWluID0gbWFpbkFjdGl2aXR5KEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcyhsb2NhbFNwZWMoKSkpCiAgICAgICAgZm9yIChuZWVkbGUgaW4gbGlzdE9mKAogICAgICAgICAgICAiZnVuIHZpYnJhdGVQYXR0ZXJuKHBhdHRlcm46IFN0cmluZykiLAogICAgICAgICAgICAiZnVuIGNhbmNlbFZpYnJhdGUoKSIsCiAgICAgICAgICAgICJmdW4gdG9yY2gob246IEJvb2xlYW4pIiwKICAgICAgICAgICAgImZ1biBzaG93Tm90aWZpY2F0aW9uKHRpdGxlOiBTdHJpbmcsIGJvZHk6IFN0cmluZykiLAogICAgICAgICAgICAiZnVuIG5ldHdvcmtTdGF0dXMoKSIsCiAgICAgICAgICAgICJmdW4gZ2V0QmF0dGVyeSgpIiwKICAgICAgICAgICAgImZ1biBnZXREZXZpY2VJbmZvKCk6IFN0cmluZyIsCiAgICAgICAgICAgICJmdW4gZ2V0Q2xpcGJvYXJkKCkiLAogICAgICAgICAgICAiZnVuIHNldEtlZXBTY3JlZW5PbihvbjogQm9vbGVhbikiLAogICAgICAgICAgICAiZnVuIHN0b3JhZ2VTYXZlKG5hbWU6IFN0cmluZywgY29udGVudDogU3RyaW5nKSIsCiAgICAgICAgICAgICJmdW4gc3RvcmFnZUxvYWQobmFtZTogU3RyaW5nKSIsCiAgICAgICAgICAgICJmdW4gc3RvcmFnZUxpc3QoKSIsCiAgICAgICAgICAgICJ3aW5kb3cub25BbmRyb2lkRXZlbnQiLAogICAgICAgICAgICAiZnVuIGlzVHJ1c3RlZFBhZ2UoKTogQm9vbGVhbiIKICAgICAgICApKSB7CiAgICAgICAgICAgIGFzc2VydFRydWUoIm1pc3NpbmcgaW4gc2hlbGw6ICRuZWVkbGUiLCBtYWluLmNvbnRhaW5zKG5lZWRsZSkpCiAgICAgICAgfQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gbm90aWZpY2F0aW9uc0hhcmR3YXJlQWRkc1Blcm1pc3Npb25BbmRSdW50aW1lUmVxdWVzdCgpIHsKICAgICAgICB2YWwgZmlsZXMgPSBIdG1sV2ViVmlld1NjYWZmb2xkZXIuZmlsZXMoCiAgICAgICAgICAgIGxvY2FsU3BlYygpLmNvcHkoCiAgICAgICAgICAgICAgICBoYXJkd2FyZSA9IHNldE9mKFdlYkhhcmR3YXJlLk5PVElGSUNBVElPTlMpCiAgICAgICAgICAgICkKICAgICAgICApCiAgICAgICAgYXNzZXJ0VHJ1ZSgKICAgICAgICAgICAgbWFuaWZlc3QoZmlsZXMpLmNvbnRhaW5zKCJhbmRyb2lkLnBlcm1pc3Npb24uUE9TVF9OT1RJRklDQVRJT05TIikKICAgICAgICApCiAgICAgICAgdmFsIG1haW4gPSBtYWluQWN0aXZpdHkoZmlsZXMpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJCdWlsZC5WRVJTSU9OX0NPREVTLlRJUkFNSVNVIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJOb3RpZmljYXRpb25DaGFubmVsKCIpKQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gd2l6YXJkT3B0aW9uc1JlYWNoVGhlU2hlbGwoKSB7CiAgICAgICAgdmFsIGZpbGVzID0gSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKAogICAgICAgICAgICBsb2NhbFNwZWMoKS5jb3B5KAogICAgICAgICAgICAgICAgcHVsbFRvUmVmcmVzaCA9IHRydWUsCiAgICAgICAgICAgICAgICBzcGxhc2hFbmFibGVkID0gdHJ1ZSwKICAgICAgICAgICAgICAgIHNwbGFzaFNlY29uZHMgPSAzLAogICAgICAgICAgICAgICAgc3BsYXNoQ29sb3IgPSAiIzIwMjAyMCIsCiAgICAgICAgICAgICAgICBzdGF0dXNCYXJDb2xvciA9ICIjMTAxMDEwIiwKICAgICAgICAgICAgICAgIGV4aXRDb25maXJtYXRpb24gPSB0cnVlCiAgICAgICAgICAgICkKICAgICAgICApCiAgICAgICAgdmFsIG1haW4gPSBtYWluQWN0aXZpdHkoZmlsZXMpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJQdWxsUmVmcmVzaENvbnRhaW5lciIpKQogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygid2luZG93LnN0YXR1c0JhckNvbG9yID0gQ29sb3IucGFyc2VDb2xvcihcIiMxMDEwMTBcIikiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoIkNvbG9yLnBhcnNlQ29sb3IoXCIjMjAyMDIwXCIpIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCIzMDAwTCIpKQogICAgICAgIC8vIEV4aXQgY29uZmlybWF0aW9uIHJlcGxhY2VzIHRoZSBkZWZhdWx0IGJhY2sgYmVoYXZpb3VyLgogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygiRG8geW91IHdhbnQgdG8gZXhpdCB0aGlzIGFwcD8iKSkKICAgIH0KCiAgICBAVGVzdAogICAgZnVuIG5vSW50ZXJuZXREaWFsb2dSZXBsYWNlc0Vycm9yUGFnZSgpIHsKICAgICAgICB2YWwgbWFpbiA9IG1haW5BY3Rpdml0eSgKICAgICAgICAgICAgSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKAogICAgICAgICAgICAgICAgbG9jYWxTcGVjKCkuY29weShub0ludGVybmV0RGlhbG9nID0gdHJ1ZSkKICAgICAgICAgICAgKQogICAgICAgICkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoInByaXZhdGUgdmFsIG5vSW50ZXJuZXREaWFsb2cgPSB0cnVlIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJcIk5vIGNvbm5lY3Rpb25cIiIpKQogICAgICAgIHZhbCBwbGFpbiA9IG1haW5BY3Rpdml0eShIdG1sV2ViVmlld1NjYWZmb2xkZXIuZmlsZXMobG9jYWxTcGVjKCkpKQogICAgICAgIGFzc2VydFRydWUocGxhaW4uY29udGFpbnMoInByaXZhdGUgdmFsIG5vSW50ZXJuZXREaWFsb2cgPSBmYWxzZSIpKQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gZGVlcExpbmtTY2hlbWVBZGRzTWFuaWZlc3RGaWx0ZXIoKSB7CiAgICAgICAgdmFsIGZpbGVzID0gSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKAogICAgICAgICAgICBsb2NhbFNwZWMoKS5jb3B5KHVybFNjaGVtZSA9ICJteXdlYmFwcCIpCiAgICAgICAgKQogICAgICAgIHZhbCBtYW5pZmVzdCA9IG1hbmlmZXN0KGZpbGVzKQogICAgICAgIGFzc2VydFRydWUobWFuaWZlc3QuY29udGFpbnMoImFuZHJvaWQuaW50ZW50LmFjdGlvbi5WSUVXIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYW5pZmVzdC5jb250YWlucygiYW5kcm9pZDpzY2hlbWU9XCJteXdlYmFwcFwiIikpCiAgICB9CgogICAgQFRlc3QKICAgIGZ1biByZWplY3RzSW52YWxpZFYyT3B0aW9ucygpIHsKICAgICAgICB2YWwgYmFkU3BlY3MgPSBsaXN0T2YoCiAgICAgICAgICAgIGxvY2FsU3BlYygpLmNvcHkodXJsU2NoZW1lID0gImh0dHBzIiksCiAgICAgICAgICAgIGxvY2FsU3BlYygpLmNvcHkodXJsU2NoZW1lID0gIjFiYWQiKSwKICAgICAgICAgICAgbG9jYWxTcGVjKCkuY29weSh1cmxTY2hlbWUgPSAiQmFkIFNjaGVtZSIpLAogICAgICAgICAgICBsb2NhbFNwZWMoKS5jb3B5KHNwbGFzaENvbG9yID0gInJlZCIpLAogICAgICAgICAgICBsb2NhbFNwZWMoKS5jb3B5KHN0YXR1c0JhckNvbG9yID0gIiMxMjM0NSIpLAogICAgICAgICAgICBsb2NhbFNwZWMoKS5jb3B5KHNwbGFzaFNlY29uZHMgPSA0MikKICAgICAgICApCiAgICAgICAgZm9yIChiYWQgaW4gYmFkU3BlY3MpIHsKICAgICAgICAgICAgdHJ5IHsKICAgICAgICAgICAgICAgIEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcyhiYWQpCiAgICAgICAgICAgICAgICBmYWlsKCJFeHBlY3RlZCBpbnZhbGlkIHNwZWMgdG8gYmUgcmVqZWN0ZWQ6ICRiYWQiKQogICAgICAgICAgICB9IGNhdGNoIChleHBlY3RlZDogSWxsZWdhbEFyZ3VtZW50RXhjZXB0aW9uKSB7CiAgICAgICAgICAgICAgICAvLyBleHBlY3RlZAogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gZmlsZVVwbG9hZHNBbmRCbG9iRG93bmxvYWRzQXJlV2lyZWQoKSB7CiAgICAgICAgdmFsIG1haW4gPSBtYWluQWN0aXZpdHkoSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKGxvY2FsU3BlYygpKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoIm9uU2hvd0ZpbGVDaG9vc2VyIikpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJGaWxlQ2hvb3NlclBhcmFtcy5wYXJzZVJlc3VsdCIpKQogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygiZnVuIHNhdmVCbG9iKCIpKQogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygiTWVkaWFTdG9yZS5Eb3dubG9hZHMuRVhURVJOQUxfQ09OVEVOVF9VUkkiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoIl9femlwYnVnQmxvYkhvb2siKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoImJsb2JTYXZlZCIpKQogICAgfQoKICAgIEBUZXN0CiAgICBmdW4gYnJpZGdlVjNDYWxsc0V4aXN0KCkgewogICAgICAgIHZhbCBtYWluID0gbWFpbkFjdGl2aXR5KEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcyhsb2NhbFNwZWMoKSkpCiAgICAgICAgYXNzZXJ0VHJ1ZShtYWluLmNvbnRhaW5zKCJmdW4gc2hvd0xvbmdUb2FzdCgiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoImZ1biBjbGVhckNhY2hlKCkiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoImZ1biBoYXNOb3RpZmljYXRpb25QZXJtaXNzaW9uKCkiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoIm5vdGlmaWNhdGlvblBlcm1pc3Npb24iKSkKICAgIH0KCiAgICBAVGVzdAogICAgZnVuIGV4dGVybmFsTGlua3NTdGF5T2ZmVW5sZXNzUmVxdWVzdGVkKCkgewogICAgICAgIHZhbCBvZmYgPSBtYWluQWN0aXZpdHkoSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKGxvY2FsU3BlYygpKSkKICAgICAgICBhc3NlcnRGYWxzZShvZmYuY29udGFpbnMoInVybC5ob3N0ICE9IHRhcmdldEhvc3QiKSkKICAgICAgICB2YWwgb24gPSBtYWluQWN0aXZpdHkoCiAgICAgICAgICAgIEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcygKICAgICAgICAgICAgICAgIGxvY2FsU3BlYyh3ZWJGaWxlcyA9IGVtcHR5TWFwKCkpLmNvcHkoCiAgICAgICAgICAgICAgICAgICAgc3RhcnRVcmwgPSAiaHR0cHM6Ly9leGFtcGxlLmNvbS9hcHAiLAogICAgICAgICAgICAgICAgICAgIG9wZW5FeHRlcm5hbExpbmtzID0gdHJ1ZQogICAgICAgICAgICAgICAgKQogICAgICAgICAgICApCiAgICAgICAgKQogICAgICAgIGFzc2VydFRydWUob24uY29udGFpbnMoInVybC5ob3N0ICE9IHRhcmdldEhvc3QiKSkKICAgIH0KCiAgICBAVGVzdAogICAgZnVuIHVzZXJTY3JpcHRzQXJlRW1iZWRkZWRFbmNvZGVkV2l0aE1hdGNoR2xvYigpIHsKICAgICAgICB2YWwgc2NyaXB0ID0gIi8vIEBtYXRjaCBodHRwczovL2V4YW1wbGUuY29tLypcbiIgKwogICAgICAgICAgICAiZG9jdW1lbnQuYm9keS5zdHlsZS5ib3JkZXIgPSAnMnB4IHNvbGlkIHJlZCc7IgogICAgICAgIHZhbCBmaWxlcyA9IEh0bWxXZWJWaWV3U2NhZmZvbGRlci5maWxlcygKICAgICAgICAgICAgbG9jYWxTcGVjKHdlYkZpbGVzID0gZW1wdHlNYXAoKSkuY29weSgKICAgICAgICAgICAgICAgIHN0YXJ0VXJsID0gImh0dHBzOi8vZXhhbXBsZS5jb20vYXBwIiwKICAgICAgICAgICAgICAgIHVzZXJTY3JpcHRzID0gbWFwT2YoImJvcmRlciIgdG8gc2NyaXB0KQogICAgICAgICAgICApCiAgICAgICAgKQogICAgICAgIHZhbCBtYWluID0gbWFpbkFjdGl2aXR5KGZpbGVzKQogICAgICAgIGFzc2VydFRydWUobWFpbi5jb250YWlucygicnVuVXNlclNjcmlwdHMiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoIlVTRVJfU0NSSVBUUyIpKQogICAgICAgIC8vIFRoZSByYXcgc2NyaXB0IHRleHQgaXMgbmV2ZXIgcGFzdGVkIGludG8gdGhlIGdlbmVyYXRlZCBjb2RlLgogICAgICAgIGFzc2VydEZhbHNlKG1haW4uY29udGFpbnMoIjJweCBzb2xpZCByZWQiKSkKICAgICAgICBhc3NlcnRUcnVlKG1haW4uY29udGFpbnMoInVzZXJTY3JpcHRNYXRjaGVzIikpCiAgICB9CgogICAgQFRlc3QKICAgIGZ1biB0b29NYW55VXNlclNjcmlwdHNBcmVSZWplY3RlZCgpIHsKICAgICAgICB0cnkgewogICAgICAgICAgICBIdG1sV2ViVmlld1NjYWZmb2xkZXIuZmlsZXMoCiAgICAgICAgICAgICAgICBsb2NhbFNwZWMoKS5jb3B5KAogICAgICAgICAgICAgICAgICAgIHVzZXJTY3JpcHRzID0gKDEuLjYpLmFzc29jaWF0ZSB7ICJzJGl0IiB0byAidm9pZCAwIiB9CiAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICkKICAgICAgICAgICAgZmFpbCgiRXhwZWN0ZWQgdG9vIG1hbnkgdXNlciBzY3JpcHRzIHRvIGJlIHJlamVjdGVkIikKICAgICAgICB9IGNhdGNoIChleHBlY3RlZDogSWxsZWdhbEFyZ3VtZW50RXhjZXB0aW9uKSB7CiAgICAgICAgICAgIC8vIGV4cGVjdGVkCiAgICAgICAgfQogICAgfQp9Cg==
+package com.zipbug.base.creator
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
+
+class HtmlWebViewScaffolderTest {
+
+    private fun localSpec(
+        webFiles: Map<String, String> = mapOf(
+            "index.html" to "<html><body>Hello</body></html>"
+        )
+    ) = WebAppSpec(
+        name = "My Web App",
+        packageName = "com.example.webapp",
+        goal = "Wrap my site",
+        webFiles = webFiles
+    )
+
+    private fun mainActivity(files: Map<String, String>): String =
+        files.getValue(
+            "app/src/main/java/com/example/webapp/MainActivity.kt"
+        )
+
+    private fun manifest(files: Map<String, String>): String =
+        files.getValue("app/src/main/AndroidManifest.xml")
+
+    @Test
+    fun localAppBundlesIndexAndWebViewShell() {
+        val files = HtmlWebViewScaffolder.files(localSpec())
+
+        assertEquals(
+            "<html><body>Hello</body></html>",
+            files["app/src/main/assets/www/index.html"]
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("file:///android_asset/www/index.html"))
+        assertTrue(main.contains("settings.javaScriptEnabled = true"))
+        assertTrue(main.contains("settings.domStorageEnabled = true"))
+        assertTrue(main.contains("addJavascriptInterface(AndroidApi(), \"AndroidAPI\")"))
+        assertTrue(manifest(files).contains("android.permission.INTERNET"))
+        assertTrue(manifest(files).contains("android.permission.VIBRATE"))
+        // Web shell creates its WebView in code: no template layout file.
+        assertFalse(files.containsKey("app/src/main/res/layout/activity_main.xml"))
+        // Open Source Licenses files ride along from AppScaffolder.
+        assertTrue(files.containsKey("app/src/main/assets/third_party_notices.txt"))
+        assertTrue(files.containsKey("license-manifest.json"))
+        // 14 base files - 1 removed layout + 1 web file + 1 CI workflow.
+        assertEquals(15, files.size)
+        assertTrue(files.containsKey(".github/workflows/build-apk.yml"))
+        assertTrue(
+            files[".github/workflows/build-apk.yml"]!!
+                .contains("assembleDebug")
+        )
+    }
+
+    @Test
+    fun urlAppLoadsRemoteStartWithoutLocalFiles() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec(webFiles = emptyMap()).copy(
+                startUrl = "https://example.com/app"
+            )
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("\"https://example.com/app\""))
+        assertTrue(main.contains("\"https://example.com/\""))
+        assertFalse(files.containsKey("app/src/main/assets/www/index.html"))
+        assertTrue(manifest(files).contains("android.permission.INTERNET"))
+    }
+
+    @Test
+    fun hardwarePermissionsAreDeclaredAndWired() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(
+                hardware = setOf(WebHardware.CAMERA, WebHardware.LOCATION)
+            )
+        )
+        val manifest = manifest(files)
+        assertTrue(manifest.contains("android.permission.CAMERA"))
+        assertTrue(manifest.contains("android.permission.ACCESS_FINE_LOCATION"))
+        val main = mainActivity(files)
+        assertTrue(main.contains("PermissionRequest.RESOURCE_VIDEO_CAPTURE"))
+        assertTrue(main.contains("settings.setGeolocationEnabled(true)"))
+        assertTrue(main.contains("requestPermissions("))
+    }
+
+    @Test
+    fun displayFlagsReachTheShellAndManifest() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(
+                fullscreen = true,
+                keepScreenOn = true,
+                orientation = WebOrientation.PORTRAIT,
+                userAgent = "ZipBugWeb/1.0"
+            )
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("FLAG_FULLSCREEN"))
+        assertTrue(main.contains("FLAG_KEEP_SCREEN_ON"))
+        assertTrue(main.contains("settings.userAgentString = \"ZipBugWeb/1.0\""))
+        assertTrue(
+            manifest(files).contains("android:screenOrientation=\"portrait\"")
+        )
+    }
+
+    @Test
+    fun localModeRequiresIndexHtml() {
+        try {
+            HtmlWebViewScaffolder.files(
+                localSpec(webFiles = mapOf("style.css" to "body{}"))
+            )
+            fail("Expected missing index.html to be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("index.html"))
+        }
+    }
+
+    @Test
+    fun rejectsEscapingWebPaths() {
+        for (bad in listOf("../evil.html", "/abs.html", "a/../../b.html")) {
+            try {
+                HtmlWebViewScaffolder.files(
+                    localSpec(
+                        webFiles = mapOf(
+                            "index.html" to "<html/>",
+                            bad to "x"
+                        )
+                    )
+                )
+                fail("Expected path to be rejected: $bad")
+            } catch (expected: IllegalArgumentException) {
+                // expected
+            }
+        }
+    }
+
+    @Test
+    fun rejectsPlainHttpStartUrl() {
+        try {
+            HtmlWebViewScaffolder.files(
+                localSpec(webFiles = emptyMap()).copy(
+                    startUrl = "http://example.com"
+                )
+            )
+            fail("Expected http:// start URL to be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("https://"))
+        }
+    }
+
+    @Test
+    fun starterPageUsesNameGoalAndBridge() {
+        val html = HtmlWebViewScaffolder.starterIndexHtml(
+            "Shop <One>",
+            "Sell things"
+        )
+        assertTrue(html.contains("Shop &lt;One&gt;"))
+        assertTrue(html.contains("Sell things"))
+        assertTrue(html.contains("window.AndroidAPI"))
+        assertTrue(html.contains("AndroidAPI.toast"))
+    }
+
+    @Test
+    fun bridgeV2MethodsAndEventChannelAreGenerated() {
+        val main = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        for (needle in listOf(
+            "fun vibratePattern(pattern: String)",
+            "fun cancelVibrate()",
+            "fun torch(on: Boolean)",
+            "fun showNotification(title: String, body: String)",
+            "fun networkStatus()",
+            "fun getBattery()",
+            "fun getDeviceInfo(): String",
+            "fun getClipboard()",
+            "fun setKeepScreenOn(on: Boolean)",
+            "fun storageSave(name: String, content: String)",
+            "fun storageLoad(name: String)",
+            "fun storageList()",
+            "window.onAndroidEvent",
+            "fun isTrustedPage(): Boolean"
+        )) {
+            assertTrue("missing in shell: $needle", main.contains(needle))
+        }
+    }
+
+    @Test
+    fun notificationsHardwareAddsPermissionAndRuntimeRequest() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(
+                hardware = setOf(WebHardware.NOTIFICATIONS)
+            )
+        )
+        assertTrue(
+            manifest(files).contains("android.permission.POST_NOTIFICATIONS")
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("Build.VERSION_CODES.TIRAMISU"))
+        assertTrue(main.contains("NotificationChannel("))
+    }
+
+    @Test
+    fun wizardOptionsReachTheShell() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(
+                pullToRefresh = true,
+                splashEnabled = true,
+                splashSeconds = 3,
+                splashColor = "#202020",
+                statusBarColor = "#101010",
+                exitConfirmation = true
+            )
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("PullRefreshContainer"))
+        assertTrue(main.contains("window.statusBarColor = Color.parseColor(\"#101010\")"))
+        assertTrue(main.contains("Color.parseColor(\"#202020\")"))
+        assertTrue(main.contains("3000L"))
+        // Exit confirmation replaces the default back behaviour.
+        assertTrue(main.contains("Do you want to exit this app?"))
+    }
+
+    @Test
+    fun noInternetDialogReplacesErrorPage() {
+        val main = mainActivity(
+            HtmlWebViewScaffolder.files(
+                localSpec().copy(noInternetDialog = true)
+            )
+        )
+        assertTrue(main.contains("private val noInternetDialog = true"))
+        assertTrue(main.contains("\"No connection\""))
+        val plain = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        assertTrue(plain.contains("private val noInternetDialog = false"))
+    }
+
+    @Test
+    fun deepLinkSchemeAddsManifestFilter() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(urlScheme = "mywebapp")
+        )
+        val manifest = manifest(files)
+        assertTrue(manifest.contains("android.intent.action.VIEW"))
+        assertTrue(manifest.contains("android:scheme=\"mywebapp\""))
+    }
+
+    @Test
+    fun rejectsInvalidV2Options() {
+        val badSpecs = listOf(
+            localSpec().copy(urlScheme = "https"),
+            localSpec().copy(urlScheme = "1bad"),
+            localSpec().copy(urlScheme = "Bad Scheme"),
+            localSpec().copy(splashColor = "red"),
+            localSpec().copy(statusBarColor = "#12345"),
+            localSpec().copy(splashSeconds = 42)
+        )
+        for (bad in badSpecs) {
+            try {
+                HtmlWebViewScaffolder.files(bad)
+                fail("Expected invalid spec to be rejected: $bad")
+            } catch (expected: IllegalArgumentException) {
+                // expected
+            }
+        }
+    }
+
+    @Test
+    fun fileUploadsAndBlobDownloadsAreWired() {
+        val main = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        assertTrue(main.contains("onShowFileChooser"))
+        assertTrue(main.contains("FileChooserParams.parseResult"))
+        assertTrue(main.contains("fun saveBlob("))
+        assertTrue(main.contains("MediaStore.Downloads.EXTERNAL_CONTENT_URI"))
+        assertTrue(main.contains("__zipbugBlobHook"))
+        assertTrue(main.contains("blobSaved"))
+    }
+
+    @Test
+    fun bridgeV3CallsExist() {
+        val main = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        assertTrue(main.contains("fun showLongToast("))
+        assertTrue(main.contains("fun clearCache()"))
+        assertTrue(main.contains("fun hasNotificationPermission()"))
+        assertTrue(main.contains("notificationPermission"))
+    }
+
+    @Test
+    fun externalLinksStayOffUnlessRequested() {
+        val off = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        assertFalse(off.contains("url.host != targetHost"))
+        val on = mainActivity(
+            HtmlWebViewScaffolder.files(
+                localSpec(webFiles = emptyMap()).copy(
+                    startUrl = "https://example.com/app",
+                    openExternalLinks = true
+                )
+            )
+        )
+        assertTrue(on.contains("url.host != targetHost"))
+    }
+
+    @Test
+    fun userScriptsAreEmbeddedEncodedWithMatchGlob() {
+        val script = "// @match https://example.com/*\n" +
+            "document.body.style.border = '2px solid red';"
+        val files = HtmlWebViewScaffolder.files(
+            localSpec(webFiles = emptyMap()).copy(
+                startUrl = "https://example.com/app",
+                userScripts = mapOf("border" to script)
+            )
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("runUserScripts"))
+        assertTrue(main.contains("USER_SCRIPTS"))
+        // The raw script text is never pasted into the generated code.
+        assertFalse(main.contains("2px solid red"))
+        assertTrue(main.contains("userScriptMatches"))
+    }
+
+    @Test
+    fun tooManyUserScriptsAreRejected() {
+        try {
+            HtmlWebViewScaffolder.files(
+                localSpec().copy(
+                    userScripts = (1..6).associate { "s$it" to "void 0" }
+                )
+            )
+            fail("Expected too many user scripts to be rejected")
+        } catch (expected: IllegalArgumentException) {
+            // expected
+        }
+    }
+}
