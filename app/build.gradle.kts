@@ -1,3 +1,7 @@
+import java.io.File
+import java.net.URL
+import java.security.MessageDigest
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -96,6 +100,8 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    // Runtime dependency of the bundled FFmpegKit AAR (below).
+    implementation("com.arthenica:smart-exception-java:0.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
@@ -244,4 +250,79 @@ tasks.matching {
     it.name == "preDebugBuild" || it.name == "preReleaseBuild"
 }.configureEach {
     dependsOn(verifyLicenseGraph)
+}
+
+// ---------------------------------------------------------------------
+// Bundled in-app FFmpeg engine (FFmpegKit "full", LGPL).
+//
+// FFmpegKit was removed from Maven Central when the project retired,
+// so the AAR is fetched once from Google's read-only mirror of Maven
+// Central and pinned by SHA-256. The file is git-ignored; CI fetches
+// it the same way. The native libraries are packaged for arm64-v8a
+// only (the Termux engine remains the fallback on other ABIs) and are
+// stored uncompressed (modern packaging: no extraction copy on disk).
+// ---------------------------------------------------------------------
+val ffmpegKitAarUrl =
+    "https://maven-central.storage-download.googleapis.com/maven2/" +
+        "com/arthenica/ffmpeg-kit-full/6.0.LTS/ffmpeg-kit-full-6.0.LTS.aar"
+val ffmpegKitAarSha256 =
+    "e77eb8d02b67e225759b27e7288f84a8d2a4392abd2418f282c2936a990df4c3"
+val ffmpegKitAar = layout.projectDirectory.file(
+    "libs/ffmpeg-kit-full-6.0.LTS.aar"
+)
+
+fun sha256Hex(file: File): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    file.inputStream().use { input ->
+        val buffer = ByteArray(64 * 1024)
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) break
+            digest.update(buffer, 0, read)
+        }
+    }
+    return digest.digest().joinToString("") { "%02x".format(it) }
+}
+
+val downloadFfmpegKit by tasks.registering {
+    description = "Downloads the pinned FFmpegKit AAR if missing/stale."
+    outputs.file(ffmpegKitAar)
+    doLast {
+        val target = ffmpegKitAar.asFile
+        if (target.exists() && sha256Hex(target) == ffmpegKitAarSha256) {
+            return@doLast
+        }
+        target.parentFile.mkdirs()
+        val tmp = File(target.parentFile, target.name + ".download")
+        URL(ffmpegKitAarUrl).openStream().use { input ->
+            tmp.outputStream().use { input.copyTo(it) }
+        }
+        check(sha256Hex(tmp) == ffmpegKitAarSha256) {
+            "FFmpegKit AAR checksum mismatch — refusing to use it"
+        }
+        tmp.renameTo(target)
+    }
+}
+
+tasks.configureEach {
+    if (name.startsWith("pre") && name.endsWith("Build")) {
+        dependsOn(downloadFfmpegKit)
+    }
+}
+
+android {
+    defaultConfig {
+        ndk {
+            abiFilters.add("arm64-v8a")
+        }
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+}
+
+dependencies {
+    implementation(files("libs/ffmpeg-kit-full-6.0.LTS.aar"))
 }
