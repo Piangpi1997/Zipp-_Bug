@@ -431,7 +431,16 @@ class MainActivity : AppCompatActivity() {
             AiProvider.GEMINI -> "api_key_gemini"
             AiProvider.ANTHROPIC -> "api_key_anthropic"
         }
-        val apiKey = runCatching { SecretStore(this).get(keySecretName).orEmpty() }.getOrDefault("")
+        var apiKey = runCatching { SecretStore(this).get(keySecretName).orEmpty() }.getOrDefault("")
+        if (apiKey.isBlank() && currentProvider == AiProvider.ANTHROPIC) {
+            // Settings saves the Claude key under "anthropic".
+            apiKey = runCatching { SecretStore(this).get("anthropic").orEmpty() }.getOrDefault("")
+        }
+        val baseUrl = if (currentProvider == AiProvider.ANTHROPIC) {
+            runCatching { SecretStore(this).get("anthropic_base_url").orEmpty() }.getOrDefault("")
+        } else {
+            ""
+        }
 
         if (apiKey.isBlank()) {
             val missingMsg = getString(R.string.chat_keys_needed, currentProvider.label)
@@ -455,6 +464,7 @@ class MainActivity : AppCompatActivity() {
             val req = AiRequest(
                 provider = currentProvider,
                 apiKey = apiKey,
+                baseUrl = baseUrl,
                 model = currentModel,
                 system = "You are ZIP_BUG AI, an expert mobile and web developer assistant. Keep answers concise, highly capable, and provide code blocks when requested.",
                 prompt = text,
