@@ -91,3 +91,8 @@ jobs:
           name: Zip_Bug-preview
           path: app/build/outputs/apk/preview/app-preview.apk
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zip_Bug-release-unsigned
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
