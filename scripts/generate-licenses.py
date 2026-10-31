@@ -77,6 +77,12 @@ OVERRIDES = {
     "com.google.errorprone:error_prone_annotations": {
         "author": "Google LLC",
     },
+    # FFmpegKit was removed from Maven Central when the project was
+    # retired; the AAR is fetched from Google's read-only mirror of
+    # Central with a pinned SHA-256 (see app/build.gradle.kts).
+    "com.arthenica:ffmpeg-kit-full": {
+        "displayName": "FFmpegKit (full) — in-app FFmpeg engine",
+    },
 }
 
 EXTRA_NOTES = {
@@ -85,6 +91,13 @@ EXTRA_NOTES = {
     "junit:junit": "Unit tests only; not included in the APK.",
     "org.hamcrest:hamcrest-core": "Unit tests only; not included in the APK.",
     "org.json:json": "Unit tests only; not included in the APK.",
+    "com.arthenica:ffmpeg-kit-full": (
+        "In-app FFmpeg engine; native libraries bundled in the APK "
+        "(arm64-v8a). The FFmpeg libraries are LGPL-2.1+ and the "
+        "FFmpegKit wrapper is LGPL-3.0. This 'full' build enables "
+        "dav1d, fontconfig, freetype, libass, libvpx, opus and other "
+        "LGPL libraries; it includes no GPL libraries (no x264/x265)."
+    ),
 }
 
 NOTICE_BY_LICENSE = {
@@ -110,6 +123,10 @@ NOTICE_BY_LICENSE = {
     "Eclipse Public License 1.0": (
         "Distributed under the Eclipse Public License 1.0. See the license "
         "URL above for the full text."
+    ),
+    "LGPL 3.0": (
+        "Distributed under the GNU Lesser General Public License "
+        "v3.0. See the license URL above for the full text."
     ),
     "The JSON License": (
         "Permission is granted to use, copy, modify and distribute this "
@@ -160,6 +177,20 @@ def canonical_license(ga, pom_license_name, pom_license_url):
             "https://www.mozilla.org/en-US/MPL/2.0/",
             "other",
         )
+    if "lesser general public license" in low or "lgpl" in low:
+        if "3" in low:
+            return (
+                "LGPL 3.0",
+                "https://www.gnu.org/licenses/lgpl-3.0.txt",
+                "other",
+            )
+        if "2.1" in low:
+            return (
+                "LGPL 2.1",
+                "https://www.gnu.org/licenses/lgpl-2.1.txt",
+                "other",
+            )
+        return REVIEW_REQUIRED, pom_license_url or "", "other"
     if "open font license" in low or "sil open font" in low:
         return (
             "SIL Open Font License 1.1",
