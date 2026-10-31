@@ -34,5 +34,21 @@ data class AiRequest(
     val system: String,
     val prompt: String,
     val mode: AiMode = AiMode.CHAT,
-    val history: List<ChatHistoryTurn> = emptyList()
+    val history: List<ChatHistoryTurn> = emptyList(),
+    val baseUrl: String = ""
 )
+
+/**
+ * Resolves the Anthropic Messages endpoint for an optional custom
+ * base URL (an Anthropic-compatible relay). A blank base URL uses
+ * the official Anthropic endpoint.
+ */
+fun anthropicEndpoint(baseUrl: String): String {
+    val base = baseUrl.trim().trimEnd('/')
+    if (base.isBlank()) return "https://api.anthropic.com/v1/messages"
+    return if (base.endsWith("/v1")) {
+        "$base/messages"
+    } else {
+        "$base/v1/messages"
+    }
+}
