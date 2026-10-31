@@ -521,4 +521,35 @@
 
     <string name="language_burmese">မြန်မာ</string>
 
+    <string name="licenses_title">Open Source လိုင်စင်များ</string>
+    <string name="licenses_subtitle">Zip_Bug ကို open source software များဖြင့် တည်ဆောက်ထားပါသည်။</string>
+    <string name="licenses_helper">Zip_Bug သည် open source library များ အသုံးပြုပါသည်။ ထုတ်လုပ်ထားသော app များတွင် ရွေးချယ်ထားသော feature များအတွက် လိုအပ်သော library များသာ ပါဝင်ပါသည်။</string>
+    <string name="licenses_back">နောက်သို့</string>
+    <string name="licenses_count">Library: %1$d • မသိရှိရသေးသော လိုင်စင်: %2$d</string>
+    <string name="licenses_search_hint">Library ရှာရန်</string>
+    <string name="licenses_empty">ကိုက်ညီသော library မရှိပါ</string>
+    <string name="licenses_filter_all">အားလုံး</string>
+    <string name="licenses_filter_app">App</string>
+    <string name="licenses_filter_generated">ထုတ်လုပ်ထားသော App များ</string>
+    <string name="licenses_filter_apache">Apache</string>
+    <string name="licenses_filter_mit">MIT</string>
+    <string name="licenses_filter_bsd">BSD</string>
+    <string name="licenses_filter_google">Google SDK</string>
+    <string name="licenses_filter_other">အခြား</string>
+    <string name="licenses_scope_app">App</string>
+    <string name="licenses_scope_generated">ထုတ်လုပ်ထားသော App များ</string>
+    <string name="licenses_review_required">လိုင်စင် ပြန်လည်စစ်ဆေးရန် လိုအပ်ပါသည်</string>
+    <string name="notices_title">Third Party အသိပေးချက်များ</string>
+    <string name="licenses_copy_notices">အသိပေးချက်များ ကူးယူ</string>
+    <string name="licenses_detail_coordinate">Coordinate: %1$s</string>
+    <string name="licenses_detail_version">ဗားရှင်း: %1$s</string>
+    <string name="licenses_detail_author">ရေးသားသူ: %1$s</string>
+    <string name="licenses_detail_license">လိုင်စင်: %1$s</string>
+    <string name="licenses_detail_scope">အသုံးပြုမှု: %1$s</string>
+    <string name="licenses_copy_license">လိုင်စင် ကူးယူ</string>
+    <string name="licenses_open_url">လိုင်စင် URL ဖွင့်</string>
+    <string name="licenses_copy_name">Library အမည် ကူးယူ</string>
+    <string name="licenses_copied">ကူးယူပြီးပါပြီ</string>
+    <string name="licenses_open_url_failed">လိုင်စင် URL ဖွင့်၍ မရပါ</string>
+
 </resources>

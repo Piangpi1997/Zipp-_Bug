@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tvDetailName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/z_text"
+        android:textSize="19sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvDetailCoordinate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/z_muted"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvDetailVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/z_text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvDetailAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/z_text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvDetailLicense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/z_text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvDetailScope"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/z_text"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvDetailNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/z_muted"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnDetailCopyLicense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="@string/licenses_copy_license" />
+
+    <Button
+        android:id="@+id/btnDetailOpenUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/licenses_open_url" />
+
+    <Button
+        android:id="@+id/btnDetailCopyName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/licenses_copy_name" />
+</LinearLayout>

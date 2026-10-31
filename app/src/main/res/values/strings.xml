@@ -521,4 +521,35 @@
 
     <string name="language_burmese">Burmese</string>
 
+    <string name="licenses_title">Open Source Licenses</string>
+    <string name="licenses_subtitle">Zip_Bug is built with open source software.</string>
+    <string name="licenses_helper">Zip_Bug uses open source libraries. Generated apps include only the libraries required by selected features.</string>
+    <string name="licenses_back">Back</string>
+    <string name="licenses_count">Libraries: %1$d • Unknown: %2$d</string>
+    <string name="licenses_search_hint">Search libraries</string>
+    <string name="licenses_empty">No libraries match your search.</string>
+    <string name="licenses_filter_all">All</string>
+    <string name="licenses_filter_app">App</string>
+    <string name="licenses_filter_generated">Generated apps</string>
+    <string name="licenses_filter_apache">Apache</string>
+    <string name="licenses_filter_mit">MIT</string>
+    <string name="licenses_filter_bsd">BSD</string>
+    <string name="licenses_filter_google">Google SDK</string>
+    <string name="licenses_filter_other">Other</string>
+    <string name="licenses_scope_app">App</string>
+    <string name="licenses_scope_generated">Generated apps</string>
+    <string name="licenses_review_required">License review required</string>
+    <string name="notices_title">Third Party Notices</string>
+    <string name="licenses_copy_notices">Copy notices</string>
+    <string name="licenses_detail_coordinate">Coordinate: %1$s</string>
+    <string name="licenses_detail_version">Version: %1$s</string>
+    <string name="licenses_detail_author">Author: %1$s</string>
+    <string name="licenses_detail_license">License: %1$s</string>
+    <string name="licenses_detail_scope">Usage: %1$s</string>
+    <string name="licenses_copy_license">Copy license</string>
+    <string name="licenses_open_url">Open license URL</string>
+    <string name="licenses_copy_name">Copy library name</string>
+    <string name="licenses_copied">Copied</string>
+    <string name="licenses_open_url_failed">Could not open the license URL</string>
+
 </resources>
