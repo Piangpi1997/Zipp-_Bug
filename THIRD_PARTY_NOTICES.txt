@@ -1,0 +1,154 @@
+THIRD-PARTY NOTICES — Zip_Bug
+
+Zip_Bug is built with open source software. Generated apps include
+only the libraries required by the features selected for that app;
+the scope line under each entry states where it is used.
+
+Libraries listed: 16
+
+========================================================================
+Activity KTX (androidx.activity:activity-ktx:1.9.3)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+AppCompat (androidx.appcompat:appcompat:1.7.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Core KTX (androidx.core:core-ktx:1.13.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Fragment KTX (androidx.fragment:fragment-ktx:1.8.5)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle Runtime KTX (androidx.lifecycle:lifecycle-runtime-ktx:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle ViewModel KTX (androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room Compiler (androidx.room:room-compiler:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+Notes: Build-time annotation processor (kapt); not shipped in the APK.
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room KTX (androidx.room:room-ktx:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room Runtime (androidx.room:room-runtime:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Glide (com.github.bumptech.glide:glide:4.16.0)
+Author: Bumptech
+License: BSD 3-Clause License
+License URL: https://opensource.org/licenses/BSD-3-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice, conditions and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+Material Components for Android (com.google.android.material:material:1.12.0)
+Author: Google LLC
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+OkHttp (com.squareup.okhttp3:okhttp:4.12.0)
+Author: Square, Inc.
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+JUnit 4 (junit:junit:4.13.2)
+Author: JUnit Team
+License: Eclipse Public License 1.0
+License URL: https://www.eclipse.org/legal/epl-v10.html
+Scope: App
+Notes: Unit tests only; not included in the APK.
+
+Distributed under the Eclipse Public License 1.0. See the license URL above for the full text.
+
+========================================================================
+Kotlin Standard Library (org.jetbrains.kotlin:kotlin-stdlib:1.9.24)
+Author: JetBrains s.r.o.
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Kotlinx Coroutines Android (org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1)
+Author: JetBrains s.r.o.
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+JSON in Java (org.json) (org.json:json:20240303)
+Author: JSON.org
+License: The JSON License
+License URL: https://www.json.org/license.html
+Scope: App
+Notes: Unit tests only; not included in the APK.
+
+Permission is granted to use, copy, modify and distribute this software, subject to the terms at the license URL above, including retention of the copyright notice.
