@@ -17,6 +17,11 @@ class WebTemplatesTest {
             assertTrue(template.description.isNotBlank())
             assertTrue(template.snippet.isNotBlank())
             assertTrue(template.html.contains("<html"))
+            assertTrue(template.icon.isNotBlank())
+            assertTrue(
+                "bad colour for ${template.id}",
+                template.colorHex.matches(Regex("^#[0-9a-fA-F]{6}$"))
+            )
             assertEquals(template, WebTemplates.byId(template.id))
         }
     }
