@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/templateDetailTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/z_text"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/templateDetailCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/z_green"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/templateDetailDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/z_text" />
+
+    <TextView
+        android:id="@+id/templateDetailSnippet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@color/z_surface"
+        android:fontFamily="monospace"
+        android:padding="12dp"
+        android:textColor="@color/z_green"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/templateDetailHardware"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/z_muted"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/templateCopySnippet"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="14dp"
+        android:text="@string/templates_copy_snippet" />
+
+    <Button
+        android:id="@+id/templateUseInWizard"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/templates_use_in_wizard" />
+</LinearLayout>
