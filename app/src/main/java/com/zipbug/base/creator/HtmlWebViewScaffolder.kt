@@ -581,13 +581,45 @@ object HtmlWebViewScaffolder {
         return match?.groupValues?.get(1) ?: ""
     }
 
+    /** RFC 4648 Base64 with padding. Avoids java.util.Base64 (API 26+). */
+    private fun base64Encode(bytes: ByteArray): String {
+        val alphabet =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+        val out = StringBuilder((bytes.size + 2) / 3 * 4)
+        var i = 0
+        while (i < bytes.size) {
+            val b0 = bytes[i].toInt() and 0xFF
+            val b1 = if (i + 1 < bytes.size) {
+                bytes[i + 1].toInt() and 0xFF
+            } else {
+                0
+            }
+            val b2 = if (i + 2 < bytes.size) {
+                bytes[i + 2].toInt() and 0xFF
+            } else {
+                0
+            }
+            out.append(alphabet[b0 shr 2])
+            out.append(alphabet[((b0 and 0x03) shl 4) or (b1 shr 4)])
+            out.append(
+                if (i + 1 < bytes.size) {
+                    alphabet[((b1 and 0x0F) shl 2) or (b2 shr 6)]
+                } else {
+                    '='
+                }
+            )
+            out.append(if (i + 2 < bytes.size) alphabet[b2 and 0x3F] else '=')
+            i += 3
+        }
+        return out.toString()
+    }
+
     private fun shellHooks(spec: WebAppSpec): String {
-        val encoder = java.util.Base64.getEncoder()
         val scriptEntries = spec.userScripts.values.joinToString(",\n") { body ->
-            val glob64 = encoder.encodeToString(
+            val glob64 = base64Encode(
                 userScriptGlob(body).toByteArray(Charsets.UTF_8)
             )
-            val body64 = encoder.encodeToString(
+            val body64 = base64Encode(
                 body.toByteArray(Charsets.UTF_8)
             )
             "        \"" + glob64 + "\" to \"" + body64 + "\""
