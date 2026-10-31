@@ -91,7 +91,7 @@ object GeneratedLicenseManifest {
     )
 
     private val COORDINATE =
-        Regex("^([A-Za-z0-9_.\-]+):([A-Za-z0-9_.\-]+):([A-Za-z0-9_.+\-]+)$")
+        Regex("""^([A-Za-z0-9_.\-]+):([A-Za-z0-9_.\-]+):([A-Za-z0-9_.+\-]+)$""")
 
     /** Resolve full "group:artifact:version" coordinates, de-duplicated. */
     fun resolve(coordinates: List<String>): List<ResolvedDependency> {
