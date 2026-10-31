@@ -25,6 +25,7 @@ import com.zipbug.base.databinding.ActivityZippyCutStudioBinding
 import com.zipbug.base.recap.RecapMediaStager
 import com.zipbug.base.recap.RecapRenderCoordinator
 import com.zipbug.base.termux.LogSanitizer
+import com.zipbug.base.media.InAppFfmpegEngine
 import com.zipbug.base.termux.TermuxBridge
 import com.zipbug.base.zippy.ZippyCutPlan
 import java.io.File
@@ -636,6 +637,11 @@ class ZippyCutStudioActivity : AppCompatActivity() {
             return
         }
         binding.btnExport.isEnabled = false
+        if (binding.rbEngineInApp.isChecked) {
+            runInAppExport(argsResult.getOrThrow())
+            saveDraft()
+            return
+        }
         setStatus(L(
             "Export အခြေအနေ: QUEUED • Termux သို့ ပို့နေသည်… (ရာခိုင်နှုန်း မပြပါ — တကယ့် အခြေအနေကိုသာ ပြသည်)",
             "Export status: QUEUED • dispatching to Termux… (no fake percentage — real status only)"
@@ -688,6 +694,114 @@ class ZippyCutStudioActivity : AppCompatActivity() {
                 val f = File(dir, name)
                 f.writeText(srt, Charsets.UTF_8)
                 f.absolutePath
+            }
+        }.getOrNull()
+    }
+
+    /**
+     * Renders with the bundled FFmpegKit engine. The plan's arguments
+     * were built for the shared-storage output path, which this process
+     * cannot write directly under scoped storage — so the render lands
+     * in app-external storage first (same file name), is verified with
+     * the same checker the Termux path uses, and a copy is then
+     * published to Downloads via MediaStore.
+     */
+    private fun runInAppExport(args: List<String>) {
+        val localDir = File(
+            getExternalFilesDir(null) ?: filesDir, "zippycut"
+        ).apply { mkdirs() }
+        val localOut = File(localDir, File(outputPath).name)
+        val outIndex = args.lastIndexOf(outputPath)
+        if (outIndex < 0) {
+            binding.btnExport.isEnabled = true
+            setStatus("Export status: FAILED — output path missing from ffmpeg arguments")
+            return
+        }
+        val localArgs = args.toMutableList()
+        localArgs[outIndex] = localOut.absolutePath
+        setStatus(L(
+            "Export အခြေအနေ: RUNNING • app ထဲက FFmpegKit ဖြင့် လုပ်နေသည်…",
+            "Export status: RUNNING • rendering with the in-app FFmpegKit engine…"
+        ))
+        lifecycleScope.launch {
+            val outcome = withContext(Dispatchers.IO) {
+                runCatching { InAppFfmpegEngine.execute(localArgs) }
+            }
+            binding.btnExport.isEnabled = true
+            outcome.fold(
+                onSuccess = { result ->
+                    if (!result.success) {
+                        setStatus(
+                            "Export status: FAILED • FFmpegKit exit " +
+                                "${result.returnCode} • " +
+                                LogSanitizer.sanitize(result.logTail.takeLast(300))
+                        )
+                        return@fold
+                    }
+                    val verify = RecapRenderCoordinator.verifyRenderResult(
+                        0, localOut.absolutePath
+                    )
+                    if (verify.isFailure) {
+                        setStatus(
+                            "Export status: FAILED — output verification " +
+                                "failed: ${verify.exceptionOrNull()?.message}"
+                        )
+                        return@fold
+                    }
+                    val info = verify.getOrThrow()
+                    val published = publishToDownloads(localOut)
+                    outputPath = localOut.absolutePath
+                    setStatus(
+                        "Export status: SUCCESS • ${info.fileName} • " +
+                            "${info.sizeBytes} bytes • in-app engine" +
+                            (published?.let { " • Downloads copy: $it" } ?: "")
+                    )
+                    binding.btnPreviewOutput.isEnabled = true
+                    binding.btnShareOutput.isEnabled = true
+                },
+                onFailure = { ex ->
+                    setStatus("Export status: FAILED — ${ex.message}")
+                }
+            )
+        }
+    }
+
+    /** Publishes a rendered file to the public Downloads folder. */
+    private fun publishToDownloads(file: File): String? {
+        return runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val values = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS
+                    )
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+                val uri = contentResolver.insert(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
+                ) ?: error("insert failed")
+                contentResolver.openOutputStream(uri, "w")?.use { out ->
+                    file.inputStream().use { it.copyTo(out) }
+                } ?: error("open failed")
+                contentResolver.update(
+                    uri,
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    },
+                    null, null
+                )
+                "/storage/emulated/0/Download/${file.name}"
+            } else {
+                val target = File(
+                    Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS
+                    ),
+                    file.name
+                )
+                file.copyTo(target, overwrite = true)
+                target.absolutePath
             }
         }.getOrNull()
     }
