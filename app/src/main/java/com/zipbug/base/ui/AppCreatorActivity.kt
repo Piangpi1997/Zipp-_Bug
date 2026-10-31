@@ -108,6 +108,14 @@ class AppCreatorActivity : AppCompatActivity() {
             createHtmlAppProject()
         }
 
+        binding.openWizard.setOnClickListener {
+            startActivity(Intent(this, HtmlAppWizardActivity::class.java))
+        }
+
+        binding.openTemplates.setOnClickListener {
+            startActivity(Intent(this, WebTemplatesActivity::class.java))
+        }
+
         binding.createWeb.setOnClickListener {
             createWebMiniApp()
         }
