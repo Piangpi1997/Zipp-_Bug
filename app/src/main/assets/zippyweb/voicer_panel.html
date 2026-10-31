@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="my"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Voicer panel</title>
+<style>
+/* Zippy_Cut 0.9.11 — 🎙 VoicerTool panel (under the VoicerTool page): 📝 split the text · 🎵 the mp3 parts · 🔗 combine */
+:root{--bg:#161a1b;--bg2:#1d2324;--card:#222a2b;--card2:#2a3435;--line:#ffffff14;--line2:#ffffff26;--a1:#2dd4bf;--a2:#0d9488;--on:#04201c;--text:#eef6f5;--mute:#93a6a4;--warn:#ff9fb0;--gold:#ffd166;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans Myanmar","Myanmar Text",Padauk,system-ui,sans-serif;font-size:14px;line-height:1.5;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column}
+/* the bar (always shown · the only thing when the panel is folded) */
+.bar{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:56px;padding:0 8px;border-top:1px solid var(--line2);background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.tab{flex:1;min-width:0;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 8px}
+.tab.on{background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--on);border-color:transparent}
+.tab .n{font-size:11px;font-weight:900;padding:1px 7px;border-radius:99px;background:#0003}
+.fold{flex:0 0 auto;width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--card);font-size:16px}
+.body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 12px 18px;display:none}
+#app.open .body{display:block}
+.sec{display:none;flex-direction:column;gap:10px}.sec.on{display:flex}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.btn{height:40px;padding:0 12px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn.pri{background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--on);border:0}
+.btn.warn{color:var(--warn);border-color:#ff4d6d40;background:#ff4d6d12}
+.btn.grow{flex:1;min-width:0}
+.btn:disabled{opacity:.45}
+.info{font-size:12.5px;color:var(--mute)}
+.info b{color:var(--text)}
+textarea{width:100%;min-height:96px;max-height:220px;resize:vertical;border-radius:14px;border:1px solid var(--line2);background:#0e1213;color:var(--text);padding:10px 12px;font:inherit;font-size:13.5px;line-height:1.6}
+.lim{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.chip{height:32px;padding:0 10px;border-radius:99px;border:1px solid var(--line2);background:var(--card);font-size:12px;font-weight:700}
+.chip.on{background:var(--a1);color:var(--on);border-color:transparent}
+.empty{padding:18px 12px;border-radius:16px;border:1px dashed var(--line2);text-align:center;color:var(--mute);font-size:13px}
+/* text parts */
+.part{border-radius:16px;border:1px solid var(--line);background:var(--card);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.part.act{border-color:var(--a1);box-shadow:0 0 0 1px var(--a1) inset}
+.part .hd{display:flex;align-items:center;gap:8px}
+.part .no{flex:0 0 auto;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:900;background:var(--card2)}
+.part.act .no{background:var(--a1);color:var(--on)}
+.part .tt{flex:1;min-width:0}
+.part .tt b{display:block;font-size:13.5px}
+.part .tt small{display:block;font-size:11.5px;color:var(--mute)}
+.badge{flex:0 0 auto;font-size:11px;font-weight:900;padding:3px 8px;border-radius:99px;background:#ffffff10;color:var(--mute)}
+.badge.ok{background:#2dd4bf26;color:var(--a1)}
+.part .pv{font-size:12.5px;color:#c9d6d4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.part .row .btn{flex:1}
+.tags{font-size:11.5px;color:var(--gold);display:flex;flex-wrap:wrap;gap:4px 8px}
+.idx{border-radius:14px;border:1px solid var(--line);background:#0e1213;overflow:hidden}
+.idx summary{list-style:none;padding:10px 12px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;cursor:pointer}
+.idx summary::-webkit-details-marker{display:none}
+.idx ol{margin:0;padding:0 10px 10px;list-style:none;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.idx li{display:flex;gap:8px;font-size:12px;line-height:1.45;padding:5px 6px;border-radius:9px;background:#ffffff06}
+.idx li .k{flex:0 0 auto;font-weight:900;color:var(--mute);min-width:30px}
+.idx li .g{flex:0 0 auto;font-weight:900;font-size:10.5px;padding:1px 6px;border-radius:7px;background:#ffffff14;height:fit-content}
+.idx li .g.D{background:#ffd16633;color:var(--gold)}
+.idx li .x{flex:1;min-width:0;color:#c9d6d4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.idx li .p{flex:0 0 auto;font-size:10.5px;color:var(--a1);font-weight:900}
+/* mp3 list */
+.mp3{display:flex;align-items:center;gap:8px;border-radius:14px;border:1px solid var(--line);background:var(--card);padding:8px}
+.mp3 .ix{flex:0 0 auto;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:900;background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--on)}
+.mp3 .tt{flex:1;min-width:0}
+.mp3 .tt b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp3 .tt small{display:block;font-size:11px;color:var(--mute)}
+.ic{flex:0 0 auto;width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--card2);font-size:14px;display:grid;place-items:center;padding:0}
+.ic.del{color:var(--warn)}
+.ic:disabled{opacity:.3}
+.prog{height:8px;border-radius:99px;background:#ffffff12;overflow:hidden}.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .2s}
+.res{border-radius:16px;border:1px solid var(--a1);background:#2dd4bf10;padding:12px;display:flex;flex-direction:column;gap:10px}
+.res audio{width:100%;height:40px}
+.toast{position:fixed;left:12px;right:12px;bottom:66px;z-index:9;padding:10px 14px;border-radius:14px;background:#000d;border:1px solid var(--line2);font-size:13px;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.dl{display:none;align-items:center;gap:8px;font-size:12.5px;color:var(--gold)}.dl.on{display:flex}
+</style></head>
+<body>
+<div id="app">
+  <div class="bar">
+    <button class="tab" data-t="text" type="button">📝 <span class="tl"></span><span class="n" id="nParts">0</span></button>
+    <button class="tab" data-t="mp3" type="button">🎵 MP3 <span class="n" id="nMp3">0</span></button>
+    <button class="fold" type="button" aria-label="Open">▲</button>
+  </div>
+  <div class="body">
+    <div class="dl" id="dl">⬇ <span></span></div>
+    <!-- 📝 -->
+    <div class="sec" data-s="text">
+      <div class="row">
+        <button class="btn grow" data-a="project" type="button">📥 Project script</button>
+        <button class="btn grow" data-a="paste" type="button">📋 Paste</button>
+        <button class="btn grow" data-a="file" type="button">📄 .txt</button>
+      </div>
+      <textarea id="txt" placeholder=""></textarea>
+      <div class="lim"><span class="info" id="limT"></span><span id="chips"></span></div>
+      <div class="info" id="sum"></div>
+      <div id="parts"></div>
+      <div class="row"><button class="btn warn" data-a="reset" type="button">🆕</button></div>
+    </div>
+    <!-- 🎵 -->
+    <div class="sec" data-s="mp3">
+      <div class="info" id="mp3Info"></div>
+      <div id="list"></div>
+      <div class="row">
+        <button class="btn" data-a="import" type="button">📥 mp3</button>
+        <button class="btn pri grow" data-a="combine" type="button"></button>
+      </div>
+      <div id="cbusy" hidden><div class="info" id="cbt"></div><div class="prog"><i></i></div></div>
+      <div class="res" id="res" hidden>
+        <b id="resT"></b>
+        <audio id="resA" controls preload="metadata"></audio>
+        <button class="btn pri" data-a="use" type="button"></button>
+        <div class="row"><button class="btn grow" data-a="save" type="button"></button><button class="btn grow" data-a="share" type="button"></button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+'use strict';
+const N=window.ZippyVoicer||null;
+const call=(m,...a)=>{try{return N&&typeof N[m]==='function'?N[m](...a):undefined}catch(e){console.error(e)}};
+const $=s=>document.querySelector(s);
+let LANG='my';try{LANG=(call('lang')||'my')==='en'?'en':'my'}catch{}
+const L=(my,en)=>LANG==='en'?en:my;
+const esc=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtN=n=>Number(n||0).toLocaleString('en-US');
+const fmtB=b=>{b=+b||0;return b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB'};
+const fmtT=s=>{s=Math.round(+s||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const LIMITS=[2000,3000,4000,5000];
+
+/* ---------- ✂ split: ≤ limit characters, cut where a sentence ends (။) ---------- */
+function split(text,limit){
+  const t=String(text||'').replace(/\r\n?/g,'\n').replace(/[ \t]+\n/g,'\n').trim();
+  if(!t)return [];
+  const out=[];let rest=t;
+  const ENDS=['။','\n','.','!','?','၊',' '];
+  while(rest.length>limit){
+    const win=rest.slice(0,limit);let cut=-1;
+    for(const e of ENDS){const i=win.lastIndexOf(e);if(i>=limit*0.3){cut=i+e.length;break}}
+    if(cut<=0)cut=limit;                                   /* one very long sentence: a hard cut */
+    const piece=rest.slice(0,cut).trim();if(piece)out.push(piece);
+    rest=rest.slice(cut).replace(/^\s+/,'');
+  }
+  if(rest.trim())out.push(rest.trim());
+  return out;
+}
+window.ZippyVoicerSplit=split;   /* (tests) */
+
+/* ---------- 🏷 [N] / [D 00:13-00:15] — the same reading as the app (parseScript) ----------
+   VoicerTool gets the words only (cleanTts) · the tags + times stay here as the index, and go back to the
+   project with the voice (🎬), so dialogue timing still works */
+function parse(raw){
+  const toA=x=>x.replace(/[၀-၉]/g,d=>String(d.charCodeAt(0)-0x1040));
+  const tc=x=>{const p=toA(x).split(':').map(Number);return p.length===3?p[0]*3600+p[1]*60+p[2]:p[0]*60+p[1]};
+  const T='([0-9၀-၉]{1,2}:[0-9၀-၉]{2}(?::[0-9၀-၉]{2})?(?:\\.\\d+)?)';
+  const rx=new RegExp('^\\[\\s*(N|D)\\s*(?:'+T+'\\s*[-–—~]\\s*'+T+')?\\s*\\]\\s*[:：]?\\s*(.*)$','i');
+  const segs=[];let cur=null;
+  for(const line0 of String(raw||'').replace(/\r/g,'').split('\n')){
+    const line=line0.replace(/\*\*|__|`/g,'').replace(/^[\s>•\-*]+/,'').replace(/\u0964/g,'\u104B').trim();
+    if(!line){if(cur)cur.brk=true;continue}
+    if(/^\[\s*NAMES\b/i.test(line)){cur=null;continue}
+    const m=line.match(rx);
+    if(m){cur={type:m[1].toUpperCase(),s0:m[2]?tc(m[2]):null,s1:m[3]?tc(m[3]):null,text:m[4].trim(),brk:false};if(cur.type==='D'&&cur.s0==null)cur.type='N';segs.push(cur)}
+    else if(cur&&!cur.brk)cur.text+=' '+line;
+    else{cur={type:'N',s0:null,s1:null,text:line,brk:false};segs.push(cur)}
+  }
+  return segs.filter(x=>x.text.trim());
+}
+const hasTags=raw=>/^[\s>*•\-]*\[\s*(N|D)\b/im.test(String(raw||''));
+const tcT=v=>{v=Math.max(0,Math.round(+v||0));return String(Math.floor(v/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')};
+/* parts made of whole lines (a line is never cut, unless one line alone is longer than the limit) */
+function buildParts(raw,limit){
+  const segs=parse(raw),out=[];let cur=null;
+  const flush=()=>{if(cur&&cur.text.trim())out.push(cur);cur=null};
+  segs.forEach((g,i)=>{const t=g.text.trim();
+    if(t.length>limit){flush();split(t,limit).forEach(piece=>out.push({text:piece,segs:[i],cut:true}));return}
+    const sep=cur&&cur.text?(segs[i-1]&&segs[i-1].brk?'\n\n':'\n'):'';
+    if(cur&&(cur.text+sep+t).length>limit)flush();
+    if(!cur)cur={text:'',segs:[]};
+    cur.text+=(cur.text?sep:'')+t;cur.segs.push(i)});
+  flush();
+  out.forEach(p=>{const ss=p.segs.map(i=>segs[i]);p.n=ss.filter(x=>x.type==='N').length;p.d=ss.filter(x=>x.type==='D').length;
+    const ds=ss.filter(x=>x.type==='D'&&x.s0!=null);p.t0=ds.length?Math.min(...ds.map(x=>x.s0)):null;p.t1=ds.length?Math.max(...ds.map(x=>x.s1!=null?x.s1:x.s0)):null});
+  return {parts:out,segs};
+}
+window.ZippyVoicerParse=parse;window.ZippyVoicerBuild=buildParts;
+
+/* ---------- state ---------- */
+let S={v:1,text:'',limit:5000,active:1,mp3:[],combined:null,tab:'text',open:false};
+let parts=[],segs=[];
+try{const t=call('loadState');if(t){const o=JSON.parse(t);if(o&&o.v===1)S=Object.assign(S,o)}}catch{}
+if(!LIMITS.includes(+S.limit))S.limit=5000;
+if(!Array.isArray(S.mp3))S.mp3=[];
+function save(){try{call('saveState',JSON.stringify(Object.assign({},S,{open:false})))}catch{}}
+function reparts(){const b=buildParts(S.text,S.limit);segs=b.segs;parts=b.parts;if(S.active>parts.length)S.active=parts.length||1;if(S.active<1)S.active=1}
+
+let tt=0;function toast(m,ms){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),ms||2600)}
+
+/* which part has a voice already */
+const partHas=n=>S.mp3.some(m=>m.part===n);
+function nextOpen(from){for(let i=from;i<=parts.length;i++)if(!partHas(i))return i;for(let i=1;i<from;i++)if(!partHas(i))return i;return 0}
+
+/* ---------- paint ---------- */
+function paintBar(){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',S.open&&b.dataset.t===S.tab));
+  $('.tab[data-t="text"] .tl').textContent=parts.length?L(`အပိုင်း ${S.active}/${parts.length}`,`Part ${S.active}/${parts.length}`):L('စာခွဲ','Split');
+  $('#nParts').textContent=parts.length;$('#nMp3').textContent=S.mp3.length;
+  $('.fold').textContent=S.open?'▼':'▲';
+  $('#app').classList.toggle('open',S.open);
+  document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.dataset.s===S.tab));
+}
+function paintText(){
+  const ta=$('#txt');if(document.activeElement!==ta)ta.value=S.text;
+  ta.placeholder=L('ဒီမှာ စာထည့်ပါ (သို့) အပေါ်က 📥 📋 📄 နဲ့ ယူပါ — စာလုံး '+fmtN(S.limit)+' ကျော်ရင် "။" ဆုံးတဲ့နေရာမှာ အလိုလို ခွဲပေးမယ်','Put the text here (or use 📥 📋 📄) — over '+fmtN(S.limit)+' characters it is split where a sentence ends (။)');
+  $('#limT').textContent=L('တစ်ခါ ထုတ်နိုင်တာ:','Per voice:');
+  $('#chips').innerHTML=LIMITS.map(n=>`<button type="button" class="chip${n===+S.limit?' on':''}" data-lim="${n}">${fmtN(n)}</button>`).join(' ');
+  const total=parts.reduce((a,p)=>a+p.text.length,0),tags=hasTags(S.text),nN=segs.filter(x=>x.type==='N').length,nD=segs.filter(x=>x.type==='D').length;
+  $('#sum').innerHTML=total?L(`VoicerTool ကို ပို့မယ့်စာ <b>${fmtN(total)}</b> လုံး${tags?' (tag မပါ)':''} → <b>${parts.length}</b> ပိုင်း${tags?` · 🏷 [N] ${nN} · [D] ${nD} ကို index အဖြစ် သိမ်းထား`:''} · တစ်ပိုင်းချင်း ✍ ထည့် → ထုတ် → ⬇ Download`,`<b>${fmtN(total)}</b> characters for VoicerTool${tags?' (no tags)':''} → <b>${parts.length}</b> parts${tags?` · 🏷 [N] ${nN} · [D] ${nD} kept as the index`:''} · ✍ put each in → make → ⬇ Download`):'';
+  const tags2=hasTags(S.text);
+  $('#parts').innerHTML=(parts.length?parts.map((p,i)=>{const n=i+1,has=partHas(n),act=n===S.active,a=p.segs[0]+1,z=p.segs[p.segs.length-1]+1;
+    return `<div class="part${act?' act':''}" data-n="${n}"><div class="hd"><span class="no">${n}</span><span class="tt"><b>${esc(L(`အပိုင်း ${n}`,`Part ${n}`))}${act?' ⬅':''}</b><small>${fmtN(p.text.length)} ${esc(L('စာလုံး','chars'))} · #${a}${z>a?'–#'+z:''}</small></span>
+      <span class="badge${has?' ok':''}">${has?'🎵 ✓':esc(L('🎵 မရှိသေး','🎵 none'))}</span></div>
+      ${tags2?`<div class="tags"><span>🏷 [N] ${p.n}</span><span>[D] ${p.d}</span>${p.t0!=null?`<span>🎬 ${tcT(p.t0)}–${tcT(p.t1)}</span>`:''}</div>`:''}
+      <div class="pv">${esc(p.text.slice(0,160))}</div>
+      <div class="row"><button type="button" class="btn pri" data-fill="${n}">✍ ${esc(L('VoicerTool ထဲထည့်','Put in VoicerTool'))}</button></div></div>`}).join('')
+    :`<div class="empty">${esc(L('စာ မရှိသေးပါ','No text yet'))}</div>`)
+    + (tags2&&segs.length?`<details class="idx"><summary><span>📑 Index · ${segs.length} ${esc(L('ကြောင်း','lines'))}</span><span>▾</span></summary><ol>${segs.map((g,i)=>{const pn=parts.findIndex(p=>p.segs.includes(i))+1;
+        return `<li><span class="k">#${i+1}</span><span class="g ${g.type}">${g.type}${g.type==='D'&&g.s0!=null?' '+tcT(g.s0)+(g.s1!=null?'–'+tcT(g.s1):''):''}</span><span class="x">${esc(g.text)}</span><span class="p">P${pn}</span></li>`}).join('')}</ol></details>`:'');
+  $('[data-a="reset"]').textContent=L('🆕 အသစ်စမယ် (စာ + mp3 အကုန်ရှင်း)','🆕 Start over (clear text + mp3)');
+}
+function paintMp3(){
+  const total=S.mp3.reduce((a,m)=>a+(+m.dur||0),0);
+  $('#mp3Info').innerHTML=S.mp3.length?L(`<b>${S.mp3.length}</b> ဖိုင် · ${fmtT(total)} · ဒီအစဉ်အတိုင်း ပေါင်းမယ် (↑ ↓ နဲ့ ရွှေ့)`,`<b>${S.mp3.length}</b> files · ${fmtT(total)} · joined in this order (move with ↑ ↓)`):'';
+  $('#list').innerHTML=S.mp3.length?S.mp3.map((m,i)=>`<div class="mp3" data-i="${i}"><span class="ix">${i+1}</span>
+      <span class="tt"><b>${esc(m.part?L(`အပိုင်း ${m.part}`,`Part ${m.part}`)+' · ':'')}${esc(m.name)}</b><small>${fmtB(m.bytes)}${m.dur?' · '+fmtT(m.dur):''}</small></span>
+      <button type="button" class="ic" data-play="${i}" aria-label="Play">${playing===m.id?'⏸':'▶'}</button>
+      <button type="button" class="ic" data-up="${i}" aria-label="Up"${i?'':' disabled'}>↑</button>
+      <button type="button" class="ic" data-dn="${i}" aria-label="Down"${i<S.mp3.length-1?'':' disabled'}>↓</button>
+      <button type="button" class="ic del" data-del="${i}" aria-label="Delete">🗑</button></div>`).join('')
+    :`<div class="empty">${esc(L('mp3 မရှိသေးပါ · VoicerTool မှာ ⬇ Download နှိပ်ရင် ဒီမှာ အလိုလို ဝင်လာမယ်','No mp3 yet · tap ⬇ Download in VoicerTool and it shows up here'))}</div>`;
+  const cb=$('[data-a="combine"]');cb.textContent=`🔗 ${L('ပေါင်းမယ်','Combine')} (${S.mp3.length})`;cb.disabled=S.mp3.length<1||busy;
+  $('[data-a="import"]').disabled=busy;
+  const r=$('#res');r.hidden=!S.combined;
+  if(S.combined){$('#resT').textContent='✓ '+(S.combined.info||L('ပေါင်းပြီး','Combined'));const a=$('#resA');if(a.getAttribute('src')!==S.combined.url)a.setAttribute('src',S.combined.url);
+    $('[data-a="use"]').textContent='🎬 '+L('Project အသံ အဖြစ် သုံးမယ်','Use as the project voice');
+    $('[data-a="save"]').textContent='💾 '+L('Music ထဲ သိမ်း','Save to Music');$('[data-a="share"]').textContent='📤 '+L('မျှဝေ','Share')}
+}
+function paint(){reparts();paintBar();paintText();paintMp3()}
+
+/* ---------- player (one at a time) ---------- */
+const player=new Audio();let playing='';
+player.addEventListener('ended',()=>{playing='';paintMp3()});
+function play(i){const m=S.mp3[i];if(!m)return;if(playing===m.id){player.pause();playing='';return paintMp3()}
+  const u=call('fileUrl',m.id);if(!u)return toast(L('ဖိုင် မတွေ့ပါ','File not found'));
+  try{const r=$('#resA');r.pause()}catch{}player.src=u;player.play().then(()=>{playing=m.id;paintMp3()}).catch(()=>toast(L('ဖွင့်လို့ မရပါ','Cannot play')))}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.classList.contains('tab')){const t=b.dataset.t;if(S.open&&S.tab===t){S.open=false}else{S.open=true;S.tab=t}call('setExpanded',S.open);paintBar();save();return}
+  if(b.classList.contains('fold')){S.open=!S.open;call('setExpanded',S.open);paintBar();return}
+  if(b.dataset.lim){S.limit=+b.dataset.lim;paint();save();return}
+  if(b.dataset.fill){const n=+b.dataset.fill,p=parts[n-1];if(!p)return;S.active=n;paint();save();call('fill',p.text);return}
+  if(b.dataset.play)return play(+b.dataset.play);
+  if(b.dataset.up||b.dataset.dn){const i=+(b.dataset.up||b.dataset.dn),j=b.dataset.up?i-1:i+1;if(j<0||j>=S.mp3.length)return;[S.mp3[i],S.mp3[j]]=[S.mp3[j],S.mp3[i]];S.combined=null;paintMp3();save();return}
+  if(b.dataset.del){const i=+b.dataset.del,m=S.mp3[i];if(!m)return;
+    if(b.dataset.sure!=='1'){document.querySelectorAll('[data-sure="1"]').forEach(x=>{x.dataset.sure='';x.textContent='🗑'});b.dataset.sure='1';b.textContent='?';return}
+    if(playing===m.id){player.pause();playing=''}
+    S.mp3.splice(i,1);call('deleteMp3',m.id);S.combined=null;paint();save();return}
+  const a=b.dataset.a;
+  if(a==='project'){const t=call('projectText')||'';if(!t.trim())return toast(L('Project ထဲမှာ script မရှိသေးပါ (✂ ② 📋 Paste)','No script in the project yet'));setText(t,L('📥 Project script ယူပြီး','📥 Project script loaded'));return}
+  if(a==='paste'){const t=call('clipboard')||'';if(!t.trim())return toast(L('Clipboard ထဲ စာ မရှိပါ','Nothing to paste'));setText(t,L('📋 Paste ပြီး','📋 Pasted'));return}
+  if(a==='file')return call('pickText');
+  if(a==='reset'){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent=L('⚠ သေချာလား? ထပ်နှိပ်ပါ','⚠ Sure? Tap again');return}
+    b.dataset.sure='';player.pause();playing='';S.text='';S.active=1;S.mp3=[];S.combined=null;call('keepOnly','[]');paint();save();toast(L('🆕 အကုန် ရှင်းပြီး','🆕 Cleared'));return}
+  if(a==='import')return call('pickAudio');
+  if(a==='combine'){if(!S.mp3.length||busy)return;busy=true;S.combined=null;$('#cbusy').hidden=false;$('#cbt').textContent=L('🔗 ပေါင်းနေတယ်…','🔗 Combining…');$('#cbusy i').style.width='2%';paintMp3();
+    if(!call('combine',JSON.stringify(S.mp3.map(m=>m.id)))){busy=false;$('#cbusy').hidden=true;paintMp3();toast(L('ပေါင်းလို့ မရပါ','Could not combine'))}return}
+  if(a==='use')return call('useCombined',hasTags(S.text)?S.text:'');
+  if(a==='save')return call('saveCombined');
+  if(a==='share')return call('shareCombined');
+});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-del],[data-a="reset"]'))document.querySelectorAll('[data-sure="1"]').forEach(x=>{x.dataset.sure='';if(x.dataset.del)x.textContent='🗑';else paintText()})},true);
+let edT=0;$('#txt').addEventListener('input',e=>{S.text=e.target.value;clearTimeout(edT);edT=setTimeout(()=>{reparts();paintBar();const ta=$('#txt');paintText();save()},400)});
+function setText(t,msg){S.text=String(t||'');S.active=1;S.tab='text';S.open=true;call('setExpanded',true);paint();save();
+  toast(msg+' · '+L(`${parts.length} ပိုင်း`,`${parts.length} parts`))}
+
+let busy=false;
+/* ---------- from the app ---------- */
+window.ZV={
+  onText(t,name){setText(t,L(`📄 ${name||'.txt'} ဖွင့်ပြီး`,`📄 ${name||'.txt'} opened`))},
+  onDownloading(name){const d=$('#dl');d.querySelector('span').textContent=L(`သိမ်းနေတယ်… ${name||''}`,`Saving… ${name||''}`);d.classList.add('on')},
+  onDownloadFail(msg){$('#dl').classList.remove('on');toast(msg||L('Download မရပါ','Download failed'),3500)},
+  /* a new mp3 (downloaded or 📥 added): it goes to the part being made, then the next part waits */
+  onMp3(json,fromImport){$('#dl').classList.remove('on');let m;try{m=JSON.parse(json)}catch{return}if(!m||!m.id)return;
+    let part=0;
+    if(!fromImport&&parts.length){part=!partHas(S.active)?S.active:nextOpen(S.active)}
+    m.part=part||0;
+    /* place: after the last mp3 whose part is ≤ this one (extras go to the end) */
+    let at=S.mp3.length;if(m.part){at=0;for(let i=0;i<S.mp3.length;i++){const p=S.mp3[i].part;if(p&&p<=m.part)at=i+1;else if(!p){} }}
+    S.mp3.splice(at,0,m);S.combined=null;
+    const next=parts.length?nextOpen(m.part||S.active):0;if(next)S.active=next;
+    S.tab='mp3';S.open=true;call('setExpanded',true);paint();save();
+    toast(m.part?L(`✓ အပိုင်း ${m.part} mp3 သိမ်းပြီး (#${at+1})${next?` · နောက်: အပိုင်း ${next}`:' · အပိုင်း အကုန် ရပြီ 🎉'}`,`✓ Part ${m.part} mp3 saved (#${at+1})${next?` · next: part ${next}`:' · all parts done 🎉'}`):L(`✓ mp3 သိမ်းပြီး (#${at+1})`,`✓ mp3 saved (#${at+1})`),3200);
+    /* its length, for the list */
+    const u=call('fileUrl',m.id);if(u){const a=new Audio();a.preload='metadata';a.onloadedmetadata=()=>{const x=S.mp3.find(y=>y.id===m.id);if(x&&isFinite(a.duration)){x.dur=a.duration;paintMp3();save()}};a.src=u}},
+  onFill(ok){toast(ok?L(`✍ အပိုင်း ${S.active} ထည့်ပြီး · နိုင်ငံ / အသံ ရွေး → ထုတ် → ⬇ Download`,`✍ Part ${S.active} is in · pick country / voice → make → ⬇ Download`):L(`စာနေရာ မတွေ့သေးပါ · VoicerTool page ပွင့်ပြီးမှ ✍ ပြန်နှိပ်ပါ`,`The text box is not there yet · tap ✍ again when VoicerTool has loaded`),3800)},
+  onCombine(p){$('#cbusy i').style.width=Math.max(2,Math.min(99,+p||0))+'%';$('#cbt').textContent=L(`🔗 ပေါင်းနေတယ်… ${Math.round(+p||0)}%`,`🔗 Combining… ${Math.round(+p||0)}%`)},
+  onCombined(ok,url,info){busy=false;$('#cbusy').hidden=true;if(ok){S.combined={url,info:info||''};toast(L('✓ ပေါင်းပြီး','✓ Combined'))}else toast(info||L('ပေါင်းလို့ မရပါ','Could not combine'),4000);paintMp3();save()},
+  onSaved(msg){toast(msg,3500)},
+  fold(){S.open=false;paintBar()},
+  /* 🔒 the cover's ✍ button: the part being made goes in */
+  fillActive(){if(!parts.length){S.open=true;S.tab='text';call('setExpanded',true);paint();return toast(L('📝 စာ အရင်ထည့်ပါ (📥 📋 📄)','📝 Add the text first (📥 📋 📄)'))}
+    const n=Math.min(Math.max(1,S.active),parts.length);S.active=n;paint();save();call('fill',parts[n-1].text)},
+  state:()=>JSON.parse(JSON.stringify(S)),parts:()=>parts.map(p=>p.text),partInfo:()=>JSON.parse(JSON.stringify(parts)),segs:()=>JSON.parse(JSON.stringify(segs))
+};
+/* the app's text (from ✂ ② or the TTS script) — only when the panel has nothing yet */
+try{const t=call('takeInitText');if(t&&t.trim()&&(!S.text.trim()||t.trim()!==S.text.trim())&&!S.mp3.length)S.text=t}catch{}
+S.open=false;paint();save();
+/* files the list no longer knows are removed */
+try{call('keepOnly',JSON.stringify(S.mp3.map(m=>m.id)))}catch{}
+})();
+</script>
+</body></html>
