@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvClipNumber"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Clip #1"
+            android:textColor="@color/z_text"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnClipUp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="0dp"
+            android:text="▲"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btnClipDown"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:padding="0dp"
+            android:text="▼"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btnClipDelete"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:padding="0dp"
+            android:text="✕"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <!-- Trim Start / End Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start (ms):"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp" />
+
+        <EditText
+            android:id="@+id/etClipStartMs"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:hint="0"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:text="0"
+            android:textColor="@color/z_text"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="End (ms):"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp" />
+
+        <EditText
+            android:id="@+id/etClipEndMs"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:hint="5000"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:text="5000"
+            android:textColor="@color/z_text"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Effect Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Effect:"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/btnClipEffect"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:layout_marginStart="6dp"
+            android:text="NONE"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tvClipDuration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Dur: 5.0s"
+            android:textColor="@color/z_muted"
+            android:textSize="11sp" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,63 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.ZipBug" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/z_orange</item>
+        <item name="colorOnPrimary">@color/z_white</item>
+        <item name="colorPrimaryContainer">@color/z_orange_soft</item>
+        <item name="colorOnPrimaryContainer">@color/z_orange</item>
+        <item name="colorSecondary">@color/z_green</item>
+        <item name="colorOnSecondary">@color/z_white</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowBackground">@color/z_bg</item>
+        <item name="android:statusBarColor">@color/z_surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/z_surface</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+    </style>
+
+    <style name="WizardStepTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:textColor">@color/z_text</item>
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="WizardPermDesc">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:textColor">@color/z_muted</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="CreatorTile">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:layout_margin">6dp</item>
+        <item name="android:background">@drawable/bg_glass_card</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="CreatorTileIcon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="CreatorTileLabel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/z_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

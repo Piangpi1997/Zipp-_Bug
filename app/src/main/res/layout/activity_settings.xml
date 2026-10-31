@@ -1,0 +1,1238 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg"
+    android:orientation="vertical">
+
+    <!-- Top Settings Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:background="@color/z_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp">
+
+        <Button
+            android:id="@+id/btnSettingsBack"
+            android:layout_width="42dp"
+            android:layout_height="38dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="←"
+            android:textSize="16sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSettingsHeaderTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_title"
+                android:textColor="@color/z_text"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSettingsHeaderSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="@string/settings_subtitle"
+                android:textColor="@color/z_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="Save"
+            android:textSize="12sp"
+            android:textStyle="bold"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/z_border" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ========================================================= -->
+            <!-- MAIN GROUPED SETTINGS HUB (5 ENTRY CARDS)                 -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/layoutSettingsHub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Group 1: Appearance & Language -->
+                <LinearLayout
+                    android:id="@+id/cardSettingsAppearance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_glass_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_icon_badge_orange">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/settings_group_appearance_title"
+                            android:src="@drawable/ic_nav_studio"
+                            app:tint="@color/z_orange" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_group_appearance_title"
+                            android:textColor="@color/z_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryAppearance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/settings_group_appearance_desc"
+                            android:textColor="@color/z_muted"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Open"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/z_muted" />
+                </LinearLayout>
+
+                <!-- Group 2: Engine Connection -->
+                <LinearLayout
+                    android:id="@+id/cardSettingsEngine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_icon_badge_green">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/settings_group_engine_title"
+                            android:src="@drawable/ic_nav_build"
+                            app:tint="@color/z_green" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_group_engine_title"
+                            android:textColor="@color/z_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryEngine"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/settings_group_engine_desc"
+                            android:textColor="@color/z_muted"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Open"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/z_muted" />
+                </LinearLayout>
+
+                <!-- Group 3: AI Providers -->
+                <LinearLayout
+                    android:id="@+id/cardSettingsAiProviders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_icon_badge_purple">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/settings_group_ai_title"
+                            android:src="@drawable/ic_nav_ai"
+                            app:tint="@color/z_purple" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_group_ai_title"
+                            android:textColor="@color/z_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryAiProviders"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/settings_group_ai_desc"
+                            android:textColor="@color/z_muted"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Open"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/z_muted" />
+                </LinearLayout>
+
+                <!-- Group 4: Storage & Backup -->
+                <LinearLayout
+                    android:id="@+id/cardSettingsStorageBackup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_icon_badge_blue">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/settings_group_storage_title"
+                            android:src="@drawable/ic_nav_projects"
+                            app:tint="@color/z_blue" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_group_storage_title"
+                            android:textColor="@color/z_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryStorage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/settings_group_storage_desc"
+                            android:textColor="@color/z_muted"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Open"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/z_muted" />
+                </LinearLayout>
+
+                <!-- Group 5: Privacy & About -->
+                <LinearLayout
+                    android:id="@+id/cardSettingsPrivacyAbout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_icon_badge_orange">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@string/settings_group_privacy_title"
+                            android:src="@drawable/ic_z"
+                            app:tint="@color/z_orange" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_group_privacy_title"
+                            android:textColor="@color/z_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryPrivacy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/settings_group_privacy_desc"
+                            android:textColor="@color/z_muted"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="Open"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/z_muted" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- DETAIL PANEL 1: APPEARANCE & LANGUAGE                     -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/panelSettingsAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_language_label"
+                    android:textColor="@color/z_orange"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSetLangSystem"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_lang_system"
+                        android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/btnSetLangEnglish"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_lang_english"
+                        android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/btnSetLangMyanmar"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_lang_myanmar"
+                        android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/settings_theme_label"
+                    android:textColor="@color/z_orange"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnSetThemeDark"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_theme_dark"
+                        android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/btnSetThemeLight"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_theme_light"
+                        android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/btnSetThemeSystem"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_theme_system"
+                        android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- DETAIL PANEL 2: ENGINE CONNECTION                         -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/panelSettingsEngine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_engine_http_title"
+                        android:textColor="@color/z_orange"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/settings_engine_http_note"
+                        android:textColor="@color/z_muted"
+                        android:textSize="12sp" />
+
+                    <EditText
+                        android:id="@+id/etEngineHttpUrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_search_bar"
+                        android:hint="@string/settings_engine_url_hint"
+                        android:paddingHorizontal="12dp"
+                        android:singleLine="true"
+                        android:text="http://127.0.0.1:8090"
+                        android:textColor="@color/z_text"
+                        android:textColorHint="@color/z_muted"
+                        android:textSize="13sp" />
+
+                    <EditText
+                        android:id="@+id/etEngineToken"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_search_bar"
+                        android:hint="@string/settings_engine_token_hint"
+                        android:inputType="textPassword"
+                        android:paddingHorizontal="12dp"
+                        android:singleLine="true"
+                        android:textColor="@color/z_text"
+                        android:textColorHint="@color/z_muted"
+                        android:textSize="13sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnTestEngineConnection"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_weight="1.6"
+                            android:text="@string/settings_test_engine_btn"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                        <Button
+                            android:id="@+id/btnClearEngineToken"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="Clear Token"
+                            android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvEngineTestResult"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_search_bar"
+                        android:fontFamily="monospace"
+                        android:padding="10dp"
+                        android:text="Engine connection not tested in this session."
+                        android:textColor="@color/z_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Termux Paths Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Termux Workspace Paths"
+                        android:textColor="@color/z_text"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/termuxHome"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_search_bar"
+                        android:hint="Termux home path"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/z_text"
+                        android:textColorHint="@color/z_muted"
+                        android:textSize="12sp" />
+
+                    <EditText
+                        android:id="@+id/projectRoot"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_search_bar"
+                        android:hint="Termux project root"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/z_text"
+                        android:textColorHint="@color/z_muted"
+                        android:textSize="12sp" />
+
+                    <EditText
+                        android:id="@+id/artifactExportPath"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_search_bar"
+                        android:hint="APK export output path"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/z_text"
+                        android:textColorHint="@color/z_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- DETAIL PANEL 3: AI PROVIDERS (HIDDEN UNTIL EDITED)        -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/panelSettingsAiProviders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="Keys are encrypted with Android Keystore (AES-256-GCM). Credentials remain hidden until you tap Configure."
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+
+                <!-- Provider 1: OpenRouter -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="OpenRouter"
+                                android:textColor="@color/z_text"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvStatusOpenRouter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="○ Not configured"
+                                android:textColor="@color/z_muted"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnConfigOpenRouter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:text="Configure"
+                            android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/editorOpenRouter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/openrouter"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_search_bar"
+                            android:hint="OpenRouter API key (sk-or-...)"
+                            android:inputType="textPassword"
+                            android:paddingHorizontal="12dp"
+                            android:textColor="@color/z_text"
+                            android:textColorHint="@color/z_muted"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/openrouterReveal"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:text="Reveal"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                            <Button
+                                android:id="@+id/openrouterCopy"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:text="Copy"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Provider 2: OpenAI -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="OpenAI"
+                                android:textColor="@color/z_text"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvStatusOpenAi"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="○ Not configured"
+                                android:textColor="@color/z_muted"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnConfigOpenAi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:text="Configure"
+                            android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/editorOpenAi"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/openai"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_search_bar"
+                            android:hint="OpenAI API key"
+                            android:inputType="textPassword"
+                            android:paddingHorizontal="12dp"
+                            android:textColor="@color/z_text"
+                            android:textColorHint="@color/z_muted"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/openaiReveal"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:text="Reveal"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                            <Button
+                                android:id="@+id/openaiCopy"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:text="Copy"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Provider 3: Google Gemini -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Google Gemini"
+                                android:textColor="@color/z_text"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvStatusGemini"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="○ Not configured"
+                                android:textColor="@color/z_muted"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnConfigGemini"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:text="Configure"
+                            android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/editorGemini"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/gemini"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_search_bar"
+                            android:hint="Gemini API key"
+                            android:inputType="textPassword"
+                            android:paddingHorizontal="12dp"
+                            android:textColor="@color/z_text"
+                            android:textColorHint="@color/z_muted"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/geminiReveal"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:text="Reveal"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                            <Button
+                                android:id="@+id/geminiCopy"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:text="Copy"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Provider 4: Anthropic Claude -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Anthropic Claude"
+                                android:textColor="@color/z_text"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvStatusAnthropic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="○ Not configured"
+                                android:textColor="@color/z_muted"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btnConfigAnthropic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="38dp"
+                            android:text="Configure"
+                            android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/editorAnthropic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/anthropic"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_search_bar"
+                            android:hint="Claude API key"
+                            android:inputType="textPassword"
+                            android:paddingHorizontal="12dp"
+                            android:textColor="@color/z_text"
+                            android:textColorHint="@color/z_muted"
+                            android:textSize="13sp" />
+
+                        <EditText
+                            android:id="@+id/anthropicBaseUrl"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_search_bar"
+                            android:hint="@string/settings_anthropic_base_url_hint"
+                            android:inputType="textUri"
+                            android:paddingHorizontal="12dp"
+                            android:textColor="@color/z_text"
+                            android:textColorHint="@color/z_muted"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/anthropicReveal"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_weight="1"
+                                android:text="Reveal"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                            <Button
+                                android:id="@+id/anthropicCopy"
+                                android:layout_width="0dp"
+                                android:layout_height="40dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:text="Copy"
+                                android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- DETAIL PANEL 4: STORAGE & BACKUP                          -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/panelSettingsStorageBackup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Encrypted Credential Backup"
+                    android:textColor="@color/z_orange"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Backup files are encrypted with a passphrase you choose (PBKDF2 + AES-GCM). The passphrase is never stored by Zip_Bug."
+                    android:textColor="@color/z_muted"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/backupKeys"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Export Encrypted Key Backup"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/restoreKeys"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Restore Encrypted Key Backup"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnOpenWorkspaceBackup"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Open Workspace Project Backup &amp; Utilities"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- DETAIL PANEL 5: PRIVACY & ABOUT                           -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/panelSettingsPrivacyAbout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ZIP_BUG // Developer &amp; Creator Studio"
+                    android:textColor="@color/z_orange"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="• Package: com.zipbug.base\n• Version: 2.0.0-alpha01 (Build 3)\n• Target SDK: Android 14 (API 34) / Min SDK 24\n• Security: Android Keystore AES-256-GCM EncryptedSharedPreferences\n• Execution Policy: 100% real Termux / HTTP Engine &amp; local Web runtime (:3131). No simulated builds or fake statuses."
+                    android:textColor="@color/z_text"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnSettingsLicenses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/licenses_title" />
+
+                <Button
+                    android:id="@+id/btnSettingsNotices"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/notices_title" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

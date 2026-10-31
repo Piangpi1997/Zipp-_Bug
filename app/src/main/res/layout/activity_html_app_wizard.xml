@@ -1,0 +1,449 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wizard_title"
+            android:textColor="@color/z_text"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/wizardStepLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/z_muted" />
+
+        <ProgressBar
+            android:id="@+id/wizardProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:max="6"
+            android:progress="1" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+
+            <!-- Step 1: Info -->
+            <LinearLayout
+                android:id="@+id/stepInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/WizardStepTitle"
+                    android:text="@string/wizard_step_info" />
+
+                <EditText
+                    android:id="@+id/wizAppName"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_app_name"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+
+                <EditText
+                    android:id="@+id/wizPackageName"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_package_name"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+
+                <EditText
+                    android:id="@+id/wizScheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_scheme_hint"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+            </LinearLayout>
+
+            <!-- Step 2: Content -->
+            <LinearLayout
+                android:id="@+id/stepContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/WizardStepTitle"
+                    android:text="@string/wizard_step_content" />
+
+                <RadioGroup
+                    android:id="@+id/wizSourceGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/wizSourcePaste"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/wizard_source_paste"
+                        android:textColor="@color/z_text" />
+
+                    <RadioButton
+                        android:id="@+id/wizSourceUrl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/wizard_source_url"
+                        android:textColor="@color/z_text" />
+
+                    <RadioButton
+                        android:id="@+id/wizSourceTemplate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/wizard_source_template"
+                        android:textColor="@color/z_text" />
+                </RadioGroup>
+
+                <Button
+                    android:id="@+id/wizChooseTemplate"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/wizard_choose_template"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/wizTemplateLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/wizard_template_none"
+                    android:textColor="@color/z_muted"
+                    android:visibility="gone" />
+
+                <EditText
+                    android:id="@+id/wizHtml"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="top"
+                    android:hint="@string/wizard_html_hint"
+                    android:inputType="textMultiLine"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+
+                <EditText
+                    android:id="@+id/wizUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/wizard_url_hint"
+                    android:visibility="gone"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+            </LinearLayout>
+
+            <!-- Step 3: Display -->
+            <LinearLayout
+                android:id="@+id/stepDisplay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/WizardStepTitle"
+                    android:text="@string/wizard_step_display" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_orientation"
+                    android:textColor="@color/z_muted" />
+
+                <Spinner
+                    android:id="@+id/wizOrientation"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp" />
+
+                <CheckBox
+                    android:id="@+id/wizFullscreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_fullscreen"
+                    android:textColor="@color/z_text" />
+
+                <CheckBox
+                    android:id="@+id/wizKeepScreenOn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_keep_screen_on"
+                    android:textColor="@color/z_text" />
+
+                <EditText
+                    android:id="@+id/wizStatusBarColor"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_status_bar_color"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+
+                <CheckBox
+                    android:id="@+id/wizSplash"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_splash"
+                    android:textColor="@color/z_text" />
+
+                <EditText
+                    android:id="@+id/wizSplashSeconds"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_splash_seconds"
+                    android:inputType="number"
+                    android:text="2"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+
+                <EditText
+                    android:id="@+id/wizSplashColor"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_splash_color"
+                    android:text="#121212"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+            </LinearLayout>
+
+            <!-- Step 4: Permissions -->
+            <LinearLayout
+                android:id="@+id/stepPermissions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/WizardStepTitle"
+                    android:text="@string/wizard_step_permissions" />
+
+                <CheckBox
+                    android:id="@+id/wizPermCamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_perm_camera"
+                    android:textColor="@color/z_text" />
+
+                <TextView
+                    style="@style/WizardPermDesc"
+                    android:text="@string/wizard_perm_camera_desc" />
+
+                <CheckBox
+                    android:id="@+id/wizPermMicrophone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_perm_microphone"
+                    android:textColor="@color/z_text" />
+
+                <TextView
+                    style="@style/WizardPermDesc"
+                    android:text="@string/wizard_perm_microphone_desc" />
+
+                <CheckBox
+                    android:id="@+id/wizPermLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_perm_location"
+                    android:textColor="@color/z_text" />
+
+                <TextView
+                    style="@style/WizardPermDesc"
+                    android:text="@string/wizard_perm_location_desc" />
+
+                <CheckBox
+                    android:id="@+id/wizPermNotifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_perm_notifications"
+                    android:textColor="@color/z_text" />
+
+                <TextView
+                    style="@style/WizardPermDesc"
+                    android:text="@string/wizard_perm_notifications_desc" />
+            </LinearLayout>
+
+            <!-- Step 5: WebView -->
+            <LinearLayout
+                android:id="@+id/stepWebView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/WizardStepTitle"
+                    android:text="@string/wizard_step_webview" />
+
+                <CheckBox
+                    android:id="@+id/wizPullToRefresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_pull_to_refresh"
+                    android:textColor="@color/z_text" />
+
+                <CheckBox
+                    android:id="@+id/wizNoInternetDialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_no_internet_dialog"
+                    android:textColor="@color/z_text" />
+
+                <CheckBox
+                    android:id="@+id/wizExitConfirmation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_exit_confirmation"
+                    android:textColor="@color/z_text" />
+
+                <EditText
+                    android:id="@+id/wizUserAgent"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="@string/wizard_user_agent_hint"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted" />
+
+                <CheckBox
+                    android:id="@+id/wizExternalLinks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wizard_external_links"
+                    android:textColor="@color/z_text" />
+
+                <EditText
+                    android:id="@+id/wizUserScript"
+                    android:layout_width="match_parent"
+                    android:layout_height="96dp"
+                    android:gravity="top"
+                    android:hint="@string/wizard_user_script_hint"
+                    android:inputType="textMultiLine"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Step 6: Summary -->
+            <LinearLayout
+                android:id="@+id/stepSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/WizardStepTitle"
+                    android:text="@string/wizard_step_summary" />
+
+                <TextView
+                    android:id="@+id/wizSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/z_surface"
+                    android:padding="14dp"
+                    android:textColor="@color/z_text" />
+
+                <TextView
+                    android:id="@+id/wizResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/z_surface"
+                    android:fontFamily="monospace"
+                    android:padding="14dp"
+                    android:text="@string/wizard_result_none"
+                    android:textColor="@color/z_green"
+                    android:textIsSelectable="true" />
+
+                <LinearLayout
+                    android:id="@+id/wizExportActions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/wizOpenExport"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:text="@string/wizard_open_zip" />
+
+                    <Button
+                        android:id="@+id/wizShareExport"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="@string/wizard_share_zip" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/wizBack"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="@string/wizard_back" />
+
+        <Button
+            android:id="@+id/wizNext"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:text="@string/wizard_next" />
+
+        <Button
+            android:id="@+id/wizCreate"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:text="@string/wizard_create"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,144 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_49bc076f9c"
+            android:textColor="@color/z_text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/ui_8acc35a0ff"
+            android:textColor="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/url"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/ui_dbe9624278"
+            android:inputType="textUri"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <EditText
+            android:id="@+id/language"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/ui_928b7c48a6"
+            android:textColor="@color/z_text" />
+
+        <Button
+            android:id="@+id/prepareMedia"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/ui_5772e40861" />
+
+        <TextView
+            android:id="@+id/mediaStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/ui_3922138d93"
+            android:textColor="@color/z_green"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/pipelineContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/z_surface"
+            android:orientation="vertical"
+            android:padding="10dp" />
+
+        <TextView
+            android:id="@+id/mediaLog"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="6dp"
+            android:background="@color/z_code_bg"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:text="@string/ui_4530bfa65c"
+            android:textColor="@color/z_green"
+            android:textIsSelectable="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSummary"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Summary" />
+
+            <Button
+                android:id="@+id/btnSocialCaption"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Caption" />
+
+            <Button
+                android:id="@+id/btnTitle"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Titles" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/recap"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="@string/ui_58c93e7703" />
+
+            <Button
+                android:id="@+id/dialogue"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="@string/ui_bdf335bf9d" />
+
+            <Button
+                android:id="@+id/dub"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="@string/ui_983c249226" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/output"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:gravity="top"
+            android:hint="@string/ui_470685cf71"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+    </LinearLayout>
+</ScrollView>

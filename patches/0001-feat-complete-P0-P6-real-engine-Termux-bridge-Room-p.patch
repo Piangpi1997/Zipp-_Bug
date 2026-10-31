@@ -1,0 +1,2519 @@
+From 0e8fdc88b6b016fbdc5c9879470e5d23ec779a95 Mon Sep 17 00:00:00 2001
+From: Piangpi1997 <piangpi@zipbug.local>
+Date: Thu, 8 Oct 2026 21:05:32 +0800
+Subject: [PATCH] feat: complete P0-P6 real engine, Termux bridge, Room
+ persistence, AI studio, and APK verification
+
+---
+ app/build.gradle.kts                          |   2 +
+ app/src/main/AndroidManifest.xml              |   5 +
+ .../java/com/zipbug/base/ai/AiKeyStore.kt     |  37 +++
+ .../main/java/com/zipbug/base/ai/AiModels.kt  | 115 ++++++++
+ .../main/java/com/zipbug/base/ai/AiService.kt | 250 ++++++++++++++++++
+ .../zipbug/base/build/ApkArtifactInspector.kt | 147 ++++++++++
+ .../zipbug/base/creator/AppCreatorParser.kt   |  83 ++++++
+ .../zipbug/base/creator/ProjectGenerator.kt   |  54 ++++
+ .../com/zipbug/base/data/db/AppDatabase.kt    |  41 +++
+ .../com/zipbug/base/data/db/BuildJobDao.kt    |  33 +++
+ .../com/zipbug/base/data/model/BuildJob.kt    |  35 +++
+ .../zipbug/base/repair/CompilerErrorParser.kt |  63 +++++
+ .../zipbug/base/security/KeystoreManager.kt   |  66 +++++
+ .../com/zipbug/base/studio/StudioModels.kt    | 143 ++++++++++
+ .../com/zipbug/base/termux/TermuxBridge.kt    | 107 ++++++++
+ .../com/zipbug/base/termux/TermuxDoctor.kt    | 106 ++++++++
+ .../base/termux/TermuxPermissionHelper.kt     |  52 ++++
+ .../java/com/zipbug/base/tts/EdgeTtsHelper.kt |  51 ++++
+ .../java/com/zipbug/base/ui/MainActivity.kt   |   2 +
+ .../java/com/zipbug/base/ui/ai/AiFragment.kt  | 187 +++++++++++++
+ .../com/zipbug/base/ui/home/HomeFragment.kt   |  49 +++-
+ .../zipbug/base/ui/studio/StudioFragment.kt   | 195 ++++++++++++++
+ .../com/zipbug/base/ui/tools/ToolsFragment.kt |  22 +-
+ app/src/main/res/layout/fragment_ai.xml       | 220 +++++++++++++++
+ app/src/main/res/layout/fragment_home.xml     |   1 +
+ app/src/main/res/layout/fragment_studio.xml   | 121 +++++++++
+ app/src/main/res/menu/bottom_nav_menu.xml     |   2 +
+ app/src/main/res/values/colors.xml            |  10 +
+ app/src/main/res/values/strings.xml           |   5 +
+ build.gradle.kts                              |   1 +
+ 30 files changed, 2199 insertions(+), 6 deletions(-)
+ create mode 100644 app/src/main/java/com/zipbug/base/ai/AiKeyStore.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/ai/AiModels.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/ai/AiService.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/build/ApkArtifactInspector.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/creator/AppCreatorParser.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/creator/ProjectGenerator.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/data/db/AppDatabase.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/data/db/BuildJobDao.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/data/model/BuildJob.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/repair/CompilerErrorParser.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/security/KeystoreManager.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/studio/StudioModels.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/termux/TermuxBridge.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/termux/TermuxDoctor.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/termux/TermuxPermissionHelper.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/tts/EdgeTtsHelper.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/ui/ai/AiFragment.kt
+ create mode 100644 app/src/main/java/com/zipbug/base/ui/studio/StudioFragment.kt
+ create mode 100644 app/src/main/res/layout/fragment_ai.xml
+ create mode 100644 app/src/main/res/layout/fragment_studio.xml
+
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+index 52339d0..ef9a7a0 100644
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -1,6 +1,7 @@
+ plugins {
+     id("com.android.application")
+     id("org.jetbrains.kotlin.android")
++    id("com.google.devtools.ksp")
+ }
+ 
+ android {
+@@ -69,6 +70,7 @@ dependencies {
+     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+     implementation("androidx.room:room-runtime:2.6.1")
+     implementation("androidx.room:room-ktx:2.6.1")
++    ksp("androidx.room:room-compiler:2.6.1")
+     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+     implementation("androidx.recyclerview:recyclerview:1.3.2")
+     implementation("com.google.android.material:material:1.11.0")
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index 0ff2b7b..901956e 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -3,6 +3,11 @@
+ 
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++    <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
++
++    <queries>
++        <package android:name="com.termux" />
++    </queries>
+ 
+     <application
+         android:name=".ZipBugApp"
+diff --git a/app/src/main/java/com/zipbug/base/ai/AiKeyStore.kt b/app/src/main/java/com/zipbug/base/ai/AiKeyStore.kt
+new file mode 100644
+index 0000000..c4a6a39
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/ai/AiKeyStore.kt
+@@ -0,0 +1,37 @@
++package com.zipbug.base.ai
++
++import android.content.Context
++import com.zipbug.base.security.KeystoreManager
++
++object AiKeyStore {
++    private const val PREFS_AI_KEYS = "zipbug_ai_keys_vault"
++
++    fun saveKey(context: Context, provider: AiProvider, rawKey: String) {
++        val encrypted = KeystoreManager.encrypt(rawKey.trim())
++        context.getSharedPreferences(PREFS_AI_KEYS, Context.MODE_PRIVATE)
++            .edit()
++            .putString("key_${provider.name}", encrypted)
++            .apply()
++    }
++
++    fun getKey(context: Context, provider: AiProvider): String {
++        val encrypted = context.getSharedPreferences(PREFS_AI_KEYS, Context.MODE_PRIVATE)
++            .getString("key_${provider.name}", null) ?: return ""
++        return runCatching { KeystoreManager.decrypt(encrypted) }.getOrDefault("")
++    }
++
++    fun hasKey(context: Context, provider: AiProvider): Boolean {
++        return getKey(context, provider).isNotBlank()
++    }
++
++    fun validateKeyFormat(provider: AiProvider, rawKey: String): Boolean {
++        val trimmed = rawKey.trim()
++        if (trimmed.isEmpty()) return false
++        return when (provider) {
++            AiProvider.OPENROUTER -> trimmed.startsWith("sk-or-")
++            AiProvider.OPENAI -> trimmed.startsWith("sk-") && !trimmed.startsWith("sk-or-") && !trimmed.startsWith("sk-ant-")
++            AiProvider.CLAUDE -> trimmed.startsWith("sk-ant-")
++            AiProvider.GEMINI -> trimmed.length >= 20
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/ai/AiModels.kt b/app/src/main/java/com/zipbug/base/ai/AiModels.kt
+new file mode 100644
+index 0000000..7556e25
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/ai/AiModels.kt
+@@ -0,0 +1,115 @@
++package com.zipbug.base.ai
++
++enum class AiProvider(
++    val displayName: String,
++    val defaultModel: String,
++    val endpoint: String,
++    val keyPrefix: String
++) {
++    OPENROUTER(
++        displayName = "OpenRouter",
++        defaultModel = "openrouter/free",
++        endpoint = "https://openrouter.ai/api/v1/chat/completions",
++        keyPrefix = "sk-or-"
++    ),
++    OPENAI(
++        displayName = "OpenAI",
++        defaultModel = "gpt-4o-mini",
++        endpoint = "https://api.openai.com/v1/chat/completions",
++        keyPrefix = "sk-"
++    ),
++    GEMINI(
++        displayName = "Gemini",
++        defaultModel = "gemini-1.5-flash",
++        endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
++        keyPrefix = "AIzaSy"
++    ),
++    CLAUDE(
++        displayName = "Claude",
++        defaultModel = "claude-3-5-sonnet-20241022",
++        endpoint = "https://api.anthropic.com/v1/messages",
++        keyPrefix = "sk-ant-"
++    )
++}
++
++enum class AiMode(
++    val title: String,
++    val description: String,
++    val systemPrompt: String
++) {
++    CHAT(
++        title = "Chat",
++        description = "General developer assistant conversation",
++        systemPrompt = "You are Zip_Bug Antigravity AI, an expert Android mobile developer, system architect, and Termux systems specialist."
++    ),
++    APP_CREATOR(
++        title = "App Creator",
++        description = "Produce structured JSON Android application architecture",
++        systemPrompt = """You are the Zip_Bug App Creator engine. You MUST respond with ONLY a valid, parseable JSON object matching this schema:
++{
++  "project": {
++    "name": "AppName",
++    "packageName": "com.example.app",
++    "target": "ANDROID_KOTLIN",
++    "minSdk": 24,
++    "targetSdk": 34
++  },
++  "screens": [
++    {
++      "name": "MainScreen",
++      "type": "Activity" or "Fragment",
++      "components": [
++        {"type": "TextView", "id": "titleText", "text": "Hello World"}
++      ]
++    }
++  ],
++  "permissions": ["android.permission.INTERNET"],
++  "dependencies": ["androidx.core:core-ktx:1.12.0"],
++  "files": [
++    {
++      "path": "app/src/main/java/com/example/app/MainActivity.kt",
++      "content": "..."
++    }
++  ],
++  "build": {
++    "command": "gradle assembleDebug"
++  }
++}
++Do not wrap in markdown quotes if possible, or use standard ```json blocks."""
++    ),
++    UI_DESIGNER(
++        title = "UI Designer",
++        description = "Generate layout components and visual schema",
++        systemPrompt = "You are a mobile UI/UX designer producing clean Material 3 XML layouts and portable UI schema."
++    ),
++    CODE_GENERATOR(
++        title = "Code Generator",
++        description = "Generate Kotlin, XML, Java, or Shell scripts",
++        systemPrompt = "You are a senior Android Kotlin and Termux developer. Provide complete, production-ready code with exact file paths."
++    ),
++    FIX_ERROR(
++        title = "Fix Build Error",
++        description = "Analyze compiler/Termux errors and provide minimal diffs/patches",
++        systemPrompt = "You are an automated compiler repair specialist. Analyze compiler errors, find root causes, and output clean, targeted file patches without rewriting unaffected code."
++    ),
++    SOCIAL_RECAP(
++        title = "Social Recap",
++        description = "Segment video transcripts into structured multi-scene recap script",
++        systemPrompt = "You are a viral social video recap director. Generate 1 to 18 scene timelines with visual descriptions, voiceover scripts, and subtitles."
++    ),
++    TTS_SCRIPT(
++        title = "TTS Script",
++        description = "Generate Myanmar or English natural speech narration scripts",
++        systemPrompt = "You are a voiceover scriptwriter specializing in natural Burmese (my-MM) and English speech for Edge-TTS."
++    )
++}
++
++enum class ProviderStatus {
++    NOT_CONFIGURED,
++    READY,
++    CONNECTING,
++    SUCCESS,
++    AUTH_ERROR,
++    RATE_LIMITED,
++    PROVIDER_ERROR
++}
+diff --git a/app/src/main/java/com/zipbug/base/ai/AiService.kt b/app/src/main/java/com/zipbug/base/ai/AiService.kt
+new file mode 100644
+index 0000000..9910be5
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/ai/AiService.kt
+@@ -0,0 +1,250 @@
++package com.zipbug.base.ai
++
++import android.content.Context
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.withContext
++import okhttp3.MediaType.Companion.toMediaType
++import okhttp3.OkHttpClient
++import okhttp3.Request
++import okhttp3.RequestBody.Companion.toRequestBody
++import org.json.JSONArray
++import org.json.JSONObject
++import java.io.IOException
++import java.util.concurrent.TimeUnit
++
++data class AiResponse(
++    val success: Boolean,
++    val content: String,
++    val rawJson: String? = null,
++    val status: ProviderStatus = ProviderStatus.SUCCESS,
++    val errorMessage: String? = null
++)
++
++class AiService(private val context: Context) {
++    private val client = OkHttpClient.Builder()
++        .connectTimeout(45, TimeUnit.SECONDS)
++        .readTimeout(90, TimeUnit.SECONDS)
++        .writeTimeout(45, TimeUnit.SECONDS)
++        .build()
++
++    private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
++
++    suspend fun sendRequest(
++        provider: AiProvider,
++        mode: AiMode,
++        userPrompt: String,
++        modelOverride: String? = null
++    ): AiResponse = withContext(Dispatchers.IO) {
++        val apiKey = AiKeyStore.getKey(context, provider)
++        if (apiKey.isBlank()) {
++            return@withContext AiResponse(
++                success = false,
++                content = "",
++                status = ProviderStatus.NOT_CONFIGURED,
++                errorMessage = "API key not configured for ${provider.displayName}"
++            )
++        }
++
++        val model = modelOverride ?: provider.defaultModel
++
++        try {
++            when (provider) {
++                AiProvider.OPENROUTER -> callOpenRouter(apiKey, model, mode, userPrompt)
++                AiProvider.OPENAI -> callOpenAi(apiKey, model, mode, userPrompt)
++                AiProvider.GEMINI -> callGemini(apiKey, model, mode, userPrompt)
++                AiProvider.CLAUDE -> callClaude(apiKey, model, mode, userPrompt)
++            }
++        } catch (e: IOException) {
++            AiResponse(
++                success = false,
++                content = "",
++                status = ProviderStatus.PROVIDER_ERROR,
++                errorMessage = "Network error: ${e.message}"
++            )
++        } catch (e: Exception) {
++            AiResponse(
++                success = false,
++                content = "",
++                status = ProviderStatus.PROVIDER_ERROR,
++                errorMessage = e.message ?: "Unknown error"
++            )
++        }
++    }
++
++    private fun callOpenRouter(
++        apiKey: String,
++        model: String,
++        mode: AiMode,
++        prompt: String
++    ): AiResponse {
++        val payload = JSONObject().apply {
++            put("model", model)
++            val messages = JSONArray().apply {
++                put(JSONObject().apply {
++                    put("role", "system")
++                    put("content", mode.systemPrompt)
++                })
++                put(JSONObject().apply {
++                    put("role", "user")
++                    put("content", prompt)
++                })
++            }
++            put("messages", messages)
++        }
++
++        val request = Request.Builder()
++            .url(AiProvider.OPENROUTER.endpoint)
++            .addHeader("Authorization", "Bearer $apiKey")
++            .addHeader("HTTP-Referer", "https://github.com/Piangpi1997/Zipp-_Bug")
++            .addHeader("X-Title", "Zip_Bug Antigravity")
++            .post(payload.toString().toRequestBody(jsonMediaType))
++            .build()
++
++        client.newCall(request).execute().use { response ->
++            val code = response.code
++            val bodyString = response.body?.string().orEmpty()
++
++            if (code == 401 || code == 403) {
++                return AiResponse(false, "", bodyString, ProviderStatus.AUTH_ERROR, "Invalid OpenRouter API Key")
++            }
++            if (code == 429) {
++                return AiResponse(false, "", bodyString, ProviderStatus.RATE_LIMITED, "OpenRouter Rate Limited")
++            }
++            if (!response.isSuccessful) {
++                return AiResponse(false, "", bodyString, ProviderStatus.PROVIDER_ERROR, "HTTP $code: $bodyString")
++            }
++
++            val json = JSONObject(bodyString)
++            val choices = json.optJSONArray("choices")
++            if (choices != null && choices.length() > 0) {
++                val message = choices.getJSONObject(0).optJSONObject("message")
++                val content = message?.optString("content").orEmpty()
++                return AiResponse(true, content, bodyString, ProviderStatus.SUCCESS)
++            }
++
++            return AiResponse(false, "", bodyString, ProviderStatus.PROVIDER_ERROR, "Empty response from OpenRouter")
++        }
++    }
++
++    private fun callOpenAi(
++        apiKey: String,
++        model: String,
++        mode: AiMode,
++        prompt: String
++    ): AiResponse {
++        val payload = JSONObject().apply {
++            put("model", model)
++            val messages = JSONArray().apply {
++                put(JSONObject().apply {
++                    put("role", "system")
++                    put("content", mode.systemPrompt)
++                })
++                put(JSONObject().apply {
++                    put("role", "user")
++                    put("content", prompt)
++                })
++            }
++            put("messages", messages)
++        }
++
++        val request = Request.Builder()
++            .url(AiProvider.OPENAI.endpoint)
++            .addHeader("Authorization", "Bearer $apiKey")
++            .post(payload.toString().toRequestBody(jsonMediaType))
++            .build()
++
++        client.newCall(request).execute().use { response ->
++            val code = response.code
++            val bodyString = response.body?.string().orEmpty()
++
++            if (code == 401) return AiResponse(false, "", bodyString, ProviderStatus.AUTH_ERROR, "Invalid OpenAI API Key")
++            if (code == 429) return AiResponse(false, "", bodyString, ProviderStatus.RATE_LIMITED, "OpenAI Rate Limited")
++            if (!response.isSuccessful) return AiResponse(false, "", bodyString, ProviderStatus.PROVIDER_ERROR, "HTTP $code")
++
++            val json = JSONObject(bodyString)
++            val choices = json.optJSONArray("choices")
++            val content = choices?.optJSONObject(0)?.optJSONObject("message")?.optString("content").orEmpty()
++            return AiResponse(true, content, bodyString, ProviderStatus.SUCCESS)
++        }
++    }
++
++    private fun callGemini(
++        apiKey: String,
++        model: String,
++        mode: AiMode,
++        prompt: String
++    ): AiResponse {
++        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
++        val payload = JSONObject().apply {
++            val contents = JSONArray().apply {
++                put(JSONObject().apply {
++                    val parts = JSONArray().apply {
++                        put(JSONObject().apply {
++                            put("text", "${mode.systemPrompt}\n\n$prompt")
++                        })
++                    }
++                    put("parts", parts)
++                })
++            }
++            put("contents", contents)
++        }
++
++        val request = Request.Builder()
++            .url(url)
++            .post(payload.toString().toRequestBody(jsonMediaType))
++            .build()
++
++        client.newCall(request).execute().use { response ->
++            val code = response.code
++            val bodyString = response.body?.string().orEmpty()
++            if (code == 400 || code == 403) return AiResponse(false, "", bodyString, ProviderStatus.AUTH_ERROR, "Gemini Authentication / Request Error")
++            if (code == 429) return AiResponse(false, "", bodyString, ProviderStatus.RATE_LIMITED, "Gemini Rate Limited")
++            if (!response.isSuccessful) return AiResponse(false, "", bodyString, ProviderStatus.PROVIDER_ERROR, "HTTP $code")
++
++            val json = JSONObject(bodyString)
++            val candidates = json.optJSONArray("candidates")
++            val text = candidates?.optJSONObject(0)?.optJSONObject("content")?.optJSONArray("parts")?.optJSONObject(0)?.optString("text").orEmpty()
++            return AiResponse(true, text, bodyString, ProviderStatus.SUCCESS)
++        }
++    }
++
++    private fun callClaude(
++        apiKey: String,
++        model: String,
++        mode: AiMode,
++        prompt: String
++    ): AiResponse {
++        val payload = JSONObject().apply {
++            put("model", model)
++            put("max_tokens", 4096)
++            put("system", mode.systemPrompt)
++            val messages = JSONArray().apply {
++                put(JSONObject().apply {
++                    put("role", "user")
++                    put("content", prompt)
++                })
++            }
++            put("messages", messages)
++        }
++
++        val request = Request.Builder()
++            .url(AiProvider.CLAUDE.endpoint)
++            .addHeader("x-api-key", apiKey)
++            .addHeader("anthropic-version", "2023-06-01")
++            .post(payload.toString().toRequestBody(jsonMediaType))
++            .build()
++
++        client.newCall(request).execute().use { response ->
++            val code = response.code
++            val bodyString = response.body?.string().orEmpty()
++            if (code == 401) return AiResponse(false, "", bodyString, ProviderStatus.AUTH_ERROR, "Invalid Claude API Key")
++            if (code == 429) return AiResponse(false, "", bodyString, ProviderStatus.RATE_LIMITED, "Claude Rate Limited")
++            if (!response.isSuccessful) return AiResponse(false, "", bodyString, ProviderStatus.PROVIDER_ERROR, "HTTP $code")
++
++            val json = JSONObject(bodyString)
++            val contentArr = json.optJSONArray("content")
++            val text = contentArr?.optJSONObject(0)?.optString("text").orEmpty()
++            return AiResponse(true, text, bodyString, ProviderStatus.SUCCESS)
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/build/ApkArtifactInspector.kt b/app/src/main/java/com/zipbug/base/build/ApkArtifactInspector.kt
+new file mode 100644
+index 0000000..0151516
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/build/ApkArtifactInspector.kt
+@@ -0,0 +1,147 @@
++package com.zipbug.base.build
++
++import android.content.Context
++import android.content.pm.PackageInfo
++import android.content.pm.PackageManager
++import android.os.Build
++import java.io.File
++import java.io.FileInputStream
++import java.security.MessageDigest
++
++data class ApkMetadata(
++    val file: File,
++    val packageName: String,
++    val versionName: String,
++    val versionCode: Long,
++    val minSdk: Int,
++    val targetSdk: Int,
++    val sizeBytes: Long,
++    val sha256: String,
++    val signerCertificateSha256: String? = null,
++    val isInstalled: Boolean = false,
++    val installedVersionName: String? = null,
++    val installedVersionCode: Long? = null,
++    val signerConflict: Boolean = false
++)
++
++object ApkArtifactInspector {
++
++    fun inspect(context: Context, apkFile: File): Result<ApkMetadata> {
++        return runCatching {
++            if (!apkFile.exists()) {
++                throw IllegalArgumentException("APK file not found: ${apkFile.absolutePath}")
++            }
++
++            val pm = context.packageManager
++            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
++                PackageManager.GET_SIGNING_CERTIFICATES
++            } else {
++                @Suppress("DEPRECATION")
++                PackageManager.GET_SIGNATURES
++            }
++
++            val archiveInfo = pm.getPackageArchiveInfo(apkFile.absolutePath, flags)
++                ?: throw IllegalStateException("Could not parse APK archive info: ${apkFile.name}")
++
++            val pkgName = archiveInfo.packageName
++            val versionName = archiveInfo.versionName ?: "1.0.0"
++            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
++                archiveInfo.longVersionCode
++            } else {
++                @Suppress("DEPRECATION")
++                archiveInfo.versionCode.toLong()
++            }
++            val minSdk = archiveInfo.applicationInfo?.minSdkVersion ?: 24
++            val targetSdk = archiveInfo.applicationInfo?.targetSdkVersion ?: 34
++
++            // Calculate file SHA-256
++            val fileSha256 = calculateSha256(apkFile)
++
++            // Extract signer certificate hash
++            var apkSignerHash: String? = null
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
++                val signingInfo = archiveInfo.signingInfo
++                if (signingInfo != null) {
++                    val sigs = if (signingInfo.hasMultipleSigners()) {
++                        signingInfo.apkContentsSigners
++                    } else {
++                        signingInfo.signingCertificateHistory
++                    }
++                    if (!sigs.isNullOrEmpty()) {
++                        apkSignerHash = hashBytesSha256(sigs[0].toByteArray())
++                    }
++                }
++            }
++
++            // Check installed version & compare signers
++            var isInstalled = false
++            var installedVerName: String? = null
++            var installedVerCode: Long? = null
++            var signerConflict = false
++
++            try {
++                val installedInfo: PackageInfo = pm.getPackageInfo(pkgName, flags)
++                isInstalled = true
++                installedVerName = installedInfo.versionName
++                installedVerCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
++                    installedInfo.longVersionCode
++                } else {
++                    @Suppress("DEPRECATION")
++                    installedInfo.versionCode.toLong()
++                }
++
++                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && apkSignerHash != null) {
++                    val installedSigning = installedInfo.signingInfo
++                    if (installedSigning != null) {
++                        val installedSigs = if (installedSigning.hasMultipleSigners()) {
++                            installedSigning.apkContentsSigners
++                        } else {
++                            installedSigning.signingCertificateHistory
++                        }
++                        if (!installedSigs.isNullOrEmpty()) {
++                            val installedSignerHash = hashBytesSha256(installedSigs[0].toByteArray())
++                            if (installedSignerHash != apkSignerHash) {
++                                signerConflict = true
++                            }
++                        }
++                    }
++                }
++            } catch (_: PackageManager.NameNotFoundException) {
++                isInstalled = false
++            }
++
++            ApkMetadata(
++                file = apkFile,
++                packageName = pkgName,
++                versionName = versionName,
++                versionCode = versionCode,
++                minSdk = minSdk,
++                targetSdk = targetSdk,
++                sizeBytes = apkFile.length(),
++                sha256 = fileSha256,
++                signerCertificateSha256 = apkSignerHash,
++                isInstalled = isInstalled,
++                installedVersionName = installedVerName,
++                installedVersionCode = installedVerCode,
++                signerConflict = signerConflict
++            )
++        }
++    }
++
++    private fun calculateSha256(file: File): String {
++        val digest = MessageDigest.getInstance("SHA-256")
++        FileInputStream(file).use { fis ->
++            val buffer = ByteArray(8192)
++            var read: Int
++            while (fis.read(buffer).also { read = it } != -1) {
++                digest.update(buffer, 0, read)
++            }
++        }
++        return digest.digest().joinToString("") { "%02x".format(it) }
++    }
++
++    private fun hashBytesSha256(bytes: ByteArray): String {
++        val digest = MessageDigest.getInstance("SHA-256")
++        return digest.digest(bytes).joinToString("") { "%02x".format(it) }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/creator/AppCreatorParser.kt b/app/src/main/java/com/zipbug/base/creator/AppCreatorParser.kt
+new file mode 100644
+index 0000000..5d145ad
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/creator/AppCreatorParser.kt
+@@ -0,0 +1,83 @@
++package com.zipbug.base.creator
++
++import org.json.JSONArray
++import org.json.JSONObject
++
++data class GeneratedFile(
++    val path: String,
++    val content: String
++)
++
++data class GeneratedProjectSpec(
++    val name: String,
++    val packageName: String,
++    val target: String,
++    val minSdk: Int = 24,
++    val targetSdk: Int = 34,
++    val permissions: List<String> = emptyList(),
++    val dependencies: List<String> = emptyList(),
++    val files: List<GeneratedFile> = emptyList(),
++    val buildCommand: String = "gradle assembleDebug"
++)
++
++object AppCreatorParser {
++
++    fun parse(rawResponse: String): Result<GeneratedProjectSpec> {
++        return runCatching {
++            var cleaned = rawResponse.trim()
++            if (cleaned.startsWith("```json")) {
++                cleaned = cleaned.removePrefix("```json")
++            } else if (cleaned.startsWith("```")) {
++                cleaned = cleaned.removePrefix("```")
++            }
++            if (cleaned.endsWith("```")) {
++                cleaned = cleaned.removeSuffix("```")
++            }
++            cleaned = cleaned.trim()
++
++            val root = JSONObject(cleaned)
++            val projectObj = root.optJSONObject("project") ?: JSONObject()
++            val name = projectObj.optString("name", "GeneratedApp")
++            val packageName = projectObj.optString("packageName", "com.example.generatedapp")
++            val target = projectObj.optString("target", "ANDROID_KOTLIN")
++            val minSdk = projectObj.optInt("minSdk", 24)
++            val targetSdk = projectObj.optInt("targetSdk", 34)
++
++            val permissionsList = mutableListOf<String>()
++            val permArr = root.optJSONArray("permissions") ?: JSONArray()
++            for (i in 0 until permArr.length()) {
++                permissionsList.add(permArr.getString(i))
++            }
++
++            val depList = mutableListOf<String>()
++            val depArr = root.optJSONArray("dependencies") ?: JSONArray()
++            for (i in 0 until depArr.length()) {
++                depList.add(depArr.getString(i))
++            }
++
++            val filesList = mutableListOf<GeneratedFile>()
++            val filesArr = root.optJSONArray("files") ?: JSONArray()
++            for (i in 0 until filesArr.length()) {
++                val fObj = filesArr.getJSONObject(i)
++                val path = fObj.getString("path")
++                val content = fObj.getString("content")
++                filesList.add(GeneratedFile(path = path, content = content))
++            }
++
++            val buildObj = root.optJSONObject("build")
++            val buildCommand = buildObj?.optString("command", "gradle assembleDebug") ?: "gradle assembleDebug"
++
++            GeneratedProjectSpec(
++                name = name,
++                packageName = packageName,
++                target = target,
++                minSdk = minSdk,
++                targetSdk = targetSdk,
++                permissions = permissionsList,
++                dependencies = depList,
++                files = filesList,
++                buildCommand = buildCommand
++            )
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/creator/ProjectGenerator.kt b/app/src/main/java/com/zipbug/base/creator/ProjectGenerator.kt
+new file mode 100644
+index 0000000..d5a797c
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/creator/ProjectGenerator.kt
+@@ -0,0 +1,54 @@
++package com.zipbug.base.creator
++
++import android.content.Context
++import com.zipbug.base.data.ProjectRepository
++import com.zipbug.base.data.model.ProjectInfo
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.withContext
++import org.json.JSONObject
++import java.io.File
++
++object ProjectGenerator {
++
++    suspend fun generateFromSpec(
++        context: Context,
++        spec: GeneratedProjectSpec
++    ): Result<ProjectInfo> = withContext(Dispatchers.IO) {
++        runCatching {
++            val safeSlug = spec.name.lowercase().replace(Regex("[^a-z0-9_]"), "_")
++            val targetDir = File(File(context.filesDir, "projects"), safeSlug)
++
++            if (!targetDir.exists()) {
++                targetDir.mkdirs()
++            }
++
++            // Write all files
++            for (file in spec.files) {
++                val outFile = File(targetDir, file.path)
++                outFile.parentFile?.mkdirs()
++                outFile.writeText(file.content, Charsets.UTF_8)
++            }
++
++            // Write app.json manifest
++            val manifest = JSONObject().apply {
++                put("name", spec.name)
++                put("slug", safeSlug)
++                put("version", "1.0.0")
++                put("kind", if (spec.target.contains("WEB")) "web-mini-app" else "android")
++                put("packageName", spec.packageName)
++                put("minSdk", spec.minSdk)
++                put("targetSdk", spec.targetSdk)
++                put("target", spec.target)
++                put("buildCommand", spec.buildCommand)
++            }
++            File(targetDir, "app.json").writeText(manifest.toString(2), Charsets.UTF_8)
++
++            ProjectInfo(
++                name = spec.name,
++                path = targetDir.absolutePath,
++                lastModified = System.currentTimeMillis(),
++                kind = if (spec.target.contains("WEB")) "web-mini-app" else "android"
++            )
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/data/db/AppDatabase.kt b/app/src/main/java/com/zipbug/base/data/db/AppDatabase.kt
+new file mode 100644
+index 0000000..3afcf8d
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/data/db/AppDatabase.kt
+@@ -0,0 +1,41 @@
++package com.zipbug.base.data.db
++
++import android.content.Context
++import androidx.room.Database
++import androidx.room.Room
++import androidx.room.RoomDatabase
++import androidx.room.TypeConverter
++import androidx.room.TypeConverters
++import com.zipbug.base.data.model.BuildJob
++import com.zipbug.base.data.model.JobStatus
++
++class JobConverters {
++    @TypeConverter
++    fun fromJobStatus(status: JobStatus): String = status.name
++
++    @TypeConverter
++    fun toJobStatus(value: String): JobStatus = runCatching { JobStatus.valueOf(value) }.getOrDefault(JobStatus.QUEUED)
++}
++
++@Database(entities = [BuildJob::class], version = 1, exportSchema = false)
++@TypeConverters(JobConverters::class)
++abstract class AppDatabase : RoomDatabase() {
++    abstract fun buildJobDao(): BuildJobDao
++
++    companion object {
++        @Volatile
++        private var INSTANCE: AppDatabase? = null
++
++        fun getInstance(context: Context): AppDatabase {
++            return INSTANCE ?: synchronized(this) {
++                val instance = Room.databaseBuilder(
++                    context.applicationContext,
++                    AppDatabase::class.java,
++                    "zipbug.db"
++                ).fallbackToDestructiveMigration().build()
++                INSTANCE = instance
++                instance
++            }
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/data/db/BuildJobDao.kt b/app/src/main/java/com/zipbug/base/data/db/BuildJobDao.kt
+new file mode 100644
+index 0000000..5fd5a7e
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/data/db/BuildJobDao.kt
+@@ -0,0 +1,33 @@
++package com.zipbug.base.data.db
++
++import androidx.room.Dao
++import androidx.room.Insert
++import androidx.room.OnConflictStrategy
++import androidx.room.Query
++import androidx.room.Update
++import com.zipbug.base.data.model.BuildJob
++import kotlinx.coroutines.flow.Flow
++
++@Dao
++interface BuildJobDao {
++    @Query("SELECT * FROM build_jobs ORDER BY createdAt DESC")
++    fun getAllJobs(): Flow<List<BuildJob>>
++
++    @Query("SELECT * FROM build_jobs WHERE id = :jobId LIMIT 1")
++    suspend fun getJobById(jobId: String): BuildJob?
++
++    @Query("SELECT * FROM build_jobs WHERE id = :jobId LIMIT 1")
++    fun observeJobById(jobId: String): Flow<BuildJob?>
++
++    @Insert(onConflict = OnConflictStrategy.REPLACE)
++    suspend fun insertJob(job: BuildJob)
++
++    @Update
++    suspend fun updateJob(job: BuildJob)
++
++    @Query("DELETE FROM build_jobs WHERE id = :jobId")
++    suspend fun deleteJob(jobId: String)
++
++    @Query("DELETE FROM build_jobs")
++    suspend fun clearAll()
++}
+diff --git a/app/src/main/java/com/zipbug/base/data/model/BuildJob.kt b/app/src/main/java/com/zipbug/base/data/model/BuildJob.kt
+new file mode 100644
+index 0000000..fbc642e
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/data/model/BuildJob.kt
+@@ -0,0 +1,35 @@
++package com.zipbug.base.data.model
++
++import androidx.room.Entity
++import androidx.room.PrimaryKey
++
++enum class JobStatus {
++    QUEUED,
++    RUNNING,
++    SUCCESS,
++    FAILED,
++    CANCELLED
++}
++
++@Entity(tableName = "build_jobs")
++data class BuildJob(
++    @PrimaryKey
++    val id: String,
++    val type: String, // e.g. "APK_BUILD", "DOCTOR", "CLEAN", "CUSTOM"
++    val tool: String, // e.g. "gradle", "doctor", "git", "aapt2"
++    val command: String,
++    val arguments: String = "",
++    val workDir: String = "",
++    val status: JobStatus = JobStatus.QUEUED,
++    val createdAt: Long = System.currentTimeMillis(),
++    val startedAt: Long? = null,
++    val finishedAt: Long? = null,
++    val stdout: String = "",
++    val stderr: String = "",
++    val exitCode: Int? = null,
++    val errorCode: String? = null,
++    val errorMessage: String? = null,
++    val artifactPath: String? = null,
++    val artifactSize: Long? = null,
++    val artifactSha256: String? = null
++)
+diff --git a/app/src/main/java/com/zipbug/base/repair/CompilerErrorParser.kt b/app/src/main/java/com/zipbug/base/repair/CompilerErrorParser.kt
+new file mode 100644
+index 0000000..f053306
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/repair/CompilerErrorParser.kt
+@@ -0,0 +1,63 @@
++package com.zipbug.base.repair
++
++data class CompilerError(
++    val filePath: String,
++    val line: Int,
++    val column: Int,
++    val message: String,
++    val raw: String
++)
++
++data class PatchProposal(
++    val targetFile: String,
++    val originalSnippet: String,
++    val replacementSnippet: String,
++    val explanation: String
++)
++
++object CompilerErrorParser {
++    // Regex for standard Kotlin/Java compiler output:
++    // e.g., e: /path/to/File.kt: (12, 34): Unresolved reference: foo
++    // or /path/to/File.java:12: error: cannot find symbol
++    private val KOTLIN_ERROR_REGEX = Regex("""e:\s*(/[^:]+):\s*\((\d+),\s*(\d+)\):\s*(.+)""")
++    private val JAVAC_ERROR_REGEX = Regex("""(/[^:]+):(\d+):\s*error:\s*(.+)""")
++
++    fun parseErrors(rawLog: String): List<CompilerError> {
++        val errors = mutableListOf<CompilerError>()
++        for (line in rawLog.lines()) {
++            val ktMatch = KOTLIN_ERROR_REGEX.find(line)
++            if (ktMatch != null) {
++                val (file, l, c, msg) = ktMatch.destructured
++                errors.add(CompilerError(file, l.toIntOrNull() ?: 0, c.toIntOrNull() ?: 0, msg, line))
++                continue
++            }
++
++            val jMatch = JAVAC_ERROR_REGEX.find(line)
++            if (jMatch != null) {
++                val (file, l, msg) = jMatch.destructured
++                errors.add(CompilerError(file, l.toIntOrNull() ?: 0, 0, msg, line))
++            }
++        }
++        return errors
++    }
++
++    fun buildAiRepairPrompt(projectName: String, errors: List<CompilerError>, sourceSnippet: String): String {
++        val errorSummary = errors.take(10).joinToString("\n") { "- ${it.filePath}:${it.line} => ${it.message}" }
++        return """
++Build failed for project '$projectName'.
++Compiler Errors:
++$errorSummary
++
++Relevant Source Context:
++$sourceSnippet
++
++Analyze the compiler errors and provide a targeted patch proposal in JSON format:
++{
++  "targetFile": "path/to/file",
++  "originalSnippet": "exact code block to replace",
++  "replacementSnippet": "fixed code block",
++  "explanation": "why this fixes the compilation error"
++}
++""".trimIndent()
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/security/KeystoreManager.kt b/app/src/main/java/com/zipbug/base/security/KeystoreManager.kt
+new file mode 100644
+index 0000000..5a4ed09
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/security/KeystoreManager.kt
+@@ -0,0 +1,66 @@
++package com.zipbug.base.security
++
++import android.security.keystore.KeyGenParameterSpec
++import android.security.keystore.KeyProperties
++import android.util.Base64
++import java.security.KeyStore
++import javax.crypto.Cipher
++import javax.crypto.KeyGenerator
++import javax.crypto.SecretKey
++import javax.crypto.spec.GCMParameterSpec
++
++object KeystoreManager {
++    private const val ANDROID_KEYSTORE = "AndroidKeyStore"
++    private const val KEY_ALIAS = "zipbug_ai_master_key"
++    private const val TRANSFORMATION = "AES/GCM/NoPadding"
++    private const val GCM_IV_LENGTH = 12
++    private const val GCM_TAG_LENGTH = 128
++
++    private fun getOrCreateKey(): SecretKey {
++        val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
++        if (!keyStore.containsAlias(KEY_ALIAS)) {
++            val keyGenerator = KeyGenerator.getInstance(
++                KeyProperties.KEY_ALGORITHM_AES,
++                ANDROID_KEYSTORE
++            )
++            val spec = KeyGenParameterSpec.Builder(
++                KEY_ALIAS,
++                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
++            )
++                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
++                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
++                .setKeySize(256)
++                .build()
++            keyGenerator.init(spec)
++            return keyGenerator.generateKey()
++        }
++        val entry = keyStore.getEntry(KEY_ALIAS, null) as KeyStore.SecretKeyEntry
++        return entry.secretKey
++    }
++
++    fun encrypt(plainText: String): String {
++        if (plainText.isEmpty()) return ""
++        val cipher = Cipher.getInstance(TRANSFORMATION)
++        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
++        val iv = cipher.iv
++        val encryptedBytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
++        val combined = ByteArray(iv.size + encryptedBytes.size)
++        System.arraycopy(iv, 0, combined, 0, iv.size)
++        System.arraycopy(encryptedBytes, 0, combined, iv.size, encryptedBytes.size)
++        return Base64.encodeToString(combined, Base64.NO_WRAP)
++    }
++
++    fun decrypt(encryptedText: String): String {
++        if (encryptedText.isEmpty()) return ""
++        val combined = Base64.decode(encryptedText, Base64.NO_WRAP)
++        if (combined.size < GCM_IV_LENGTH) return ""
++        val iv = combined.copyOfRange(0, GCM_IV_LENGTH)
++        val encryptedBytes = combined.copyOfRange(GCM_IV_LENGTH, combined.size)
++
++        val cipher = Cipher.getInstance(TRANSFORMATION)
++        val spec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
++        cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), spec)
++        val decryptedBytes = cipher.doFinal(encryptedBytes)
++        return String(decryptedBytes, Charsets.UTF_8)
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/studio/StudioModels.kt b/app/src/main/java/com/zipbug/base/studio/StudioModels.kt
+new file mode 100644
+index 0000000..b22211e
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/studio/StudioModels.kt
+@@ -0,0 +1,143 @@
++package com.zipbug.base.studio
++
++import org.json.JSONArray
++import org.json.JSONObject
++
++data class StudioComponent(
++    val id: String,
++    val type: String, // "Text", "Button", "Input", "Card", "Image"
++    var name: String,
++    var x: Float = 0f,
++    var y: Float = 0f,
++    var width: Float = 120f,
++    var height: Float = 48f,
++    var text: String = "",
++    var fontSize: Float = 14f,
++    var fontWeight: String = "normal",
++    var textColor: String = "#FFFFFF",
++    var fillColor: String = "#1E1E1E",
++    var borderColor: String = "#333333",
++    var borderWidth: Float = 1f,
++    var cornerRadius: Float = 8f,
++    var opacity: Float = 1f,
++    var isVisible: Boolean = true,
++    var zIndex: Int = 0
++)
++
++data class StudioScreen(
++    val id: String,
++    var name: String,
++    val components: MutableList<StudioComponent> = mutableListOf()
++)
++
++data class StudioProject(
++    val id: String,
++    var name: String,
++    val screens: MutableList<StudioScreen> = mutableListOf()
++) {
++    fun toJson(): JSONObject {
++        val root = JSONObject()
++        root.put("id", id)
++        root.put("name", name)
++        val screensArr = JSONArray()
++        for (screen in screens) {
++            val sObj = JSONObject()
++            sObj.put("id", screen.id)
++            sObj.put("name", screen.name)
++            val compsArr = JSONArray()
++            for (c in screen.components) {
++                val cObj = JSONObject()
++                cObj.put("id", c.id)
++                cObj.put("type", c.type)
++                cObj.put("name", c.name)
++                cObj.put("x", c.x)
++                cObj.put("y", c.y)
++                cObj.put("width", c.width)
++                cObj.put("height", c.height)
++                cObj.put("text", c.text)
++                cObj.put("fontSize", c.fontSize)
++                cObj.put("fontWeight", c.fontWeight)
++                cObj.put("textColor", c.textColor)
++                cObj.put("fillColor", c.fillColor)
++                cObj.put("borderColor", c.borderColor)
++                cObj.put("borderWidth", c.borderWidth)
++                cObj.put("cornerRadius", c.cornerRadius)
++                cObj.put("opacity", c.opacity)
++                cObj.put("isVisible", c.isVisible)
++                cObj.put("zIndex", c.zIndex)
++                compsArr.put(cObj)
++            }
++            sObj.put("components", compsArr)
++            screensArr.put(sObj)
++        }
++        root.put("screens", screensArr)
++        return root
++    }
++
++    fun exportToAndroidXml(screen: StudioScreen): String {
++        val sb = StringBuilder()
++        sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
++        sb.append("<androidx.constraintlayout.widget.ConstraintLayout\n")
++        sb.append("    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n")
++        sb.append("    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n")
++        sb.append("    android:layout_width=\"match_parent\"\n")
++        sb.append("    android:layout_height=\"match_parent\"\n")
++        sb.append("    android:background=\"#121212\">\n\n")
++
++        for (c in screen.components) {
++            if (!c.isVisible) continue
++            when (c.type) {
++                "Text" -> {
++                    sb.append("    <TextView\n")
++                    sb.append("        android:id=\"@+id/${c.id}\"\n")
++                    sb.append("        android:layout_width=\"${c.width.toInt()}dp\"\n")
++                    sb.append("        android:layout_height=\"${c.height.toInt()}dp\"\n")
++                    sb.append("        android:text=\"${c.text}\"\n")
++                    sb.append("        android:textColor=\"${c.textColor}\"\n")
++                    sb.append("        android:textSize=\"${c.fontSize.toInt()}sp\"\n")
++                    sb.append("        android:layout_marginStart=\"${c.x.toInt()}dp\"\n")
++                    sb.append("        android:layout_marginTop=\"${c.y.toInt()}dp\"\n")
++                    sb.append("        app:layout_constraintStart_toStartOf=\"parent\"\n")
++                    sb.append("        app:layout_constraintTop_toTopOf=\"parent\" />\n\n")
++                }
++                "Button" -> {
++                    sb.append("    <com.google.android.material.button.MaterialButton\n")
++                    sb.append("        android:id=\"@+id/${c.id}\"\n")
++                    sb.append("        android:layout_width=\"${c.width.toInt()}dp\"\n")
++                    sb.append("        android:layout_height=\"${c.height.toInt()}dp\"\n")
++                    sb.append("        android:text=\"${c.text}\"\n")
++                    sb.append("        app:cornerRadius=\"${c.cornerRadius.toInt()}dp\"\n")
++                    sb.append("        android:layout_marginStart=\"${c.x.toInt()}dp\"\n")
++                    sb.append("        android:layout_marginTop=\"${c.y.toInt()}dp\"\n")
++                    sb.append("        app:layout_constraintStart_toStartOf=\"parent\"\n")
++                    sb.append("        app:layout_constraintTop_toTopOf=\"parent\" />\n\n")
++                }
++                "Input" -> {
++                    sb.append("    <EditText\n")
++                    sb.append("        android:id=\"@+id/${c.id}\"\n")
++                    sb.append("        android:layout_width=\"${c.width.toInt()}dp\"\n")
++                    sb.append("        android:layout_height=\"${c.height.toInt()}dp\"\n")
++                    sb.append("        android:hint=\"${c.text}\"\n")
++                    sb.append("        android:textColor=\"${c.textColor}\"\n")
++                    sb.append("        android:layout_marginStart=\"${c.x.toInt()}dp\"\n")
++                    sb.append("        android:layout_marginTop=\"${c.y.toInt()}dp\"\n")
++                    sb.append("        app:layout_constraintStart_toStartOf=\"parent\"\n")
++                    sb.append("        app:layout_constraintTop_toTopOf=\"parent\" />\n\n")
++                }
++                else -> {
++                    sb.append("    <View\n")
++                    sb.append("        android:id=\"@+id/${c.id}\"\n")
++                    sb.append("        android:layout_width=\"${c.width.toInt()}dp\"\n")
++                    sb.append("        android:layout_height=\"${c.height.toInt()}dp\"\n")
++                    sb.append("        android:background=\"${c.fillColor}\"\n")
++                    sb.append("        android:layout_marginStart=\"${c.x.toInt()}dp\"\n")
++                    sb.append("        android:layout_marginTop=\"${c.y.toInt()}dp\"\n")
++                    sb.append("        app:layout_constraintStart_toStartOf=\"parent\"\n")
++                    sb.append("        app:layout_constraintTop_toTopOf=\"parent\" />\n\n")
++                }
++            }
++        }
++        sb.append("</androidx.constraintlayout.widget.ConstraintLayout>\n")
++        return sb.toString()
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/termux/TermuxBridge.kt b/app/src/main/java/com/zipbug/base/termux/TermuxBridge.kt
+new file mode 100644
+index 0000000..c8b8c4e
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/termux/TermuxBridge.kt
+@@ -0,0 +1,107 @@
++package com.zipbug.base.termux
++
++import android.content.Context
++import android.content.Intent
++import com.zipbug.base.data.db.AppDatabase
++import com.zipbug.base.data.model.BuildJob
++import com.zipbug.base.data.model.JobStatus
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.withContext
++import java.io.File
++import java.util.UUID
++
++object TermuxBridge {
++    const val ACTION_RUN_COMMAND = "com.termux.RUN_COMMAND"
++    const val EXTRA_COMMAND_PATH = "com.termux.RUN_COMMAND_PATH"
++    const val EXTRA_ARGUMENTS = "com.termux.RUN_COMMAND_ARGUMENTS"
++    const val EXTRA_WORKDIR = "com.termux.RUN_COMMAND_WORKDIR"
++    const val EXTRA_BACKGROUND = "com.termux.RUN_COMMAND_BACKGROUND"
++    const val EXTRA_SESSION_ACTION = "com.termux.RUN_COMMAND_SESSION_ACTION"
++
++    // Allowlist of safe binaries for command execution
++    val ALLOWED_TOOLS = setOf(
++        "gradle",
++        "bash",
++        "sh",
++        "git",
++        "aapt2",
++        "zipalign",
++        "apksigner",
++        "python",
++        "python3",
++        "ffmpeg",
++        "yt-dlp",
++        "edge-tts",
++        "termux-doctor"
++    )
++
++    fun validateTool(tool: String): Boolean {
++        val baseTool = File(tool).name
++        return ALLOWED_TOOLS.contains(baseTool)
++    }
++
++    suspend fun executeCommand(
++        context: Context,
++        tool: String,
++        arguments: Array<String>,
++        workDir: String? = null,
++        inBackground: Boolean = true,
++        jobType: String = "COMMAND"
++    ): Result<BuildJob> = withContext(Dispatchers.IO) {
++        if (!validateTool(tool)) {
++            return@withContext Result.failure(
++                IllegalArgumentException("Tool '$tool' is not in the approved security allowlist: $ALLOWED_TOOLS")
++            )
++        }
++
++        if (!TermuxPermissionHelper.hasRunCommandPermission(context)) {
++            return@withContext Result.failure(
++                SecurityException("Missing ${TermuxPermissionHelper.PERMISSION_RUN_COMMAND}. Request permission before executing.")
++            )
++        }
++
++        val jobId = UUID.randomUUID().toString()
++        val argString = arguments.joinToString(" ")
++        val finalWorkDir = workDir ?: context.filesDir.absolutePath
++
++        val job = BuildJob(
++            id = jobId,
++            type = jobType,
++            tool = tool,
++            command = "$tool $argString",
++            arguments = argString,
++            workDir = finalWorkDir,
++            status = JobStatus.RUNNING,
++            createdAt = System.currentTimeMillis(),
++            startedAt = System.currentTimeMillis()
++        )
++
++        val db = AppDatabase.getInstance(context)
++        db.buildJobDao().insertJob(job)
++
++        try {
++            val intent = Intent(ACTION_RUN_COMMAND).apply {
++                setClassName("com.termux", "com.termux.app.RunCommandService")
++                putExtra(EXTRA_COMMAND_PATH, tool)
++                putExtra(EXTRA_ARGUMENTS, arguments)
++                if (workDir != null) {
++                    putExtra(EXTRA_WORKDIR, workDir)
++                }
++                putExtra(EXTRA_BACKGROUND, inBackground)
++                putExtra(EXTRA_SESSION_ACTION, "0")
++            }
++
++            context.startService(intent)
++            Result.success(job)
++        } catch (e: Exception) {
++            val failedJob = job.copy(
++                status = JobStatus.FAILED,
++                finishedAt = System.currentTimeMillis(),
++                errorCode = "DISPATCH_FAILED",
++                errorMessage = e.message
++            )
++            db.buildJobDao().updateJob(failedJob)
++            Result.failure(e)
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/termux/TermuxDoctor.kt b/app/src/main/java/com/zipbug/base/termux/TermuxDoctor.kt
+new file mode 100644
+index 0000000..2760e18
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/termux/TermuxDoctor.kt
+@@ -0,0 +1,106 @@
++package com.zipbug.base.termux
++
++import android.content.Context
++import java.io.File
++
++data class DoctorCheck(
++    val title: String,
++    val commandOrCheck: String,
++    val passed: Boolean,
++    val output: String,
++    val suggestion: String? = null
++)
++
++data class DoctorReport(
++    val checks: List<DoctorCheck>,
++    val allPassed: Boolean,
++    val timestamp: Long = System.currentTimeMillis()
++)
++
++object TermuxDoctor {
++
++    fun runLocalAudit(context: Context): DoctorReport {
++        val checks = mutableListOf<DoctorCheck>()
++
++        // 1. Termux package presence
++        val termuxInstalled = TermuxPermissionHelper.isTermuxInstalled(context)
++        checks.add(
++            DoctorCheck(
++                title = "Termux Package",
++                commandOrCheck = "pm check com.termux",
++                passed = termuxInstalled,
++                output = if (termuxInstalled) "com.termux is installed" else "com.termux not found",
++                suggestion = if (!termuxInstalled) "Install Termux from F-Droid or GitHub release." else null
++            )
++        )
++
++        // 2. RUN_COMMAND Permission
++        val hasPermission = TermuxPermissionHelper.hasRunCommandPermission(context)
++        checks.add(
++            DoctorCheck(
++                title = "RUN_COMMAND Permission",
++                commandOrCheck = TermuxPermissionHelper.PERMISSION_RUN_COMMAND,
++                passed = hasPermission,
++                output = if (hasPermission) "GRANTED" else "DENIED / NOT REQUESTED",
++                suggestion = if (!hasPermission) "Grant com.termux.permission.RUN_COMMAND to Zip_Bug." else null
++            )
++        )
++
++        // 3. allow-external-apps check
++        val allowExt = TermuxPermissionHelper.checkAllowExternalApps()
++        checks.add(
++            DoctorCheck(
++                title = "termux.properties: allow-external-apps",
++                commandOrCheck = "~/.termux/termux.properties",
++                passed = allowExt == true || allowExt == null,
++                output = when (allowExt) {
++                    true -> "Configured (allow-external-apps=true)"
++                    false -> "Disabled or missing in ~/.termux/termux.properties"
++                    null -> "Sandbox isolation: verify ~/.termux/termux.properties contains allow-external-apps=true"
++                },
++                suggestion = if (allowExt == false) "Add 'allow-external-apps=true' to ~/.termux/termux.properties and run 'termux-reload-settings'" else null
++            )
++        )
++
++        // 4. Java 17 Check
++        val javaVer = System.getProperty("java.version") ?: "unknown"
++        val isJava17Plus = javaVer.startsWith("17") || javaVer.startsWith("18") || javaVer.startsWith("19") || javaVer.startsWith("21")
++        checks.add(
++            DoctorCheck(
++                title = "Java Runtime (JVM)",
++                commandOrCheck = "java -version",
++                passed = isJava17Plus,
++                output = "JVM Version: $javaVer",
++                suggestion = if (!isJava17Plus) "Java 17 (openjdk-17) is required for Android SDK 34 Gradle 8.9 builds." else null
++            )
++        )
++
++        // 5. Native AAPT2 Check (Termux environment)
++        val termuxAapt2 = File("/data/data/com.termux/files/usr/bin/aapt2")
++        val hasTermuxAapt2 = termuxAapt2.exists() && termuxAapt2.canExecute()
++        checks.add(
++            DoctorCheck(
++                title = "Native Termux aapt2",
++                commandOrCheck = "/data/data/com.termux/files/usr/bin/aapt2",
++                passed = hasTermuxAapt2 || !termuxInstalled, // Only mandatory if building natively in Termux
++                output = if (hasTermuxAapt2) "Native binary found: ${termuxAapt2.absolutePath}" else "Native Termux aapt2 binary not found at /data/data/com.termux/files/usr/bin/aapt2",
++                suggestion = if (!hasTermuxAapt2 && termuxInstalled) "Install aapt2 in Termux: pkg install aapt2 and ensure ~/.gradle/gradle.properties has android.aapt2FromMavenOverride" else null
++            )
++        )
++
++        // 6. ANDROID_HOME / ANDROID_SDK_ROOT check
++        val envSdk = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
++        checks.add(
++            DoctorCheck(
++                title = "Android SDK Location",
++                commandOrCheck = "\$ANDROID_HOME / \$ANDROID_SDK_ROOT",
++                passed = !envSdk.isNullOrBlank() || File(context.filesDir, "android-sdk").exists(),
++                output = envSdk ?: "No environment variable found in current process",
++                suggestion = if (envSdk.isNullOrBlank()) "Ensure export ANDROID_HOME=\$HOME/android-sdk is in Termux ~/.bashrc" else null
++            )
++        )
++
++        val allPassed = checks.all { it.passed }
++        return DoctorReport(checks = checks, allPassed = allPassed)
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/termux/TermuxPermissionHelper.kt b/app/src/main/java/com/zipbug/base/termux/TermuxPermissionHelper.kt
+new file mode 100644
+index 0000000..77660e4
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/termux/TermuxPermissionHelper.kt
+@@ -0,0 +1,52 @@
++package com.zipbug.base.termux
++
++import android.content.Context
++import android.content.pm.PackageManager
++import androidx.core.content.ContextCompat
++import java.io.File
++
++object TermuxPermissionHelper {
++    const val PERMISSION_RUN_COMMAND = "com.termux.permission.RUN_COMMAND"
++    const val TERMUX_PACKAGE_NAME = "com.termux"
++
++    fun isTermuxInstalled(context: Context): Boolean {
++        return try {
++            context.packageManager.getPackageInfo(TERMUX_PACKAGE_NAME, 0)
++            true
++        } catch (_: PackageManager.NameNotFoundException) {
++            false
++        }
++    }
++
++    fun hasRunCommandPermission(context: Context): Boolean {
++        return ContextCompat.checkSelfPermission(
++            context,
++            PERMISSION_RUN_COMMAND
++        ) == PackageManager.PERMISSION_GRANTED
++    }
++
++    /**
++     * Checks if ~/.termux/termux.properties has allow-external-apps = true
++     * When running inside Termux or checking file system if accessible.
++     */
++    fun checkAllowExternalApps(): Boolean? {
++        val candidates = listOf(
++            File("/data/data/com.termux/files/home/.termux/termux.properties"),
++            File(System.getProperty("user.home", ""), ".termux/termux.properties")
++        )
++        for (file in candidates) {
++            if (file.exists() && file.canRead()) {
++                val content = runCatching { file.readText() }.getOrNull() ?: continue
++                for (line in content.lines()) {
++                    val trimmed = line.trim()
++                    if (trimmed.startsWith("#")) continue
++                    if (trimmed.replace(" ", "").contains("allow-external-apps=true")) {
++                        return true
++                    }
++                }
++                return false
++            }
++        }
++        return null // Cannot access Termux home directly from sandbox
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/tts/EdgeTtsHelper.kt b/app/src/main/java/com/zipbug/base/tts/EdgeTtsHelper.kt
+new file mode 100644
+index 0000000..feba553
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/tts/EdgeTtsHelper.kt
+@@ -0,0 +1,51 @@
++package com.zipbug.base.tts
++
++import android.content.Context
++import com.zipbug.base.termux.TermuxBridge
++import java.io.File
++
++object EdgeTtsHelper {
++    const val VOICE_NILAR = "my-MM-NilarNeural"
++    const val VOICE_THIHA = "my-MM-ThihaNeural"
++    const val VOICE_JENNY = "en-US-JennyNeural"
++
++    val AVAILABLE_VOICES = listOf(
++        VOICE_NILAR,
++        VOICE_THIHA,
++        VOICE_JENNY
++    )
++
++    fun buildTtsCommand(
++        text: String,
++        outputFile: File,
++        voice: String = VOICE_NILAR
++    ): Pair<String, Array<String>> {
++        val tool = "edge-tts"
++        val args = arrayOf(
++            "--voice", voice,
++            "--text", text,
++            "--write-media", outputFile.absolutePath
++        )
++        return Pair(tool, args)
++    }
++
++    suspend fun generateSpeech(
++        context: Context,
++        text: String,
++        outputFile: File,
++        voice: String = VOICE_NILAR
++    ): Result<File> {
++        val (tool, args) = buildTtsCommand(text, outputFile, voice)
++        val result = TermuxBridge.executeCommand(
++            context = context,
++            tool = tool,
++            arguments = args,
++            workDir = outputFile.parentFile?.absolutePath,
++            jobType = "TTS"
++        )
++
++        return result.mapCatching {
++            outputFile
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/ui/MainActivity.kt b/app/src/main/java/com/zipbug/base/ui/MainActivity.kt
+index e293964..5b360de 100644
+--- a/app/src/main/java/com/zipbug/base/ui/MainActivity.kt
++++ b/app/src/main/java/com/zipbug/base/ui/MainActivity.kt
+@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
+         bottomNav.setOnItemSelectedListener { item ->
+             val fragment = when (item.itemId) {
+                 R.id.nav_home -> HomeFragment()
++                R.id.nav_ai -> com.zipbug.base.ui.ai.AiFragment()
++                R.id.nav_studio -> com.zipbug.base.ui.studio.StudioFragment()
+                 R.id.nav_tools -> ToolsFragment()
+                 R.id.nav_settings -> SettingsFragment()
+                 else -> HomeFragment()
+diff --git a/app/src/main/java/com/zipbug/base/ui/ai/AiFragment.kt b/app/src/main/java/com/zipbug/base/ui/ai/AiFragment.kt
+new file mode 100644
+index 0000000..f0b3516
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/ui/ai/AiFragment.kt
+@@ -0,0 +1,187 @@
++package com.zipbug.base.ui.ai
++
++import android.content.ClipData
++import android.content.ClipboardManager
++import android.content.Context
++import android.os.Bundle
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import android.widget.AdapterView
++import android.widget.ArrayAdapter
++import android.widget.EditText
++import android.widget.ProgressBar
++import android.widget.Spinner
++import android.widget.TextView
++import androidx.core.view.isVisible
++import androidx.fragment.app.Fragment
++import androidx.lifecycle.lifecycleScope
++import com.google.android.material.button.MaterialButton
++import com.google.android.material.dialog.MaterialAlertDialogBuilder
++import com.google.android.material.snackbar.Snackbar
++import com.zipbug.base.R
++import com.zipbug.base.ai.AiKeyStore
++import com.zipbug.base.ai.AiMode
++import com.zipbug.base.ai.AiProvider
++import com.zipbug.base.ai.AiService
++import com.zipbug.base.ai.ProviderStatus
++import com.zipbug.base.creator.AppCreatorParser
++import com.zipbug.base.creator.GeneratedProjectSpec
++import com.zipbug.base.creator.ProjectGenerator
++import kotlinx.coroutines.launch
++
++class AiFragment : Fragment() {
++
++    private lateinit var aiService: AiService
++    private var currentSpec: GeneratedProjectSpec? = null
++
++    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
++        return inflater.inflate(R.layout.fragment_ai, container, false)
++    }
++
++    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
++        super.onViewCreated(view, savedInstanceState)
++        val context = requireContext()
++        aiService = AiService(context)
++
++        val providerSpinner = view.findViewById<Spinner>(R.id.providerSpinner)
++        val modeSpinner = view.findViewById<Spinner>(R.id.modeSpinner)
++        val modelEditText = view.findViewById<EditText>(R.id.modelEditText)
++        val promptEditText = view.findViewById<EditText>(R.id.promptEditText)
++        val apiKeyStatusText = view.findViewById<TextView>(R.id.apiKeyStatusText)
++        val setKeyButton = view.findViewById<MaterialButton>(R.id.setKeyButton)
++        val generateButton = view.findViewById<MaterialButton>(R.id.generateButton)
++        val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
++        val copyButton = view.findViewById<MaterialButton>(R.id.copyButton)
++        val applyCreatorButton = view.findViewById<MaterialButton>(R.id.applyCreatorButton)
++        val resultTextView = view.findViewById<TextView>(R.id.resultTextView)
++
++        // Setup Providers
++        val providers = AiProvider.values()
++        val providerAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, providers.map { it.displayName })
++        providerSpinner.adapter = providerAdapter
++
++        // Setup Modes
++        val modes = AiMode.values()
++        val modeAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, modes.map { it.title })
++        modeSpinner.adapter = modeAdapter
++
++        fun updateKeyStatus(provider: AiProvider) {
++            val hasKey = AiKeyStore.hasKey(context, provider)
++            apiKeyStatusText.text = if (hasKey) "API Key: Configured (Encrypted)" else "API Key: Not configured"
++            modelEditText.setText(provider.defaultModel)
++        }
++
++        providerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
++            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
++                updateKeyStatus(providers[position])
++            }
++            override fun onNothingSelected(parent: AdapterView<*>?) {}
++        }
++
++        modeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
++            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
++                val mode = modes[position]
++                if (mode == AiMode.APP_CREATOR) {
++                    promptEditText.hint = "e.g., Create a note taking app with Room database and dark mode"
++                } else if (mode == AiMode.TTS_SCRIPT) {
++                    promptEditText.hint = "e.g., Write a 30-second Burmese educational voiceover script"
++                } else {
++                    promptEditText.hint = "Describe the task..."
++                }
++            }
++            override fun onNothingSelected(parent: AdapterView<*>?) {}
++        }
++
++        setKeyButton.setOnClickListener {
++            val selectedProvider = providers[providerSpinner.selectedItemPosition]
++            val input = EditText(context).apply {
++                hint = "Enter ${selectedProvider.displayName} API Key (${selectedProvider.keyPrefix}...)"
++                setPadding(32, 32, 32, 32)
++            }
++            MaterialAlertDialogBuilder(context)
++                .setTitle("Configure ${selectedProvider.displayName} Key")
++                .setMessage("Key will be encrypted in Android Keystore with AES-GCM.")
++                .setView(input)
++                .setPositiveButton("Save") { _, _ ->
++                    val key = input.text.toString().trim()
++                    if (key.isNotEmpty()) {
++                        AiKeyStore.saveKey(context, selectedProvider, key)
++                        updateKeyStatus(selectedProvider)
++                        Snackbar.make(view, "Key encrypted and saved successfully", Snackbar.LENGTH_SHORT).show()
++                    }
++                }
++                .setNegativeButton("Cancel", null)
++                .show()
++        }
++
++        generateButton.setOnClickListener {
++            val selectedProvider = providers[providerSpinner.selectedItemPosition]
++            val selectedMode = modes[modeSpinner.selectedItemPosition]
++            val prompt = promptEditText.text.toString().trim()
++            val model = modelEditText.text.toString().trim()
++
++            if (prompt.isEmpty()) {
++                Snackbar.make(view, "Please enter a prompt", Snackbar.LENGTH_SHORT).show()
++                return@setOnClickListener
++            }
++
++            progressBar.isVisible = true
++            generateButton.isEnabled = false
++            applyCreatorButton.isVisible = false
++            currentSpec = null
++
++            viewLifecycleOwner.lifecycleScope.launch {
++                val response = aiService.sendRequest(
++                    provider = selectedProvider,
++                    mode = selectedMode,
++                    userPrompt = prompt,
++                    modelOverride = model.ifBlank { null }
++                )
++
++                progressBar.isVisible = false
++                generateButton.isEnabled = true
++
++                if (response.success) {
++                    resultTextView.text = response.content
++                    if (selectedMode == AiMode.APP_CREATOR) {
++                        val parsed = AppCreatorParser.parse(response.content)
++                        parsed.onSuccess { spec ->
++                            currentSpec = spec
++                            applyCreatorButton.isVisible = true
++                            Snackbar.make(view, "Structured app spec parsed! Ready to create project.", Snackbar.LENGTH_LONG).show()
++                        }.onFailure {
++                            applyCreatorButton.isVisible = false
++                        }
++                    }
++                } else {
++                    resultTextView.text = "Error: [${response.status}] ${response.errorMessage}"
++                    Snackbar.make(view, response.errorMessage ?: "AI Request Failed", Snackbar.LENGTH_LONG).show()
++                }
++            }
++        }
++
++        copyButton.setOnClickListener {
++            val text = resultTextView.text.toString()
++            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
++            clipboard.setPrimaryClip(ClipData.newPlainText("AI Output", text))
++            Snackbar.make(view, "Copied to clipboard", Snackbar.LENGTH_SHORT).show()
++        }
++
++        applyCreatorButton.setOnClickListener {
++            val spec = currentSpec ?: return@setOnClickListener
++            viewLifecycleOwner.lifecycleScope.launch {
++                val result = ProjectGenerator.generateFromSpec(context, spec)
++                result.onSuccess { proj ->
++                    MaterialAlertDialogBuilder(context)
++                        .setTitle("Project Created!")
++                        .setMessage("Created project '${proj.name}' at:\n${proj.path}\n\nBuild command: ${spec.buildCommand}")
++                        .setPositiveButton("OK", null)
++                        .show()
++                }.onFailure { err ->
++                    Snackbar.make(view, "Creation failed: ${err.message}", Snackbar.LENGTH_LONG).show()
++                }
++            }
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/ui/home/HomeFragment.kt b/app/src/main/java/com/zipbug/base/ui/home/HomeFragment.kt
+index 5dbffb7..c8931fe 100644
+--- a/app/src/main/java/com/zipbug/base/ui/home/HomeFragment.kt
++++ b/app/src/main/java/com/zipbug/base/ui/home/HomeFragment.kt
+@@ -58,7 +58,34 @@ class HomeFragment : Fragment() {
+             if (projects.isEmpty()) {
+                 Snackbar.make(view, R.string.import_before_build, Snackbar.LENGTH_SHORT).show()
+             } else {
+-                Snackbar.make(view, R.string.action_build_next_phase, Snackbar.LENGTH_SHORT).show()
++                val firstProject = projects.first()
++                val hasPerm = com.zipbug.base.termux.TermuxPermissionHelper.hasRunCommandPermission(requireContext())
++                if (!hasPerm) {
++                    com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
++                        .setTitle("Permission Required")
++                        .setMessage("Zip_Bug requires 'com.termux.permission.RUN_COMMAND' to trigger Gradle and APK compilation in Termux.")
++                        .setPositiveButton("Open Doctor") { _, _ ->
++                            val report = com.zipbug.base.termux.TermuxDoctor.runLocalAudit(requireContext())
++                            Snackbar.make(view, "Doctor: RUN_COMMAND missing", Snackbar.LENGTH_LONG).show()
++                        }
++                        .setNegativeButton("Cancel", null)
++                        .show()
++                } else {
++                    viewLifecycleOwner.lifecycleScope.launch {
++                        val buildResult = com.zipbug.base.termux.TermuxBridge.executeCommand(
++                            context = requireContext(),
++                            tool = "gradle",
++                            arguments = arrayOf("--no-daemon", "assembleDebug"),
++                            workDir = firstProject.path,
++                            jobType = "APK_BUILD"
++                        )
++                        buildResult.onSuccess { job ->
++                            Snackbar.make(view, "Build dispatched! Job ID: ${job.id.take(8)}", Snackbar.LENGTH_LONG).show()
++                        }.onFailure { err ->
++                            Snackbar.make(view, "Dispatch failed: ${err.message}", Snackbar.LENGTH_LONG).show()
++                        }
++                    }
++                }
+             }
+         }
+         view.findViewById<MaterialButton>(R.id.cleanCacheButton).setOnClickListener {
+@@ -110,12 +137,28 @@ class HomeFragment : Fragment() {
+ 
+     private fun refreshDashboard() {
+         val view = rootView ?: return
+-        val projects = ProjectRepository.listProjects(requireContext())
++        val context = requireContext()
++        val projects = ProjectRepository.listProjects(context)
+         view.findViewById<TextView>(R.id.projectCount).text = projects.size.toString()
+-        view.findViewById<TextView>(R.id.storageValue).text = StorageUtils.appStorageSummary(requireContext())
++        view.findViewById<TextView>(R.id.storageValue).text = StorageUtils.appStorageSummary(context)
+         view.findViewById<TextView>(R.id.projectsEmpty).isVisible = projects.isEmpty()
+         view.findViewById<RecyclerView>(R.id.projectsList).isVisible = projects.isNotEmpty()
+         projectAdapter.submitList(projects)
++
++        // Real Engine Status check
++        val hasTermux = com.zipbug.base.termux.TermuxPermissionHelper.isTermuxInstalled(context)
++        val hasPerm = com.zipbug.base.termux.TermuxPermissionHelper.hasRunCommandPermission(context)
++        val statusBadge = view.findViewById<TextView>(R.id.engineStatusBadge) ?: return
++        if (hasTermux && hasPerm) {
++            statusBadge.text = "READY"
++            statusBadge.setTextColor(requireContext().getColor(R.color.colorSuccess))
++        } else if (!hasTermux) {
++            statusBadge.text = "NO TERMUX"
++            statusBadge.setTextColor(requireContext().getColor(R.color.colorError))
++        } else {
++            statusBadge.text = "NO PERM"
++            statusBadge.setTextColor(requireContext().getColor(R.color.colorWarning))
++        }
+     }
+ 
+     private fun showProjectDetails(project: ProjectInfo) {
+diff --git a/app/src/main/java/com/zipbug/base/ui/studio/StudioFragment.kt b/app/src/main/java/com/zipbug/base/ui/studio/StudioFragment.kt
+new file mode 100644
+index 0000000..d4c0418
+--- /dev/null
++++ b/app/src/main/java/com/zipbug/base/ui/studio/StudioFragment.kt
+@@ -0,0 +1,195 @@
++package com.zipbug.base.ui.studio
++
++import android.content.ClipData
++import android.content.ClipboardManager
++import android.content.Context
++import android.graphics.Color
++import android.os.Bundle
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import android.widget.EditText
++import android.widget.FrameLayout
++import android.widget.TextView
++import androidx.core.view.isVisible
++import androidx.fragment.app.Fragment
++import com.google.android.material.button.MaterialButton
++import com.google.android.material.dialog.MaterialAlertDialogBuilder
++import com.google.android.material.snackbar.Snackbar
++import com.zipbug.base.R
++import com.zipbug.base.studio.StudioComponent
++import com.zipbug.base.studio.StudioProject
++import com.zipbug.base.studio.StudioScreen
++import java.util.UUID
++
++class StudioFragment : Fragment() {
++
++    private val studioProject = StudioProject(
++        id = UUID.randomUUID().toString(),
++        name = "AntigravityApp",
++        screens = mutableListOf(
++            StudioScreen(id = "screen_main", name = "MainScreen")
++        )
++    )
++
++    private lateinit var canvasContainer: FrameLayout
++    private lateinit var canvasEmptyText: TextView
++    private lateinit var componentsCountText: TextView
++
++    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
++        return inflater.inflate(R.layout.fragment_studio, container, false)
++    }
++
++    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
++        super.onViewCreated(view, savedInstanceState)
++        val context = requireContext()
++
++        canvasContainer = view.findViewById(R.id.canvasContainer)
++        canvasEmptyText = view.findViewById(R.id.canvasEmptyText)
++        componentsCountText = view.findViewById(R.id.componentsCountText)
++
++        val addTextButton = view.findViewById<MaterialButton>(R.id.addTextButton)
++        val addButtonButton = view.findViewById<MaterialButton>(R.id.addButtonButton)
++        val addInputButton = view.findViewById<MaterialButton>(R.id.addInputButton)
++        val exportXmlButton = view.findViewById<MaterialButton>(R.id.exportXmlButton)
++        val clearCanvasButton = view.findViewById<MaterialButton>(R.id.clearCanvasButton)
++
++        val currentScreen = studioProject.screens.first()
++
++        addTextButton.setOnClickListener {
++            val count = currentScreen.components.size + 1
++            val comp = StudioComponent(
++                id = "text_$count",
++                type = "Text",
++                name = "TextView $count",
++                x = 24f,
++                y = (count * 40).toFloat(),
++                width = 160f,
++                height = 36f,
++                text = "Text Label $count",
++                fontSize = 16f,
++                textColor = "#FFFFFF"
++            )
++            currentScreen.components.add(comp)
++            renderCanvas()
++        }
++
++        addButtonButton.setOnClickListener {
++            val count = currentScreen.components.size + 1
++            val comp = StudioComponent(
++                id = "btn_$count",
++                type = "Button",
++                name = "Button $count",
++                x = 24f,
++                y = (count * 40).toFloat(),
++                width = 140f,
++                height = 48f,
++                text = "Action $count",
++                cornerRadius = 12f
++            )
++            currentScreen.components.add(comp)
++            renderCanvas()
++        }
++
++        addInputButton.setOnClickListener {
++            val count = currentScreen.components.size + 1
++            val comp = StudioComponent(
++                id = "input_$count",
++                type = "Input",
++                name = "Input $count",
++                x = 24f,
++                y = (count * 40).toFloat(),
++                width = 200f,
++                height = 48f,
++                text = "Enter text..."
++            )
++            currentScreen.components.add(comp)
++            renderCanvas()
++        }
++
++        clearCanvasButton.setOnClickListener {
++            currentScreen.components.clear()
++            renderCanvas()
++            Snackbar.make(view, "Canvas cleared", Snackbar.LENGTH_SHORT).show()
++        }
++
++        exportXmlButton.setOnClickListener {
++            if (currentScreen.components.isEmpty()) {
++                Snackbar.make(view, "Canvas is empty. Add components first.", Snackbar.LENGTH_SHORT).show()
++                return@setOnClickListener
++            }
++            val xml = studioProject.exportToAndroidXml(currentScreen)
++            val codeView = TextView(context).apply {
++                text = xml
++                setTextIsSelectable(true)
++                setPadding(32, 32, 32, 32)
++                setTextColor(Color.WHITE)
++                textSize = 12f
++            }
++
++            MaterialAlertDialogBuilder(context)
++                .setTitle("Android XML Layout Export")
++                .setView(codeView)
++                .setPositiveButton("Copy XML") { _, _ ->
++                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
++                    clipboard.setPrimaryClip(ClipData.newPlainText("Android XML", xml))
++                    Snackbar.make(view, "Copied XML to clipboard", Snackbar.LENGTH_SHORT).show()
++                }
++                .setNegativeButton("Close", null)
++                .show()
++        }
++
++        renderCanvas()
++    }
++
++    private fun renderCanvas() {
++        val currentScreen = studioProject.screens.first()
++        val comps = currentScreen.components
++        componentsCountText.text = "Layers: ${comps.size} components"
++        canvasEmptyText.isVisible = comps.isEmpty()
++
++        // Remove previous dynamically added views (keep empty placeholder)
++        val childCount = canvasContainer.childCount
++        for (i in childCount - 1 downTo 0) {
++            val child = canvasContainer.getChildAt(i)
++            if (child.id != R.id.canvasEmptyText) {
++                canvasContainer.removeViewAt(i)
++            }
++        }
++
++        val density = resources.displayMetrics.density
++
++        for (comp in comps) {
++            val elementView: View = when (comp.type) {
++                "Text" -> TextView(requireContext()).apply {
++                    text = comp.text
++                    setTextColor(Color.WHITE)
++                    textSize = comp.fontSize
++                }
++                "Button" -> MaterialButton(requireContext()).apply {
++                    text = comp.text
++                    cornerRadius = (comp.cornerRadius * density).toInt()
++                }
++                "Input" -> EditText(requireContext()).apply {
++                    hint = comp.text
++                    setHintTextColor(Color.GRAY)
++                    setTextColor(Color.WHITE)
++                    isEnabled = false
++                }
++                else -> View(requireContext()).apply {
++                    setBackgroundColor(Color.DKGRAY)
++                }
++            }
++
++            val params = FrameLayout.LayoutParams(
++                (comp.width * density).toInt(),
++                (comp.height * density).toInt()
++            ).apply {
++                leftMargin = (comp.x * density).toInt()
++                topMargin = (comp.y * density).toInt()
++            }
++
++            canvasContainer.addView(elementView, params)
++        }
++    }
++}
+diff --git a/app/src/main/java/com/zipbug/base/ui/tools/ToolsFragment.kt b/app/src/main/java/com/zipbug/base/ui/tools/ToolsFragment.kt
+index f2ec06c..69d3410 100644
+--- a/app/src/main/java/com/zipbug/base/ui/tools/ToolsFragment.kt
++++ b/app/src/main/java/com/zipbug/base/ui/tools/ToolsFragment.kt
+@@ -16,15 +16,31 @@ class ToolsFragment : Fragment() {
+ 
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+         super.onViewCreated(view, savedInstanceState)
+-        val ids = intArrayOf(
+-            R.id.toolTerminal,
++        view.findViewById<MaterialCardView>(R.id.toolTerminal).setOnClickListener {
++            val report = com.zipbug.base.termux.TermuxDoctor.runLocalAudit(requireContext())
++            val message = StringBuilder("Termux Environment Audit:\n\n")
++            for (check in report.checks) {
++                val icon = if (check.passed) "✔" else "✘"
++                message.append("$icon ${check.title}: ${check.output}\n")
++                if (check.suggestion != null) {
++                    message.append("   Action: ${check.suggestion}\n")
++                }
++            }
++            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
++                .setTitle("Termux Doctor")
++                .setMessage(message.toString())
++                .setPositiveButton("OK", null)
++                .show()
++        }
++
++        val otherIds = intArrayOf(
+             R.id.toolVideo,
+             R.id.toolAudio,
+             R.id.toolNetwork,
+             R.id.toolFiles,
+             R.id.toolImages
+         )
+-        ids.forEach { id ->
++        otherIds.forEach { id ->
+             view.findViewById<MaterialCardView>(id).setOnClickListener {
+                 Snackbar.make(view, R.string.tool_module_placeholder, Snackbar.LENGTH_SHORT).show()
+             }
+diff --git a/app/src/main/res/layout/fragment_ai.xml b/app/src/main/res/layout/fragment_ai.xml
+new file mode 100644
+index 0000000..c9a535e
+--- /dev/null
++++ b/app/src/main/res/layout/fragment_ai.xml
+@@ -0,0 +1,220 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:background="@color/colorBackground"
++    android:orientation="vertical"
++    android:padding="16dp">
++
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:text="@string/ai_title"
++        android:textColor="@color/colorTextPrimary"
++        android:textSize="24sp"
++        android:textStyle="bold" />
++
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="4dp"
++        android:text="Intelligent Android Studio &amp; Creator Engine"
++        android:textColor="@color/colorTextSecondary"
++        android:textSize="14sp" />
++
++    <ScrollView
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        android:layout_marginTop="16dp"
++        android:layout_weight="1">
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="vertical">
++
++            <!-- Provider Selection -->
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:text="Provider"
++                android:textColor="@color/colorTextSecondary"
++                android:textSize="12sp"
++                android:textStyle="bold" />
++
++            <Spinner
++                android:id="@+id/providerSpinner"
++                android:layout_width="match_parent"
++                android:layout_height="48dp"
++                android:layout_marginTop="4dp"
++                android:background="@drawable/bg_info_panel"
++                android:padding="8dp" />
++
++            <!-- Mode Selection -->
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="12dp"
++                android:text="Studio Mode"
++                android:textColor="@color/colorTextSecondary"
++                android:textSize="12sp"
++                android:textStyle="bold" />
++
++            <Spinner
++                android:id="@+id/modeSpinner"
++                android:layout_width="match_parent"
++                android:layout_height="48dp"
++                android:layout_marginTop="4dp"
++                android:background="@drawable/bg_info_panel"
++                android:padding="8dp" />
++
++            <!-- Model Input -->
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="12dp"
++                android:text="Model"
++                android:textColor="@color/colorTextSecondary"
++                android:textSize="12sp"
++                android:textStyle="bold" />
++
++            <EditText
++                android:id="@+id/modelEditText"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="4dp"
++                android:background="@drawable/bg_info_panel"
++                android:hint="openrouter/free"
++                android:padding="12dp"
++                android:textColor="@color/colorTextPrimary"
++                android:textColorHint="@color/colorTextSecondary"
++                android:textSize="14sp" />
++
++            <!-- API Key Row -->
++            <LinearLayout
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="12dp"
++                android:gravity="center_vertical"
++                android:orientation="horizontal">
++
++                <TextView
++                    android:id="@+id/apiKeyStatusText"
++                    android:layout_width="0dp"
++                    android:layout_height="wrap_content"
++                    android:layout_weight="1"
++                    android:text="API Key: Not configured"
++                    android:textColor="@color/colorTextSecondary"
++                    android:textSize="12sp" />
++
++                <com.google.android.material.button.MaterialButton
++                    android:id="@+id/setKeyButton"
++                    style="@style/Widget.Material3.Button.TonalButton"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="Set Key"
++                    android:textSize="12sp" />
++            </LinearLayout>
++
++            <!-- Prompt -->
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="12dp"
++                android:text="Prompt"
++                android:textColor="@color/colorTextSecondary"
++                android:textSize="12sp"
++                android:textStyle="bold" />
++
++            <EditText
++                android:id="@+id/promptEditText"
++                android:layout_width="match_parent"
++                android:layout_height="120dp"
++                android:layout_marginTop="4dp"
++                android:background="@drawable/bg_info_panel"
++                android:gravity="top|start"
++                android:hint="Describe the app, layout, code fix, or Burmese narration..."
++                android:padding="12dp"
++                android:textColor="@color/colorTextPrimary"
++                android:textColorHint="@color/colorTextSecondary"
++                android:textSize="14sp" />
++
++            <!-- Action Buttons -->
++            <LinearLayout
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="12dp"
++                android:orientation="horizontal">
++
++                <com.google.android.material.button.MaterialButton
++                    android:id="@+id/generateButton"
++                    android:layout_width="0dp"
++                    android:layout_height="wrap_content"
++                    android:layout_weight="1"
++                    android:backgroundTint="@color/colorPrimary"
++                    android:text="Generate"
++                    android:textColor="@color/colorOnPrimary" />
++
++                <ProgressBar
++                    android:id="@+id/progressBar"
++                    android:layout_width="32dp"
++                    android:layout_height="32dp"
++                    android:layout_marginStart="8dp"
++                    android:indeterminateTint="@color/colorPrimary"
++                    android:visibility="gone" />
++            </LinearLayout>
++
++            <!-- Result Header -->
++            <LinearLayout
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="16dp"
++                android:gravity="center_vertical"
++                android:orientation="horizontal">
++
++                <TextView
++                    android:layout_width="0dp"
++                    android:layout_height="wrap_content"
++                    android:layout_weight="1"
++                    android:text="Output"
++                    android:textColor="@color/colorTextSecondary"
++                    android:textSize="12sp"
++                    android:textStyle="bold" />
++
++                <com.google.android.material.button.MaterialButton
++                    android:id="@+id/copyButton"
++                    style="@style/Widget.Material3.Button.TextButton"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="Copy"
++                    android:textSize="12sp" />
++
++                <com.google.android.material.button.MaterialButton
++                    android:id="@+id/applyCreatorButton"
++                    style="@style/Widget.Material3.Button.TextButton"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="Create Project"
++                    android:textColor="@color/colorSuccess"
++                    android:textSize="12sp"
++                    android:visibility="gone" />
++            </LinearLayout>
++
++            <!-- Result Box -->
++            <TextView
++                android:id="@+id/resultTextView"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginTop="4dp"
++                android:background="@drawable/bg_info_panel"
++                android:fontFamily="monospace"
++                android:minHeight="140dp"
++                android:padding="12dp"
++                android:text="Output will appear here..."
++                android:textColor="@color/colorTextPrimary"
++                android:textIsSelectable="true"
++                android:textSize="13sp" />
++        </LinearLayout>
++    </ScrollView>
++</LinearLayout>
+diff --git a/app/src/main/res/layout/fragment_home.xml b/app/src/main/res/layout/fragment_home.xml
+index 5215b70..fd1d893 100644
+--- a/app/src/main/res/layout/fragment_home.xml
++++ b/app/src/main/res/layout/fragment_home.xml
+@@ -66,6 +66,7 @@
+                 </LinearLayout>
+ 
+                 <TextView
++                    android:id="@+id/engineStatusBadge"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:background="@drawable/bg_online_badge"
+diff --git a/app/src/main/res/layout/fragment_studio.xml b/app/src/main/res/layout/fragment_studio.xml
+new file mode 100644
+index 0000000..f6c6a22
+--- /dev/null
++++ b/app/src/main/res/layout/fragment_studio.xml
+@@ -0,0 +1,121 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:background="@color/colorBackground"
++    android:orientation="vertical"
++    android:padding="16dp">
++
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:text="@string/studio_title"
++        android:textColor="@color/colorTextPrimary"
++        android:textSize="24sp"
++        android:textStyle="bold" />
++
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="4dp"
++        android:text="Visual Mobile Layout Designer &amp; Schema Exporter"
++        android:textColor="@color/colorTextSecondary"
++        android:textSize="14sp" />
++
++    <!-- Studio Toolbar -->
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="12dp"
++        android:gravity="center_vertical"
++        android:orientation="horizontal">
++
++        <com.google.android.material.button.MaterialButton
++            android:id="@+id/addTextButton"
++            style="@style/Widget.Material3.Button.TonalButton"
++            android:layout_width="0dp"
++            android:layout_height="wrap_content"
++            android:layout_weight="1"
++            android:text="+ Text"
++            android:textSize="11sp" />
++
++        <com.google.android.material.button.MaterialButton
++            android:id="@+id/addButtonButton"
++            style="@style/Widget.Material3.Button.TonalButton"
++            android:layout_width="0dp"
++            android:layout_height="wrap_content"
++            android:layout_marginStart="4dp"
++            android:layout_weight="1"
++            android:text="+ Btn"
++            android:textSize="11sp" />
++
++        <com.google.android.material.button.MaterialButton
++            android:id="@+id/addInputButton"
++            style="@style/Widget.Material3.Button.TonalButton"
++            android:layout_width="0dp"
++            android:layout_height="wrap_content"
++            android:layout_marginStart="4dp"
++            android:layout_weight="1"
++            android:text="+ Input"
++            android:textSize="11sp" />
++
++        <com.google.android.material.button.MaterialButton
++            android:id="@+id/exportXmlButton"
++            android:layout_width="0dp"
++            android:layout_height="wrap_content"
++            android:layout_marginStart="4dp"
++            android:layout_weight="1.2"
++            android:backgroundTint="@color/colorPrimary"
++            android:text="Export XML"
++            android:textColor="@color/colorOnPrimary"
++            android:textSize="11sp" />
++    </LinearLayout>
++
++    <!-- Layers and Count -->
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="8dp"
++        android:gravity="center_vertical"
++        android:orientation="horizontal">
++
++        <TextView
++            android:id="@+id/componentsCountText"
++            android:layout_width="0dp"
++            android:layout_height="wrap_content"
++            android:layout_weight="1"
++            android:text="Layers: 0 components"
++            android:textColor="@color/colorTextSecondary"
++            android:textSize="12sp" />
++
++        <com.google.android.material.button.MaterialButton
++            android:id="@+id/clearCanvasButton"
++            style="@style/Widget.Material3.Button.TextButton"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:text="Clear"
++            android:textColor="@color/colorError"
++            android:textSize="11sp" />
++    </LinearLayout>
++
++    <!-- Canvas Frame -->
++    <FrameLayout
++        android:id="@+id/canvasContainer"
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        android:layout_marginTop="8dp"
++        android:layout_weight="1"
++        android:background="@drawable/bg_info_panel"
++        android:padding="8dp">
++
++        <TextView
++            android:id="@+id/canvasEmptyText"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_gravity="center"
++            android:text="Add components to visually design screen"
++            android:textColor="@color/colorTextSecondary"
++            android:textSize="13sp" />
++    </FrameLayout>
++</LinearLayout>
+diff --git a/app/src/main/res/menu/bottom_nav_menu.xml b/app/src/main/res/menu/bottom_nav_menu.xml
+index 73dc6af..ccf6fc6 100644
+--- a/app/src/main/res/menu/bottom_nav_menu.xml
++++ b/app/src/main/res/menu/bottom_nav_menu.xml
+@@ -1,6 +1,8 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <menu xmlns:android="http://schemas.android.com/apk/res/android">
+     <item android:id="@+id/nav_home" android:icon="@drawable/ic_home" android:title="@string/nav_home" />
++    <item android:id="@+id/nav_ai" android:icon="@drawable/ic_code" android:title="@string/nav_ai" />
++    <item android:id="@+id/nav_studio" android:icon="@drawable/ic_image" android:title="@string/nav_studio" />
+     <item android:id="@+id/nav_tools" android:icon="@drawable/ic_tools" android:title="@string/nav_tools" />
+     <item android:id="@+id/nav_settings" android:icon="@drawable/ic_settings" android:title="@string/nav_settings" />
+ </menu>
+diff --git a/app/src/main/res/values/colors.xml b/app/src/main/res/values/colors.xml
+index e07b90f..2c8a0da 100644
+--- a/app/src/main/res/values/colors.xml
++++ b/app/src/main/res/values/colors.xml
+@@ -8,4 +8,14 @@
+     <color name="zipbug_text_muted">#7D7D7D</color>
+     <color name="zipbug_border">#2A2A2A</color>
+     <color name="nav_item_unselected">#8A8A8A</color>
++
++    <!-- Theme Aliases -->
++    <color name="colorBackground">#121212</color>
++    <color name="colorPrimary">#FF6B00</color>
++    <color name="colorOnPrimary">#FFFFFF</color>
++    <color name="colorSuccess">#39D98A</color>
++    <color name="colorError">#FF4D4D</color>
++    <color name="colorWarning">#FFB800</color>
++    <color name="colorTextPrimary">#FFFFFF</color>
++    <color name="colorTextSecondary">#9E9E9E</color>
+ </resources>
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+index 65eb3da..315948a 100644
+--- a/app/src/main/res/values/strings.xml
++++ b/app/src/main/res/values/strings.xml
+@@ -4,8 +4,13 @@
+     <string name="app_logo">Zip_Bug logo</string>
+     <string name="splash_subtitle">Zippy Builder Base</string>
+     <string name="nav_home">Home</string>
++    <string name="nav_ai">AI</string>
++    <string name="nav_studio">Studio</string>
+     <string name="nav_tools">Tools</string>
+     <string name="nav_settings">Settings</string>
++    <string name="ai_title">Antigravity AI</string>
++    <string name="studio_title">Antigravity Studio</string>
++    <string name="doctor_title">Termux Doctor</string>
+     <string name="home_title">Dashboard</string>
+     <string name="home_subtitle">Your all-in-one Android toolbox foundation.</string>
+     <string name="engine_status">Engine Status</string>
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 4055907..559cd22 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -1,4 +1,5 @@
+ plugins {
+     id("com.android.application") version "8.7.3" apply false
+     id("org.jetbrains.kotlin.android") version "1.9.24" apply false
++    id("com.google.devtools.ksp") version "1.9.24-1.0.20" apply false
+ }
+-- 
+2.45.1.windows.1
+

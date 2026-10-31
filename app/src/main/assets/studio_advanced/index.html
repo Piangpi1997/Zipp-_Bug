@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header>
+    <b>ZIP_BUG // LIKEFIGMA STUDIO</b>
+    <div class="header-actions">
+      <button id="undo-btn" class="btn-tool" onclick="undo()" title="Undo last edit">Undo</button>
+      <button id="redo-btn" class="btn-tool" onclick="redo()" title="Redo last edit">Redo</button>
+      <button class="btn-export" onclick="exportXml()">Export XML</button>
+      <button class="btn-export" onclick="exportCompose()">Export Compose</button>
+      <button class="btn-save" onclick="save()">Save</button>
+    </div>
+  </header>
+
+  <div class="screen-bar">
+    <label>Screen</label>
+    <select id="screen-select" onchange="switchScreen(this.value)"></select>
+    <button class="btn-small" onclick="newScreen()">+ Screen</button>
+    <button class="btn-small" onclick="renameScreen()">Rename</button>
+    <button class="btn-small" onclick="duplicateScreen()">Duplicate</button>
+    <button class="btn-small btn-danger" onclick="deleteScreen()">Delete</button>
+    <span class="sep"></span>
+    <label>Device</label>
+    <select id="device-select" onchange="switchDevicePreset(this.value)">
+      <option value="small">Small · 360×640</option>
+      <option value="standard" selected>Standard · 390×844</option>
+      <option value="large">Large · 412×915</option>
+    </select>
+    <label class="setting-label"><input type="checkbox" id="grid-snap-check" checked onchange="toggleGridSnap(this.checked)">Snap 8px</label>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="add('Text')">+ Text</button>
+    <button onclick="add('Button')">+ Button</button>
+    <button onclick="add('Input')">+ Input</button>
+    <button onclick="add('Card')">+ Card</button>
+    <button onclick="add('Image')">+ Image</button>
+    <span class="sep"></span>
+    <button id="duplicate-layer-btn" onclick="duplicateSelected()">Duplicate</button>
+    <button id="delete-layer-btn" class="btn-danger" onclick="deleteSelected()">Delete</button>
+    <span class="sep"></span>
+    <button id="align-left-btn" class="btn-tool" onclick="alignSelected('left')">Left</button>
+    <button id="align-center-btn" class="btn-tool" onclick="alignSelected('center')">Center</button>
+    <button id="align-right-btn" class="btn-tool" onclick="alignSelected('right')">Right</button>
+    <button id="align-top-btn" class="btn-tool" onclick="alignSelected('top')">Top</button>
+    <button id="align-bottom-btn" class="btn-tool" onclick="alignSelected('bottom')">Bottom</button>
+    <button id="distribute-h-btn" class="btn-tool" onclick="distributeNodes('h')">Distribute H</button>
+    <button id="distribute-v-btn" class="btn-tool" onclick="distributeNodes('v')">Distribute V</button>
+  </div>
+
+  <div id="studio-status" role="status" aria-live="polite">Ready · edits autosave locally and to recovery storage.</div>
+
+  <main>
+    <section id="canvas-wrapper">
+      <div id="canvas-stage">
+        <div id="canvas" class="phone grid-on"></div>
+      </div>
+    </section>
+    <aside>
+      <h3>Layers</h3>
+      <div class="layer-actions">
+        <button onclick="moveSelectedToEdge('front')">To Front</button>
+        <button onclick="moveSelectedLayer(1)">Up</button>
+        <button onclick="moveSelectedLayer(-1)">Down</button>
+        <button onclick="moveSelectedToEdge('back')">To Back</button>
+      </div>
+      <div id="layers-list"></div>
+
+      <h3>Inspector</h3>
+      <div class="field">
+        <label>Text / Content</label>
+        <input id="label" placeholder="Select a layer" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()">
+      </div>
+      <div class="field-row">
+        <div><label>W</label><input id="prop-w" type="number" min="20" max="1200" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()"></div>
+        <div><label>H</label><input id="prop-h" type="number" min="20" max="1600" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()"></div>
+      </div>
+      <div class="field-row">
+        <div><label>Font Size</label><input id="prop-font" type="number" min="8" max="96" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()"></div>
+        <div><label>Radius</label><input id="radius" type="range" min="0" max="64" value="12" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()"></div>
+      </div>
+      <div class="field-row">
+        <div><label>Fill</label><input id="color" type="color" value="#ff6b00" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()"></div>
+        <div><label>Text Color</label><input id="text-color" type="color" value="#ffffff" onfocus="beginInspectorEdit()" oninput="applyChanges()" onblur="commitInspectorEdit()"></div>
+      </div>
+
+      <h3>Schema JSON</h3>
+      <pre id="schema"></pre>
+    </aside>
+  </main>
+  <script src="studio-core.js"></script>
+  <script src="studio.js"></script>
+</body>
+</html>

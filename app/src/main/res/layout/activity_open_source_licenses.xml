@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnLicensesBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/licenses_back" />
+
+    <TextView
+        android:id="@+id/tvLicensesTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/licenses_title"
+        android:textColor="@color/z_text"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/licenses_subtitle"
+        android:textColor="@color/z_muted"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/licenses_helper"
+        android:textColor="@color/z_muted"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvLicenseCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/z_orange"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etLicenseSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_glass_card"
+        android:hint="@string/licenses_search_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="@color/z_text"
+        android:textColorHint="@color/z_muted" />
+
+    <HorizontalScrollView
+        android:id="@+id/scrollLicenseFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupLicenses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterAll"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/licenses_filter_all" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterApp"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_app" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterGenerated"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_generated" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterApache"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_apache" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterMit"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_mit" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterBsd"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_bsd" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterGoogle"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_google" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterOther"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/licenses_filter_other" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvLicenses"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/tvLicensesEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/licenses_empty"
+        android:textColor="@color/z_muted"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/layoutNotices"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_glass_card"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvNoticesText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:textColor="@color/z_text"
+                android:textSize="12sp" />
+        </ScrollView>
+
+        <Button
+            android:id="@+id/btnCopyNotices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/licenses_copy_notices" />
+    </LinearLayout>
+</LinearLayout>

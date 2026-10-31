@@ -1,0 +1,902 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/z_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/tvStudioTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recap_studio_title"
+            android:textColor="@color/z_text"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvStudioSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/recap_studio_subtitle"
+            android:textColor="@color/z_muted"
+            android:textSize="12sp" />
+
+        <!-- Prominent Myanmar Drama Video Editor Entry Card -->
+        <LinearLayout
+            android:id="@+id/cardDramaEditorBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎭 Myanmar Drama Video Editor"
+                    android:textColor="@color/z_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="မြန်မာဒရာမာ တည်းဖြတ်စနစ် • Reels, Subtitles, Split, Blur, Logo &amp; Audio"
+                    android:textColor="@color/z_orange"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnLaunchDramaEditor"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:backgroundTint="@color/z_orange"
+                android:text="ဖွင့်မည် ↗"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Project Control Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_hero_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvProjectName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Project: Untitled Recap"
+                    android:textColor="@color/z_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnRenameProject"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="@string/btn_rename"
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnNewProject"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/btn_new_project"
+                    android:textSize="12sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- Media Import Row -->
+            <TextView
+                android:id="@+id/tvMediaSourceStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Source: No media selected"
+                android:textColor="@color/z_muted"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSelectMedia"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_import_media"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLoadSampleMedia"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="Create Sample Video (4s)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Section 2: AI Script -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI RECAP SCRIPT (PARTS 1-4)"
+                android:textColor="@color/z_orange"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Script Mode Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnModeRecap"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:text="Recap"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnModeDialogue"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Dialogue"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnModeDub"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Dub"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- Language Row (Myanmar, English, Thai, Chinese) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnLangMyanmar"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:text="မြန်မာ"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLangEnglish"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="English"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLangThai"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="ไทย (TH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnLangChinese"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="中文 (ZH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- Script Topic/Transcript Input -->
+            <EditText
+                android:id="@+id/etTranscriptInput"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="8dp"
+                android:gravity="top"
+                android:hint="Transcript summary or recap topic..."
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnGenerateScript"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="6dp"
+                android:text="@string/btn_generate_script"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
+
+            <!-- Script Parts 1 to 4 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Part 1: Hook &amp; Introduction"
+                android:textColor="@color/z_text"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etScriptPart1"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="top"
+                android:hint="Part 1 narrative..."
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Part 2: Rising Action"
+                android:textColor="@color/z_text"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etScriptPart2"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="top"
+                android:hint="Part 2 narrative..."
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Part 3: Climax"
+                android:textColor="@color/z_text"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etScriptPart3"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="top"
+                android:hint="Part 3 narrative..."
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Part 4: Conclusion"
+                android:textColor="@color/z_text"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etScriptPart4"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="top"
+                android:hint="Part 4 narrative..."
+                android:textColor="@color/z_text"
+                android:textColorHint="@color/z_muted"
+                android:textSize="12sp" />
+
+            <!-- Subtitle & Transcript Export (TXT / SRT / VTT) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="SUBTITLE &amp; TRANSCRIPT EXPORT"
+                android:textColor="@color/z_orange"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnExportTxt"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Export TXT"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnExportSrt"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Export SRT"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnExportVtt"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Export VTT"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSubtitleExportStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Subtitle Export: Ready (TXT, SRT, WebVTT)"
+                android:textColor="@color/z_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Section 3: Clips & Timeline -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvClipsHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TIMELINE &amp; CLIPS (1-18)"
+                    android:textColor="@color/z_orange"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnResetTimeline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Auto Split"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnAddClip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="4dp"
+                    android:text="+ Clip"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTimelineValidation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Status: Valid (4 clips)"
+                android:textColor="@color/z_green"
+                android:textSize="12sp" />
+
+            <!-- Container for dynamic clip views -->
+            <LinearLayout
+                android:id="@+id/clipsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- Section 4: Multilingual Voiceover (Edge-TTS) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MULTILINGUAL TTS VOICEOVER (MY / EN / TH / ZH)"
+                android:textColor="@color/z_orange"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Voice Selection Row 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnVoiceNilar"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:text="Nilar (MY)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnVoiceThiha"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Thiha (MY)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnVoiceJenny"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Jenny (EN)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- Voice Selection Row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnVoiceThai"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:text="Premwadee (TH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                <Button
+                    android:id="@+id/btnVoiceChinese"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Xiaoxiao (ZH)"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSelectedVoice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Voice: my-MM-NilarNeural"
+                android:textColor="@color/z_muted"
+                android:textSize="12sp" />
+
+            <!-- Rate / Speed -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Speed:"
+                    android:textColor="@color/z_text"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/etTtsSpeed"
+                    android:layout_width="100dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:hint="+0%"
+                    android:text="+0%"
+                    android:textColor="@color/z_text"
+                    android:textColorHint="@color/z_muted"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnPreviewVoice"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_preview_audio"
+                    android:textSize="11sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnGenerateVoiceover"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="6dp"
+                android:text="@string/btn_generate_voiceover"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
+
+            <TextView
+                android:id="@+id/tvTtsStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Voiceover: Ready to generate"
+                android:textColor="@color/z_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Section 5: Real Render & Export Pipeline -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RENDER &amp; EXPORT PIPELINE"
+                android:textColor="@color/z_orange"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Pipeline 8-stage badges container -->
+            <LinearLayout
+                android:id="@+id/pipelineStagesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
+
+            <!-- Progress bar -->
+            <ProgressBar
+                android:id="@+id/renderProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="10dp"
+                android:max="100"
+                android:progress="0" />
+
+            <TextView
+                android:id="@+id/tvRenderStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Status: IDLE"
+                android:textColor="@color/z_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <!-- Action buttons: Start, Cancel, Retry -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnStartRender"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_start_render"
+                    android:backgroundTint="@color/z_orange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_white" />
+
+                <Button
+                    android:id="@+id/btnCancelRender"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_cancel_render"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+
+            <!-- Real Execution Log -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="EXECUTION LOG"
+                android:textColor="@color/z_muted"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvRenderLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/z_code_bg"
+                android:fontFamily="monospace"
+                android:maxLines="10"
+                android:padding="8dp"
+                android:scrollbars="vertical"
+                android:text="Ready for execution"
+                android:textColor="@color/z_text"
+                android:textSize="11sp" />
+
+            <!-- Output Details Card (Visible on verified success) -->
+            <LinearLayout
+                android:id="@+id/layoutOutputDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@color/z_green_soft"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvOutputFilename"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="File: output.mp4"
+                    android:textColor="@color/z_green"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvOutputSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Size: 0 bytes"
+                    android:textColor="@color/z_text"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvOutputPath"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Path: /storage/..."
+                    android:textColor="@color/z_muted"
+                    android:textSize="11sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnOpenVideo"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:text="@string/btn_open_video"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+
+                    <Button
+                        android:id="@+id/btnShareVideo"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:text="@string/btn_share_video"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Failure Diagnosis Card (Visible on error) -->
+            <LinearLayout
+                android:id="@+id/layoutFailureDiagnosis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@color/z_red_soft"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="FAILURE DIAGNOSIS"
+                    android:textColor="@color/z_red"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDiagnosisText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/z_text"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnRetryRender"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/btn_retry"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_chip_inactive"
+                    android:textAllCaps="false"
+                    android:textColor="@color/z_text" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

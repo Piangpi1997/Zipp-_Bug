@@ -1,0 +1,849 @@
+THIRD-PARTY NOTICES — Zip_Bug
+
+Zip_Bug is built with open source software. Generated apps include
+only the libraries required by the features selected for that app;
+the scope line under each entry states where it is used.
+
+Libraries listed: 93
+
+========================================================================
+Activity (androidx.activity:activity:1.9.3 · 1.8.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Activity Kotlin Extensions (androidx.activity:activity-ktx:1.9.3)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android App Startup Runtime (androidx.startup:startup-runtime:1.1.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Arch-Common (androidx.arch.core:core-common:2.2.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Arch-Runtime (androidx.arch.core:core-runtime:2.2.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android ConstraintLayout (androidx.constraintlayout:constraintlayout:2.0.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android ConstraintLayout Solver (androidx.constraintlayout:constraintlayout-solver:2.0.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Emoji2 Compat (androidx.emoji2:emoji2:1.3.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Emoji2 Compat view helpers (androidx.emoji2:emoji2-views-helper:1.3.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Resource Inspection - Annotations (androidx.resourceinspection:resourceinspection-annotation:1.0.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support AnimatedVectorDrawable (androidx.vectordrawable:vectordrawable-animated:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support CardView v7 (androidx.cardview:cardview:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support DynamicAnimation (androidx.dynamicanimation:dynamicanimation:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support ExifInterface (androidx.exifinterface:exifinterface:1.3.6)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library collections (androidx.collection:collection:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Coordinator Layout (androidx.coordinatorlayout:coordinatorlayout:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library core utils (androidx.legacy:legacy-support-core-utils:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Cursor Adapter (androidx.cursoradapter:cursoradapter:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Custom View (androidx.customview:customview:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Document File (androidx.documentfile:documentfile:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Drawer Layout (androidx.drawerlayout:drawerlayout:1.1.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Interpolators (androidx.interpolator:interpolator:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library loader (androidx.loader:loader:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Local Broadcast Manager (androidx.localbroadcastmanager:localbroadcastmanager:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library Print (androidx.print:print:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support Library View Pager (androidx.viewpager:viewpager:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support RecyclerView v7 (androidx.recyclerview:recyclerview:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Support VectorDrawable (androidx.vectordrawable:vectordrawable:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Android Tracing (androidx.tracing:tracing:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+AndroidX Futures (androidx.concurrent:concurrent-futures:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+AndroidX Widget ViewPager2 (androidx.viewpager2:viewpager2:1.0.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+androidx.profileinstaller:profileinstaller (androidx.profileinstaller:profileinstaller:1.3.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Annotation (androidx.annotation:annotation:1.8.1 · 1.6.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Annotation (androidx.annotation:annotation-jvm:1.8.1 · 1.6.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+AppCompat (androidx.appcompat:appcompat:1.7.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+AppCompat Resources (androidx.appcompat:appcompat-resources:1.7.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Collections Kotlin Extensions (androidx.collection:collection-ktx:1.1.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Core (androidx.core:core:1.13.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Core Kotlin Extensions (androidx.core:core-ktx:1.13.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+error-prone annotations (com.google.errorprone:error_prone_annotations:2.15.0)
+Author: Google LLC
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Experimental annotation (androidx.annotation:annotation-experimental:1.4.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+FFmpegKit (full) — in-app FFmpeg engine (com.arthenica:ffmpeg-kit-full:6.0.LTS)
+Author: ARTHENICA
+License: LGPL 3.0
+License URL: https://www.gnu.org/licenses/lgpl-3.0.txt
+Scope: App
+Notes: In-app FFmpeg engine; native libraries bundled in the APK (arm64-v8a). The FFmpeg libraries are LGPL-2.1+ and the FFmpegKit wrapper is LGPL-3.0. This 'full' build enables dav1d, fontconfig, freetype, libass, libvpx, opus and other LGPL libraries; it includes no GPL libraries (no x264/x265).
+
+Distributed under the GNU Lesser General Public License v3.0. See the license URL above for the full text.
+
+========================================================================
+fragment (androidx.fragment:fragment:1.8.5 · 1.5.4)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Fragment Kotlin Extensions (androidx.fragment:fragment-ktx:1.8.5)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Glide (com.github.bumptech.glide:glide:4.16.0)
+Author: Sam Judd
+License: BSD 2-Clause License
+License URL: https://opensource.org/licenses/BSD-2-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+Glide Annotations (com.github.bumptech.glide:annotations:4.16.0)
+Author: Sam Judd
+License: BSD 2-Clause License
+License URL: https://opensource.org/licenses/BSD-2-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+Glide Disk LRU Cache Library (com.github.bumptech.glide:disklrucache:4.16.0)
+Author: Sam Judd
+License: BSD 2-Clause License
+License URL: https://opensource.org/licenses/BSD-2-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+Glide GIF Decoder Library (com.github.bumptech.glide:gifdecoder:4.16.0)
+Author: Sam Judd
+License: BSD 2-Clause License
+License URL: https://opensource.org/licenses/BSD-2-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+Guava ListenableFuture only (com.google.guava:listenablefuture:1.0)
+Author: Kevin Bourrillion
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Hamcrest Core (org.hamcrest:hamcrest-core:1.3)
+Author: Joe Walnes
+License: BSD 3-Clause License
+License URL: https://opensource.org/licenses/BSD-3-Clause
+Scope: App
+Notes: Unit tests only; not included in the APK.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice, conditions and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+JetBrains Java Annotations (org.jetbrains:annotations:23.0.0 · 13.0)
+Author: JetBrains Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+JSON in Java (org.json:json:20240303)
+Author: Douglas Crockford
+License: The JSON License
+License URL: https://www.json.org/license.html
+Scope: App
+Notes: Unit tests only; not included in the APK.
+
+Permission is granted to use, copy, modify and distribute this software, subject to the terms at the license URL above, including retention of the copyright notice.
+
+========================================================================
+JUnit (junit:junit:4.13.2)
+Author: JUnit
+License: Eclipse Public License 1.0
+License URL: https://www.eclipse.org/legal/epl-v10.html
+Scope: App
+Notes: Unit tests only; not included in the APK.
+
+Distributed under the Eclipse Public License 1.0. See the license URL above for the full text.
+
+========================================================================
+Kotlin Libraries bill-of-materials (org.jetbrains.kotlin:kotlin-bom:1.8.22)
+Author: JetBrains Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Kotlin Stdlib (org.jetbrains.kotlin:kotlin-stdlib:1.9.24)
+Author: Kotlin Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Kotlin Stdlib Common (org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24)
+Author: Kotlin Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Kotlin Stdlib Jdk7 (org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10 · 1.8.22)
+Author: Kotlin Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Kotlin Stdlib Jdk8 (org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10 · 1.8.22)
+Author: Kotlin Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+kotlinx-coroutines-android (org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1 · 1.6.4)
+Author: JetBrains Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+kotlinx-coroutines-bom (org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1 · 1.6.4)
+Author: JetBrains Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+kotlinx-coroutines-core (org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1 · 1.6.4)
+Author: JetBrains Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+kotlinx-coroutines-core (org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1 · 1.6.4)
+Author: JetBrains Team
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle Kotlin Extensions (androidx.lifecycle:lifecycle-runtime-ktx:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle Kotlin Extensions (androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle LiveData (androidx.lifecycle:lifecycle-livedata:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle LiveData Core (androidx.lifecycle:lifecycle-livedata-core:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle Process (androidx.lifecycle:lifecycle-process:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle Runtime (androidx.lifecycle:lifecycle-runtime:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle Runtime (androidx.lifecycle:lifecycle-runtime-android:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle ViewModel (androidx.lifecycle:lifecycle-viewmodel:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle ViewModel (androidx.lifecycle:lifecycle-viewmodel-android:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle ViewModel Kotlin Extensions (androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle ViewModel with SavedState (androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle-Common (androidx.lifecycle:lifecycle-common:2.8.7 · 2.6.2)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Lifecycle-Common (androidx.lifecycle:lifecycle-common-jvm:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+LiveData Core Kotlin Extensions (androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Material Components for Android (com.google.android.material:material:1.12.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+okhttp (com.squareup.okhttp3:okhttp:4.12.0)
+Author: Square, Inc.
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+okio (com.squareup.okio:okio:3.6.0)
+Author: Square, Inc.
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+okio (com.squareup.okio:okio-jvm:3.6.0)
+Author: Square, Inc.
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room Compiler (androidx.room:room-compiler:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+Notes: Build-time annotation processor (kapt); not shipped in the APK.
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room Kotlin Extensions (androidx.room:room-ktx:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room-Common (androidx.room:room-common:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Room-Runtime (androidx.room:room-runtime:2.6.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Saved State (androidx.savedstate:savedstate:1.2.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+SavedState Kotlin Extensions (androidx.savedstate:savedstate-ktx:1.2.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+smart-exception-common (com.arthenica:smart-exception-common:0.2.1)
+Author: Taner Sener
+License: BSD 3-Clause License
+License URL: https://opensource.org/licenses/BSD-3-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice, conditions and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+smart-exception-java (com.arthenica:smart-exception-java:0.2.1)
+Author: Taner Sener
+License: BSD 3-Clause License
+License URL: https://opensource.org/licenses/BSD-3-Clause
+Scope: App
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the copyright notice, conditions and disclaimer in the license text are retained. See the license URL above for the full text.
+
+========================================================================
+SQLite (androidx.sqlite:sqlite:2.4.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+SQLite Framework Integration (androidx.sqlite:sqlite-framework:2.4.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+Transition (androidx.transition:transition:1.5.0)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+VersionedParcelable (androidx.versionedparcelable:versionedparcelable:1.1.1)
+Author: The Android Open Source Project
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App + Generated apps
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+========================================================================
+viewbinding (androidx.databinding:viewbinding:8.7.3)
+Author: androidx.databinding
+License: Apache License 2.0
+License URL: https://www.apache.org/licenses/LICENSE-2.0
+Scope: App
+
+Licensed under the Apache License, Version 2.0. You may obtain a copy of the License at the license URL above. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.

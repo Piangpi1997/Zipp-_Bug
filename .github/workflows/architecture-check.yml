@@ -1,0 +1,19 @@
+name: Architecture Check
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate spec
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          spec=json.loads(pathlib.Path("PROJECT_SPEC.json").read_text())
+          assert spec["targetSdk"] == 34
+          assert spec["gradle"] == "8.9"
+          assert "/apkbuilder" in spec["commands"]
+          print("Zip_Bug architecture spec: OK")
+          PY

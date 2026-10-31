@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/zippy_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <TextView
+            android:id="@+id/tvZippyTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Zippy Cut Studio"
+            android:textColor="@color/zippy_text"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvZippySub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Video editor • Termux ffmpeg engine"
+            android:textColor="@color/zippy_muted"
+            android:textSize="12sp" />
+
+        <!-- Preview panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@color/zippy_panel"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="OUTPUT"
+                    android:textColor="@color/zippy_accent2"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnAspectLandscape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/zippy_panel_raised"
+                    android:text="16:9 Landscape" />
+
+                <Button
+                    android:id="@+id/btnAspectPortrait"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:backgroundTint="@color/zippy_panel_raised"
+                    android:text="9:16 Portrait" />
+            </LinearLayout>
+
+            <VideoView
+                android:id="@+id/videoPreview"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@android:color/black" />
+
+            <SeekBar
+                android:id="@+id/seekPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPlayPause"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/zippy_accent"
+                    android:text="▶ Play" />
+
+                <TextView
+                    android:id="@+id/tvMeta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="No video selected"
+                    android:textColor="@color/zippy_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnPickVideo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:backgroundTint="@color/zippy_panel_raised"
+                android:text="+ Add video clip / ဗီဒီယို clip ထည့်ပါ" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="CLIPS • tap to select, ↑ ↓ to reorder"
+                android:textColor="@color/zippy_accent2"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/clipsRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- Timeline panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@color/zippy_panel"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TIMELINE • Trim / Split"
+                android:textColor="@color/zippy_accent2"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etTrimStart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Start (sec)"
+                    android:inputType="numberDecimal"
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
+
+                <EditText
+                    android:id="@+id/etTrimEnd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="End (sec)"
+                    android:inputType="numberDecimal"
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
+
+                <EditText
+                    android:id="@+id/etSplit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Split at (sec)"
+                    android:inputType="numberDecimal"
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnApplySplit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/zippy_panel_raised"
+                android:text="✂ Split selected clip / ရွေးထားသော clip ကို ခွဲပါ" />
+
+            <TextView
+                android:id="@+id/tvSegments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Segments: —"
+                android:textColor="@color/zippy_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Title / audio panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@color/zippy_panel"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <EditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Title overlay / ခေါင်းစဉ်"
+                android:inputType="text"
+                android:textColor="@color/zippy_text"
+                android:textColorHint="@color/zippy_muted" />
+
+            <EditText
+                android:id="@+id/etTextOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Text overlay (bottom) / အောက်ခြေ စာတန်း"
+                android:inputType="text"
+                android:textColor="@color/zippy_text"
+                android:textColorHint="@color/zippy_muted" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPickLogo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/zippy_panel_raised"
+                    android:text="Pick logo image / Logo ရွေးပါ" />
+
+                <TextView
+                    android:id="@+id/tvLogoName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="No logo"
+                    android:textColor="@color/zippy_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="AUDIO"
+                android:textColor="@color/zippy_accent2"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgAudioMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rbAudioKeep"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Keep original audio / မူရင်းအသံ ထားမည်"
+                    android:textColor="@color/zippy_text" />
+
+                <RadioButton
+                    android:id="@+id/rbAudioMute"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Mute / အသံပိတ်မည်"
+                    android:textColor="@color/zippy_text" />
+
+                <RadioButton
+                    android:id="@+id/rbAudioReplace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Replace with selected audio / ရွေးထားသောအသံနှင့် လဲမည်"
+                    android:textColor="@color/zippy_text" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPickAudio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/zippy_panel_raised"
+                    android:text="Pick replacement audio / အသံဖိုင် ရွေးပါ" />
+
+                <TextView
+                    android:id="@+id/tvReplaceAudioName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="No audio file"
+                    android:textColor="@color/zippy_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Subtitles panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@color/zippy_panel"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SUBTITLES • Manual editor (output timeline, seconds)"
+                android:textColor="@color/zippy_accent2"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/subtitleRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etSubStart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Start"
+                    android:inputType="numberDecimal"
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
+
+                <EditText
+                    android:id="@+id/etSubEnd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="End"
+                    android:inputType="numberDecimal"
+                    android:textColor="@color/zippy_text"
+                    android:textColorHint="@color/zippy_muted" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etSubText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Subtitle text / စာသား (မြန်မာ ရသည်)"
+                android:inputType="textMultiLine"
+                android:textColor="@color/zippy_text"
+                android:textColorHint="@color/zippy_muted" />
+
+            <Button
+                android:id="@+id/btnAddSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/zippy_panel_raised"
+                android:text="+ Add subtitle / စာတန်း ထည့်ပါ" />
+
+            <TextView
+                android:id="@+id/tvAutoCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Auto Caption: DISABLED — a transcription provider / API key is required. Manual subtitles work fully."
+                android:textColor="@color/zippy_warn"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Export panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@color/zippy_panel"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Render engine"
+                android:textColor="@color/zippy_muted"
+                android:textSize="12sp" />
+
+            <RadioGroup
+                android:id="@+id/rgEngine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbEngineTermux"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Termux ffmpeg"
+                    android:textColor="@color/zippy_text" />
+
+                <RadioButton
+                    android:id="@+id/rbEngineInApp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="In-app FFmpeg (FFmpegKit)"
+                    android:textColor="@color/zippy_text" />
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/btnExport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/zippy_accent"
+                android:text="Export video / ဗီဒီယို ထုတ်ပါ" />
+
+            <TextView
+                android:id="@+id/tvExportStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Export status: idle"
+                android:textColor="@color/zippy_muted"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnPreviewOutput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:text="Preview output" />
+
+                <Button
+                    android:id="@+id/btnShareOutput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:text="Share output" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

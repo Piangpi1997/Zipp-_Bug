@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Zippy Cut · Easy Mode</title>
+  <style>
+    :root {
+      --bg: #090C0F;
+      --panel: #11171C;
+      --card: #182026;
+      --card2: #222C35;
+      --border: rgba(255, 255, 255, 0.08);
+      --border2: rgba(255, 255, 255, 0.16);
+      --accent: #2DD4BF;
+      --accent-coral: #D97757;
+      --accent-gold: #FF9F43;
+      --text: #EEF6F5;
+      --mute: #94A3B8;
+      --warn: #EF4444;
+      --success: #10B981;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; min-height: 100%;
+      background: var(--bg); color: var(--text);
+      font-family: "Noto Sans Myanmar", "Myanmar Text", Padauk, system-ui, -apple-system, sans-serif;
+      font-size: 14px; line-height: 1.5;
+    }
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(17, 23, 28, 0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .brand h1 { margin: 0; font-size: 15px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+    .badge {
+      font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 99px;
+      background: rgba(45, 212, 191, 0.15); color: var(--accent); border: 1px solid rgba(45, 212, 191, 0.3);
+    }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .btn-sm {
+      height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border2);
+      background: var(--card); color: var(--text); font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .btn-sm:active { transform: scale(0.97); }
+    main { padding: 14px 14px 80px; max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 14px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .card-title {
+      font-size: 14px; font-weight: 800; color: var(--text); display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title span.sub { font-size: 11.5px; color: var(--mute); font-weight: 400; }
+    .btn {
+      height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--border2);
+      background: var(--card2); color: var(--text); font-size: 13.5px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+      user-select: none; transition: opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn.pri { background: linear-gradient(135deg, var(--accent), #0D9488); color: #04201C; border: 0; }
+    .btn.coral { background: linear-gradient(135deg, var(--accent-coral), var(--accent-gold)); color: #FFFFFF; border: 0; }
+    .btn.danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: var(--warn); }
+    .btn.full { width: 100%; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .picker-box {
+      border: 1px dashed var(--border2); border-radius: 12px; padding: 12px; text-align: center;
+      background: rgba(0, 0, 0, 0.2); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .picker-box.active { border-color: var(--accent); background: rgba(45, 212, 191, 0.05); }
+    .media-preview { width: 100%; border-radius: 10px; max-height: 220px; background: #000; object-fit: contain; }
+    .meta-text { font-size: 12px; color: var(--mute); word-break: break-all; }
+    .meta-text b { color: var(--text); }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .col-half { flex: 1; min-width: 140px; }
+    .slider-row { display: flex; flex-direction: column; gap: 4px; }
+    .slider-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--mute); }
+    .slider-head b { color: var(--text); }
+    input[type="range"] {
+      width: 100%; height: 6px; border-radius: 3px; background: var(--card2);
+      outline: none; -webkit-appearance: none; accent-color: var(--accent);
+    }
+    .slots-container { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .slot-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .slot-header { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 700; }
+    .slot-fx-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .toggle-chip {
+      height: 28px; padding: 0 10px; border-radius: 99px; border: 1px solid var(--border);
+      background: var(--card2); color: var(--mute); font-size: 11.5px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .toggle-chip.active { background: var(--accent); color: #04201C; border-color: transparent; }
+    .progress-bar-bg {
+      width: 100%; height: 8px; border-radius: 4px; background: var(--card2); overflow: hidden;
+    }
+    .progress-bar-fill {
+      width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-gold));
+      transition: width 0.2s ease;
+    }
+    .status-alert {
+      padding: 10px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 600;
+      display: none; flex-direction: column; gap: 4px;
+    }
+    .status-alert.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #A7F3D0; display: flex; }
+    .status-alert.error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FECACA; display: flex; }
+    .status-alert.info { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #BAE6FD; display: flex; }
+    iframe#voicerFrame { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>Zippy Cut</h1>
+      <span class="badge">Easy Mode</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-sm" id="btnKeyInfo" title="Access Key">🔑 Key</button>
+      <button class="btn-sm" id="btnNewProject" title="New Project">➕ New</button>
+      <button class="btn-sm" id="btnVoicerToggle" title="Voicer Tool">🎙 Voicer</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Device and Host Information -->
+    <div class="meta-text" style="display:flex; justify-content:space-between; padding: 0 4px;">
+      <span id="txtDeviceInfo">Android Device</span>
+      <span id="txtHostVersion">v2.0.0</span>
+    </div>
+
+    <!-- Step 1: Media Import & Staging -->
+    <section class="card">
+      <div class="card-title">
+        <span>၁။ Video နှင့် Audio ထည့်သွင်းရန်</span>
+        <span class="sub">Step 1: Stage Media</span>
+      </div>
+
+      <div class="row">
+        <!-- Video Picker -->
+        <div class="col-half picker-box" id="boxVideo" onclick="document.getElementById('pickVideo').click()">
+          <span style="font-size:24px;">🎬</span>
+          <b id="lblVideo">Select Video / ဗီဒီယိုရွေးမည်</b>
+          <span class="meta-text" id="infoVideo">MP4, MOV supported</span>
+          <input type="file" id="pickVideo" accept="video/*" style="display:none;" onchange="onVideoChosen(this)">
+        </div>
+
+        <!-- Audio Picker -->
+        <div class="col-half picker-box" id="boxAudio" onclick="document.getElementById('pickAudio').click()">
+          <span style="font-size:24px;">🎵</span>
+          <b id="lblAudio">Select Audio / အသံဖိုင်ရွေးမည်</b>
+          <span class="meta-text" id="infoAudio">MP3, M4A, WAV supported</span>
+          <input type="file" id="pickAudio" accept="audio/*" style="display:none;" onchange="onAudioChosen(this)">
+        </div>
+      </div>
+
+      <!-- Preview Player -->
+      <video id="videoPreview" class="media-preview" style="display:none;" controls playsinline></video>
+      <audio id="audioPreview" style="display:none; width:100%; margin-top:4px;" controls></audio>
+
+      <!-- Silence Detection Action -->
+      <div class="row" style="margin-top: 4px;">
+        <button class="btn" style="flex:1;" id="btnSilenceDetect" onclick="runSilenceDetection()">
+          🔍 Audio Silence Detect (အသံတိတ်ချိန် ရှာဖွေမည်)
+        </button>
+      </div>
+      <div id="silenceResult" class="meta-text" style="display:none;"></div>
+    </section>
+
+    <!-- Step 2: Master Clock Timeline -->
+    <section class="card">
+      <div class="card-title">
+        <span>၂။ Master Clock & Timeline Slots</span>
+        <span class="sub">Step 2: Timing & Speed</span>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-head">
+          <span>Slot Duration (Audio ကန့်သတ်ချိန်)</span>
+          <b id="valSlotSeconds">5.0s</b>
+        </div>
+        <input type="range" id="rngSlotSeconds" min="2" max="10" step="0.5" value="5.0" oninput="updateTiming()">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-head">
+          <span>Clip Source Seconds (အပိုင်းစ ယူချိန်)</span>
+          <b id="valClipSeconds">2.5s</b>
+        </div>
+        <input type="range" id="rngClipSeconds" min="1" max="5" step="0.5" value="2.5" oninput="updateTiming()">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-head">
+          <span>Locked Speed Factor (ဗီဒီယို အရှိန်နှုန်း)</span>
+          <b id="valSpeed">0.5x</b>
+        </div>
+        <input type="range" id="rngSpeed" min="0.25" max="2.0" step="0.25" value="0.5" oninput="updateTiming()">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-head">
+          <span>Transition Duration (Fade အကူးအပြောင်း)</span>
+          <b id="valTransition">2.0s</b>
+        </div>
+        <input type="range" id="rngTransition" min="0" max="3" step="0.5" value="2.0" oninput="updateTiming()">
+      </div>
+
+      <div class="card-title" style="margin-top: 8px;">
+        <span>Active Timeline Slots</span>
+        <span class="sub" id="lblSlotCount">0 slots</span>
+      </div>
+
+      <div class="slots-container" id="slotsContainer">
+        <!-- Dynamically populated slots -->
+      </div>
+    </section>
+
+    <!-- Step 3: Poster Frame Extraction -->
+    <section class="card">
+      <div class="card-title">
+        <span>၃။ Poster Frame Extraction</span>
+        <span class="sub">Step 3: Cover & Frames</span>
+      </div>
+      <div class="meta-text">ဗီဒီယို Cover အတွက် စက္ကန့် timestamps များ ထည့်သွင်းထုတ်ယူနိုင်ပါသည်:</div>
+      <div class="row">
+        <input type="text" id="txtPosterTimes" value="1.0, 3.5, 6.0" style="flex:1; height:40px; border-radius:10px; background:var(--card); border:1px solid var(--border2); color:var(--text); padding:0 12px; font:inherit; font-size:13px;">
+      </div>
+      <div class="row">
+        <button class="btn btn-sm" style="flex:1; height:38px;" onclick="extractPosterFrames(false)">📥 Save Frames</button>
+        <button class="btn btn-sm" style="flex:1; height:38px;" onclick="extractPosterFrames(true)">📤 Share Poster</button>
+      </div>
+      <div id="posterStatus" class="meta-text" style="display:none;"></div>
+    </section>
+
+    <!-- Step 4: Render & Export -->
+    <section class="card">
+      <div class="card-title">
+        <span>၄။ Video Rendering & Export</span>
+        <span class="sub">Step 4: Real FFmpegKit Render</span>
+      </div>
+
+      <!-- Render Progress Container -->
+      <div id="renderProgressBox" style="display:none; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700;">
+          <span id="renderStatusMsg">Rendering video…</span>
+          <span id="renderPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="renderProgressBar"></div>
+        </div>
+        <button class="btn danger btn-sm" style="align-self:flex-end; margin-top:4px;" onclick="cancelRender()">✕ Cancel Render</button>
+      </div>
+
+      <!-- Result Banner -->
+      <div id="renderAlert" class="status-alert">
+        <b id="renderAlertTitle">Render Complete!</b>
+        <span id="renderAlertBody">Your video has been rendered successfully with FFmpegKit.</span>
+      </div>
+
+      <div class="row" id="renderActions" style="display:none;">
+        <button class="btn pri" style="flex:1;" onclick="openRenderedOutput()">▶ Play Video</button>
+        <button class="btn" style="flex:1;" onclick="saveRenderedOutput()">💾 Downloads</button>
+        <button class="btn coral" style="flex:1;" onclick="shareRenderedOutput()">📤 Share</button>
+      </div>
+
+      <!-- Primary Render Trigger Button -->
+      <button class="btn pri full" id="btnStartRender" onclick="startMasterRender()">
+        ⚡ Start Render (ဗီဒီယို စတင်ထုတ်လုပ်မည်)
+      </button>
+    </section>
+
+    <!-- Embedded Voicer Tool Section -->
+    <section class="card" id="voicerSection" style="display:none;">
+      <div class="card-title">
+        <span>🎙 Voicer Tool (Transplanted Panel)</span>
+        <span class="sub" onclick="toggleVoicer(false)" style="cursor:pointer; color:var(--warn);">✕ Close</span>
+      </div>
+      <iframe id="voicerFrame" src="voicer_panel.html"></iframe>
+    </section>
+
+    <!-- Project Data Controls -->
+    <section style="display:flex; justify-content:space-between; align-items:center; padding: 4px 6px;">
+      <span class="meta-text" id="txtClearable">Storage: 0 KB</span>
+      <button class="btn danger btn-sm" onclick="clearProjectData()">🗑 Clear Data</button>
+    </section>
+  </main>
+
+  <script>
+    /* Zippy Cut Easy Mode Web Client */
+    const call = (method, ...args) => {
+      if (window.AndroidBridge && typeof window.AndroidBridge[method] === 'function') {
+        try {
+          return window.AndroidBridge[method](...args);
+        } catch (e) {
+          console.error('AndroidBridge call error:', method, e);
+        }
+      }
+      return null;
+    };
+
+    let projectState = {
+      videoUrl: '', videoName: '', videoDuration: 30.0,
+      audioUrl: '', audioName: '', audioDuration: 20.0,
+      slotSeconds: 5.0, clipSourceSeconds: 2.5, lockedSpeed: 0.5, transitionSeconds: 2.0,
+      slots: []
+    };
+
+    let isRendering = false;
+
+    // --- Global Callbacks wired for AndroidBridge ---
+    window.ZippyNative = {
+      onRenderProgress: (pct, msg) => {
+        isRendering = true;
+        document.getElementById('renderProgressBox').style.display = 'flex';
+        document.getElementById('btnStartRender').style.display = 'none';
+        const p = Math.max(0, Math.min(100, Math.round(pct)));
+        document.getElementById('renderPercent').textContent = p + '%';
+        document.getElementById('renderProgressBar').style.width = p + '%';
+        if (msg) document.getElementById('renderStatusMsg').textContent = msg;
+      },
+      onRenderComplete: (fileUrl) => {
+        isRendering = false;
+        call('haptic', 'success');
+        document.getElementById('renderProgressBox').style.display = 'none';
+        document.getElementById('btnStartRender').style.display = 'flex';
+        const alert = document.getElementById('renderAlert');
+        alert.className = 'status-alert success';
+        document.getElementById('renderAlertTitle').textContent = '✓ Render Complete!';
+        document.getElementById('renderAlertBody').textContent = 'Rendered file ready. You can play, save to Downloads, or share.';
+        document.getElementById('renderActions').style.display = 'flex';
+        updateClearable();
+      },
+      onRenderError: (errorMsg) => {
+        isRendering = false;
+        call('haptic', 'error');
+        document.getElementById('renderProgressBox').style.display = 'none';
+        document.getElementById('btnStartRender').style.display = 'flex';
+        const alert = document.getElementById('renderAlert');
+        alert.className = 'status-alert error';
+        document.getElementById('renderAlertTitle').textContent = 'Render Failed';
+        document.getElementById('renderAlertBody').textContent = errorMsg || 'Unknown FFmpeg render error.';
+      },
+      onRenderCancelled: () => {
+        isRendering = false;
+        document.getElementById('renderProgressBox').style.display = 'none';
+        document.getElementById('btnStartRender').style.display = 'flex';
+        const alert = document.getElementById('renderAlert');
+        alert.className = 'status-alert info';
+        document.getElementById('renderAlertTitle').textContent = 'Render Cancelled';
+        document.getElementById('renderAlertBody').textContent = 'Rendering process was stopped.';
+      },
+      onProjectCleared: (allData) => {
+        call('haptic', 'warn');
+        resetClientState();
+      }
+    };
+
+    window.ZippyCaption = {
+      onSilence: (jsonStr) => {
+        try {
+          const res = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+          const box = document.getElementById('silenceResult');
+          box.style.display = 'block';
+          if (res.ok && res.silences && res.silences.length > 0) {
+            box.innerHTML = `✓ Detected <b>${res.silences.length}</b> silence regions: ` +
+              res.silences.slice(0, 4).map(s => `[${s[0]}s - ${s[1]}s]`).join(', ') +
+              (res.silences.length > 4 ? '…' : '');
+          } else {
+            box.innerHTML = 'အသံတိတ်ချိန် ရှာဖွေတွေ့ရှိခြင်း မရှိပါ (No silence regions detected)';
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
+    window.ZippyPoster = {
+      onSaved: (count, path) => {
+        call('haptic', 'success');
+        const box = document.getElementById('posterStatus');
+        box.style.display = 'block';
+        box.innerHTML = `✓ <b>${count}</b> poster frames extracted to ${path}`;
+      }
+    };
+
+    window.ZippyVideos = {
+      onData: (jsonStr) => {
+        alert('Zip_Bug uses local device media storage. Remote video bank is not required.');
+      }
+    };
+
+    // --- Lifecycle and Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Device Info & Host Version
+      const dev = call('deviceInfo');
+      if (dev) document.getElementById('txtDeviceInfo').textContent = dev;
+      const ver = call('appVersion');
+      if (ver) document.getElementById('txtHostVersion').textContent = 'v' + ver;
+
+      // 2. Buttons in Header
+      document.getElementById('btnKeyInfo').onclick = () => call('openKeyLogin');
+      document.getElementById('btnNewProject').onclick = () => {
+        if (confirm('Start new project? Current timeline will reset.')) {
+          call('newProject');
+        }
+      };
+      document.getElementById('btnVoicerToggle').onclick = () => toggleVoicer();
+
+      // 3. Load Bootstrap from Host
+      loadBootstrap();
+      updateClearable();
+    });
+
+    function toggleVoicer(force) {
+      const sec = document.getElementById('voicerSection');
+      const show = typeof force === 'boolean' ? force : sec.style.display === 'none';
+      sec.style.display = show ? 'flex' : 'none';
+      if (show) sec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function loadBootstrap() {
+      const raw = call('loadBootstrap');
+      if (!raw) return;
+      try {
+        const boot = JSON.parse(raw);
+        if (boot.video && boot.video.url) {
+          setVideoStaged(boot.video.url, boot.video.name);
+        }
+        if (boot.audio && boot.audio.url) {
+          setAudioStaged(boot.audio.url, boot.audio.name);
+        }
+        if (boot.state) {
+          projectState = Object.assign(projectState, boot.state);
+          document.getElementById('rngSlotSeconds').value = projectState.slotSeconds || 5.0;
+          document.getElementById('rngClipSeconds').value = projectState.clipSourceSeconds || 2.5;
+          document.getElementById('rngSpeed').value = projectState.lockedSpeed || 0.5;
+          document.getElementById('rngTransition').value = projectState.transitionSeconds || 2.0;
+          updateTiming(false);
+        }
+      } catch (e) {
+        console.error('Bootstrap parse error', e);
+      }
+    }
+
+    function setVideoStaged(url, name) {
+      projectState.videoUrl = url;
+      projectState.videoName = name || 'video.mp4';
+      document.getElementById('boxVideo').classList.add('active');
+      document.getElementById('lblVideo').textContent = '✓ ' + projectState.videoName;
+      const v = document.getElementById('videoPreview');
+      v.src = url;
+      v.style.display = 'block';
+      v.onloadedmetadata = () => {
+        projectState.videoDuration = v.duration || 30.0;
+        const fps = call('videoFps') || 30.0;
+        document.getElementById('infoVideo').textContent = `${Math.round(v.duration)}s · ${v.videoWidth}x${v.videoHeight} · ${fps.toFixed(1)} fps`;
+        rebuildSlots();
+      };
+    }
+
+    function setAudioStaged(url, name) {
+      projectState.audioUrl = url;
+      projectState.audioName = name || 'audio.mp3';
+      document.getElementById('boxAudio').classList.add('active');
+      document.getElementById('lblAudio').textContent = '✓ ' + projectState.audioName;
+      const a = document.getElementById('audioPreview');
+      a.src = url;
+      a.style.display = 'block';
+      a.onloadedmetadata = () => {
+        projectState.audioDuration = a.duration || 20.0;
+        document.getElementById('infoAudio').textContent = `${Math.round(a.duration)}s duration`;
+        rebuildSlots();
+      };
+    }
+
+    function onVideoChosen(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const blobUrl = URL.createObjectURL(file);
+        setVideoStaged(blobUrl, file.name);
+        saveState();
+      }
+    }
+
+    function onAudioChosen(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const blobUrl = URL.createObjectURL(file);
+        setAudioStaged(blobUrl, file.name);
+        saveState();
+      }
+    }
+
+    function runSilenceDetection() {
+      call('haptic', 'tap');
+      document.getElementById('silenceResult').style.display = 'block';
+      document.getElementById('silenceResult').textContent = 'Analyzing audio silence via FFmpegKit…';
+      call('analyzeAudioSilence');
+    }
+
+    function updateTiming(triggerSave = true) {
+      projectState.slotSeconds = parseFloat(document.getElementById('rngSlotSeconds').value);
+      projectState.clipSourceSeconds = parseFloat(document.getElementById('rngClipSeconds').value);
+      projectState.lockedSpeed = parseFloat(document.getElementById('rngSpeed').value);
+      projectState.transitionSeconds = parseFloat(document.getElementById('rngTransition').value);
+
+      document.getElementById('valSlotSeconds').textContent = projectState.slotSeconds.toFixed(1) + 's';
+      document.getElementById('valClipSeconds').textContent = projectState.clipSourceSeconds.toFixed(1) + 's';
+      document.getElementById('valSpeed').textContent = projectState.lockedSpeed.toFixed(2) + 'x';
+      document.getElementById('valTransition').textContent = projectState.transitionSeconds.toFixed(1) + 's';
+
+      rebuildSlots();
+      if (triggerSave) saveState();
+    }
+
+    function rebuildSlots() {
+      const container = document.getElementById('slotsContainer');
+      const totalAudio = projectState.audioDuration || 20.0;
+      const slotDur = projectState.slotSeconds || 5.0;
+      const count = Math.max(1, Math.ceil(totalAudio / slotDur));
+      document.getElementById('lblSlotCount').textContent = `${count} slots (~${Math.round(count * slotDur)}s)`;
+
+      if (!projectState.slots || projectState.slots.length !== count) {
+        projectState.slots = [];
+        for (let i = 0; i < count; i++) {
+          projectState.slots.push({
+            order: i,
+            speed: projectState.lockedSpeed,
+            reverse: false,
+            flip: false,
+            freeze: false,
+            zoom: 1.0,
+            fade: true
+          });
+        }
+      }
+
+      container.innerHTML = '';
+      projectState.slots.forEach((s, idx) => {
+        const el = document.createElement('div');
+        el.className = 'slot-item';
+        el.innerHTML = `
+          <div class="slot-header">
+            <span>Slot #${idx + 1} (${(idx * slotDur).toFixed(1)}s - ${((idx + 1) * slotDur).toFixed(1)}s)</span>
+            <span class="meta-text">Speed: ${s.speed.toFixed(2)}x</span>
+          </div>
+          <div class="slot-fx-row">
+            <button class="toggle-chip ${s.reverse ? 'active' : ''}" onclick="toggleSlotFx(${idx}, 'reverse')">⏪ Reverse</button>
+            <button class="toggle-chip ${s.flip ? 'active' : ''}" onclick="toggleSlotFx(${idx}, 'flip')">⇄ Flip</button>
+            <button class="toggle-chip ${s.freeze ? 'active' : ''}" onclick="toggleSlotFx(${idx}, 'freeze')">❄ Freeze</button>
+            <button class="toggle-chip ${s.zoom > 1.0 ? 'active' : ''}" onclick="cycleZoom(${idx})">🔍 Zoom ${s.zoom}x</button>
+            <button class="toggle-chip ${s.fade ? 'active' : ''}" onclick="toggleSlotFx(${idx}, 'fade')">✨ Fade</button>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function toggleSlotFx(idx, key) {
+      call('haptic', 'tap');
+      if (projectState.slots[idx]) {
+        projectState.slots[idx][key] = !projectState.slots[idx][key];
+        rebuildSlots();
+        saveState();
+      }
+    }
+
+    function cycleZoom(idx) {
+      call('haptic', 'tap');
+      if (projectState.slots[idx]) {
+        const zooms = [1.0, 1.25, 1.5];
+        const next = zooms[(zooms.indexOf(projectState.slots[idx].zoom) + 1) % zooms.length];
+        projectState.slots[idx].zoom = next;
+        rebuildSlots();
+        saveState();
+      }
+    }
+
+    function extractPosterFrames(share) {
+      call('haptic', 'tap');
+      const raw = document.getElementById('txtPosterTimes').value;
+      const times = raw.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n >= 0);
+      if (!times.length) {
+        alert('Please enter valid second timestamps (e.g. 1.0, 3.5)');
+        return;
+      }
+      const json = JSON.stringify(times);
+      if (share) {
+        call('sharePoster', json, 'Zippy Cut Cover Frame');
+      } else {
+        call('savePosterFrames', json);
+      }
+    }
+
+    function startMasterRender() {
+      call('haptic', 'tap');
+      const totalAudio = projectState.audioDuration || 20.0;
+      const slotDur = projectState.slotSeconds || 5.0;
+      const count = projectState.slots.length || Math.ceil(totalAudio / slotDur);
+
+      // Build valid master clock plan
+      const clips = [{ id: 'clip_0', start: 0.0, end: projectState.videoDuration || 30.0 }];
+      const links = [];
+      const slotFx = {};
+      const transitions = [];
+
+      for (let i = 0; i < count; i++) {
+        links.push({
+          audioTime: i * slotDur,
+          clipId: 'clip_0',
+          order: i
+        });
+        const s = projectState.slots[i] || {};
+        slotFx[i.toString()] = {
+          speed: s.speed || projectState.lockedSpeed,
+          reverse: !!s.reverse,
+          flip: !!s.flip,
+          freeze: s.freeze ? true : null,
+          zoom: s.zoom || 1.0
+        };
+        if (s.fade) {
+          transitions.push({ from: i, to: i + 1, style: 'fade', duration: projectState.transitionSeconds });
+        }
+      }
+
+      const plan = {
+        version: 1,
+        master: 'audio',
+        audioDuration: totalAudio,
+        sourceVideoDuration: projectState.videoDuration || 30.0,
+        clipSourceSeconds: projectState.clipSourceSeconds || 2.5,
+        lockedSpeed: projectState.lockedSpeed || 0.5,
+        slotSeconds: slotDur,
+        transitionSeconds: projectState.transitionSeconds || 2.0,
+        clips: clips,
+        links: links,
+        slotFx: slotFx,
+        transitions: transitions
+      };
+
+      const planJson = JSON.stringify(plan);
+      call('startRender', planJson);
+    }
+
+    function cancelRender() {
+      call('haptic', 'warn');
+      call('cancelRender');
+    }
+
+    function openRenderedOutput() { call('openOutput'); }
+    function saveRenderedOutput() { call('saveOutput'); }
+    function shareRenderedOutput() { call('shareOutput'); }
+
+    function resetClientState() {
+      projectState = {
+        videoUrl: '', videoName: '', videoDuration: 30.0,
+        audioUrl: '', audioName: '', audioDuration: 20.0,
+        slotSeconds: 5.0, clipSourceSeconds: 2.5, lockedSpeed: 0.5, transitionSeconds: 2.0,
+        slots: []
+      };
+      document.getElementById('videoPreview').style.display = 'none';
+      document.getElementById('audioPreview').style.display = 'none';
+      document.getElementById('boxVideo').classList.remove('active');
+      document.getElementById('boxAudio').classList.remove('active');
+      document.getElementById('lblVideo').textContent = 'Select Video / ဗီဒီယိုရွေးမည်';
+      document.getElementById('lblAudio').textContent = 'Select Audio / အသံဖိုင်ရွေးမည်';
+      document.getElementById('renderActions').style.display = 'none';
+      document.getElementById('renderAlert').style.display = 'none';
+      rebuildSlots();
+      updateClearable();
+    }
+
+    function clearProjectData() {
+      if (confirm('Clear all staged media and project cache?')) {
+        call('clearAllProjectData');
+      }
+    }
+
+    function updateClearable() {
+      const bytes = call('getClearableBytes') || 0;
+      const kb = Math.round(bytes / 1024);
+      document.getElementById('txtClearable').textContent = `Storage: ${kb} KB`;
+    }
+
+    let saveTimer = null;
+    function saveState() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        call('saveProjectState', JSON.stringify(projectState));
+        updateClearable();
+      }, 500);
+    }
+  </script>
+</body>
+</html>

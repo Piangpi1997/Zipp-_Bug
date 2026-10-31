@@ -1,0 +1,33 @@
+<resources>
+    <!-- Night values aligned to the canonical Zippy tokens (bg/panel). -->
+    <color name="z_bg">#090C0F</color>
+    <color name="z_surface">#11171C</color>
+    <color name="z_surface_glass">#1E212B</color>
+    <color name="z_surface_subtle">#12141A</color>
+    <color name="z_border">#282C3A</color>
+    <color name="z_border_highlight">#59FF6B00</color>
+    <color name="z_orange">#FF6B00</color>
+    <color name="z_orange_soft">#26FF6B00</color>
+    <color name="z_green">#2EE59D</color>
+    <color name="z_green_soft">#242EE59D</color>
+    <color name="z_red">#FF5C5C</color>
+    <color name="z_red_soft">#24FF5C5C</color>
+    <color name="z_blue">#4DA6FF</color>
+    <color name="z_blue_soft">#244DA6FF</color>
+    <color name="z_purple">#A78BFA</color>
+    <color name="z_purple_soft">#24A78BFA</color>
+    <color name="z_text">#F8FAFC</color>
+    <color name="z_muted">#94A3B8</color>
+    <color name="z_white">#FFFFFF</color>
+    <color name="z_code_bg">#0B0C10</color>
+
+    <!-- Zippy design tokens: keep identical to values/colors.xml. -->
+    <color name="zippy_bg">#090C0F</color>
+    <color name="zippy_panel">#11171C</color>
+    <color name="zippy_panel_raised">#2B3640</color>
+    <color name="zippy_accent">#D97757</color>
+    <color name="zippy_accent2">#FF9F43</color>
+    <color name="zippy_warn">#FFB347</color>
+    <color name="zippy_text">#EEF3F6</color>
+    <color name="zippy_muted">#8D99A5</color>
+</resources>
