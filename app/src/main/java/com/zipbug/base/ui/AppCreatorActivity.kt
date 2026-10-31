@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.zipbug.base.creator.AppScaffolder
 import com.zipbug.base.creator.AppSpec
+import com.zipbug.base.creator.HtmlWebViewScaffolder
+import com.zipbug.base.creator.WebAppSpec
 import com.zipbug.base.creator.ProjectZipWriter
 import com.zipbug.base.creator.ReactViteScaffolder
 import com.zipbug.base.creator.ReactNativeExpoScaffolder
@@ -102,6 +104,10 @@ class AppCreatorActivity : AppCompatActivity() {
             createAndroidProject()
         }
 
+        binding.createHtmlApp.setOnClickListener {
+            createHtmlAppProject()
+        }
+
         binding.createWeb.setOnClickListener {
             createWebMiniApp()
         }
@@ -146,6 +152,52 @@ class AppCreatorActivity : AppCompatActivity() {
             export(
                 files,
                 safeFilename(spec.name) + "-android.zip"
+            )
+        }.onFailure {
+            showError(
+                stage = "INPUT VALIDATION",
+                error = it,
+                nextStep = "Check app name and package name, then try again."
+            )
+        }
+    }
+
+    private fun createHtmlAppProject() {
+        binding.exportActions.visibility = View.GONE
+        binding.result.text =
+            "INPUT VALIDATION • RUNNING\n" +
+                "Preparing HTML WebView Android project source…"
+
+        val name = binding.appName.text.toString().trim()
+        val goal = binding.goal.text.toString().trim()
+        val pastedHtml = binding.htmlContent.text.toString()
+
+        val spec = WebAppSpec(
+            name = name,
+            packageName = binding.packageName.text.toString().trim(),
+            goal = goal,
+            webFiles = mapOf(
+                "index.html" to pastedHtml.ifBlank {
+                    HtmlWebViewScaffolder.starterIndexHtml(name, goal)
+                }
+            ),
+            fullscreen = binding.webFullscreen.isChecked,
+            keepScreenOn = binding.webKeepScreenOn.isChecked
+        )
+
+        runCatching {
+            HtmlWebViewScaffolder.files(spec)
+        }.onSuccess { files ->
+            binding.result.text =
+                "INPUT VALIDATION • PASS\n" +
+                    "SOURCE PLAN • PASS\n" +
+                    "Prepared ${files.size} files. " +
+                    "The HTML is bundled in assets/www and loads offline. " +
+                    "Choose a ZIP save location."
+
+            export(
+                files,
+                safeFilename(spec.name) + "-html-app.zip"
             )
         }.onFailure {
             showError(
