@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/devToolsScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -24,9 +25,84 @@
             android:text="@string/devtools_subtitle"
             android:textColor="@color/z_muted"
             android:textSize="12sp" />
+        <!-- Function navigator: icon grid -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:columnCount="3"
+            android:useDefaultMargins="false">
+
+            <LinearLayout
+                android:id="@+id/navJson"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="{ }" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="JSON" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/navHash"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="#️⃣" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="File Hash" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/navZip"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="🗜️" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="ZIP Inspector" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/navSearch"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="🔍" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="Text Search" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/navBackup"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="💾" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="Backup" />
+            </LinearLayout>
+        </GridLayout>
+
 
         <!-- 1. JSON Validator & Formatter -->
         <LinearLayout
+            android:id="@+id/sectionJson"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
@@ -98,6 +174,7 @@
 
         <!-- 2. File Hash Calculator -->
         <LinearLayout
+            android:id="@+id/sectionHash"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
@@ -152,6 +229,7 @@
 
         <!-- 3. Safe ZIP Archive Inspector -->
         <LinearLayout
+            android:id="@+id/sectionZip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
@@ -190,6 +268,7 @@
 
         <!-- 4. Workspace Text Search -->
         <LinearLayout
+            android:id="@+id/sectionSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
@@ -247,6 +326,7 @@
 
         <!-- 5. Project Backup, Restore & Diagnostics -->
         <LinearLayout
+            android:id="@+id/sectionBackup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
