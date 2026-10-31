@@ -207,6 +207,23 @@ class Pom:
                     managed[f"{g}:{a}"] = v
         return managed
 
+    def imported_boms(self):
+        """(group, artifact, version) of dependencyManagement BOM imports."""
+        out = []
+        dm = self.root.find("m:dependencyManagement/m:dependencies", NS)
+        if dm is not None:
+            for dep in dm.findall("m:dependency", NS):
+                if (text(dep, "type") or "jar") == "pom" and \
+                        text(dep, "scope") == "import":
+                    g = interpolate(text(dep, "groupId"), self.props)
+                    a = interpolate(text(dep, "artifactId"), self.props)
+                    v = interpolate(text(dep, "version"), self.props)
+                    if g and a and v:
+                        out.append((g, a, v))
+        if self.parent:
+            out.extend(self.parent.imported_boms())
+        return out
+
     def dependencies(self):
         """Declared dependencies (own + inherited), raw fields."""
         deps = []
@@ -355,6 +372,19 @@ def resolve(roots):
             g, a = ga.split(":")
             pom = get_pom(g, a, version)
             managed = pom.managed_versions()
+            for bom_coord in pom.imported_boms():
+                bg, ba, bv = bom_coord
+                bga = f"{bg}:{ba}"
+                bv = normalize_version(bg, ba, bv)
+                if bga not in candidates or \
+                        version_key(bv) > version_key(candidates[bga]):
+                    candidates[bga] = bv
+                stack.append((bga, excluded))
+                bom = get_pom(bg, ba, bv)
+                for mga, mv in bom.managed_versions().items():
+                    if mga not in candidates or \
+                            version_key(mv) > version_key(candidates[mga]):
+                        candidates[mga] = mv
             for dep in pom.dependencies():
                 if dep["scope"] not in ("compile", "runtime"):
                     continue
@@ -419,6 +449,40 @@ def parse_generated_roots():
 
 
 def main():
+    if "--reconcile" in sys.argv[1:]:
+        graph = json.loads(
+            (ROOT / "scripts/license-graph.json").read_text(encoding="utf-8")
+        )
+        metadata = {}
+        failures = []
+        all_modules = sorted(
+            set(graph["app"]) | set(graph["generatedApps"]) | set(graph["extras"])
+        )
+        for coord in all_modules:
+            g, a, v = coord.split(":")
+            try:
+                meta = get_pom(g, a, v).metadata()
+                lic = meta["licenses"][0] if meta["licenses"] else {}
+                metadata[coord] = {
+                    "name": meta.get("name"),
+                    "author": meta.get("author"),
+                    "licenseName": lic.get("name"),
+                    "licenseUrl": lic.get("url"),
+                }
+            except Exception as exc:  # noqa: BLE001
+                failures.append(f"{coord}: {exc}")
+                metadata[coord] = {
+                    "name": None, "author": None,
+                    "licenseName": None, "licenseUrl": None,
+                }
+        (ROOT / "scripts/license-pom-metadata.json").write_text(
+            json.dumps(metadata, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"Reconcile metadata: {len(metadata)} modules; failures: {len(failures)}")
+        for failure in failures:
+            print("  FAIL", failure)
+        return 0
     app_roots = parse_app_roots()
     generated_roots = parse_generated_roots()
     print(f"App roots: {len(app_roots)}  Generated roots: {len(generated_roots)}")
