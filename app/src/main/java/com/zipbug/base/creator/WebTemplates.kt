@@ -16,6 +16,8 @@ data class WebTemplate(
     val description: String,
     val snippet: String,
     val html: String,
+    val icon: String,
+    val colorHex: String,
     val hardware: Set<WebHardware> = emptySet(),
     val fullscreen: Boolean = false,
     val keepScreenOn: Boolean = false
@@ -32,6 +34,8 @@ object WebTemplates {
         WebTemplate(
             id = "vibrate",
             category = WebTemplateCategory.INTERACTION,
+            icon = "📳",
+            colorHex = "#7C4DFF",
             title = "Vibrate",
             description = "One-shot and pattern vibration with a result " +
                 "event callback, like native capability demos in other " +
@@ -67,6 +71,8 @@ object WebTemplates {
         WebTemplate(
             id = "torch",
             category = WebTemplateCategory.INTERACTION,
+            icon = "🔦",
+            colorHex = "#FF9100",
             title = "Torch",
             description = "Turns the camera flash on and off as a " +
                 "flashlight and reports the result back to the page.",
@@ -93,6 +99,8 @@ object WebTemplates {
         WebTemplate(
             id = "notification",
             category = WebTemplateCategory.INTERACTION,
+            icon = "🔔",
+            colorHex = "#FF5252",
             title = "Notification",
             description = "Posts a local notification from the page. " +
                 "Needs the Notifications option in the wizard.",
@@ -119,6 +127,8 @@ object WebTemplates {
         WebTemplate(
             id = "network-status",
             category = WebTemplateCategory.INTERACTION,
+            icon = "📶",
+            colorHex = "#00B0FF",
             title = "Network Status",
             description = "Checks whether the device is online and which " +
                 "transport it is using (Wi-Fi, cellular, ...).",
@@ -146,6 +156,8 @@ object WebTemplates {
         WebTemplate(
             id = "keep-screen-on",
             category = WebTemplateCategory.INTERACTION,
+            icon = "🌙",
+            colorHex = "#5C6BC0",
             title = "Keep Screen On",
             description = "Toggles the keep-screen-on flag at runtime so " +
                 "pages can control it themselves.",
@@ -173,6 +185,8 @@ object WebTemplates {
         WebTemplate(
             id = "app-storage",
             category = WebTemplateCategory.INTERACTION,
+            icon = "💾",
+            colorHex = "#26A69A",
             title = "App Storage",
             description = "Saves small text files in the app's private " +
                 "storage through the bridge (no browser storage limits).",
@@ -206,6 +220,8 @@ object WebTemplates {
         WebTemplate(
             id = "blank",
             category = WebTemplateCategory.STARTERS,
+            icon = "📄",
+            colorHex = "#78909C",
             title = "Blank Page",
             description = "A minimal page with the shared dark style — " +
                 "the fastest way to start a new web app.",
@@ -222,6 +238,8 @@ object WebTemplates {
         WebTemplate(
             id = "fullscreen",
             category = WebTemplateCategory.STARTERS,
+            icon = "🖥️",
+            colorHex = "#8E24AA",
             title = "Fullscreen Layout",
             description = "An edge-to-edge layout for games, readers and " +
                 "dashboards; pair it with the Fullscreen wizard option.",
@@ -245,6 +263,8 @@ object WebTemplates {
         WebTemplate(
             id = "local-notes",
             category = WebTemplateCategory.STARTERS,
+            icon = "📝",
+            colorHex = "#FFB300",
             title = "Local Notes",
             description = "A tiny notes app that persists with the " +
                 "WebView's localStorage (works fully offline).",
@@ -267,6 +287,8 @@ object WebTemplates {
         WebTemplate(
             id = "clipboard",
             category = WebTemplateCategory.DEVICE,
+            icon = "📋",
+            colorHex = "#42A5F5",
             title = "Clipboard",
             description = "Copies text to the clipboard and reads the " +
                 "current clipboard text back through an event.",
@@ -299,6 +321,8 @@ object WebTemplates {
         WebTemplate(
             id = "share",
             category = WebTemplateCategory.DEVICE,
+            icon = "🔗",
+            colorHex = "#66BB6A",
             title = "Share",
             description = "Opens the Android share sheet with text from " +
                 "the page.",
@@ -318,6 +342,8 @@ object WebTemplates {
         WebTemplate(
             id = "device-battery",
             category = WebTemplateCategory.SYSTEM,
+            icon = "🔋",
+            colorHex = "#9CCC65",
             title = "Device & Battery",
             description = "Reads device model/Android version " +
                 "synchronously and the battery level through an event.",
@@ -345,6 +371,8 @@ object WebTemplates {
         WebTemplate(
             id = "bootstrap",
             category = WebTemplateCategory.LIBRARIES,
+            icon = "B",
+            colorHex = "#7952B3",
             title = "Bootstrap 5 (CDN)",
             description = "A page styled with Bootstrap 5 loaded from " +
                 "the jsDelivr CDN. The generated app needs internet " +
@@ -370,6 +398,8 @@ object WebTemplates {
         WebTemplate(
             id = "tailwind",
             category = WebTemplateCategory.LIBRARIES,
+            icon = "🎨",
+            colorHex = "#06B6D4",
             title = "Tailwind CSS (CDN)",
             description = "A page styled with the Tailwind Play CDN " +
                 "script. The generated app needs internet for the " +
