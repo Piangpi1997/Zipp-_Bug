@@ -58,6 +58,22 @@ class DeveloperToolsActivity : AppCompatActivity() {
         binding = ActivityDeveloperToolsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Icon-grid navigator: tap a tile to jump to that tool section.
+        fun jumpTo(section: android.view.View) {
+            binding.devToolsScroll.post {
+                binding.devToolsScroll.smoothScrollTo(0, section.top)
+            }
+        }
+        binding.navJson.setOnClickListener { jumpTo(binding.sectionJson) }
+        binding.navHash.setOnClickListener { jumpTo(binding.sectionHash) }
+        binding.navZip.setOnClickListener { jumpTo(binding.sectionZip) }
+        binding.navSearch.setOnClickListener {
+            jumpTo(binding.sectionSearch)
+        }
+        binding.navBackup.setOnClickListener {
+            jumpTo(binding.sectionBackup)
+        }
+
         setupJsonTool()
         setupHashTool()
         setupZipInspectTool()
