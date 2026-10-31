@@ -7,13 +7,20 @@ import java.net.URI
 enum class WebOrientation { AUTO, PORTRAIT, LANDSCAPE }
 
 /** Optional hardware access a generated web app can request. */
-enum class WebHardware { CAMERA, MICROPHONE, LOCATION }
+enum class WebHardware { CAMERA, MICROPHONE, LOCATION, NOTIFICATIONS }
 
 /**
  * Specification for an HTML-to-app project, modelled on the structure of
  * dedicated HTML-to-APK builder apps: bundled local web files (offline)
  * or a live start URL, WebView settings, an origin-restricted native JS
  * bridge, and optional hardware permissions.
+ *
+ * v2 adds the features the reference builders expose: a wider JS bridge
+ * with an `onAndroidEvent` result channel (vibration patterns, torch,
+ * notifications, network status, app storage, battery, device info,
+ * clipboard read), pull-to-refresh, a no-connection dialog, an exit
+ * confirmation, a splash screen, a status bar colour, and a custom
+ * deep-link URL scheme.
  *
  * The generated project reuses [AppScaffolder] for the Gradle skeleton
  * (including the Open Source Licenses files), then replaces the native
@@ -32,7 +39,15 @@ data class WebAppSpec(
     val fullscreen: Boolean = false,
     val keepScreenOn: Boolean = false,
     val userAgent: String? = null,
-    val hardware: Set<WebHardware> = emptySet()
+    val hardware: Set<WebHardware> = emptySet(),
+    val pullToRefresh: Boolean = false,
+    val noInternetDialog: Boolean = false,
+    val exitConfirmation: Boolean = false,
+    val splashEnabled: Boolean = false,
+    val splashSeconds: Int = 2,
+    val splashColor: String = "#121212",
+    val statusBarColor: String? = null,
+    val urlScheme: String? = null
 )
 
 object HtmlWebViewScaffolder {
@@ -40,6 +55,11 @@ object HtmlWebViewScaffolder {
     private const val MAX_WEB_TOTAL_CHARS = 8_000_000
     private const val MAX_WEB_FILES = 200
     private const val LOCAL_START = "file:///android_asset/www/index.html"
+
+    private val HEX_COLOR = Regex("^#[0-9a-fA-F]{6}$")
+    private val URL_SCHEME = Regex("^[a-z][a-z0-9+.-]{1,30}$")
+    private val RESERVED_SCHEMES =
+        setOf("http", "https", "file", "android", "content", "intent")
 
     fun validate(spec: WebAppSpec) {
         val permissions = permissionsFor(spec)
@@ -78,6 +98,26 @@ object HtmlWebViewScaffolder {
                 "User agent must be a single line"
             }
         }
+        require(spec.splashSeconds in 0..10) {
+            "Splash duration must be between 0 and 10 seconds"
+        }
+        require(HEX_COLOR.matches(spec.splashColor)) {
+            "Splash colour must be a #RRGGBB hex colour"
+        }
+        if (spec.statusBarColor != null) {
+            require(HEX_COLOR.matches(spec.statusBarColor)) {
+                "Status bar colour must be a #RRGGBB hex colour"
+            }
+        }
+        if (spec.urlScheme != null) {
+            require(URL_SCHEME.matches(spec.urlScheme)) {
+                "URL scheme must start with a letter and use only " +
+                    "lowercase letters, digits, '+', '-' or '.'"
+            }
+            require(spec.urlScheme !in RESERVED_SCHEMES) {
+                "URL scheme is reserved: ${spec.urlScheme}"
+            }
+        }
     }
 
     fun permissionsFor(spec: WebAppSpec): List<String> {
@@ -93,6 +133,9 @@ object HtmlWebViewScaffolder {
         }
         if (WebHardware.LOCATION in spec.hardware) {
             permissions += "android.permission.ACCESS_FINE_LOCATION"
+        }
+        if (WebHardware.NOTIFICATIONS in spec.hardware) {
+            permissions += "android.permission.POST_NOTIFICATIONS"
         }
         return permissions
     }
@@ -238,6 +281,17 @@ object HtmlWebViewScaffolder {
                 "\n                    android:screenOrientation=\"landscape\""
             WebOrientation.AUTO -> ""
         }
+        val schemeFilter = if (spec.urlScheme == null) {
+            ""
+        } else {
+            "\n                    <intent-filter>\n" +
+                "                        <action android:name=\"android.intent.action.VIEW\" />\n" +
+                "                        <category android:name=\"android.intent.category.DEFAULT\" />\n" +
+                "                        <category android:name=\"android.intent.category.BROWSABLE\" />\n" +
+                "                        <data android:scheme=\"" +
+                xml(spec.urlScheme) + "\" />\n" +
+                "                    </intent-filter>"
+        }
         return """
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
         __PERMISSIONS__
@@ -254,13 +308,14 @@ object HtmlWebViewScaffolder {
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
                         <category android:name="android.intent.category.LAUNCHER" />
-                    </intent-filter>
+                    </intent-filter>__SCHEME__
                 </activity>
             </application>
         </manifest>
         """.trimIndent()
             .replace("__PERMISSIONS__", permissionLines)
-            .replace("__ORIENTATION__", orientationAttr) + "\n"
+            .replace("__ORIENTATION__", orientationAttr)
+            .replace("__SCHEME__", schemeFilter) + "\n"
     }
 
     private fun mainActivity(spec: WebAppSpec): String {
@@ -276,6 +331,7 @@ object HtmlWebViewScaffolder {
                 WebHardware.CAMERA -> "android.permission.CAMERA"
                 WebHardware.MICROPHONE -> "android.permission.RECORD_AUDIO"
                 WebHardware.LOCATION -> "android.permission.ACCESS_FINE_LOCATION"
+                WebHardware.NOTIFICATIONS -> null // requested separately (API 33+)
             }
         }
         val code = StringBuilder()
@@ -284,13 +340,28 @@ object HtmlWebViewScaffolder {
         code.append("\n/**\n * WebView shell generated by Zip_Bug HTML App creator.\n")
         code.append(" * Start: ").append(startUrl).append("\n */\n")
         code.append("class MainActivity : Activity() {\n\n")
-        code.append("    private lateinit var webView: WebView\n\n")
+        code.append("    private lateinit var webView: WebView\n")
+        code.append("    private lateinit var rootLayout: FrameLayout\n")
+        code.append("    private lateinit var refreshSpinner: ProgressBar\n")
+        code.append("    private var errorDialogShowing = false\n\n")
         code.append("    private val startUrl = ")
             .append(kotlinString(startUrl)).append("\n")
         code.append("    private val trustedPrefix = ")
-            .append(kotlinString(trustedPrefix)).append("\n\n")
+            .append(kotlinString(trustedPrefix)).append("\n")
+        code.append("    private val noInternetDialog = ")
+            .append(spec.noInternetDialog).append("\n")
+        code.append("    private val pullTriggerPx = ")
+            .append(240).append("\n\n")
         code.append(SHELL_ON_CREATE_HEAD)
         if (spec.fullscreen) code.append(SHELL_FULLSCREEN)
+        if (spec.statusBarColor != null) {
+            code.append("        window.statusBarColor = Color.parseColor(")
+                .append(kotlinString(spec.statusBarColor)).append(")\n")
+        }
+        code.append(
+            if (spec.pullToRefresh) SHELL_ROOT_PTR else SHELL_ROOT_PLAIN
+        )
+        if (spec.pullToRefresh) code.append(SHELL_PTR_WIRING)
         if (spec.keepScreenOn) code.append(SHELL_KEEP_ON)
         code.append(SHELL_ON_CREATE_SETTINGS)
         if (spec.userAgent != null) {
@@ -310,13 +381,60 @@ object HtmlWebViewScaffolder {
             }
             code.append("            ),\n            1001\n        )\n")
         }
+        if (WebHardware.NOTIFICATIONS in spec.hardware) {
+            code.append(SHELL_NOTIFICATION_PERMISSION)
+        }
+        if (spec.splashEnabled) {
+            code.append(
+                splashBlock(
+                    spec.splashColor,
+                    spec.splashSeconds * 1000L
+                )
+            )
+        }
         code.append(SHELL_ON_CREATE_TAIL)
+        if (spec.pullToRefresh) code.append(SHELL_PTR_CLASS)
         code.append(SHELL_TRUST_AND_API)
         code.append(SHELL_CLIENTS)
-        code.append(SHELL_LIFECYCLE)
+        code.append(
+            if (spec.exitConfirmation) {
+                SHELL_LIFECYCLE_EXIT_CONFIRM
+            } else {
+                SHELL_LIFECYCLE
+            }
+        )
         code.append("}\n")
         return code.toString()
     }
+
+    private fun splashBlock(color: String, millis: Long): String =
+        "\n        val splash = FrameLayout(this)\n" +
+            "        splash.setBackgroundColor(Color.parseColor(" +
+            kotlinString(color) + "))\n" +
+            "        val splashLabel = TextView(this)\n" +
+            "        splashLabel.text =\n" +
+            "            applicationInfo.loadLabel(packageManager).toString()\n" +
+            "        splashLabel.setTextColor(Color.WHITE)\n" +
+            "        splashLabel.textSize = 24f\n" +
+            "        splashLabel.gravity = Gravity.CENTER\n" +
+            "        splash.addView(\n" +
+            "            splashLabel,\n" +
+            "            FrameLayout.LayoutParams(\n" +
+            "                FrameLayout.LayoutParams.MATCH_PARENT,\n" +
+            "                FrameLayout.LayoutParams.MATCH_PARENT\n" +
+            "            )\n" +
+            "        )\n" +
+            "        rootLayout.addView(\n" +
+            "            splash,\n" +
+            "            FrameLayout.LayoutParams(\n" +
+            "                FrameLayout.LayoutParams.MATCH_PARENT,\n" +
+            "                FrameLayout.LayoutParams.MATCH_PARENT\n" +
+            "            )\n" +
+            "        )\n" +
+            "        Handler(Looper.getMainLooper()).postDelayed(\n" +
+            "            { rootLayout.removeView(splash) },\n" +
+            "            " + millis + "L\n" +
+            "        )\n"
 
     private fun readme(spec: WebAppSpec): String = buildString {
         append("# ").append(spec.name).append("\n\n")
@@ -335,11 +453,31 @@ object HtmlWebViewScaffolder {
         }
         append("## Native bridge\n")
         append(
-            "Pages on the app's own origin can call `window.AndroidAPI`:\n" +
-                "`toast(text)`, `vibrate(ms)`, `shareText(text)`, " +
-                "`copyToClipboard(text)`, `getAppInfo()`. The bridge " +
-                "ignores calls from any other origin.\n\n"
+            "Pages on the app's own origin can call `window.AndroidAPI`. " +
+                "Synchronous: `toast(text)`, `vibrate(ms)`, " +
+                "`vibratePattern('[120,60,240]')`, `cancelVibrate()`, " +
+                "`torch(true/false)`, `showNotification(title, body)`, " +
+                "`shareText(text)`, `copyToClipboard(text)`, " +
+                "`getClipboard()`, `getAppInfo()`, `getDeviceInfo()`, " +
+                "`isOnline()`, `networkStatus()`, `getBattery()`, " +
+                "`setKeepScreenOn(on)`, `storageSave(name, content)`, " +
+                "`storageLoad(name)`, `storageDelete(name)`, " +
+                "`storageList()`. Results of the asynchronous calls are " +
+                "delivered to `window.onAndroidEvent(event, dataJson)` " +
+                "with event names `vibrateResult`, `torchResult`, " +
+                "`notificationResult`, `networkStatus`, `batteryResult`, " +
+                "`clipboardResult` and `storageResult`. The bridge " +
+                "ignores calls from any other origin. App storage files " +
+                "live in the app's private storage and never leave the " +
+                "device.\n\n"
         )
+        if (spec.urlScheme != null) {
+            append("## Deep link\n")
+            append(
+                "Links with the `" + spec.urlScheme + "://` scheme open " +
+                    "this app (declared in the manifest).\n\n"
+            )
+        }
         append("## Build\n")
         append("Java 17, Gradle 8.9 and Android SDK 34 are expected.\n\n")
         append("In Zip_Bug / Termux:\n")
@@ -368,18 +506,33 @@ object HtmlWebViewScaffolder {
             .replace("'", "&#39;")
 
     const val SHELL_IMPORTS = """import android.app.Activity
+import android.app.AlertDialog
 import android.app.DownloadManager
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.webkit.GeolocationPermissions
@@ -392,176 +545,650 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
+import java.io.File
+import org.json.JSONArray
+import org.json.JSONObject
 
 """
 
     const val SHELL_ON_CREATE_HEAD = """    override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState)
+
 """
 
     const val SHELL_FULLSCREEN = """        window.setFlags(
-        WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        WindowManager.LayoutParams.FLAG_FULLSCREEN
-    )
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+"""
+
+    const val SHELL_ROOT_PLAIN = """        rootLayout = FrameLayout(this)
+        webView = WebView(this)
+        rootLayout.addView(
+            webView,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+        refreshSpinner = ProgressBar(this)
+        refreshSpinner.visibility = View.GONE
+        val spinnerParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
+        spinnerParams.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+        spinnerParams.topMargin = 48
+        rootLayout.addView(refreshSpinner, spinnerParams)
+        setContentView(rootLayout)
+
+"""
+
+    const val SHELL_ROOT_PTR = """        val pullContainer = PullRefreshContainer(this)
+        rootLayout = pullContainer
+        webView = WebView(this)
+        pullContainer.addView(
+            webView,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+        refreshSpinner = ProgressBar(this)
+        refreshSpinner.visibility = View.GONE
+        val spinnerParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
+        spinnerParams.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+        spinnerParams.topMargin = 48
+        pullContainer.addView(refreshSpinner, spinnerParams)
+        setContentView(pullContainer)
+
+"""
+
+    const val SHELL_PTR_WIRING = """        pullContainer.onRefresh = {
+            refreshSpinner.visibility = View.VISIBLE
+            webView.reload()
+        }
 """
 
     const val SHELL_KEEP_ON = """        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 """
 
-    const val SHELL_ON_CREATE_SETTINGS = """        webView = WebView(this)
-    setContentView(webView)
-
-    val settings = webView.settings
-    settings.javaScriptEnabled = true
-    settings.domStorageEnabled = true
-    settings.databaseEnabled = true
-    settings.allowFileAccess = true
-    settings.mediaPlaybackRequiresUserGesture = false
-    settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+    const val SHELL_ON_CREATE_SETTINGS = """        val settings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.databaseEnabled = true
+        settings.allowFileAccess = true
+        settings.mediaPlaybackRequiresUserGesture = false
+        settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
 """
 
     const val SHELL_ON_CREATE_CLIENTS = """        webView.addJavascriptInterface(AndroidApi(), "AndroidAPI")
-    webView.webViewClient = ShellWebViewClient()
-    webView.webChromeClient = ShellWebChromeClient()
-    webView.setDownloadListener { url, _, contentDisposition, mimeType, _ ->
-        handleDownload(url, contentDisposition, mimeType)
-    }
+        webView.webViewClient = ShellWebViewClient()
+        webView.webChromeClient = ShellWebChromeClient()
+        webView.setDownloadListener { url, _, contentDisposition, mimeType, _ ->
+            handleDownload(url, contentDisposition, mimeType)
+        }
+"""
+
+    const val SHELL_NOTIFICATION_PERMISSION = """
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(
+                arrayOf("android.permission.POST_NOTIFICATIONS"),
+                1002
+            )
+        }
 """
 
     const val SHELL_ON_CREATE_TAIL = """
-    if (savedInstanceState != null) {
-        webView.restoreState(savedInstanceState)
-    } else {
-        webView.loadUrl(startUrl)
+        if (savedInstanceState != null) {
+            webView.restoreState(savedInstanceState)
+        } else {
+            webView.loadUrl(startUrl)
+        }
     }
-}
 
-private fun handleDownload(
-    url: String?,
-    contentDisposition: String?,
-    mimeType: String?
-) {
-    if (url == null || !(url.startsWith("https://") || url.startsWith("http://"))) {
-        Toast.makeText(
-            this,
-            "This download type is not supported.",
-            Toast.LENGTH_LONG
-        ).show()
-        return
+    private fun handleDownload(
+        url: String?,
+        contentDisposition: String?,
+        mimeType: String?
+    ) {
+        if (url == null ||
+            !(url.startsWith("https://") || url.startsWith("http://"))
+        ) {
+            Toast.makeText(
+                this,
+                "This download type is not supported.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val request = DownloadManager.Request(Uri.parse(url))
+        request.setMimeType(mimeType)
+        request.setNotificationVisibility(
+            DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+        )
+        request.setDestinationInExternalPublicDir(
+            Environment.DIRECTORY_DOWNLOADS,
+            URLUtil.guessFileName(url, contentDisposition, mimeType)
+        )
+        val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        manager.enqueue(request)
+        Toast.makeText(this, "Downloading…", Toast.LENGTH_SHORT).show()
     }
-    val request = DownloadManager.Request(Uri.parse(url))
-    request.setMimeType(mimeType)
-    request.setNotificationVisibility(
-        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-    )
-    request.setDestinationInExternalPublicDir(
-        Environment.DIRECTORY_DOWNLOADS,
-        URLUtil.guessFileName(url, contentDisposition, mimeType)
-    )
-    val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-    manager.enqueue(request)
-    Toast.makeText(this, "Downloading…", Toast.LENGTH_SHORT).show()
-}
+
+"""
+
+    const val SHELL_PTR_CLASS = """    /**
+     * Minimal pull-to-refresh container: a downward pull that starts
+     * while the WebView is scrolled to the top triggers a reload.
+     */
+    inner class PullRefreshContainer(context: Context) : FrameLayout(context) {
+        var onRefresh: (() -> Unit)? = null
+        private var startY = 0f
+        private var pulling = false
+
+        override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startY = ev.y
+                    pulling = false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (webView.scrollY == 0 && ev.y - startY > 24f) {
+                        pulling = true
+                        return true
+                    }
+                }
+            }
+            return super.onInterceptTouchEvent(ev)
+        }
+
+        override fun onTouchEvent(ev: MotionEvent): Boolean {
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (pulling && ev.y - startY > pullTriggerPx) {
+                        onRefresh?.invoke()
+                    }
+                    pulling = false
+                }
+            }
+            return true
+        }
+    }
 
 """
 
     const val SHELL_TRUST_AND_API = """    /** The JS bridge only answers on the app's own pages. */
-private fun isTrustedPage(): Boolean {
-    val current = webView.url ?: return false
-    return current.startsWith("file:///android_asset/") ||
-        current.startsWith(trustedPrefix)
-}
-
-inner class AndroidApi {
-    @JavascriptInterface
-    fun toast(text: String) {
-        if (!isTrustedPage()) return
-        runOnUiThread {
-            Toast.makeText(
-                this@MainActivity,
-                text.take(200),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+    private fun isTrustedPage(): Boolean {
+        val current = webView.url ?: return false
+        return current.startsWith("file:///android_asset/") ||
+            current.startsWith(trustedPrefix)
     }
 
-    @JavascriptInterface
-    fun vibrate(milliseconds: Long) {
-        if (!isTrustedPage()) return
-        val ms = milliseconds.coerceIn(1L, 1000L)
-        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(
-                VibrationEffect.createOneShot(
-                    ms,
-                    VibrationEffect.DEFAULT_AMPLITUDE
-                )
-            )
+    /**
+     * Delivers an asynchronous bridge result to the page as
+     * window.onAndroidEvent(event, dataJsonString).
+     */
+    private fun sendEvent(event: String, data: JSONObject) {
+        val script = "window.onAndroidEvent&&window.onAndroidEvent(" +
+            JSONObject.quote(event) + "," +
+            JSONObject.quote(data.toString()) + ")"
+        runOnUiThread { webView.evaluateJavascript(script, null) }
+    }
+
+    private fun parsePattern(pattern: String): LongArray? {
+        val cleaned = pattern.trim().removePrefix("[").removeSuffix("]")
+        if (cleaned.isBlank()) return null
+        val parts = cleaned.split(",")
+        if (parts.size > 32) return null
+        val values = LongArray(parts.size)
+        for (i in parts.indices) {
+            values[i] = parts[i].trim().toLongOrNull()
+                ?.coerceIn(0L, 5000L) ?: return null
+        }
+        return values
+    }
+
+    private fun networkInfo(): JSONObject {
+        val info = JSONObject()
+        val manager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = manager.activeNetwork
+        val caps = if (network != null) {
+            manager.getNetworkCapabilities(network)
         } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(ms)
+            null
         }
-    }
-
-    @JavascriptInterface
-    fun shareText(text: String) {
-        if (!isTrustedPage()) return
-        runOnUiThread {
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "text/plain"
-            intent.putExtra(Intent.EXTRA_TEXT, text.take(4000))
-            startActivity(Intent.createChooser(intent, "Share"))
-        }
-    }
-
-    @JavascriptInterface
-    fun copyToClipboard(text: String) {
-        if (!isTrustedPage()) return
-        val clipboard =
-            getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(
-            ClipData.newPlainText("web", text.take(4000))
+        val online = caps != null && caps.hasCapability(
+            NetworkCapabilities.NET_CAPABILITY_INTERNET
         )
+        info.put("online", online)
+        info.put(
+            "type",
+            when {
+                caps == null -> "none"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+                caps.hasTransport(
+                    NetworkCapabilities.TRANSPORT_CELLULAR
+                ) -> "cellular"
+                caps.hasTransport(
+                    NetworkCapabilities.TRANSPORT_ETHERNET
+                ) -> "ethernet"
+                else -> "other"
+            }
+        )
+        return info
     }
 
-    @JavascriptInterface
-    fun getAppInfo(): String {
-        if (!isTrustedPage()) return "{}"
-        return "{\"version\":\"1.0.0\"}"
+    private fun storageDir(): File {
+        val dir = File(filesDir, "web_storage")
+        if (!dir.exists()) dir.mkdirs()
+        return dir
     }
-}
+
+    private fun safeStorageName(name: String): String? {
+        if (name.isBlank() || name.length > 64) return null
+        if (name.contains("..")) return null
+        val allowed = name.all {
+            it.isLetterOrDigit() || it == '.' || it == '_' || it == '-'
+        }
+        return if (allowed) name else null
+    }
+
+    inner class AndroidApi {
+        @JavascriptInterface
+        fun toast(text: String) {
+            if (!isTrustedPage()) return
+            runOnUiThread {
+                Toast.makeText(
+                    this@MainActivity,
+                    text.take(200),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        @JavascriptInterface
+        fun vibrate(milliseconds: Long) {
+            if (!isTrustedPage()) return
+            val ms = milliseconds.coerceIn(1L, 1000L)
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                        ms,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(ms)
+            }
+        }
+
+        @JavascriptInterface
+        fun vibratePattern(pattern: String) {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            val timings = parsePattern(pattern)
+            if (timings == null) {
+                result.put("ok", false)
+                result.put("error", "invalid_pattern")
+            } else {
+                val vibrator =
+                    getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(
+                        VibrationEffect.createWaveform(timings, -1)
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(timings, -1)
+                }
+                result.put("ok", true)
+                result.put("steps", timings.size)
+            }
+            sendEvent("vibrateResult", result)
+        }
+
+        @JavascriptInterface
+        fun cancelVibrate() {
+            if (!isTrustedPage()) return
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vibrator.cancel()
+        }
+
+        @JavascriptInterface
+        fun torch(on: Boolean) {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            try {
+                val manager =
+                    getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                val cameraId = manager.cameraIdList.firstOrNull { id ->
+                    manager.getCameraCharacteristics(id)
+                        .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+                }
+                if (cameraId == null) {
+                    result.put("ok", false)
+                    result.put("error", "no_flash")
+                } else {
+                    manager.setTorchMode(cameraId, on)
+                    result.put("ok", true)
+                    result.put("on", on)
+                }
+            } catch (e: Exception) {
+                result.put("ok", false)
+                result.put("error", "torch_failed")
+            }
+            sendEvent("torchResult", result)
+        }
+
+        @JavascriptInterface
+        fun showNotification(title: String, body: String) {
+            if (!isTrustedPage()) return
+            runOnUiThread {
+                val result = JSONObject()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    checkSelfPermission(
+                        "android.permission.POST_NOTIFICATIONS"
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    result.put("ok", false)
+                    result.put("error", "permission_denied")
+                    sendEvent("notificationResult", result)
+                    return@runOnUiThread
+                }
+                val manager = getSystemService(
+                    Context.NOTIFICATION_SERVICE
+                ) as NotificationManager
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    manager.createNotificationChannel(
+                        NotificationChannel(
+                            "web_app",
+                            "Web App",
+                            NotificationManager.IMPORTANCE_DEFAULT
+                        )
+                    )
+                }
+                val builder = if (
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ) {
+                    Notification.Builder(this@MainActivity, "web_app")
+                } else {
+                    @Suppress("DEPRECATION")
+                    Notification.Builder(this@MainActivity)
+                }
+                builder.setContentTitle(title.take(100))
+                builder.setContentText(body.take(300))
+                builder.setSmallIcon(android.R.drawable.ic_dialog_info)
+                builder.setAutoCancel(true)
+                manager.notify(
+                    (System.currentTimeMillis() % 100000).toInt(),
+                    builder.build()
+                )
+                result.put("ok", true)
+                sendEvent("notificationResult", result)
+            }
+        }
+
+        @JavascriptInterface
+        fun shareText(text: String) {
+            if (!isTrustedPage()) return
+            runOnUiThread {
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = "text/plain"
+                intent.putExtra(Intent.EXTRA_TEXT, text.take(4000))
+                startActivity(Intent.createChooser(intent, "Share"))
+            }
+        }
+
+        @JavascriptInterface
+        fun copyToClipboard(text: String) {
+            if (!isTrustedPage()) return
+            val clipboard =
+                getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(
+                ClipData.newPlainText("web", text.take(4000))
+            )
+        }
+
+        @JavascriptInterface
+        fun getClipboard() {
+            if (!isTrustedPage()) return
+            runOnUiThread {
+                val clipboard = getSystemService(
+                    Context.CLIPBOARD_SERVICE
+                ) as ClipboardManager
+                val text = clipboard.primaryClip
+                    ?.getItemAt(0)
+                    ?.coerceToText(this@MainActivity)
+                    ?.toString() ?: ""
+                val result = JSONObject()
+                result.put("text", text)
+                sendEvent("clipboardResult", result)
+            }
+        }
+
+        @JavascriptInterface
+        fun getAppInfo(): String {
+            if (!isTrustedPage()) return "{}"
+            val info = JSONObject()
+            info.put(
+                "name",
+                applicationInfo.loadLabel(packageManager).toString()
+            )
+            info.put("package", packageName)
+            info.put("version", "1.0.0")
+            return info.toString()
+        }
+
+        @JavascriptInterface
+        fun getDeviceInfo(): String {
+            if (!isTrustedPage()) return "{}"
+            val info = JSONObject()
+            info.put("manufacturer", Build.MANUFACTURER)
+            info.put("model", Build.MODEL)
+            info.put("sdk", Build.VERSION.SDK_INT)
+            info.put("release", Build.VERSION.RELEASE)
+            return info.toString()
+        }
+
+        @JavascriptInterface
+        fun isOnline(): Boolean {
+            if (!isTrustedPage()) return false
+            return networkInfo().optBoolean("online")
+        }
+
+        @JavascriptInterface
+        fun networkStatus() {
+            if (!isTrustedPage()) return
+            sendEvent("networkStatus", networkInfo())
+        }
+
+        @JavascriptInterface
+        fun getBattery() {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            val intent = registerReceiver(
+                null,
+                IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+            if (intent != null) {
+                val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                val status = intent.getIntExtra(
+                    BatteryManager.EXTRA_STATUS, -1
+                )
+                result.put(
+                    "level",
+                    if (level >= 0 && scale > 0) level * 100 / scale else -1
+                )
+                result.put(
+                    "charging",
+                    status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                        status == BatteryManager.BATTERY_STATUS_FULL
+                )
+            }
+            sendEvent("batteryResult", result)
+        }
+
+        @JavascriptInterface
+        fun setKeepScreenOn(on: Boolean) {
+            if (!isTrustedPage()) return
+            runOnUiThread {
+                if (on) {
+                    window.addFlags(
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    )
+                } else {
+                    window.clearFlags(
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    )
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun storageSave(name: String, content: String) {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            result.put("action", "save")
+            val safe = safeStorageName(name)
+            if (safe == null) {
+                result.put("ok", false)
+                result.put("error", "invalid_name")
+            } else {
+                try {
+                    File(storageDir(), safe)
+                        .writeText(content.take(200000))
+                    result.put("ok", true)
+                    result.put("name", safe)
+                } catch (e: Exception) {
+                    result.put("ok", false)
+                    result.put("error", "write_failed")
+                }
+            }
+            sendEvent("storageResult", result)
+        }
+
+        @JavascriptInterface
+        fun storageLoad(name: String) {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            result.put("action", "load")
+            val safe = safeStorageName(name)
+            if (safe == null) {
+                result.put("ok", false)
+                result.put("error", "invalid_name")
+            } else {
+                val file = File(storageDir(), safe)
+                if (!file.exists()) {
+                    result.put("ok", false)
+                    result.put("error", "not_found")
+                } else {
+                    result.put("ok", true)
+                    result.put("name", safe)
+                    result.put("content", file.readText())
+                }
+            }
+            sendEvent("storageResult", result)
+        }
+
+        @JavascriptInterface
+        fun storageDelete(name: String) {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            result.put("action", "delete")
+            val safe = safeStorageName(name)
+            if (safe == null) {
+                result.put("ok", false)
+                result.put("error", "invalid_name")
+            } else {
+                val file = File(storageDir(), safe)
+                result.put("ok", file.delete())
+                result.put("name", safe)
+            }
+            sendEvent("storageResult", result)
+        }
+
+        @JavascriptInterface
+        fun storageList() {
+            if (!isTrustedPage()) return
+            val result = JSONObject()
+            result.put("action", "list")
+            val names = JSONArray()
+            storageDir().listFiles()?.forEach { names.put(it.name) }
+            result.put("ok", true)
+            result.put("files", names)
+            sendEvent("storageResult", result)
+        }
+    }
 
 """
 
     const val SHELL_CLIENTS = """    inner class ShellWebViewClient : WebViewClient() {
-    override fun shouldOverrideUrlLoading(
-        view: WebView,
-        request: WebResourceRequest
-    ): Boolean {
-        val url = request.url
-        val scheme = url.scheme ?: return false
-        if (
-            scheme == "https" || scheme == "http" ||
-            scheme == "file"
-        ) {
-            return false
+        override fun shouldOverrideUrlLoading(
+            view: WebView,
+            request: WebResourceRequest
+        ): Boolean {
+            val url = request.url
+            val scheme = url.scheme ?: return false
+            if (
+                scheme == "https" || scheme == "http" ||
+                scheme == "file"
+            ) {
+                return false
+            }
+            return try {
+                startActivity(Intent(Intent.ACTION_VIEW, url))
+                true
+            } catch (e: Exception) {
+                true
+            }
         }
-        return try {
-            startActivity(Intent(Intent.ACTION_VIEW, url))
-            true
-        } catch (e: Exception) {
-            true
-        }
-    }
 
-    override fun onReceivedError(
-        view: WebView,
-        request: WebResourceRequest,
-        error: WebResourceError
-    ) {
-        super.onReceivedError(view, request, error)
-        if (request.isForMainFrame) {
+        override fun onPageFinished(view: WebView, url: String?) {
+            super.onPageFinished(view, url)
+            if (this@MainActivity::refreshSpinner.isInitialized) {
+                refreshSpinner.visibility = View.GONE
+            }
+        }
+
+        override fun onReceivedError(
+            view: WebView,
+            request: WebResourceRequest,
+            error: WebResourceError
+        ) {
+            super.onReceivedError(view, request, error)
+            if (!request.isForMainFrame) return
+            if (noInternetDialog) {
+                if (!errorDialogShowing) {
+                    errorDialogShowing = true
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("No connection")
+                        .setMessage(
+                            "Check your internet connection and try again."
+                        )
+                        .setPositiveButton("Retry") { _, _ ->
+                            errorDialogShowing = false
+                            view.loadUrl(startUrl)
+                        }
+                        .setNegativeButton("Close") { _, _ ->
+                            errorDialogShowing = false
+                        }
+                        .setOnCancelListener { errorDialogShowing = false }
+                        .show()
+                }
+                return
+            }
             val html = "<html><body style='background:#121212;color:#f7f3ef;" +
                 "font-family:sans-serif;padding:24px'>" +
                 "<h2>Page unavailable</h2>" +
@@ -577,83 +1204,125 @@ inner class AndroidApi {
             )
         }
     }
-}
 
-inner class ShellWebChromeClient : WebChromeClient() {
-    override fun onPermissionRequest(request: PermissionRequest) {
-        val granted = mutableListOf<String>()
-        for (resource in request.resources) {
-            val permission = when (resource) {
-                PermissionRequest.RESOURCE_VIDEO_CAPTURE ->
-                    "android.permission.CAMERA"
-                PermissionRequest.RESOURCE_AUDIO_CAPTURE ->
-                    "android.permission.RECORD_AUDIO"
-                else -> null
+    inner class ShellWebChromeClient : WebChromeClient() {
+        override fun onPermissionRequest(request: PermissionRequest) {
+            val granted = mutableListOf<String>()
+            for (resource in request.resources) {
+                val permission = when (resource) {
+                    PermissionRequest.RESOURCE_VIDEO_CAPTURE ->
+                        "android.permission.CAMERA"
+                    PermissionRequest.RESOURCE_AUDIO_CAPTURE ->
+                        "android.permission.RECORD_AUDIO"
+                    else -> null
+                }
+                if (
+                    permission != null &&
+                    isTrustedPage() &&
+                    checkSelfPermission(permission) ==
+                        PackageManager.PERMISSION_GRANTED
+                ) {
+                    granted.add(resource)
+                }
             }
-            if (
-                permission != null &&
-                isTrustedPage() &&
-                checkSelfPermission(permission) ==
+            if (granted.isEmpty()) {
+                request.deny()
+            } else {
+                request.grant(granted.toTypedArray())
+            }
+        }
+
+        override fun onGeolocationPermissionsShowPrompt(
+            origin: String?,
+            callback: GeolocationPermissions.Callback
+        ) {
+            val allowed = isTrustedPage() &&
+                checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") ==
                     PackageManager.PERMISSION_GRANTED
-            ) {
-                granted.add(resource)
-            }
-        }
-        if (granted.isEmpty()) {
-            request.deny()
-        } else {
-            request.grant(granted.toTypedArray())
+            callback.invoke(origin, allowed, false)
         }
     }
-
-    override fun onGeolocationPermissionsShowPrompt(
-        origin: String?,
-        callback: GeolocationPermissions.Callback
-    ) {
-        val allowed = isTrustedPage() &&
-            checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") ==
-                PackageManager.PERMISSION_GRANTED
-        callback.invoke(origin, allowed, false)
-    }
-}
 
 """
 
     const val SHELL_LIFECYCLE = """    @Deprecated("Uses the WebView history before finishing")
-override fun onBackPressed() {
-    if (this::webView.isInitialized && webView.canGoBack()) {
-        webView.goBack()
-    } else {
-        super.onBackPressed()
+    override fun onBackPressed() {
+        if (this::webView.isInitialized && webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            super.onBackPressed()
+        }
     }
-}
 
-override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    if (this::webView.isInitialized) {
-        webView.saveState(outState)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (this::webView.isInitialized) {
+            webView.saveState(outState)
+        }
     }
-}
 
-override fun onPause() {
-    if (this::webView.isInitialized) {
-        webView.onPause()
+    override fun onPause() {
+        if (this::webView.isInitialized) {
+            webView.onPause()
+        }
+        super.onPause()
     }
-    super.onPause()
-}
 
-override fun onResume() {
-    super.onResume()
-    if (this::webView.isInitialized) {
-        webView.onResume()
+    override fun onResume() {
+        super.onResume()
+        if (this::webView.isInitialized) {
+            webView.onResume()
+        }
     }
-}
 
-override fun onDestroy() {
-    if (this::webView.isInitialized) {
-        webView.destroy()
+    override fun onDestroy() {
+        if (this::webView.isInitialized) {
+            webView.destroy()
+        }
+        super.onDestroy()
     }
-    super.onDestroy()
-}
+"""
+
+    const val SHELL_LIFECYCLE_EXIT_CONFIRM = """    @Deprecated("Uses the WebView history before finishing")
+    override fun onBackPressed() {
+        if (this::webView.isInitialized && webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Do you want to exit this app?")
+                .setPositiveButton("Exit") { _, _ -> finish() }
+                .setNegativeButton("Stay", null)
+                .show()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (this::webView.isInitialized) {
+            webView.saveState(outState)
+        }
+    }
+
+    override fun onPause() {
+        if (this::webView.isInitialized) {
+            webView.onPause()
+        }
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (this::webView.isInitialized) {
+            webView.onResume()
+        }
+    }
+
+    override fun onDestroy() {
+        if (this::webView.isInitialized) {
+            webView.destroy()
+        }
+        super.onDestroy()
+    }
 """
 }
