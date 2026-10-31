@@ -11,7 +11,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.zipbug.base.R
@@ -51,7 +53,12 @@ class WebTemplatesActivity : AppCompatActivity() {
             rows += Row.Header(categoryTitle(category))
             templates.forEach { rows += Row.Entry(it) }
         }
-        binding.templatesList.layoutManager = LinearLayoutManager(this)
+        val grid = GridLayoutManager(this, 3)
+        grid.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int =
+                if (rows[position] is Row.Header) 3 else 1
+        }
+        binding.templatesList.layoutManager = grid
         binding.templatesList.adapter = TemplateAdapter(rows) { template ->
             showDetail(template)
         }
@@ -170,14 +177,26 @@ class WebTemplatesActivity : AppCompatActivity() {
         }
 
         inner class EntryHolder(view: View) : RecyclerView.ViewHolder(view) {
+            private val icon: TextView =
+                view.findViewById(R.id.templateItemIcon)
             private val title: TextView =
                 view.findViewById(R.id.templateItemTitle)
-            private val desc: TextView =
-                view.findViewById(R.id.templateItemDesc)
 
             fun bind(template: WebTemplate) {
+                icon.text = template.icon
+                val tile = GradientDrawable()
+                tile.shape = GradientDrawable.RECTANGLE
+                tile.cornerRadius =
+                    18f * itemView.resources.displayMetrics.density
+                tile.setColor(
+                    try {
+                        Color.parseColor(template.colorHex)
+                    } catch (e: IllegalArgumentException) {
+                        Color.GRAY
+                    }
+                )
+                icon.background = tile
                 title.text = template.title
-                desc.text = template.description
                 itemView.setOnClickListener { onClick(template) }
             }
         }
