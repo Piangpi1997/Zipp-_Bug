@@ -624,4 +624,5 @@
     <string name="templates_cat_system">System</string>
     <string name="templates_cat_libraries">Starter Libraries</string>
 
+    <string name="settings_anthropic_base_url_hint">Claude base URL (optional, e.g. https://space.stationine.com)</string>
 </resources>
