@@ -1,165 +1,90 @@
 #!/usr/bin/env python3
-"""Generate open-source license metadata for Zip_Bug from REAL dependencies.
+"""Generate open-source license metadata for Zip_Bug — v2 (full graph).
 
-Sources of truth (parsed, never hand-listed):
-  * app/build.gradle.kts        -> the app's own implementation/kapt/test deps
-  * build.gradle.kts (root)     -> Kotlin plugin version (kotlin-stdlib)
-  * AppScaffolder.kt            -> the fixed core deps of every generated app
+Inputs (committed, produced by scripts/resolve-license-graph.py):
+  * scripts/license-graph.json         resolved modules ("g:a:v") for the
+                                       app classpath, the generated-app
+                                       template classpath, and the kept
+                                       build/test-only extras
+  * scripts/license-pom-metadata.json  per-module name/author/license as
+                                       published in the module's own POM
 
-License metadata (display name / author / license / URL) is curated in
-METADATA below for exactly those coordinates. Any parsed dependency that is
-missing from METADATA aborts generation (and fails --check), so a new
-dependency can never silently ship without license review.
+License names from POMs are canonicalized (Apache variants, BSD
+variants, EPL, MIT, ...). Google SDK groups are always labelled with the
+Android Software Development Kit License, never Apache. Anything that
+cannot be mapped from evidence is emitted as "License review required".
 
 Outputs:
   * app/src/main/assets/open_source_licenses.json
   * app/src/main/assets/third_party_notices.txt
   * THIRD_PARTY_NOTICES.txt            (repository root)
+  * the GENERATED-KNOWN block inside
+    app/src/main/java/com/zipbug/base/licenses/GeneratedLicenseManifest.kt
 
 Usage:
   python3 scripts/generate-licenses.py           # regenerate outputs
-  python3 scripts/generate-licenses.py --check   # fail if outputs are stale
-                                                 # or metadata is missing
+  python3 scripts/generate-licenses.py --check   # fail if outputs stale
 """
 
 import json
-import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-APP_GRADLE = ROOT / "app" / "build.gradle.kts"
-ROOT_GRADLE = ROOT / "build.gradle.kts"
-SCAFFOLDER = (
-    ROOT
-    / "app/src/main/java/com/zipbug/base/creator/AppScaffolder.kt"
-)
+GRAPH = ROOT / "scripts/license-graph.json"
+POM_META = ROOT / "scripts/license-pom-metadata.json"
 JSON_OUT = ROOT / "app/src/main/assets/open_source_licenses.json"
 NOTICES_ASSET = ROOT / "app/src/main/assets/third_party_notices.txt"
 NOTICES_ROOT = ROOT / "THIRD_PARTY_NOTICES.txt"
+KOTLIN_MANIFEST = (
+    ROOT
+    / "app/src/main/java/com/zipbug/base/licenses/GeneratedLicenseManifest.kt"
+)
 
 APACHE = "Apache License 2.0"
 APACHE_URL = "https://www.apache.org/licenses/LICENSE-2.0"
-AOSP = "The Android Open Source Project"
+BSD2 = "BSD 2-Clause License"
+BSD2_URL = "https://opensource.org/licenses/BSD-2-Clause"
+BSD3 = "BSD 3-Clause License"
+BSD3_URL = "https://opensource.org/licenses/BSD-3-Clause"
+REVIEW_REQUIRED = "License review required"
 
-# coordinate (group:artifact) -> curated metadata.
-# "category" drives the UI filters: apache / mit / bsd / google_sdk / other.
-METADATA = {
-    "androidx.core:core-ktx": {
-        "displayName": "Core KTX",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.appcompat:appcompat": {
-        "displayName": "AppCompat",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.activity:activity-ktx": {
-        "displayName": "Activity KTX",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.fragment:fragment-ktx": {
-        "displayName": "Fragment KTX",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.lifecycle:lifecycle-runtime-ktx": {
-        "displayName": "Lifecycle Runtime KTX",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.lifecycle:lifecycle-viewmodel-ktx": {
-        "displayName": "Lifecycle ViewModel KTX",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "com.google.android.material:material": {
-        "displayName": "Material Components for Android",
-        "author": "Google LLC",
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.room:room-runtime": {
-        "displayName": "Room Runtime",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.room:room-ktx": {
-        "displayName": "Room KTX",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "androidx.room:room-compiler": {
-        "displayName": "Room Compiler",
-        "author": AOSP,
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-        "notes": "Build-time annotation processor (kapt); not shipped in the APK.",
-    },
-    "com.squareup.okhttp3:okhttp": {
-        "displayName": "OkHttp",
-        "author": "Square, Inc.",
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "com.github.bumptech.glide:glide": {
-        "displayName": "Glide",
-        "author": "Bumptech",
-        "license": "BSD 3-Clause License",
-        "licenseUrl": "https://opensource.org/licenses/BSD-3-Clause",
-        "category": "bsd",
-    },
-    "org.jetbrains.kotlinx:kotlinx-coroutines-android": {
-        "displayName": "Kotlinx Coroutines Android",
-        "author": "JetBrains s.r.o.",
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "org.jetbrains.kotlin:kotlin-stdlib": {
-        "displayName": "Kotlin Standard Library",
-        "author": "JetBrains s.r.o.",
-        "license": APACHE,
-        "licenseUrl": APACHE_URL,
-        "category": "apache",
-    },
-    "junit:junit": {
-        "displayName": "JUnit 4",
-        "author": "JUnit Team",
-        "license": "Eclipse Public License 1.0",
-        "licenseUrl": "https://www.eclipse.org/legal/epl-v10.html",
-        "category": "other",
-        "notes": "Unit tests only; not included in the APK.",
-    },
+# Groups whose artifacts are governed by Google's SDK terms even when a
+# POM declares something else. (None are in Zip_Bug's current graph; the
+# rule exists so a future generated-app feature can never mislabel them.)
+GOOGLE_SDK_PREFIXES = (
+    "com.google.android.gms:",
+    "com.google.firebase:",
+    "com.google.android.play:",
+    "com.google.android.ump:",
+    "com.google.ads:",
+)
+ANDROID_SDK_LICENSE = "Android Software Development Kit License"
+ANDROID_SDK_URL = "https://developer.android.com/studio/terms"
+
+# Curated corrections where a published POM is known to be wrong or
+# incomplete. Each entry must be defensible from the artifact itself.
+OVERRIDES = {
+    # The org.json POM declares "Public Domain", but the artifact ships
+    # the JSON License text (see its LICENSE file); v1 decision kept.
     "org.json:json": {
-        "displayName": "JSON in Java (org.json)",
-        "author": "JSON.org",
         "license": "The JSON License",
         "licenseUrl": "https://www.json.org/license.html",
         "category": "other",
-        "notes": "Unit tests only; not included in the APK.",
     },
+    # The POM carries no organization/developer; Error Prone is a
+    # Google project.
+    "com.google.errorprone:error_prone_annotations": {
+        "author": "Google LLC",
+    },
+}
+
+EXTRA_NOTES = {
+    "androidx.room:room-compiler":
+        "Build-time annotation processor (kapt); not shipped in the APK.",
+    "junit:junit": "Unit tests only; not included in the APK.",
+    "org.hamcrest:hamcrest-core": "Unit tests only; not included in the APK.",
+    "org.json:json": "Unit tests only; not included in the APK.",
 }
 
 NOTICE_BY_LICENSE = {
@@ -170,7 +95,13 @@ NOTICE_BY_LICENSE = {
         "the License is distributed on an \"AS IS\" BASIS, WITHOUT "
         "WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."
     ),
-    "BSD 3-Clause License": (
+    BSD2: (
+        "Redistribution and use in source and binary forms, with or without "
+        "modification, are permitted provided that the copyright notice and "
+        "disclaimer in the license text are retained. See the license URL "
+        "above for the full text."
+    ),
+    BSD3: (
         "Redistribution and use in source and binary forms, with or without "
         "modification, are permitted provided that the copyright notice, "
         "conditions and disclaimer in the license text are retained. See "
@@ -187,91 +118,138 @@ NOTICE_BY_LICENSE = {
     ),
 }
 
-COORD_RE = re.compile(
-    r"([a-zA-Z][a-zA-Z0-9_.\-]*):([a-zA-Z0-9_.\-]+):([0-9][a-zA-Z0-9_.+\-]*)"
+GENERIC_NOTICE = (
+    "Distributed under the license named above. See the license URL "
+    "above for the full text."
 )
 
 
-def parse_app_dependencies():
-    """Return {coordinate: version} from app/build.gradle.kts."""
-    text = APP_GRADLE.read_text(encoding="utf-8")
-    block = text[text.index("dependencies {"):]
-    block = block[: block.index("\n}")]
-    deps = {}
-    for m in re.finditer(
-        r"(?:implementation|kapt|testImplementation)\(\"([^\"]+)\"\)", block
-    ):
-        coord = m.group(1)
-        cm = COORD_RE.fullmatch(coord)
-        if not cm:
-            raise SystemExit(f"Unparseable dependency coordinate: {coord}")
-        deps[f"{cm.group(1)}:{cm.group(2)}"] = cm.group(3)
-    return deps
+def canonical_license(ga, pom_license_name, pom_license_url):
+    """Map a POM-declared license to (name, url, category) or review."""
+    if any(ga.startswith(p) for p in GOOGLE_SDK_PREFIXES):
+        return ANDROID_SDK_LICENSE, ANDROID_SDK_URL, "google_sdk"
+    name = (pom_license_name or "").strip()
+    low = name.lower()
+    if "apache" in low:
+        return APACHE, APACHE_URL, "apache"
+    if "simplified bsd" in low or "bsd 2" in low or "2-clause" in low:
+        return BSD2, BSD2_URL, "bsd"
+    if "new bsd" in low or "bsd 3" in low or "3-clause" in low:
+        return BSD3, BSD3_URL, "bsd"
+    if low == "bsd license" or low == "the bsd license":
+        # Ambiguous BSD variant in the POM: use the URL to disambiguate
+        # when possible, otherwise require a human review.
+        return REVIEW_REQUIRED, pom_license_url or "", "other"
+    if "mit" in low:
+        return "MIT License", "https://opensource.org/licenses/MIT", "mit"
+    if "eclipse public license" in low and "1.0" in low:
+        return (
+            "Eclipse Public License 1.0",
+            "https://www.eclipse.org/legal/epl-v10.html",
+            "other",
+        )
+    if "eclipse public license" in low and "2.0" in low:
+        return (
+            "Eclipse Public License 2.0",
+            "https://www.eclipse.org/legal/epl-2.0/",
+            "other",
+        )
+    if "mozilla public license" in low:
+        return (
+            "Mozilla Public License 2.0",
+            "https://www.mozilla.org/en-US/MPL/2.0/",
+            "other",
+        )
+    if "open font license" in low or "sil open font" in low:
+        return (
+            "SIL Open Font License 1.1",
+            "https://opensource.org/licenses/OFL-1.1",
+            "other",
+        )
+    if "android software development kit" in low:
+        return ANDROID_SDK_LICENSE, ANDROID_SDK_URL, "google_sdk"
+    if "play core" in low and "terms of service" in low:
+        return (
+            "Play Core Software Development Kit Terms of Service",
+            ANDROID_SDK_URL,
+            "google_sdk",
+        )
+    if not name:
+        return REVIEW_REQUIRED, "", "other"
+    return REVIEW_REQUIRED, pom_license_url or "", "other"
 
 
-def parse_kotlin_version():
-    text = ROOT_GRADLE.read_text(encoding="utf-8")
-    m = re.search(
-        r'id\("org\.jetbrains\.kotlin\.android"\)\s+version\s+"([^"]+)"', text
-    )
-    if not m:
-        raise SystemExit("Kotlin plugin version not found in build.gradle.kts")
-    return m.group(1)
-
-
-def parse_generated_core():
-    """Coordinates hardcoded in AppScaffolder's generated app/build.gradle."""
-    text = SCAFFOLDER.read_text(encoding="utf-8")
-    coords = {}
-    for line in text.splitlines():
-        if "implementation" in line or "dependency ==" in line:
-            for m in COORD_RE.finditer(line):
-                coords[f"{m.group(1)}:{m.group(2)}"] = m.group(3)
-    return coords
+def split_coord(coord):
+    ga, _, version = coord.rpartition(":")
+    return ga, version
 
 
 def build_entries():
-    app_deps = parse_app_dependencies()
-    kotlin_version = parse_kotlin_version()
-    app_deps["org.jetbrains.kotlin:kotlin-stdlib"] = kotlin_version
-    generated = parse_generated_core()
-    generated["org.jetbrains.kotlin:kotlin-stdlib"] = kotlin_version
+    graph = json.loads(GRAPH.read_text(encoding="utf-8"))
+    pom_meta = json.loads(POM_META.read_text(encoding="utf-8"))
 
-    unknown = [c for c in app_deps if c not in METADATA]
-    unknown += [c for c in generated if c not in METADATA]
-    if unknown:
-        raise SystemExit(
-            "License metadata missing for: "
-            + ", ".join(sorted(set(unknown)))
-            + " — add curated metadata to scripts/generate-licenses.py "
-            "before shipping this dependency."
-        )
+    app = dict(split_coord(c) for c in graph["app"])
+    generated = dict(split_coord(c) for c in graph["generatedApps"])
+    extras = dict(split_coord(c) for c in graph["extras"])
 
     entries = []
-    for coord in sorted(app_deps):
-        meta = METADATA[coord]
-        scope = ["app"]
-        if coord in generated:
-            if generated[coord] != app_deps[coord]:
-                raise SystemExit(
-                    f"Version mismatch for {coord}: app uses "
-                    f"{app_deps[coord]}, generated apps use "
-                    f"{generated[coord]} — one entry cannot describe both."
-                )
+    all_gas = sorted(set(app) | set(generated) | set(extras))
+    for ga in all_gas:
+        # Metadata comes from the app's resolved version when present,
+        # else the generated template's, else the extra's own POM.
+        meta_coord = None
+        for source in (app, generated, extras):
+            if ga in source:
+                meta_coord = f"{ga}:{source[ga]}"
+                break
+        meta = pom_meta.get(meta_coord)
+        if meta is None:
+            raise SystemExit(
+                f"POM metadata missing for {meta_coord}; re-run "
+                "scripts/resolve-license-graph.py"
+            )
+        display_name = meta.get("name") or ga.split(":")[1]
+        author = meta.get("author") or ga.split(":")[0]
+        license_name, license_url, category = canonical_license(
+            ga, meta.get("licenseName"), meta.get("licenseUrl")
+        )
+        override = OVERRIDES.get(ga, {})
+        display_name = override.get("displayName", display_name)
+        author = override.get("author", author)
+        license_name = override.get("license", license_name)
+        license_url = override.get("licenseUrl", license_url)
+        category = override.get("category", category)
+
+        if ga in app and ga in generated and app[ga] != generated[ga]:
+            version = f"{app[ga]} · {generated[ga]}"
+        elif ga in app:
+            version = app[ga]
+        elif ga in generated:
+            version = generated[ga]
+        else:
+            version = extras[ga]
+
+        scope = []
+        if ga in app or ga in extras:
+            scope.append("app")
+        if ga in generated:
             scope.append("generated_apps")
+
         entry = {
-            "name": coord,
-            "displayName": meta["displayName"],
-            "version": app_deps[coord],
-            "author": meta["author"],
-            "license": meta["license"],
-            "licenseUrl": meta["licenseUrl"],
-            "category": meta["category"],
+            "name": ga,
+            "displayName": display_name,
+            "version": version,
+            "author": author,
+            "license": license_name,
+            "licenseUrl": license_url,
+            "category": category,
             "scope": scope,
         }
-        if "notes" in meta:
-            entry["notes"] = meta["notes"]
+        if ga in EXTRA_NOTES:
+            entry["notes"] = EXTRA_NOTES[ga]
         entries.append(entry)
+
+    entries.sort(key=lambda e: (e["displayName"].lower(), e["name"]))
     return entries
 
 
@@ -300,11 +278,51 @@ def build_notices(entries):
         ]
         if "notes" in e:
             lines.append(f"Notes: {e['notes']}")
-        notice = NOTICE_BY_LICENSE.get(e["license"])
-        if notice:
-            lines += ["", notice]
-        lines.append("")
+        notice = NOTICE_BY_LICENSE.get(e["license"], GENERIC_NOTICE)
+        lines += ["", notice, ""]
     return "\n".join(lines).rstrip() + "\n"
+
+
+def kotlin_escape(value):
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("$", "\\$")
+    )
+
+
+def build_kotlin_block(entries):
+    lines = [
+        "    // GENERATED-KNOWN-BEGIN — produced by scripts/generate-licenses.py",
+        "    // from scripts/license-graph.json + scripts/license-pom-metadata.json.",
+        "    // Do not edit by hand; run the generator instead.",
+        "    val KNOWN: Map<String, KnownLicense> = mapOf(",
+    ]
+    items = []
+    for e in entries:
+        items.append(
+            "        \"{ga}\" to KnownLicense(\"{name}\", \"{author}\", "
+            "\"{license}\", \"{url}\", \"{category}\")".format(
+                ga=kotlin_escape(e["name"]),
+                name=kotlin_escape(e["displayName"]),
+                author=kotlin_escape(e["author"]),
+                license=kotlin_escape(e["license"]),
+                url=kotlin_escape(e["licenseUrl"]),
+                category=kotlin_escape(e["category"]),
+            )
+        )
+    lines.append(",\n".join(items))
+    lines.append("    )")
+    lines.append("    // GENERATED-KNOWN-END")
+    return "\n".join(lines) + "\n"
+
+
+def replace_kotlin_block(old_text, block):
+    begin_marker = "    // GENERATED-KNOWN-BEGIN"
+    end_marker = "    // GENERATED-KNOWN-END"
+    begin = old_text.index(begin_marker)
+    end = old_text.index(end_marker) + len(end_marker)
+    return old_text[:begin] + block.rstrip("\n") + old_text[end:]
 
 
 def main():
@@ -312,10 +330,13 @@ def main():
     entries = build_entries()
     json_text = json.dumps(entries, indent=2, ensure_ascii=False) + "\n"
     notices_text = build_notices(entries)
+    kotlin_old = KOTLIN_MANIFEST.read_text(encoding="utf-8")
+    kotlin_new = replace_kotlin_block(kotlin_old, build_kotlin_block(entries))
     outputs = {
         JSON_OUT: json_text,
         NOTICES_ASSET: notices_text,
         NOTICES_ROOT: notices_text,
+        KOTLIN_MANIFEST: kotlin_new,
     }
     if check:
         stale = [
@@ -334,7 +355,7 @@ def main():
         path.write_text(content, encoding="utf-8")
         print(f"Wrote {path.relative_to(ROOT)}")
     unknown = sum(
-        1 for e in entries if e["license"] == "License review required"
+        1 for e in entries if e["license"] == REVIEW_REQUIRED
     )
     print(f"Libraries: {len(entries)}  Unknown: {unknown}")
     return 0
