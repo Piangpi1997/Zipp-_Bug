@@ -1,1 +1,406 @@
-cGFja2FnZSBjb20uemlwYnVnLmJhc2UudWkKCmltcG9ydCBhbmRyb2lkLmFwcC5BbGVydERpYWxvZwppbXBvcnQgYW5kcm9pZC5jb250ZW50LkludGVudAppbXBvcnQgYW5kcm9pZC5uZXQuVXJpCmltcG9ydCBhbmRyb2lkLm9zLkJ1bmRsZQppbXBvcnQgYW5kcm9pZC5wcm92aWRlci5PcGVuYWJsZUNvbHVtbnMKaW1wb3J0IGFuZHJvaWQudmlldy5WaWV3CmltcG9ydCBhbmRyb2lkLndpZGdldC5BcnJheUFkYXB0ZXIKaW1wb3J0IGFuZHJvaWR4LmFjdGl2aXR5LnJlc3VsdC5jb250cmFjdC5BY3Rpdml0eVJlc3VsdENvbnRyYWN0cwppbXBvcnQgYW5kcm9pZHguYXBwY29tcGF0LmFwcC5BcHBDb21wYXRBY3Rpdml0eQppbXBvcnQgY29tLmdvb2dsZS5hbmRyb2lkLm1hdGVyaWFsLnNuYWNrYmFyLlNuYWNrYmFyCmltcG9ydCBjb20uemlwYnVnLmJhc2UuUgppbXBvcnQgY29tLnppcGJ1Zy5iYXNlLmNyZWF0b3IuSHRtbFdlYlZpZXdTY2FmZm9sZGVyCmltcG9ydCBjb20uemlwYnVnLmJhc2UuY3JlYXRvci5Qcm9qZWN0WmlwV3JpdGVyCmltcG9ydCBjb20uemlwYnVnLmJhc2UuY3JlYXRvci5XZWJBcHBTcGVjCmltcG9ydCBjb20uemlwYnVnLmJhc2UuY3JlYXRvci5XZWJIYXJkd2FyZQppbXBvcnQgY29tLnppcGJ1Zy5iYXNlLmNyZWF0b3IuV2ViT3JpZW50YXRpb24KaW1wb3J0IGNvbS56aXBidWcuYmFzZS5jcmVhdG9yLldlYlRlbXBsYXRlCmltcG9ydCBjb20uemlwYnVnLmJhc2UuY3JlYXRvci5XZWJUZW1wbGF0ZXMKaW1wb3J0IGNvbS56aXBidWcuYmFzZS5kYXRhYmluZGluZy5BY3Rpdml0eUh0bWxBcHBXaXphcmRCaW5kaW5nCmltcG9ydCBqYXZhLnV0aWwuTG9jYWxlCgovKioKICogU3RlcC1ieS1zdGVwIEhUTUwtdG8tYXBwIHdpemFyZCAoSW5mbyDihpIgQ29udGVudCDihpIgRGlzcGxheSDihpIKICogUGVybWlzc2lvbnMg4oaSIFdlYlZpZXcg4oaSIFN1bW1hcnkpLCBtb2RlbGxlZCBvbiBkZWRpY2F0ZWQgSFRNTC10by1BUEsKICogYnVpbGRlciBhcHBzLiBQcm9kdWNlcyB0aGUgc2FtZSBzb3VyY2UtcHJvamVjdCBaSVAgYXMgdGhlIHF1aWNrCiAqIGNyZWF0b3IgZm9ybSwgdGhyb3VnaCBbSHRtbFdlYlZpZXdTY2FmZm9sZGVyXS4KICovCmNsYXNzIEh0bWxBcHBXaXphcmRBY3Rpdml0eSA6IEFwcENvbXBhdEFjdGl2aXR5KCkgewoKICAgIHByaXZhdGUgbGF0ZWluaXQgdmFyIGJpbmRpbmc6IEFjdGl2aXR5SHRtbEFwcFdpemFyZEJpbmRpbmcKICAgIHByaXZhdGUgdmFyIHN0ZXAgPSAxCiAgICBwcml2YXRlIHZhciBzZWxlY3RlZFRlbXBsYXRlOiBXZWJUZW1wbGF0ZT8gPSBudWxsCiAgICBwcml2YXRlIHZhciBwZW5kaW5nRmlsZXM6IE1hcDxTdHJpbmcsIFN0cmluZz4/ID0gbnVsbAogICAgcHJpdmF0ZSB2YXIgbGFzdEV4cG9ydFVyaTogVXJpPyA9IG51bGwKCiAgICBwcml2YXRlIHZhbCBzYXZlWmlwID0gcmVnaXN0ZXJGb3JBY3Rpdml0eVJlc3VsdCgKICAgICAgICBBY3Rpdml0eVJlc3VsdENvbnRyYWN0cy5DcmVhdGVEb2N1bWVudCgiYXBwbGljYXRpb24vemlwIikKICAgICkgeyB1cmkgLT4KICAgICAgICBpZiAodXJpID09IG51bGwpIHsKICAgICAgICAgICAgYmluZGluZy53aXpSZXN1bHQudGV4dCA9CiAgICAgICAgICAgICAgICAiUEFDS0FHSU5HIOKAoiBDQU5DRUxMRURcbk5vIHNvdXJjZSBaSVAgd2FzIHdyaXR0ZW4uIgogICAgICAgICAgICByZXR1cm5AcmVnaXN0ZXJGb3JBY3Rpdml0eVJlc3VsdAogICAgICAgIH0KICAgICAgICB2YWwgZmlsZXMgPSBwZW5kaW5nRmlsZXMgPzogcmV0dXJuQHJlZ2lzdGVyRm9yQWN0aXZpdHlSZXN1bHQKICAgICAgICBiaW5kaW5nLndpekV4cG9ydEFjdGlvbnMudmlzaWJpbGl0eSA9IFZpZXcuR09ORQogICAgICAgIGJpbmRpbmcud2l6UmVzdWx0LnRleHQgPQogICAgICAgICAgICAiVkFMSURBVElPTiDigKIgUEFTU1xuUEFDS0FHSU5HIOKAoiBXUklUSU5HXG5EZXN0aW5hdGlvbjogJHVyaSIKICAgICAgICBydW5DYXRjaGluZyB7CiAgICAgICAgICAgIHZhbCB3cml0ZXIgPSBQcm9qZWN0WmlwV3JpdGVyKHRoaXMpCiAgICAgICAgICAgIHdyaXRlci53cml0ZSh1cmksIGZpbGVzKQogICAgICAgICAgICB2YWwgdmFsaWRhdGlvbiA9IHdyaXRlci52YWxpZGF0ZSh1cmksIGZpbGVzLmtleXMpCiAgICAgICAgICAgIHZhbCBtZXRhZGF0YSA9IHF1ZXJ5RG9jdW1lbnRNZXRhZGF0YSh1cmkpCiAgICAgICAgICAgIFRyaXBsZSh2YWxpZGF0aW9uLCBtZXRhZGF0YS5maXJzdCwgbWV0YWRhdGEuc2Vjb25kKQogICAgICAgIH0ub25TdWNjZXNzIHsgKHZhbGlkYXRpb24sIGRpc3BsYXlOYW1lLCBzaXplQnl0ZXMpIC0+CiAgICAgICAgICAgIGxhc3RFeHBvcnRVcmkgPSB1cmkKICAgICAgICAgICAgYmluZGluZy53aXpFeHBvcnRBY3Rpb25zLnZpc2liaWxpdHkgPSBWaWV3LlZJU0lCTEUKICAgICAgICAgICAgYmluZGluZy53aXpSZXN1bHQudGV4dCA9IGJ1aWxkU3RyaW5nIHsKICAgICAgICAgICAgICAgIGFwcGVuZCgiVkFMSURBVElPTiDigKIgUEFTU1xuIikKICAgICAgICAgICAgICAgIGFwcGVuZCgiUEFDS0FHSU5HIOKAoiBQQVNTXG4iKQogICAgICAgICAgICAgICAgYXBwZW5kKCJaSVAgVkVSSUZZIOKAoiBQQVNTXG5cbiIpCiAgICAgICAgICAgICAgICBhcHBlbmQoIk5BTUU6ICIpLmFwcGVuZChkaXNwbGF5TmFtZSkuYXBwZW5kKCJcbiIpCiAgICAgICAgICAgICAgICBhcHBlbmQoIlNJWkU6ICIpLmFwcGVuZChmb3JtYXRCeXRlcyhzaXplQnl0ZXMpKS5hcHBlbmQoIlxuIikKICAgICAgICAgICAgICAgIGFwcGVuZCgiRklMRVM6ICIpLmFwcGVuZCh2YWxpZGF0aW9uLmVudHJ5Q291bnQpLmFwcGVuZCgiXG4iKQogICAgICAgICAgICAgICAgYXBwZW5kKCJVTkNPTVBSRVNTRUQ6ICIpCiAgICAgICAgICAgICAgICAgICAgLmFwcGVuZChmb3JtYXRCeXRlcyh2YWxpZGF0aW9uLnRvdGFsVW5jb21wcmVzc2VkQnl0ZXMpKQogICAgICAgICAgICAgICAgICAgIC5hcHBlbmQoIlxuIikKICAgICAgICAgICAgICAgIGFwcGVuZCgiTE9DQVRJT046ICIpLmFwcGVuZCh1cmkpCiAgICAgICAgICAgIH0KICAgICAgICB9Lm9uRmFpbHVyZSB7IGVycm9yIC0+CiAgICAgICAgICAgIGxhc3RFeHBvcnRVcmkgPSBudWxsCiAgICAgICAgICAgIGJpbmRpbmcud2l6RXhwb3J0QWN0aW9ucy52aXNpYmlsaXR5ID0gVmlldy5HT05FCiAgICAgICAgICAgIGJpbmRpbmcud2l6UmVzdWx0LnRleHQgPQogICAgICAgICAgICAgICAgIlZBTElEQVRJT04gLyBQQUNLQUdJTkcg4oCiIEZBSUxFRFxuXG4iICsKICAgICAgICAgICAgICAgICAgICAoZXJyb3IubWVzc2FnZSA/OiAiWklQIGNyZWF0aW9uIGZhaWxlZCIpCiAgICAgICAgfQogICAgfQoKICAgIG92ZXJyaWRlIGZ1biBvbkNyZWF0ZShzYXZlZEluc3RhbmNlU3RhdGU6IEJ1bmRsZT8pIHsKICAgICAgICBzdXBlci5vbkNyZWF0ZShzYXZlZEluc3RhbmNlU3RhdGUpCiAgICAgICAgYmluZGluZyA9IEFjdGl2aXR5SHRtbEFwcFdpemFyZEJpbmRpbmcuaW5mbGF0ZShsYXlvdXRJbmZsYXRlcikKICAgICAgICBzZXRDb250ZW50VmlldyhiaW5kaW5nLnJvb3QpCgogICAgICAgIGJpbmRpbmcud2l6T3JpZW50YXRpb24uYWRhcHRlciA9IEFycmF5QWRhcHRlcigKICAgICAgICAgICAgdGhpcywKICAgICAgICAgICAgYW5kcm9pZC5SLmxheW91dC5zaW1wbGVfc3Bpbm5lcl9kcm9wZG93bl9pdGVtLAogICAgICAgICAgICBsaXN0T2YoCiAgICAgICAgICAgICAgICBnZXRTdHJpbmcoUi5zdHJpbmcud2l6YXJkX29yaWVudGF0aW9uX2F1dG8pLAogICAgICAgICAgICAgICAgZ2V0U3RyaW5nKFIuc3RyaW5nLndpemFyZF9vcmllbnRhdGlvbl9wb3J0cmFpdCksCiAgICAgICAgICAgICAgICBnZXRTdHJpbmcoUi5zdHJpbmcud2l6YXJkX29yaWVudGF0aW9uX2xhbmRzY2FwZSkKICAgICAgICAgICAgKQogICAgICAgICkKCiAgICAgICAgYmluZGluZy53aXpTb3VyY2VHcm91cC5zZXRPbkNoZWNrZWRDaGFuZ2VMaXN0ZW5lciB7IF8sIGNoZWNrZWRJZCAtPgogICAgICAgICAgICB1cGRhdGVTb3VyY2VWaXNpYmlsaXR5KGNoZWNrZWRJZCkKICAgICAgICB9CiAgICAgICAgYmluZGluZy53aXpDaG9vc2VUZW1wbGF0ZS5zZXRPbkNsaWNrTGlzdGVuZXIgeyBjaG9vc2VUZW1wbGF0ZSgpIH0KICAgICAgICBiaW5kaW5nLndpekJhY2suc2V0T25DbGlja0xpc3RlbmVyIHsgaWYgKHN0ZXAgPiAxKSBzaG93U3RlcChzdGVwIC0gMSkgfQogICAgICAgIGJpbmRpbmcud2l6TmV4dC5zZXRPbkNsaWNrTGlzdGVuZXIgewogICAgICAgICAgICBpZiAoc3RlcCA9PSAxICYmICF2YWxpZGF0ZUluZm8oKSkgcmV0dXJuQHNldE9uQ2xpY2tMaXN0ZW5lcgogICAgICAgICAgICBpZiAoc3RlcCA8IDYpIHNob3dTdGVwKHN0ZXAgKyAxKQogICAgICAgIH0KICAgICAgICBiaW5kaW5nLndpekNyZWF0ZS5zZXRPbkNsaWNrTGlzdGVuZXIgeyBjcmVhdGVQcm9qZWN0KCkgfQogICAgICAgIGJpbmRpbmcud2l6T3BlbkV4cG9ydC5zZXRPbkNsaWNrTGlzdGVuZXIgewogICAgICAgICAgICB2YWwgdXJpID0gbGFzdEV4cG9ydFVyaSA/OiByZXR1cm5Ac2V0T25DbGlja0xpc3RlbmVyCiAgICAgICAgICAgIHN0YXJ0QWN0aXZpdHkoCiAgICAgICAgICAgICAgICBJbnRlbnQoSW50ZW50LkFDVElPTl9WSUVXKQogICAgICAgICAgICAgICAgICAgIC5zZXREYXRhQW5kVHlwZSh1cmksICJhcHBsaWNhdGlvbi96aXAiKQogICAgICAgICAgICAgICAgICAgIC5hZGRGbGFncyhJbnRlbnQuRkxBR19HUkFOVF9SRUFEX1VSSV9QRVJNSVNTSU9OKQogICAgICAgICAgICApCiAgICAgICAgfQogICAgICAgIGJpbmRpbmcud2l6U2hhcmVFeHBvcnQuc2V0T25DbGlja0xpc3RlbmVyIHsKICAgICAgICAgICAgdmFsIHVyaSA9IGxhc3RFeHBvcnRVcmkgPzogcmV0dXJuQHNldE9uQ2xpY2tMaXN0ZW5lcgogICAgICAgICAgICBzdGFydEFjdGl2aXR5KAogICAgICAgICAgICAgICAgSW50ZW50LmNyZWF0ZUNob29zZXIoCiAgICAgICAgICAgICAgICAgICAgSW50ZW50KEludGVudC5BQ1RJT05fU0VORCkKICAgICAgICAgICAgICAgICAgICAgICAgLnNldFR5cGUoImFwcGxpY2F0aW9uL3ppcCIpCiAgICAgICAgICAgICAgICAgICAgICAgIC5wdXRFeHRyYShJbnRlbnQuRVhUUkFfU1RSRUFNLCB1cmkpCiAgICAgICAgICAgICAgICAgICAgICAgIC5hZGRGbGFncyhJbnRlbnQuRkxBR19HUkFOVF9SRUFEX1VSSV9QRVJNSVNTSU9OKSwKICAgICAgICAgICAgICAgICAgICAiU2hhcmUgWklQIgogICAgICAgICAgICAgICAgKQogICAgICAgICAgICApCiAgICAgICAgfQoKICAgICAgICBpbnRlbnQuZ2V0U3RyaW5nRXh0cmEoRVhUUkFfVEVNUExBVEVfSUQpPy5sZXQgeyBpZCAtPgogICAgICAgICAgICBXZWJUZW1wbGF0ZXMuYnlJZChpZCk/LmxldCB7IHRlbXBsYXRlIC0+CiAgICAgICAgICAgICAgICBiaW5kaW5nLndpelNvdXJjZVRlbXBsYXRlLmlzQ2hlY2tlZCA9IHRydWUKICAgICAgICAgICAgICAgIGFwcGx5VGVtcGxhdGUodGVtcGxhdGUpCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgc2hvd1N0ZXAoMSkKICAgIH0KCiAgICBwcml2YXRlIGZ1biB2YWxpZGF0ZUluZm8oKTogQm9vbGVhbiB7CiAgICAgICAgdmFsIG9rID0gYmluZGluZy53aXpBcHBOYW1lLnRleHQudG9TdHJpbmcoKS5pc05vdEJsYW5rKCkgJiYKICAgICAgICAgICAgYmluZGluZy53aXpQYWNrYWdlTmFtZS50ZXh0LnRvU3RyaW5nKCkuaXNOb3RCbGFuaygpCiAgICAgICAgaWYgKCFvaykgewogICAgICAgICAgICBTbmFja2Jhci5tYWtlKAogICAgICAgICAgICAgICAgYmluZGluZy5yb290LAogICAgICAgICAgICAgICAgUi5zdHJpbmcud2l6YXJkX25hbWVfcGFja2FnZV9yZXF1aXJlZCwKICAgICAgICAgICAgICAgIFNuYWNrYmFyLkxFTkdUSF9MT05HCiAgICAgICAgICAgICkuc2hvdygpCiAgICAgICAgfQogICAgICAgIHJldHVybiBvawogICAgfQoKICAgIHByaXZhdGUgZnVuIHVwZGF0ZVNvdXJjZVZpc2liaWxpdHkoY2hlY2tlZElkOiBJbnQpIHsKICAgICAgICB2YWwgdXJsTW9kZSA9IGNoZWNrZWRJZCA9PSBSLmlkLndpelNvdXJjZVVybAogICAgICAgIHZhbCB0ZW1wbGF0ZU1vZGUgPSBjaGVja2VkSWQgPT0gUi5pZC53aXpTb3VyY2VUZW1wbGF0ZQogICAgICAgIGJpbmRpbmcud2l6VXJsLnZpc2liaWxpdHkgPSBpZiAodXJsTW9kZSkgVmlldy5WSVNJQkxFIGVsc2UgVmlldy5HT05FCiAgICAgICAgYmluZGluZy53aXpIdG1sLnZpc2liaWxpdHkgPSBpZiAodXJsTW9kZSkgVmlldy5HT05FIGVsc2UgVmlldy5WSVNJQkxFCiAgICAgICAgYmluZGluZy53aXpDaG9vc2VUZW1wbGF0ZS52aXNpYmlsaXR5ID0KICAgICAgICAgICAgaWYgKHRlbXBsYXRlTW9kZSkgVmlldy5WSVNJQkxFIGVsc2UgVmlldy5HT05FCiAgICAgICAgYmluZGluZy53aXpUZW1wbGF0ZUxhYmVsLnZpc2liaWxpdHkgPQogICAgICAgICAgICBpZiAodGVtcGxhdGVNb2RlKSBWaWV3LlZJU0lCTEUgZWxzZSBWaWV3LkdPTkUKICAgIH0KCiAgICBwcml2YXRlIGZ1biBjaG9vc2VUZW1wbGF0ZSgpIHsKICAgICAgICB2YWwgdGVtcGxhdGVzID0gV2ViVGVtcGxhdGVzLkFMTAogICAgICAgIEFsZXJ0RGlhbG9nLkJ1aWxkZXIodGhpcykKICAgICAgICAgICAgLnNldFRpdGxlKFIuc3RyaW5nLndpemFyZF9jaG9vc2VfdGVtcGxhdGUpCiAgICAgICAgICAgIC5zZXRJdGVtcyh0ZW1wbGF0ZXMubWFwIHsgaXQudGl0bGUgfS50b1R5cGVkQXJyYXkoKSkgeyBfLCB3aGljaCAtPgogICAgICAgICAgICAgICAgYXBwbHlUZW1wbGF0ZSh0ZW1wbGF0ZXNbd2hpY2hdKQogICAgICAgICAgICB9CiAgICAgICAgICAgIC5zaG93KCkKICAgIH0KCiAgICBwcml2YXRlIGZ1biBhcHBseVRlbXBsYXRlKHRlbXBsYXRlOiBXZWJUZW1wbGF0ZSkgewogICAgICAgIHNlbGVjdGVkVGVtcGxhdGUgPSB0ZW1wbGF0ZQogICAgICAgIGJpbmRpbmcud2l6VGVtcGxhdGVMYWJlbC50ZXh0ID0KICAgICAgICAgICAgZ2V0U3RyaW5nKFIuc3RyaW5nLndpemFyZF90ZW1wbGF0ZV9zZWxlY3RlZCwgdGVtcGxhdGUudGl0bGUpCiAgICAgICAgYmluZGluZy53aXpIdG1sLnNldFRleHQodGVtcGxhdGUuaHRtbCkKICAgICAgICBiaW5kaW5nLndpelBlcm1DYW1lcmEuaXNDaGVja2VkID0KICAgICAgICAgICAgV2ViSGFyZHdhcmUuQ0FNRVJBIGluIHRlbXBsYXRlLmhhcmR3YXJlCiAgICAgICAgYmluZGluZy53aXpQZXJtTWljcm9waG9uZS5pc0NoZWNrZWQgPQogICAgICAgICAgICBXZWJIYXJkd2FyZS5NSUNST1BIT05FIGluIHRlbXBsYXRlLmhhcmR3YXJlCiAgICAgICAgYmluZGluZy53aXpQZXJtTG9jYXRpb24uaXNDaGVja2VkID0KICAgICAgICAgICAgV2ViSGFyZHdhcmUuTE9DQVRJT04gaW4gdGVtcGxhdGUuaGFyZHdhcmUKICAgICAgICBiaW5kaW5nLndpelBlcm1Ob3RpZmljYXRpb25zLmlzQ2hlY2tlZCA9CiAgICAgICAgICAgIFdlYkhhcmR3YXJlLk5PVElGSUNBVElPTlMgaW4gdGVtcGxhdGUuaGFyZHdhcmUKICAgICAgICBiaW5kaW5nLndpekZ1bGxzY3JlZW4uaXNDaGVja2VkID0gdGVtcGxhdGUuZnVsbHNjcmVlbgogICAgICAgIGJpbmRpbmcud2l6S2VlcFNjcmVlbk9uLmlzQ2hlY2tlZCA9IHRlbXBsYXRlLmtlZXBTY3JlZW5PbgogICAgfQoKICAgIHByaXZhdGUgZnVuIHNob3dTdGVwKHRhcmdldDogSW50KSB7CiAgICAgICAgc3RlcCA9IHRhcmdldAogICAgICAgIHZhbCBzdGVwcyA9IGxpc3RPZigKICAgICAgICAgICAgYmluZGluZy5zdGVwSW5mbywKICAgICAgICAgICAgYmluZGluZy5zdGVwQ29udGVudCwKICAgICAgICAgICAgYmluZGluZy5zdGVwRGlzcGxheSwKICAgICAgICAgICAgYmluZGluZy5zdGVwUGVybWlzc2lvbnMsCiAgICAgICAgICAgIGJpbmRpbmcuc3RlcFdlYlZpZXcsCiAgICAgICAgICAgIGJpbmRpbmcuc3RlcFN1bW1hcnkKICAgICAgICApCiAgICAgICAgc3RlcHMuZm9yRWFjaEluZGV4ZWQgeyBpbmRleCwgdmlldyAtPgogICAgICAgICAgICB2aWV3LnZpc2liaWxpdHkgPSBpZiAoaW5kZXggPT0gc3RlcCAtIDEpIFZpZXcuVklTSUJMRSBlbHNlIFZpZXcuR09ORQogICAgICAgIH0KICAgICAgICBiaW5kaW5nLndpemFyZFN0ZXBMYWJlbC50ZXh0ID0gZ2V0U3RyaW5nKFIuc3RyaW5nLndpemFyZF9zdGVwX29mLCBzdGVwKQogICAgICAgIGJpbmRpbmcud2l6YXJkUHJvZ3Jlc3MucHJvZ3Jlc3MgPSBzdGVwCiAgICAgICAgYmluZGluZy53aXpCYWNrLmlzRW5hYmxlZCA9IHN0ZXAgPiAxCiAgICAgICAgYmluZGluZy53aXpOZXh0LnZpc2liaWxpdHkgPSBpZiAoc3RlcCA8IDYpIFZpZXcuVklTSUJMRSBlbHNlIFZpZXcuR09ORQogICAgICAgIGJpbmRpbmcud2l6Q3JlYXRlLnZpc2liaWxpdHkgPSBpZiAoc3RlcCA9PSA2KSBWaWV3LlZJU0lCTEUgZWxzZSBWaWV3LkdPTkUKICAgICAgICBpZiAoc3RlcCA9PSA2KSByZWZyZXNoU3VtbWFyeSgpCiAgICB9CgogICAgcHJpdmF0ZSBmdW4gaXNVcmxNb2RlKCk6IEJvb2xlYW4gPQogICAgICAgIGJpbmRpbmcud2l6U291cmNlR3JvdXAuY2hlY2tlZFJhZGlvQnV0dG9uSWQgPT0gUi5pZC53aXpTb3VyY2VVcmwKCiAgICBwcml2YXRlIGZ1biBidWlsZFNwZWMoKTogV2ViQXBwU3BlYyB7CiAgICAgICAgdmFsIG5hbWUgPSBiaW5kaW5nLndpekFwcE5hbWUudGV4dC50b1N0cmluZygpLnRyaW0oKQogICAgICAgIHZhbCBoYXJkd2FyZSA9IG11dGFibGVTZXRPZjxXZWJIYXJkd2FyZT4oKQogICAgICAgIGlmIChiaW5kaW5nLndpelBlcm1DYW1lcmEuaXNDaGVja2VkKSBoYXJkd2FyZSArPSBXZWJIYXJkd2FyZS5DQU1FUkEKICAgICAgICBpZiAoYmluZGluZy53aXpQZXJtTWljcm9waG9uZS5pc0NoZWNrZWQpIHsKICAgICAgICAgICAgaGFyZHdhcmUgKz0gV2ViSGFyZHdhcmUuTUlDUk9QSE9ORQogICAgICAgIH0KICAgICAgICBpZiAoYmluZGluZy53aXpQZXJtTG9jYXRpb24uaXNDaGVja2VkKSB7CiAgICAgICAgICAgIGhhcmR3YXJlICs9IFdlYkhhcmR3YXJlLkxPQ0FUSU9OCiAgICAgICAgfQogICAgICAgIGlmIChiaW5kaW5nLndpelBlcm1Ob3RpZmljYXRpb25zLmlzQ2hlY2tlZCkgewogICAgICAgICAgICBoYXJkd2FyZSArPSBXZWJIYXJkd2FyZS5OT1RJRklDQVRJT05TCiAgICAgICAgfQogICAgICAgIHZhbCBvcmllbnRhdGlvbiA9IHdoZW4gKGJpbmRpbmcud2l6T3JpZW50YXRpb24uc2VsZWN0ZWRJdGVtUG9zaXRpb24pIHsKICAgICAgICAgICAgMSAtPiBXZWJPcmllbnRhdGlvbi5QT1JUUkFJVAogICAgICAgICAgICAyIC0+IFdlYk9yaWVudGF0aW9uLkxBTkRTQ0FQRQogICAgICAgICAgICBlbHNlIC0+IFdlYk9yaWVudGF0aW9uLkFVVE8KICAgICAgICB9CiAgICAgICAgdmFsIHVybE1vZGUgPSBpc1VybE1vZGUoKQogICAgICAgIHJldHVybiBXZWJBcHBTcGVjKAogICAgICAgICAgICBuYW1lID0gbmFtZSwKICAgICAgICAgICAgcGFja2FnZU5hbWUgPSBiaW5kaW5nLndpelBhY2thZ2VOYW1lLnRleHQudG9TdHJpbmcoKS50cmltKCksCiAgICAgICAgICAgIHN0YXJ0VXJsID0gaWYgKHVybE1vZGUpIHsKICAgICAgICAgICAgICAgIGJpbmRpbmcud2l6VXJsLnRleHQudG9TdHJpbmcoKS50cmltKCkKICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgIG51bGwKICAgICAgICAgICAgfSwKICAgICAgICAgICAgd2ViRmlsZXMgPSBpZiAodXJsTW9kZSkgewogICAgICAgICAgICAgICAgZW1wdHlNYXAoKQogICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgbWFwT2YoCiAgICAgICAgICAgICAgICAgICAgImluZGV4Lmh0bWwiIHRvIGJpbmRpbmcud2l6SHRtbC50ZXh0LnRvU3RyaW5nKCkuaWZCbGFuayB7CiAgICAgICAgICAgICAgICAgICAgICAgIEh0bWxXZWJWaWV3U2NhZmZvbGRlci5zdGFydGVySW5kZXhIdG1sKG5hbWUsICIiKQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgfSwKICAgICAgICAgICAgb3JpZW50YXRpb24gPSBvcmllbnRhdGlvbiwKICAgICAgICAgICAgZnVsbHNjcmVlbiA9IGJpbmRpbmcud2l6RnVsbHNjcmVlbi5pc0NoZWNrZWQsCiAgICAgICAgICAgIGtlZXBTY3JlZW5PbiA9IGJpbmRpbmcud2l6S2VlcFNjcmVlbk9uLmlzQ2hlY2tlZCwKICAgICAgICAgICAgdXNlckFnZW50ID0gYmluZGluZy53aXpVc2VyQWdlbnQudGV4dC50b1N0cmluZygpCiAgICAgICAgICAgICAgICAudHJpbSgpCiAgICAgICAgICAgICAgICAuaWZCbGFuayB7IG51bGwgfSwKICAgICAgICAgICAgaGFyZHdhcmUgPSBoYXJkd2FyZSwKICAgICAgICAgICAgb3BlbkV4dGVybmFsTGlua3MgPSBiaW5kaW5nLndpekV4dGVybmFsTGlua3MuaXNDaGVja2VkLAogICAgICAgICAgICB1c2VyU2NyaXB0cyA9IGJpbmRpbmcud2l6VXNlclNjcmlwdC50ZXh0LnRvU3RyaW5nKCkKICAgICAgICAgICAgICAgIC50YWtlSWYgeyBpdC5pc05vdEJsYW5rKCkgfQogICAgICAgICAgICAgICAgPy5sZXQgeyBtYXBPZigid2l6YXJkLXNjcmlwdCIgdG8gaXQpIH0KICAgICAgICAgICAgICAgID86IGVtcHR5TWFwKCksCiAgICAgICAgICAgIHB1bGxUb1JlZnJlc2ggPSBiaW5kaW5nLndpelB1bGxUb1JlZnJlc2guaXNDaGVja2VkLAogICAgICAgICAgICBub0ludGVybmV0RGlhbG9nID0gYmluZGluZy53aXpOb0ludGVybmV0RGlhbG9nLmlzQ2hlY2tlZCwKICAgICAgICAgICAgZXhpdENvbmZpcm1hdGlvbiA9IGJpbmRpbmcud2l6RXhpdENvbmZpcm1hdGlvbi5pc0NoZWNrZWQsCiAgICAgICAgICAgIHNwbGFzaEVuYWJsZWQgPSBiaW5kaW5nLndpelNwbGFzaC5pc0NoZWNrZWQsCiAgICAgICAgICAgIHNwbGFzaFNlY29uZHMgPSBiaW5kaW5nLndpelNwbGFzaFNlY29uZHMudGV4dC50b1N0cmluZygpCiAgICAgICAgICAgICAgICAudHJpbSgpCiAgICAgICAgICAgICAgICAudG9JbnRPck51bGwoKSA/OiAyLAogICAgICAgICAgICBzcGxhc2hDb2xvciA9IGJpbmRpbmcud2l6U3BsYXNoQ29sb3IudGV4dC50b1N0cmluZygpCiAgICAgICAgICAgICAgICAudHJpbSgpCiAgICAgICAgICAgICAgICAuaWZCbGFuayB7ICIjMTIxMjEyIiB9LAogICAgICAgICAgICBzdGF0dXNCYXJDb2xvciA9IGJpbmRpbmcud2l6U3RhdHVzQmFyQ29sb3IudGV4dC50b1N0cmluZygpCiAgICAgICAgICAgICAgICAudHJpbSgpCiAgICAgICAgICAgICAgICAuaWZCbGFuayB7IG51bGwgfSwKICAgICAgICAgICAgdXJsU2NoZW1lID0gYmluZGluZy53aXpTY2hlbWUudGV4dC50b1N0cmluZygpCiAgICAgICAgICAgICAgICAudHJpbSgpCiAgICAgICAgICAgICAgICAuaWZCbGFuayB7IG51bGwgfQogICAgICAgICkKICAgIH0KCiAgICBwcml2YXRlIGZ1biByZWZyZXNoU3VtbWFyeSgpIHsKICAgICAgICB2YWwgc3BlYyA9IHJ1bkNhdGNoaW5nIHsgYnVpbGRTcGVjKCkgfS5nZXRPck51bGwoKQogICAgICAgIGJpbmRpbmcud2l6U3VtbWFyeS50ZXh0ID0gYnVpbGRTdHJpbmcgewogICAgICAgICAgICBhcHBlbmQoCiAgICAgICAgICAgICAgICBnZXRTdHJpbmcoCiAgICAgICAgICAgICAgICAgICAgUi5zdHJpbmcud2l6YXJkX3N1bW1hcnlfbmFtZSwKICAgICAgICAgICAgICAgICAgICBiaW5kaW5nLndpekFwcE5hbWUudGV4dC50b1N0cmluZygpLnRyaW0oKQogICAgICAgICAgICAgICAgKQogICAgICAgICAgICApLmFwcGVuZCgiXG4iKQogICAgICAgICAgICBhcHBlbmQoCiAgICAgICAgICAgICAgICBnZXRTdHJpbmcoCiAgICAgICAgICAgICAgICAgICAgUi5zdHJpbmcud2l6YXJkX3N1bW1hcnlfcGFja2FnZSwKICAgICAgICAgICAgICAgICAgICBiaW5kaW5nLndpelBhY2thZ2VOYW1lLnRleHQudG9TdHJpbmcoKS50cmltKCkKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgKS5hcHBlbmQoIlxuIikKICAgICAgICAgICAgdmFsIHNvdXJjZSA9IHdoZW4gewogICAgICAgICAgICAgICAgaXNVcmxNb2RlKCkgLT4gYmluZGluZy53aXpVcmwudGV4dC50b1N0cmluZygpLnRyaW0oKQogICAgICAgICAgICAgICAgc2VsZWN0ZWRUZW1wbGF0ZSAhPSBudWxsICYmCiAgICAgICAgICAgICAgICAgICAgYmluZGluZy53aXpTb3VyY2VHcm91cC5jaGVja2VkUmFkaW9CdXR0b25JZCA9PQogICAgICAgICAgICAgICAgICAgIFIuaWQud2l6U291cmNlVGVtcGxhdGUgLT4KICAgICAgICAgICAgICAgICAgICBnZXRTdHJpbmcoCiAgICAgICAgICAgICAgICAgICAgICAgIFIuc3RyaW5nLndpemFyZF90ZW1wbGF0ZV9zZWxlY3RlZCwKICAgICAgICAgICAgICAgICAgICAgICAgc2VsZWN0ZWRUZW1wbGF0ZSEhLnRpdGxlCiAgICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgZWxzZSAtPiBnZXRTdHJpbmcoUi5zdHJpbmcud2l6YXJkX3N1bW1hcnlfc291cmNlX2h0bWwpCiAgICAgICAgICAgIH0KICAgICAgICAgICAgYXBwZW5kKGdldFN0cmluZyhSLnN0cmluZy53aXphcmRfc3VtbWFyeV9zb3VyY2UsIHNvdXJjZSkpCiAgICAgICAgICAgICAgICAuYXBwZW5kKCJcbiIpCiAgICAgICAgICAgIGFwcGVuZCgKICAgICAgICAgICAgICAgIGdldFN0cmluZygKICAgICAgICAgICAgICAgICAgICBSLnN0cmluZy53aXphcmRfc3VtbWFyeV9kaXNwbGF5LAogICAgICAgICAgICAgICAgICAgIGJpbmRpbmcud2l6T3JpZW50YXRpb24uc2VsZWN0ZWRJdGVtPy50b1N0cmluZygpID86ICIiCiAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICkuYXBwZW5kKCJcbiIpCiAgICAgICAgICAgIGlmIChzcGVjICE9IG51bGwpIHsKICAgICAgICAgICAgICAgIGFwcGVuZCgKICAgICAgICAgICAgICAgICAgICBnZXRTdHJpbmcoCiAgICAgICAgICAgICAgICAgICAgICAgIFIuc3RyaW5nLndpemFyZF9zdW1tYXJ5X3Blcm1pc3Npb25zLAogICAgICAgICAgICAgICAgICAgICAgICBIdG1sV2ViVmlld1NjYWZmb2xkZXIucGVybWlzc2lvbnNGb3Ioc3BlYykuc2l6ZQogICAgICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgICkuYXBwZW5kKCJcbiIpCiAgICAgICAgICAgICAgICB2YWwgd2ViT3B0aW9ucyA9IGxpc3RPZigKICAgICAgICAgICAgICAgICAgICBzcGVjLnB1bGxUb1JlZnJlc2gsCiAgICAgICAgICAgICAgICAgICAgc3BlYy5ub0ludGVybmV0RGlhbG9nLAogICAgICAgICAgICAgICAgICAgIHNwZWMuZXhpdENvbmZpcm1hdGlvbgogICAgICAgICAgICAgICAgKS5jb3VudCB7IGl0IH0KICAgICAgICAgICAgICAgIGFwcGVuZCgKICAgICAgICAgICAgICAgICAgICBnZXRTdHJpbmcoCiAgICAgICAgICAgICAgICAgICAgICAgIFIuc3RyaW5nLndpemFyZF9zdW1tYXJ5X3dlYnZpZXdfb3B0aW9ucywKICAgICAgICAgICAgICAgICAgICAgICAgd2ViT3B0aW9ucwogICAgICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgfQogICAgICAgIH0KICAgIH0KCiAgICBwcml2YXRlIGZ1biBjcmVhdGVQcm9qZWN0KCkgewogICAgICAgIGJpbmRpbmcud2l6RXhwb3J0QWN0aW9ucy52aXNpYmlsaXR5ID0gVmlldy5HT05FCiAgICAgICAgYmluZGluZy53aXpSZXN1bHQudGV4dCA9CiAgICAgICAgICAgICJJTlBVVCBWQUxJREFUSU9OIOKAoiBSVU5OSU5HXG5QcmVwYXJpbmcgSFRNTCBhcHAgcHJvamVjdCBzb3VyY2XigKYiCiAgICAgICAgcnVuQ2F0Y2hpbmcgewogICAgICAgICAgICB2YWwgc3BlYyA9IGJ1aWxkU3BlYygpCiAgICAgICAgICAgIHNwZWMgdG8gSHRtbFdlYlZpZXdTY2FmZm9sZGVyLmZpbGVzKHNwZWMpCiAgICAgICAgfS5vblN1Y2Nlc3MgeyAoc3BlYywgZmlsZXMpIC0+CiAgICAgICAgICAgIHBlbmRpbmdGaWxlcyA9IGZpbGVzCiAgICAgICAgICAgIGJpbmRpbmcud2l6UmVzdWx0LnRleHQgPQogICAgICAgICAgICAgICAgIklOUFVUIFZBTElEQVRJT04g4oCiIFBBU1NcbiIgKwogICAgICAgICAgICAgICAgICAgICJTT1VSQ0UgUExBTiDigKIgUEFTU1xuIiArCiAgICAgICAgICAgICAgICAgICAgIlByZXBhcmVkICR7ZmlsZXMuc2l6ZX0gZmlsZXMuIENob29zZSBhIFpJUCBzYXZlIGxvY2F0aW9uLiIKICAgICAgICAgICAgc2F2ZVppcC5sYXVuY2goc2FmZUZpbGVuYW1lKHNwZWMubmFtZSkgKyAiLWh0bWwtYXBwLnppcCIpCiAgICAgICAgfS5vbkZhaWx1cmUgeyBlcnJvciAtPgogICAgICAgICAgICBiaW5kaW5nLndpelJlc3VsdC50ZXh0ID0KICAgICAgICAgICAgICAgICJJTlBVVCBWQUxJREFUSU9OIOKAoiBGQUlMRURcblxuIiArCiAgICAgICAgICAgICAgICAgICAgKGVycm9yLm1lc3NhZ2UgPzogIkludmFsaWQgcHJvamVjdCIpICsKICAgICAgICAgICAgICAgICAgICAiXG5cblNBRkUgTkVYVCBTVEVQOlxuIiArCiAgICAgICAgICAgICAgICAgICAgIkNoZWNrIHRoZSBhcHAgbmFtZSwgcGFja2FnZSBuYW1lIGFuZCBvcHRpb25zLCB0aGVuIHRyeSBhZ2Fpbi4iCiAgICAgICAgICAgIFNuYWNrYmFyLm1ha2UoCiAgICAgICAgICAgICAgICBiaW5kaW5nLnJvb3QsCiAgICAgICAgICAgICAgICBlcnJvci5tZXNzYWdlID86ICJJbnZhbGlkIHByb2plY3QiLAogICAgICAgICAgICAgICAgU25hY2tiYXIuTEVOR1RIX0xPTkcKICAgICAgICAgICAgKS5zaG93KCkKICAgICAgICB9CiAgICB9CgogICAgcHJpdmF0ZSBmdW4gcXVlcnlEb2N1bWVudE1ldGFkYXRhKHVyaTogVXJpKTogUGFpcjxTdHJpbmcsIExvbmc+IHsKICAgICAgICB2YXIgbmFtZSA9ICJwcm9qZWN0LnppcCIKICAgICAgICB2YXIgc2l6ZSA9IC0xTAogICAgICAgIGNvbnRlbnRSZXNvbHZlci5xdWVyeSgKICAgICAgICAgICAgdXJpLAogICAgICAgICAgICBhcnJheU9mKE9wZW5hYmxlQ29sdW1ucy5ESVNQTEFZX05BTUUsIE9wZW5hYmxlQ29sdW1ucy5TSVpFKSwKICAgICAgICAgICAgbnVsbCwKICAgICAgICAgICAgbnVsbCwKICAgICAgICAgICAgbnVsbAogICAgICAgICk/LnVzZSB7IGN1cnNvciAtPgogICAgICAgICAgICBpZiAoY3Vyc29yLm1vdmVUb0ZpcnN0KCkpIHsKICAgICAgICAgICAgICAgIHZhbCBuYW1lSW5kZXggPSBjdXJzb3IuZ2V0Q29sdW1uSW5kZXgoT3BlbmFibGVDb2x1bW5zLkRJU1BMQVlfTkFNRSkKICAgICAgICAgICAgICAgIHZhbCBzaXplSW5kZXggPSBjdXJzb3IuZ2V0Q29sdW1uSW5kZXgoT3BlbmFibGVDb2x1bW5zLlNJWkUpCiAgICAgICAgICAgICAgICBpZiAobmFtZUluZGV4ID49IDApIHsKICAgICAgICAgICAgICAgICAgICBuYW1lID0gY3Vyc29yLmdldFN0cmluZyhuYW1lSW5kZXgpID86IG5hbWUKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGlmIChzaXplSW5kZXggPj0gMCAmJiAhY3Vyc29yLmlzTnVsbChzaXplSW5kZXgpKSB7CiAgICAgICAgICAgICAgICAgICAgc2l6ZSA9IGN1cnNvci5nZXRMb25nKHNpemVJbmRleCkKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICBpZiAoc2l6ZSA8IDApIHsKICAgICAgICAgICAgc2l6ZSA9IGNvbnRlbnRSZXNvbHZlci5vcGVuQXNzZXRGaWxlRGVzY3JpcHRvcih1cmksICJyIikKICAgICAgICAgICAgICAgID8udXNlIHsgaXQubGVuZ3RoIH0gPzogLTFMCiAgICAgICAgfQogICAgICAgIHJldHVybiBuYW1lIHRvIHNpemUKICAgIH0KCiAgICBwcml2YXRlIGZ1biBmb3JtYXRCeXRlcyhieXRlczogTG9uZyk6IFN0cmluZyB7CiAgICAgICAgaWYgKGJ5dGVzIDwgMCkgcmV0dXJuICJ1bmtub3duIgogICAgICAgIGlmIChieXRlcyA8IDEwMjQpIHJldHVybiAiJGJ5dGVzIEIiCiAgICAgICAgdmFsIGtiID0gYnl0ZXMgLyAxMDI0LjAKICAgICAgICBpZiAoa2IgPCAxMDI0KSB7CiAgICAgICAgICAgIHJldHVybiBTdHJpbmcuZm9ybWF0KExvY2FsZS5VUywgIiUuMWYgS0IiLCBrYikKICAgICAgICB9CiAgICAgICAgcmV0dXJuIFN0cmluZy5mb3JtYXQoTG9jYWxlLlVTLCAiJS4yZiBNQiIsIGtiIC8gMTAyNC4wKQogICAgfQoKICAgIHByaXZhdGUgZnVuIHNhZmVGaWxlbmFtZSh2YWx1ZTogU3RyaW5nKTogU3RyaW5nID0KICAgICAgICB2YWx1ZS5yZXBsYWNlKFJlZ2V4KCJbXmEtekEtWjAtOS5fLV0iKSwgIl8iKQogICAgICAgICAgICAuaWZCbGFuayB7ICJaaXBCdWdQcm9qZWN0IiB9CgogICAgY29tcGFuaW9uIG9iamVjdCB7CiAgICAgICAgY29uc3QgdmFsIEVYVFJBX1RFTVBMQVRFX0lEID0gImNvbS56aXBidWcuYmFzZS5leHRyYS5URU1QTEFURV9JRCIKICAgIH0KfQo=
+package com.zipbug.base.ui
+
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.provider.OpenableColumns
+import android.view.View
+import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
+import com.zipbug.base.R
+import com.zipbug.base.creator.HtmlWebViewScaffolder
+import com.zipbug.base.creator.ProjectZipWriter
+import com.zipbug.base.creator.WebAppSpec
+import com.zipbug.base.creator.WebHardware
+import com.zipbug.base.creator.WebOrientation
+import com.zipbug.base.creator.WebTemplate
+import com.zipbug.base.creator.WebTemplates
+import com.zipbug.base.databinding.ActivityHtmlAppWizardBinding
+import java.util.Locale
+
+/**
+ * Step-by-step HTML-to-app wizard (Info → Content → Display →
+ * Permissions → WebView → Summary), modelled on dedicated HTML-to-APK
+ * builder apps. Produces the same source-project ZIP as the quick
+ * creator form, through [HtmlWebViewScaffolder].
+ */
+class HtmlAppWizardActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityHtmlAppWizardBinding
+    private var step = 1
+    private var selectedTemplate: WebTemplate? = null
+    private var pendingFiles: Map<String, String>? = null
+    private var lastExportUri: Uri? = null
+
+    private val saveZip = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        if (uri == null) {
+            binding.wizResult.text =
+                "PACKAGING • CANCELLED\nNo source ZIP was written."
+            return@registerForActivityResult
+        }
+        val files = pendingFiles ?: return@registerForActivityResult
+        binding.wizExportActions.visibility = View.GONE
+        binding.wizResult.text =
+            "VALIDATION • PASS\nPACKAGING • WRITING\nDestination: $uri"
+        runCatching {
+            val writer = ProjectZipWriter(this)
+            writer.write(uri, files)
+            val validation = writer.validate(uri, files.keys)
+            val metadata = queryDocumentMetadata(uri)
+            Triple(validation, metadata.first, metadata.second)
+        }.onSuccess { (validation, displayName, sizeBytes) ->
+            lastExportUri = uri
+            binding.wizExportActions.visibility = View.VISIBLE
+            binding.wizResult.text = buildString {
+                append("VALIDATION • PASS\n")
+                append("PACKAGING • PASS\n")
+                append("ZIP VERIFY • PASS\n\n")
+                append("NAME: ").append(displayName).append("\n")
+                append("SIZE: ").append(formatBytes(sizeBytes)).append("\n")
+                append("FILES: ").append(validation.entryCount).append("\n")
+                append("UNCOMPRESSED: ")
+                    .append(formatBytes(validation.totalUncompressedBytes))
+                    .append("\n")
+                append("LOCATION: ").append(uri)
+            }
+        }.onFailure { error ->
+            lastExportUri = null
+            binding.wizExportActions.visibility = View.GONE
+            binding.wizResult.text =
+                "VALIDATION / PACKAGING • FAILED\n\n" +
+                    (error.message ?: "ZIP creation failed")
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityHtmlAppWizardBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.wizOrientation.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            listOf(
+                getString(R.string.wizard_orientation_auto),
+                getString(R.string.wizard_orientation_portrait),
+                getString(R.string.wizard_orientation_landscape)
+            )
+        )
+
+        binding.wizSourceGroup.setOnCheckedChangeListener { _, checkedId ->
+            updateSourceVisibility(checkedId)
+        }
+        binding.wizChooseTemplate.setOnClickListener { chooseTemplate() }
+        binding.wizBack.setOnClickListener { if (step > 1) showStep(step - 1) }
+        binding.wizNext.setOnClickListener {
+            if (step == 1 && !validateInfo()) return@setOnClickListener
+            if (step < 6) showStep(step + 1)
+        }
+        binding.wizCreate.setOnClickListener { createProject() }
+        binding.wizOpenExport.setOnClickListener {
+            val uri = lastExportUri ?: return@setOnClickListener
+            startActivity(
+                Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(uri, "application/zip")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            )
+        }
+        binding.wizShareExport.setOnClickListener {
+            val uri = lastExportUri ?: return@setOnClickListener
+            startActivity(
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND)
+                        .setType("application/zip")
+                        .putExtra(Intent.EXTRA_STREAM, uri)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),
+                    "Share ZIP"
+                )
+            )
+        }
+
+        intent.getStringExtra(EXTRA_TEMPLATE_ID)?.let { id ->
+            WebTemplates.byId(id)?.let { template ->
+                binding.wizSourceTemplate.isChecked = true
+                applyTemplate(template)
+            }
+        }
+        showStep(1)
+    }
+
+    private fun validateInfo(): Boolean {
+        val ok = binding.wizAppName.text.toString().isNotBlank() &&
+            binding.wizPackageName.text.toString().isNotBlank()
+        if (!ok) {
+            Snackbar.make(
+                binding.root,
+                R.string.wizard_name_package_required,
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+        return ok
+    }
+
+    private fun updateSourceVisibility(checkedId: Int) {
+        val urlMode = checkedId == R.id.wizSourceUrl
+        val templateMode = checkedId == R.id.wizSourceTemplate
+        binding.wizUrl.visibility = if (urlMode) View.VISIBLE else View.GONE
+        binding.wizHtml.visibility = if (urlMode) View.GONE else View.VISIBLE
+        binding.wizChooseTemplate.visibility =
+            if (templateMode) View.VISIBLE else View.GONE
+        binding.wizTemplateLabel.visibility =
+            if (templateMode) View.VISIBLE else View.GONE
+    }
+
+    private fun chooseTemplate() {
+        val templates = WebTemplates.ALL
+        AlertDialog.Builder(this)
+            .setTitle(R.string.wizard_choose_template)
+            .setItems(templates.map { it.title }.toTypedArray()) { _, which ->
+                applyTemplate(templates[which])
+            }
+            .show()
+    }
+
+    private fun applyTemplate(template: WebTemplate) {
+        selectedTemplate = template
+        binding.wizTemplateLabel.text =
+            getString(R.string.wizard_template_selected, template.title)
+        binding.wizHtml.setText(template.html)
+        binding.wizPermCamera.isChecked =
+            WebHardware.CAMERA in template.hardware
+        binding.wizPermMicrophone.isChecked =
+            WebHardware.MICROPHONE in template.hardware
+        binding.wizPermLocation.isChecked =
+            WebHardware.LOCATION in template.hardware
+        binding.wizPermNotifications.isChecked =
+            WebHardware.NOTIFICATIONS in template.hardware
+        binding.wizFullscreen.isChecked = template.fullscreen
+        binding.wizKeepScreenOn.isChecked = template.keepScreenOn
+    }
+
+    private fun showStep(target: Int) {
+        step = target
+        val steps = listOf(
+            binding.stepInfo,
+            binding.stepContent,
+            binding.stepDisplay,
+            binding.stepPermissions,
+            binding.stepWebView,
+            binding.stepSummary
+        )
+        steps.forEachIndexed { index, view ->
+            view.visibility = if (index == step - 1) View.VISIBLE else View.GONE
+        }
+        binding.wizardStepLabel.text = getString(R.string.wizard_step_of, step)
+        binding.wizardProgress.progress = step
+        binding.wizBack.isEnabled = step > 1
+        binding.wizNext.visibility = if (step < 6) View.VISIBLE else View.GONE
+        binding.wizCreate.visibility = if (step == 6) View.VISIBLE else View.GONE
+        if (step == 6) refreshSummary()
+    }
+
+    private fun isUrlMode(): Boolean =
+        binding.wizSourceGroup.checkedRadioButtonId == R.id.wizSourceUrl
+
+    private fun buildSpec(): WebAppSpec {
+        val name = binding.wizAppName.text.toString().trim()
+        val hardware = mutableSetOf<WebHardware>()
+        if (binding.wizPermCamera.isChecked) hardware += WebHardware.CAMERA
+        if (binding.wizPermMicrophone.isChecked) {
+            hardware += WebHardware.MICROPHONE
+        }
+        if (binding.wizPermLocation.isChecked) {
+            hardware += WebHardware.LOCATION
+        }
+        if (binding.wizPermNotifications.isChecked) {
+            hardware += WebHardware.NOTIFICATIONS
+        }
+        val orientation = when (binding.wizOrientation.selectedItemPosition) {
+            1 -> WebOrientation.PORTRAIT
+            2 -> WebOrientation.LANDSCAPE
+            else -> WebOrientation.AUTO
+        }
+        val urlMode = isUrlMode()
+        return WebAppSpec(
+            name = name,
+            packageName = binding.wizPackageName.text.toString().trim(),
+            startUrl = if (urlMode) {
+                binding.wizUrl.text.toString().trim()
+            } else {
+                null
+            },
+            webFiles = if (urlMode) {
+                emptyMap()
+            } else {
+                mapOf(
+                    "index.html" to binding.wizHtml.text.toString().ifBlank {
+                        HtmlWebViewScaffolder.starterIndexHtml(name, "")
+                    }
+                )
+            },
+            orientation = orientation,
+            fullscreen = binding.wizFullscreen.isChecked,
+            keepScreenOn = binding.wizKeepScreenOn.isChecked,
+            userAgent = binding.wizUserAgent.text.toString()
+                .trim()
+                .ifBlank { null },
+            hardware = hardware,
+            openExternalLinks = binding.wizExternalLinks.isChecked,
+            userScripts = binding.wizUserScript.text.toString()
+                .takeIf { it.isNotBlank() }
+                ?.let { mapOf("wizard-script" to it) }
+                ?: emptyMap(),
+            pullToRefresh = binding.wizPullToRefresh.isChecked,
+            noInternetDialog = binding.wizNoInternetDialog.isChecked,
+            exitConfirmation = binding.wizExitConfirmation.isChecked,
+            splashEnabled = binding.wizSplash.isChecked,
+            splashSeconds = binding.wizSplashSeconds.text.toString()
+                .trim()
+                .toIntOrNull() ?: 2,
+            splashColor = binding.wizSplashColor.text.toString()
+                .trim()
+                .ifBlank { "#121212" },
+            statusBarColor = binding.wizStatusBarColor.text.toString()
+                .trim()
+                .ifBlank { null },
+            urlScheme = binding.wizScheme.text.toString()
+                .trim()
+                .ifBlank { null }
+        )
+    }
+
+    private fun refreshSummary() {
+        val spec = runCatching { buildSpec() }.getOrNull()
+        binding.wizSummary.text = buildString {
+            append(
+                getString(
+                    R.string.wizard_summary_name,
+                    binding.wizAppName.text.toString().trim()
+                )
+            ).append("\n")
+            append(
+                getString(
+                    R.string.wizard_summary_package,
+                    binding.wizPackageName.text.toString().trim()
+                )
+            ).append("\n")
+            val source = when {
+                isUrlMode() -> binding.wizUrl.text.toString().trim()
+                selectedTemplate != null &&
+                    binding.wizSourceGroup.checkedRadioButtonId ==
+                    R.id.wizSourceTemplate ->
+                    getString(
+                        R.string.wizard_template_selected,
+                        selectedTemplate!!.title
+                    )
+                else -> getString(R.string.wizard_summary_source_html)
+            }
+            append(getString(R.string.wizard_summary_source, source))
+                .append("\n")
+            append(
+                getString(
+                    R.string.wizard_summary_display,
+                    binding.wizOrientation.selectedItem?.toString() ?: ""
+                )
+            ).append("\n")
+            if (spec != null) {
+                append(
+                    getString(
+                        R.string.wizard_summary_permissions,
+                        HtmlWebViewScaffolder.permissionsFor(spec).size
+                    )
+                ).append("\n")
+                val webOptions = listOf(
+                    spec.pullToRefresh,
+                    spec.noInternetDialog,
+                    spec.exitConfirmation
+                ).count { it }
+                append(
+                    getString(
+                        R.string.wizard_summary_webview_options,
+                        webOptions
+                    )
+                )
+            }
+        }
+    }
+
+    private fun createProject() {
+        binding.wizExportActions.visibility = View.GONE
+        binding.wizResult.text =
+            "INPUT VALIDATION • RUNNING\nPreparing HTML app project source…"
+        runCatching {
+            val spec = buildSpec()
+            spec to HtmlWebViewScaffolder.files(spec)
+        }.onSuccess { (spec, files) ->
+            pendingFiles = files
+            binding.wizResult.text =
+                "INPUT VALIDATION • PASS\n" +
+                    "SOURCE PLAN • PASS\n" +
+                    "Prepared ${files.size} files. Choose a ZIP save location."
+            saveZip.launch(safeFilename(spec.name) + "-html-app.zip")
+        }.onFailure { error ->
+            binding.wizResult.text =
+                "INPUT VALIDATION • FAILED\n\n" +
+                    (error.message ?: "Invalid project") +
+                    "\n\nSAFE NEXT STEP:\n" +
+                    "Check the app name, package name and options, then try again."
+            Snackbar.make(
+                binding.root,
+                error.message ?: "Invalid project",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun queryDocumentMetadata(uri: Uri): Pair<String, Long> {
+        var name = "project.zip"
+        var size = -1L
+        contentResolver.query(
+            uri,
+            arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (nameIndex >= 0) {
+                    name = cursor.getString(nameIndex) ?: name
+                }
+                if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
+                    size = cursor.getLong(sizeIndex)
+                }
+            }
+        }
+        if (size < 0) {
+            size = contentResolver.openAssetFileDescriptor(uri, "r")
+                ?.use { it.length } ?: -1L
+        }
+        return name to size
+    }
+
+    private fun formatBytes(bytes: Long): String {
+        if (bytes < 0) return "unknown"
+        if (bytes < 1024) return "$bytes B"
+        val kb = bytes / 1024.0
+        if (kb < 1024) {
+            return String.format(Locale.US, "%.1f KB", kb)
+        }
+        return String.format(Locale.US, "%.2f MB", kb / 1024.0)
+    }
+
+    private fun safeFilename(value: String): String =
+        value.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            .ifBlank { "ZipBugProject" }
+
+    companion object {
+        const val EXTRA_TEMPLATE_ID = "com.zipbug.base.extra.TEMPLATE_ID"
+    }
+}
