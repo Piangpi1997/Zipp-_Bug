@@ -124,3 +124,124 @@ tasks.register<Exec>("verifyLicenseMetadata") {
         "--check"
     )
 }
+
+// --- Open Source Licenses v2: graph verification -------------------------
+// scripts/license-graph.json is produced by scripts/resolve-license-graph.py
+// (a POM walker). The tasks below re-resolve the same classpaths with
+// Gradle itself: dumpLicenseGraph rewrites the committed file from
+// Gradle's resolution (maintainer tool), and verifyLicenseGraph — wired
+// into preDebugBuild/preReleaseBuild — fails the build when the
+// committed graph drifts from Gradle's own resolution.
+
+fun licenseModuleStrings(configuration: Configuration): Set<String> =
+    configuration.resolvedConfiguration.lenientConfiguration
+        .allModuleDependencies
+        .map { "${it.moduleGroup}:${it.moduleName}:${it.moduleVersion}" }
+        .toSet()
+
+fun licenseGraphSection(text: String, section: String): Set<String> {
+    val start = text.indexOf("\"$section\"")
+    require(start >= 0) {
+        "license-graph.json is missing the \"$section\" section"
+    }
+    val open = text.indexOf('[', start)
+    val close = text.indexOf(']', open)
+    return Regex("\"([^\"]+)\"").findAll(text.substring(open, close))
+        .map { it.groupValues[1] }
+        .toSet()
+}
+
+val dumpLicenseGraph by tasks.registering {
+    group = "verification"
+    description =
+        "Rewrite scripts/license-graph.json from Gradle's own resolution."
+    doLast {
+        val graphFile = rootProject.file("scripts/license-graph.json")
+        val extras = if (graphFile.exists()) {
+            licenseGraphSection(graphFile.readText(), "extras")
+        } else {
+            emptySet()
+        }
+        val detached = configurations.detachedConfiguration(
+            dependencies.create("androidx.core:core-ktx:1.13.1"),
+            dependencies.create("androidx.appcompat:appcompat:1.7.0"),
+            dependencies.create("com.google.android.material:material:1.12.0"),
+            dependencies.create("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
+        )
+        val appModules = licenseModuleStrings(
+            configurations.named("releaseRuntimeClasspath").get()
+        )
+        val generatedModules = licenseModuleStrings(detached)
+
+        fun section(name: String, modules: Set<String>): String =
+            "  \"$name\": [\n" +
+                modules.sorted().joinToString(",\n") { "    \"$it\"" } +
+                "\n  ]"
+        graphFile.writeText(
+            "{\n" +
+                section("app", appModules) + ",\n" +
+                section("generatedApps", generatedModules) + ",\n" +
+                section("extras", extras) +
+                "\n}\n"
+        )
+        println(
+            "license-graph.json rewritten: app=${appModules.size} " +
+                "generatedApps=${generatedModules.size}"
+        )
+    }
+}
+
+val verifyLicenseGraph by tasks.registering {
+    group = "verification"
+    description =
+        "Fail if scripts/license-graph.json drifts from Gradle's resolution."
+    doLast {
+        val graphFile = rootProject.file("scripts/license-graph.json")
+        check(graphFile.exists()) {
+            "scripts/license-graph.json is missing; run " +
+                "scripts/resolve-license-graph.py"
+        }
+        val text = graphFile.readText()
+        val expectedApp = licenseGraphSection(text, "app")
+        val expectedGen = licenseGraphSection(text, "generatedApps")
+        val detached = configurations.detachedConfiguration(
+            dependencies.create("androidx.core:core-ktx:1.13.1"),
+            dependencies.create("androidx.appcompat:appcompat:1.7.0"),
+            dependencies.create("com.google.android.material:material:1.12.0"),
+            dependencies.create("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
+        )
+        val actualApp = licenseModuleStrings(
+            configurations.named("releaseRuntimeClasspath").get()
+        )
+        val actualGen = licenseModuleStrings(detached)
+        val problems = mutableListOf<String>()
+        (expectedApp - actualApp).forEach {
+            problems += "app: committed but not resolved: $it"
+        }
+        (actualApp - expectedApp).forEach {
+            problems += "app: resolved but not committed: $it"
+        }
+        (expectedGen - actualGen).forEach {
+            problems += "generatedApps: committed but not resolved: $it"
+        }
+        (actualGen - expectedGen).forEach {
+            problems += "generatedApps: resolved but not committed: $it"
+        }
+        check(problems.isEmpty()) {
+            "License graph drift detected — re-run " +
+                "scripts/resolve-license-graph.py (or the " +
+                "dumpLicenseGraph task) and regenerate:\n" +
+                problems.joinToString("\n")
+        }
+        println(
+            "License graph matches Gradle resolution: " +
+                "app=${actualApp.size}, generatedApps=${actualGen.size}"
+        )
+    }
+}
+
+tasks.matching {
+    it.name == "preDebugBuild" || it.name == "preReleaseBuild"
+}.configureEach {
+    dependsOn(verifyLicenseGraph)
+}
