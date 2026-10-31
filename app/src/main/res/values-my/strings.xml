@@ -624,4 +624,5 @@
     <string name="templates_cat_system">စနစ်</string>
     <string name="templates_cat_libraries">Starter Library များ</string>
 
+    <string name="settings_anthropic_base_url_hint">Claude base URL (မထည့်လည်း ရ — ဥပမာ https://space.stationine.com)</string>
 </resources>
