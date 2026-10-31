@@ -17,3 +17,4 @@ myanmar-drama-editor/
 *.mp3
 *.wav
 *.zipbugkeys
+app/libs/*.aar
