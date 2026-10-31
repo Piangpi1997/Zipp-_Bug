@@ -100,3 +100,27 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
 }
+
+// Open Source Licenses: regenerate/verify license metadata derived from the
+// real dependencies above (scripts/generate-licenses.py). CI also enforces
+// this through verify-project.py, which runs on every build.
+tasks.register<Exec>("generateLicenseReport") {
+    group = "verification"
+    description = "Regenerates open-source license JSON + THIRD_PARTY_NOTICES " +
+        "from the project's real dependencies."
+    commandLine(
+        "python3",
+        rootProject.file("scripts/generate-licenses.py").absolutePath
+    )
+}
+
+tasks.register<Exec>("verifyLicenseMetadata") {
+    group = "verification"
+    description = "Fails if a dependency lacks curated license metadata or " +
+        "the generated license files are stale."
+    commandLine(
+        "python3",
+        rootProject.file("scripts/generate-licenses.py").absolutePath,
+        "--check"
+    )
+}
