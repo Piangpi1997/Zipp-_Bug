@@ -57,6 +57,45 @@
             android:layout_height="54dp"
             android:text="Create Kotlin/XML Android ZIP" />
 
+        <EditText
+            android:id="@+id/htmlContent"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="10dp"
+            android:gravity="top"
+            android:hint="Paste your HTML here for the HTML App (optional — a starter page is generated if empty)"
+            android:inputType="textMultiLine"
+            android:textColor="@color/z_text"
+            android:textColorHint="@color/z_muted" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/webFullscreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fullscreen"
+                android:textColor="@color/z_text" />
+
+            <CheckBox
+                android:id="@+id/webKeepScreenOn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Keep screen on"
+                android:textColor="@color/z_text" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/createHtmlApp"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="8dp"
+            android:text="Create HTML App — Android ZIP (WebView)" />
+
         <Button
             android:id="@+id/createWeb"
             android:layout_width="match_parent"
