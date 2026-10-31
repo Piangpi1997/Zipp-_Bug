@@ -51,12 +51,6 @@
             android:textColor="@color/z_text"
             android:textColorHint="@color/z_muted" />
 
-        <Button
-            android:id="@+id/createAndroid"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:text="Create Kotlin/XML Android ZIP" />
-
         <EditText
             android:id="@+id/htmlContent"
             android:layout_width="match_parent"
@@ -89,47 +83,105 @@
                 android:textColor="@color/z_text" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/createHtmlApp"
+        <!-- Create actions: icon grid (2 columns) -->
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:text="Create HTML App — Android ZIP (WebView)" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:columnCount="2"
+            android:useDefaultMargins="false">
 
-        <Button
-            android:id="@+id/openWizard"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/creator_open_wizard" />
+            <LinearLayout
+                android:id="@+id/createAndroid"
+                style="@style/CreatorTile">
 
-        <Button
-            android:id="@+id/openTemplates"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/creator_open_templates" />
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="🤖" />
 
-        <Button
-            android:id="@+id/createWeb"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:text="Create HTML/JS/JSON Mini-App ZIP" />
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="Kotlin/XML Android ZIP" />
+            </LinearLayout>
 
-        <Button
-            android:id="@+id/createReact"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:text="Create React + Vite Source ZIP" />
+            <LinearLayout
+                android:id="@+id/createHtmlApp"
+                style="@style/CreatorTile">
 
-        <Button
-            android:id="@+id/createReactNative"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:text="Create React Native + Expo Source ZIP" />
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="🌐" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="HTML App — Android ZIP (WebView)" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/openWizard"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="🪄" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="@string/creator_open_wizard" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/openTemplates"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="🧩" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="@string/creator_open_templates" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/createWeb"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="📱" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="HTML/JS/JSON Mini-App ZIP" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/createReact"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="⚛️" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="React + Vite Source ZIP" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/createReactNative"
+                style="@style/CreatorTile">
+
+                <TextView
+                    style="@style/CreatorTileIcon"
+                    android:text="📲" />
+
+                <TextView
+                    style="@style/CreatorTileLabel"
+                    android:text="React Native + Expo Source ZIP" />
+            </LinearLayout>
+        </GridLayout>
 
         <TextView
             android:layout_width="match_parent"
