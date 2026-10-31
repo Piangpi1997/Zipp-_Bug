@@ -41,6 +41,7 @@
         <activity android:name=".ui.MediaRecapActivity" android:exported="false" />
         <activity android:name=".ui.RecapStudioActivity" android:exported="true" />
         <activity android:name=".ui.ZippyCutStudioActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.ZippyWebStudioActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.MyanmarDramaEditorActivity" android:exported="true" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.WorkspaceActivity" android:exported="false" />
         <activity android:name=".ui.DeveloperToolsActivity" android:exported="false" />
