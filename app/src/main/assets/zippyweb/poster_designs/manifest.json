@@ -1,0 +1,209 @@
+{
+  "app": "Zippy_Cut",
+  "asset_type": "poster_design_cards",
+  "count": 33,
+  "format": "WebP",
+  "dimensions": "360x640",
+  "aspect_ratio": "9:16",
+  "quality": 68,
+  "designs": [
+    {
+      "id": 1,
+      "name": "Mystic Discovery",
+      "file": "poster_designs/01_mystic_discovery.webp",
+      "size_bytes": 26744
+    },
+    {
+      "id": 2,
+      "name": "Warm Fantasy Village",
+      "file": "poster_designs/02_warm_fantasy_village.webp",
+      "size_bytes": 29838
+    },
+    {
+      "id": 3,
+      "name": "Power Awakening",
+      "file": "poster_designs/03_power_awakening.webp",
+      "size_bytes": 34160
+    },
+    {
+      "id": 4,
+      "name": "Dark Revenge",
+      "file": "poster_designs/04_dark_revenge.webp",
+      "size_bytes": 17592
+    },
+    {
+      "id": 5,
+      "name": "Family Adventure",
+      "file": "poster_designs/05_family_adventure.webp",
+      "size_bytes": 32070
+    },
+    {
+      "id": 6,
+      "name": "Ancient Kingdom",
+      "file": "poster_designs/06_ancient_kingdom.webp",
+      "size_bytes": 30796
+    },
+    {
+      "id": 7,
+      "name": "Magical Food",
+      "file": "poster_designs/07_magical_food.webp",
+      "size_bytes": 38380
+    },
+    {
+      "id": 8,
+      "name": "Beast Confrontation",
+      "file": "poster_designs/08_beast_confrontation.webp",
+      "size_bytes": 36046
+    },
+    {
+      "id": 9,
+      "name": "Sacred Medicine",
+      "file": "poster_designs/09_sacred_medicine.webp",
+      "size_bytes": 28600
+    },
+    {
+      "id": 10,
+      "name": "Village Guardian",
+      "file": "poster_designs/10_village_guardian.webp",
+      "size_bytes": 29064
+    },
+    {
+      "id": 11,
+      "name": "Romantic Destiny",
+      "file": "poster_designs/11_romantic_destiny.webp",
+      "size_bytes": 19834
+    },
+    {
+      "id": 12,
+      "name": "Journey Beyond",
+      "file": "poster_designs/12_journey_beyond.webp",
+      "size_bytes": 42268
+    },
+    {
+      "id": 13,
+      "name": "Final Showdown",
+      "file": "poster_designs/13_final_showdown.webp",
+      "size_bytes": 30990
+    },
+    {
+      "id": 14,
+      "name": "Hidden Identity",
+      "file": "poster_designs/14_hidden_identity.webp",
+      "size_bytes": 27028
+    },
+    {
+      "id": 15,
+      "name": "Golden Miracle",
+      "file": "poster_designs/15_golden_miracle.webp",
+      "size_bytes": 17442
+    },
+    {
+      "id": 16,
+      "name": "Frozen Mountain",
+      "file": "poster_designs/16_frozen_mountain.webp",
+      "size_bytes": 38472
+    },
+    {
+      "id": 17,
+      "name": "Fire Warrior",
+      "file": "poster_designs/17_fire_warrior.webp",
+      "size_bytes": 36122
+    },
+    {
+      "id": 18,
+      "name": "Spirit Companion",
+      "file": "poster_designs/18_spirit_companion.webp",
+      "size_bytes": 25344
+    },
+    {
+      "id": 19,
+      "name": "Royal Secret",
+      "file": "poster_designs/19_royal_secret.webp",
+      "size_bytes": 28922
+    },
+    {
+      "id": 20,
+      "name": "Emotional Rescue",
+      "file": "poster_designs/20_emotional_rescue.webp",
+      "size_bytes": 34602
+    },
+    {
+      "id": 21,
+      "name": "Legendary Weapon",
+      "file": "poster_designs/21_legendary_weapon.webp",
+      "size_bytes": 35548
+    },
+    {
+      "id": 22,
+      "name": "Marketplace Miracle",
+      "file": "poster_designs/22_marketplace_miracle.webp",
+      "size_bytes": 40992
+    },
+    {
+      "id": 23,
+      "name": "Underdog Rise",
+      "file": "poster_designs/23_underdog_rise.webp",
+      "size_bytes": 30606
+    },
+    {
+      "id": 24,
+      "name": "Enchanted Forest",
+      "file": "poster_designs/24_enchanted_forest.webp",
+      "size_bytes": 29802
+    },
+    {
+      "id": 25,
+      "name": "Dragon Fate",
+      "file": "poster_designs/25_dragon_fate.webp",
+      "size_bytes": 39748
+    },
+    {
+      "id": 26,
+      "name": "Time Rebirth",
+      "file": "poster_designs/26_time_rebirth.webp",
+      "size_bytes": 31030
+    },
+    {
+      "id": 27,
+      "name": "War Of Kingdoms",
+      "file": "poster_designs/27_war_of_kingdoms.webp",
+      "size_bytes": 34218
+    },
+    {
+      "id": 28,
+      "name": "Healing Light",
+      "file": "poster_designs/28_healing_light.webp",
+      "size_bytes": 21884
+    },
+    {
+      "id": 29,
+      "name": "Shadow Enemy",
+      "file": "poster_designs/29_shadow_enemy.webp",
+      "size_bytes": 15712
+    },
+    {
+      "id": 30,
+      "name": "Ultimate Epic",
+      "file": "poster_designs/30_ultimate_epic.webp",
+      "size_bytes": 27796
+    },
+    {
+      "id": 31,
+      "name": "Question Hook",
+      "file": "poster_designs/31_question_hook.webp",
+      "size_bytes": 37454
+    },
+    {
+      "id": 32,
+      "name": "Palace Chaos",
+      "file": "poster_designs/32_palace_chaos.webp",
+      "size_bytes": 46472
+    },
+    {
+      "id": 33,
+      "name": "Comic Drama",
+      "file": "poster_designs/33_comic_drama.webp",
+      "size_bytes": 47026
+    }
+  ]
+}
