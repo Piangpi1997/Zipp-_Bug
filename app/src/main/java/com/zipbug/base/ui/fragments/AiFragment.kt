@@ -191,7 +191,16 @@ class AiFragment : Fragment() {
         binding.output.setText("Testing provider health for ${selected.label}…")
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = repository.checkHealth(selected, key, model)
+            val result = repository.checkHealth(
+                selected,
+                key,
+                model,
+                baseUrl = if (selected == AiProvider.ANTHROPIC) {
+                    store.get("anthropic_base_url")
+                } else {
+                    ""
+                }
+            )
             binding.providerHealthBadge.text = result.status.label
             when (result.status) {
                 com.zipbug.base.ai.HealthStatus.READY -> {
@@ -320,6 +329,11 @@ class AiFragment : Fragment() {
         val request = AiRequest(
             provider = effectiveProvider,
             apiKey = key,
+            baseUrl = if (effectiveProvider == AiProvider.ANTHROPIC) {
+                store.get(\"anthropic_base_url\")
+            } else {
+                \"\"
+            },
             model = model.ifBlank {
                 effectiveProvider.defaultModel
             },
