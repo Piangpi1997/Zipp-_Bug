@@ -156,4 +156,106 @@ class HtmlWebViewScaffolderTest {
         assertTrue(html.contains("window.AndroidAPI"))
         assertTrue(html.contains("AndroidAPI.toast"))
     }
+
+    @Test
+    fun bridgeV2MethodsAndEventChannelAreGenerated() {
+        val main = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        for (needle in listOf(
+            "fun vibratePattern(pattern: String)",
+            "fun cancelVibrate()",
+            "fun torch(on: Boolean)",
+            "fun showNotification(title: String, body: String)",
+            "fun networkStatus()",
+            "fun getBattery()",
+            "fun getDeviceInfo(): String",
+            "fun getClipboard()",
+            "fun setKeepScreenOn(on: Boolean)",
+            "fun storageSave(name: String, content: String)",
+            "fun storageLoad(name: String)",
+            "fun storageList()",
+            "window.onAndroidEvent",
+            "fun isTrustedPage(): Boolean"
+        )) {
+            assertTrue("missing in shell: $needle", main.contains(needle))
+        }
+    }
+
+    @Test
+    fun notificationsHardwareAddsPermissionAndRuntimeRequest() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(
+                hardware = setOf(WebHardware.NOTIFICATIONS)
+            )
+        )
+        assertTrue(
+            manifest(files).contains("android.permission.POST_NOTIFICATIONS")
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("Build.VERSION_CODES.TIRAMISU"))
+        assertTrue(main.contains("NotificationChannel("))
+    }
+
+    @Test
+    fun wizardOptionsReachTheShell() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(
+                pullToRefresh = true,
+                splashEnabled = true,
+                splashSeconds = 3,
+                splashColor = "#202020",
+                statusBarColor = "#101010",
+                exitConfirmation = true
+            )
+        )
+        val main = mainActivity(files)
+        assertTrue(main.contains("PullRefreshContainer"))
+        assertTrue(main.contains("window.statusBarColor = Color.parseColor(\"#101010\")"))
+        assertTrue(main.contains("Color.parseColor(\"#202020\")"))
+        assertTrue(main.contains("3000L"))
+        // Exit confirmation replaces the default back behaviour.
+        assertTrue(main.contains("Do you want to exit this app?"))
+    }
+
+    @Test
+    fun noInternetDialogReplacesErrorPage() {
+        val main = mainActivity(
+            HtmlWebViewScaffolder.files(
+                localSpec().copy(noInternetDialog = true)
+            )
+        )
+        assertTrue(main.contains("private val noInternetDialog = true"))
+        assertTrue(main.contains("\"No connection\""))
+        val plain = mainActivity(HtmlWebViewScaffolder.files(localSpec()))
+        assertTrue(plain.contains("private val noInternetDialog = false"))
+    }
+
+    @Test
+    fun deepLinkSchemeAddsManifestFilter() {
+        val files = HtmlWebViewScaffolder.files(
+            localSpec().copy(urlScheme = "mywebapp")
+        )
+        val manifest = manifest(files)
+        assertTrue(manifest.contains("android.intent.action.VIEW"))
+        assertTrue(manifest.contains("android:scheme=\"mywebapp\""))
+    }
+
+    @Test
+    fun rejectsInvalidV2Options() {
+        val badSpecs = listOf(
+            localSpec().copy(urlScheme = "https"),
+            localSpec().copy(urlScheme = "1bad"),
+            localSpec().copy(urlScheme = "Bad Scheme"),
+            localSpec().copy(splashColor = "red"),
+            localSpec().copy(statusBarColor = "#12345"),
+            localSpec().copy(splashSeconds = 42)
+        )
+        for (bad in badSpecs) {
+            try {
+                HtmlWebViewScaffolder.files(bad)
+                fail("Expected invalid spec to be rejected: $bad")
+            } catch (expected: IllegalArgumentException) {
+                // expected
+            }
+        }
+    }
 }
