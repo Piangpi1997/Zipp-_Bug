@@ -116,7 +116,8 @@ class AiRepository {
     suspend fun checkHealth(
         provider: AiProvider,
         apiKey: String,
-        model: String = ""
+        model: String = "",
+        baseUrl: String = ""
     ): ProviderHealthResult = withContext(Dispatchers.IO) {
         val masked = maskApiKey(apiKey)
         if (apiKey.isBlank()) {
@@ -132,6 +133,7 @@ class AiRepository {
         val testReq = AiRequest(
             provider = provider,
             apiKey = apiKey,
+            baseUrl = baseUrl,
             model = effectiveModel,
             system = "Health check. Respond with 'PONG'.",
             prompt = "PING",
@@ -356,7 +358,7 @@ class AiRepository {
 
     private fun anthropic(r: AiRequest): String {
         val json = post(
-            "https://api.anthropic.com/v1/messages",
+            anthropicEndpoint(r.baseUrl),
             mapOf(
                 "x-api-key" to r.apiKey,
                 "anthropic-version" to "2023-06-01"
