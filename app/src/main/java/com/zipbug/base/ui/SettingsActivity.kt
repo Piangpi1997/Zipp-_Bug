@@ -498,12 +498,17 @@ class SettingsActivity : AppCompatActivity() {
         binding.openai.setText(secrets.get("openai"))
         binding.gemini.setText(secrets.get("gemini"))
         binding.anthropic.setText(secrets.get("anthropic"))
+        binding.anthropicBaseUrl.setText(secrets.get("anthropic_base_url"))
     }
 
     private fun saveSecrets() {
         currentKeysIncludingBlank().forEach { (name, value) ->
             secrets.put(name, value)
         }
+        secrets.put(
+            "anthropic_base_url",
+            binding.anthropicBaseUrl.text.toString().trim()
+        )
     }
 
     private fun currentKeys(): Map<String, String> =
