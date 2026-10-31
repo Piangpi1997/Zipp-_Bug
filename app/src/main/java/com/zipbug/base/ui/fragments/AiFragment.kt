@@ -330,9 +330,9 @@ class AiFragment : Fragment() {
             provider = effectiveProvider,
             apiKey = key,
             baseUrl = if (effectiveProvider == AiProvider.ANTHROPIC) {
-                store.get(\"anthropic_base_url\")
+                store.get("anthropic_base_url")
             } else {
-                \"\"
+                ""
             },
             model = model.ifBlank {
                 effectiveProvider.defaultModel
