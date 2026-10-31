@@ -34,6 +34,8 @@
         <activity android:name=".ui.CommandHelpActivity" android:exported="false" />
         <activity android:name=".ui.TtsStudioActivity" android:exported="false" />
         <activity android:name=".ui.AppCreatorActivity" android:exported="false" />
+        <activity android:name=".ui.HtmlAppWizardActivity" android:exported="false" />
+        <activity android:name=".ui.WebTemplatesActivity" android:exported="false" />
         <activity android:name=".ui.AppBuilderActivity" android:exported="true" />
         <activity android:name=".ui.WebRuntimeActivity" android:exported="false" />
         <activity android:name=".ui.MediaRecapActivity" android:exported="false" />
