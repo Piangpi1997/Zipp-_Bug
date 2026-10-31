@@ -1205,6 +1205,20 @@
                     android:text="• Package: com.zipbug.base\n• Version: 2.0.0-alpha01 (Build 3)\n• Target SDK: Android 14 (API 34) / Min SDK 24\n• Security: Android Keystore AES-256-GCM EncryptedSharedPreferences\n• Execution Policy: 100% real Termux / HTTP Engine &amp; local Web runtime (:3131). No simulated builds or fake statuses."
                     android:textColor="@color/z_text"
                     android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnSettingsLicenses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/licenses_title" />
+
+                <Button
+                    android:id="@+id/btnSettingsNotices"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/notices_title" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

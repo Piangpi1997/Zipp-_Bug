@@ -97,6 +97,7 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         setupGroupedNavigation()
+        setupAboutLinks()
         setupLanguageAndThemeButtons()
         setupEngineHttpControls()
 
@@ -233,6 +234,25 @@ class SettingsActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(KEY_ACTIVE_SECTION, activeSection)
+    }
+
+    private fun setupAboutLinks() {
+        binding.btnSettingsLicenses.setOnClickListener {
+            startActivity(
+                Intent(this, OpenSourceLicensesActivity::class.java).putExtra(
+                    OpenSourceLicensesActivity.EXTRA_MODE,
+                    OpenSourceLicensesActivity.MODE_LIST
+                )
+            )
+        }
+        binding.btnSettingsNotices.setOnClickListener {
+            startActivity(
+                Intent(this, OpenSourceLicensesActivity::class.java).putExtra(
+                    OpenSourceLicensesActivity.EXTRA_MODE,
+                    OpenSourceLicensesActivity.MODE_NOTICES
+                )
+            )
+        }
     }
 
     private fun setupGroupedNavigation() {
