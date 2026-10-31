@@ -53,7 +53,10 @@ class AppScaffolderTest {
             files.getValue("settings.gradle.kts")
                 .contains("A \\\"quoted\\\" app")
         )
-        assertEquals(12, files.size)
+        // 12 project files + third_party_notices.txt + license-manifest.json
+        // (Open Source Licenses v1 adds the two license files to every
+        // generated project).
+        assertEquals(14, files.size)
     }
 
     @Test
