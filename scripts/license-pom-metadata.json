@@ -1,650 +1,668 @@
 {
   "androidx.activity:activity-ktx:1.9.3": {
-    "name": "Activity Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Activity Kotlin Extensions"
   },
   "androidx.activity:activity:1.8.0": {
-    "name": "Activity",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Activity"
   },
   "androidx.activity:activity:1.9.3": {
-    "name": "Activity",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Activity"
   },
   "androidx.annotation:annotation-experimental:1.4.0": {
-    "name": "Experimental annotation",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Experimental annotation"
   },
   "androidx.annotation:annotation-jvm:1.6.0": {
-    "name": "Android Support Library Annotations",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Annotations"
   },
   "androidx.annotation:annotation-jvm:1.8.1": {
-    "name": "Annotation",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Annotation"
   },
   "androidx.annotation:annotation:1.6.0": {
-    "name": "Android Support Library Annotations",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Annotations"
   },
   "androidx.annotation:annotation:1.8.1": {
-    "name": "Annotation",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Annotation"
   },
   "androidx.appcompat:appcompat-resources:1.7.0": {
-    "name": "AppCompat Resources",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "AppCompat Resources"
   },
   "androidx.appcompat:appcompat:1.7.0": {
-    "name": "AppCompat",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "AppCompat"
   },
   "androidx.arch.core:core-common:2.2.0": {
-    "name": "Android Arch-Common",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Arch-Common"
   },
   "androidx.arch.core:core-runtime:2.2.0": {
-    "name": "Android Arch-Runtime",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Arch-Runtime"
   },
   "androidx.cardview:cardview:1.0.0": {
-    "name": "Android Support CardView v7",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support CardView v7"
   },
   "androidx.collection:collection-ktx:1.1.0": {
-    "name": "Collections Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Collections Kotlin Extensions"
   },
   "androidx.collection:collection:1.1.0": {
-    "name": "Android Support Library collections",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library collections"
   },
   "androidx.concurrent:concurrent-futures:1.1.0": {
-    "name": "AndroidX Futures",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "AndroidX Futures"
   },
   "androidx.constraintlayout:constraintlayout-solver:2.0.1": {
-    "name": "Android ConstraintLayout Solver",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android ConstraintLayout Solver"
   },
   "androidx.constraintlayout:constraintlayout:2.0.1": {
-    "name": "Android ConstraintLayout",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android ConstraintLayout"
   },
   "androidx.coordinatorlayout:coordinatorlayout:1.1.0": {
-    "name": "Android Support Library Coordinator Layout",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Coordinator Layout"
   },
   "androidx.core:core-ktx:1.13.1": {
-    "name": "Core Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Core Kotlin Extensions"
   },
   "androidx.core:core:1.13.1": {
-    "name": "Core",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Core"
   },
   "androidx.cursoradapter:cursoradapter:1.0.0": {
-    "name": "Android Support Library Cursor Adapter",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Cursor Adapter"
   },
   "androidx.customview:customview:1.1.0": {
-    "name": "Android Support Library Custom View",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Custom View"
   },
   "androidx.databinding:viewbinding:8.7.3": {
-    "name": null,
     "author": null,
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": null
   },
   "androidx.documentfile:documentfile:1.0.0": {
-    "name": "Android Support Library Document File",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Document File"
   },
   "androidx.drawerlayout:drawerlayout:1.1.1": {
-    "name": "Android Support Library Drawer Layout",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Drawer Layout"
   },
   "androidx.dynamicanimation:dynamicanimation:1.0.0": {
-    "name": "Android Support DynamicAnimation",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support DynamicAnimation"
   },
   "androidx.emoji2:emoji2-views-helper:1.3.0": {
-    "name": "Android Emoji2 Compat view helpers",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Emoji2 Compat view helpers"
   },
   "androidx.emoji2:emoji2:1.3.0": {
-    "name": "Android Emoji2 Compat",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Emoji2 Compat"
   },
   "androidx.exifinterface:exifinterface:1.3.6": {
-    "name": "Android Support ExifInterface",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support ExifInterface"
   },
   "androidx.fragment:fragment-ktx:1.8.5": {
-    "name": "Fragment Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Fragment Kotlin Extensions"
   },
   "androidx.fragment:fragment:1.5.4": {
-    "name": "Android Support Library fragment",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library fragment"
   },
   "androidx.fragment:fragment:1.8.5": {
-    "name": "fragment",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "fragment"
   },
   "androidx.interpolator:interpolator:1.0.0": {
-    "name": "Android Support Library Interpolators",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Interpolators"
   },
   "androidx.legacy:legacy-support-core-utils:1.0.0": {
-    "name": "Android Support Library core utils",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library core utils"
   },
   "androidx.lifecycle:lifecycle-common-jvm:2.8.7": {
-    "name": "Lifecycle-Common",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle-Common"
   },
   "androidx.lifecycle:lifecycle-common:2.6.2": {
-    "name": "Android Lifecycle-Common",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle-Common"
   },
   "androidx.lifecycle:lifecycle-common:2.8.7": {
-    "name": "Lifecycle-Common",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle-Common"
   },
   "androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7": {
-    "name": "LiveData Core Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "LiveData Core Kotlin Extensions"
   },
   "androidx.lifecycle:lifecycle-livedata-core:2.6.2": {
-    "name": "Android Lifecycle LiveData Core",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle LiveData Core"
   },
   "androidx.lifecycle:lifecycle-livedata-core:2.8.7": {
-    "name": "Lifecycle LiveData Core",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle LiveData Core"
   },
   "androidx.lifecycle:lifecycle-livedata:2.6.2": {
-    "name": "Android Lifecycle LiveData",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle LiveData"
   },
   "androidx.lifecycle:lifecycle-livedata:2.8.7": {
-    "name": "Lifecycle LiveData",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle LiveData"
   },
   "androidx.lifecycle:lifecycle-process:2.6.2": {
-    "name": "Android Lifecycle Process",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle Process"
   },
   "androidx.lifecycle:lifecycle-process:2.8.7": {
-    "name": "Lifecycle Process",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle Process"
   },
   "androidx.lifecycle:lifecycle-runtime-android:2.8.7": {
-    "name": "Lifecycle Runtime",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle Runtime"
   },
   "androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7": {
-    "name": "Lifecycle Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle Kotlin Extensions"
   },
   "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7": {
-    "name": "Lifecycle Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle Kotlin Extensions"
   },
   "androidx.lifecycle:lifecycle-runtime:2.6.2": {
-    "name": "Android Lifecycle Runtime",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle Runtime"
   },
   "androidx.lifecycle:lifecycle-runtime:2.8.7": {
-    "name": "Lifecycle Runtime",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle Runtime"
   },
   "androidx.lifecycle:lifecycle-viewmodel-android:2.8.7": {
-    "name": "Lifecycle ViewModel",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle ViewModel"
   },
   "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7": {
-    "name": "Lifecycle ViewModel Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle ViewModel Kotlin Extensions"
   },
   "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2": {
-    "name": "Android Lifecycle ViewModel with SavedState",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle ViewModel with SavedState"
   },
   "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7": {
-    "name": "Lifecycle ViewModel with SavedState",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle ViewModel with SavedState"
   },
   "androidx.lifecycle:lifecycle-viewmodel:2.6.2": {
-    "name": "Android Lifecycle ViewModel",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Lifecycle ViewModel"
   },
   "androidx.lifecycle:lifecycle-viewmodel:2.8.7": {
-    "name": "Lifecycle ViewModel",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Lifecycle ViewModel"
   },
   "androidx.loader:loader:1.0.0": {
-    "name": "Android Support Library loader",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library loader"
   },
   "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0": {
-    "name": "Android Support Library Local Broadcast Manager",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Local Broadcast Manager"
   },
   "androidx.print:print:1.0.0": {
-    "name": "Android Support Library Print",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library Print"
   },
   "androidx.profileinstaller:profileinstaller:1.3.1": {
-    "name": "androidx.profileinstaller:profileinstaller",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "androidx.profileinstaller:profileinstaller"
   },
   "androidx.recyclerview:recyclerview:1.1.0": {
-    "name": "Android Support RecyclerView v7",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support RecyclerView v7"
   },
   "androidx.resourceinspection:resourceinspection-annotation:1.0.1": {
-    "name": "Android Resource Inspection - Annotations",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Resource Inspection - Annotations"
   },
   "androidx.room:room-common:2.6.1": {
-    "name": "Room-Common",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Room-Common"
   },
   "androidx.room:room-compiler:2.6.1": {
-    "name": "Room Compiler",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Room Compiler"
   },
   "androidx.room:room-ktx:2.6.1": {
-    "name": "Room Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Room Kotlin Extensions"
   },
   "androidx.room:room-runtime:2.6.1": {
-    "name": "Room-Runtime",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Room-Runtime"
   },
   "androidx.savedstate:savedstate-ktx:1.2.1": {
-    "name": "SavedState Kotlin Extensions",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "SavedState Kotlin Extensions"
   },
   "androidx.savedstate:savedstate:1.2.1": {
-    "name": "Saved State",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Saved State"
   },
   "androidx.sqlite:sqlite-framework:2.4.0": {
-    "name": "SQLite Framework Integration",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "SQLite Framework Integration"
   },
   "androidx.sqlite:sqlite:2.4.0": {
-    "name": "SQLite",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "SQLite"
   },
   "androidx.startup:startup-runtime:1.1.1": {
-    "name": "Android App Startup Runtime",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android App Startup Runtime"
   },
   "androidx.tracing:tracing:1.0.0": {
-    "name": "Android Tracing",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Tracing"
   },
   "androidx.transition:transition:1.5.0": {
-    "name": "Transition",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Transition"
   },
   "androidx.vectordrawable:vectordrawable-animated:1.1.0": {
-    "name": "Android Support AnimatedVectorDrawable",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support AnimatedVectorDrawable"
   },
   "androidx.vectordrawable:vectordrawable:1.1.0": {
-    "name": "Android Support VectorDrawable",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support VectorDrawable"
   },
   "androidx.versionedparcelable:versionedparcelable:1.1.1": {
-    "name": "VersionedParcelable",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "VersionedParcelable"
   },
   "androidx.viewpager2:viewpager2:1.0.0": {
-    "name": "AndroidX Widget ViewPager2",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "AndroidX Widget ViewPager2"
   },
   "androidx.viewpager:viewpager:1.0.0": {
-    "name": "Android Support Library View Pager",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Android Support Library View Pager"
+  },
+  "com.arthenica:ffmpeg-kit-full:6.0.LTS": {
+    "author": "ARTHENICA",
+    "licenseName": "GNU Lesser General Public License, Version 3",
+    "licenseUrl": "https://www.gnu.org/licenses/lgpl-3.0.txt",
+    "name": "ffmpeg-kit-full"
+  },
+  "com.arthenica:smart-exception-common:0.2.1": {
+    "author": "Taner Sener",
+    "licenseName": "The 3-Clause BSD License",
+    "licenseUrl": "https://opensource.org/licenses/BSD-3-Clause",
+    "name": "smart-exception-common"
+  },
+  "com.arthenica:smart-exception-java:0.2.1": {
+    "author": "Taner Sener",
+    "licenseName": "The 3-Clause BSD License",
+    "licenseUrl": "https://opensource.org/licenses/BSD-3-Clause",
+    "name": "smart-exception-java"
   },
   "com.github.bumptech.glide:annotations:4.16.0": {
-    "name": "Glide Annotations",
     "author": "Sam Judd",
     "licenseName": "Simplified BSD License",
-    "licenseUrl": "http://www.opensource.org/licenses/bsd-license"
+    "licenseUrl": "http://www.opensource.org/licenses/bsd-license",
+    "name": "Glide Annotations"
   },
   "com.github.bumptech.glide:disklrucache:4.16.0": {
-    "name": "Glide Disk LRU Cache Library",
     "author": "Sam Judd",
     "licenseName": "Simplified BSD License",
-    "licenseUrl": "http://www.opensource.org/licenses/bsd-license"
+    "licenseUrl": "http://www.opensource.org/licenses/bsd-license",
+    "name": "Glide Disk LRU Cache Library"
   },
   "com.github.bumptech.glide:gifdecoder:4.16.0": {
-    "name": "Glide GIF Decoder Library",
     "author": "Sam Judd",
     "licenseName": "Simplified BSD License",
-    "licenseUrl": "http://www.opensource.org/licenses/bsd-license"
+    "licenseUrl": "http://www.opensource.org/licenses/bsd-license",
+    "name": "Glide GIF Decoder Library"
   },
   "com.github.bumptech.glide:glide:4.16.0": {
-    "name": "Glide",
     "author": "Sam Judd",
     "licenseName": "Simplified BSD License",
-    "licenseUrl": "http://www.opensource.org/licenses/bsd-license"
+    "licenseUrl": "http://www.opensource.org/licenses/bsd-license",
+    "name": "Glide"
   },
   "com.google.android.material:material:1.12.0": {
-    "name": "Material Components for Android",
     "author": "The Android Open Source Project",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Material Components for Android"
   },
   "com.google.errorprone:error_prone_annotations:2.15.0": {
-    "name": "error-prone annotations",
     "author": null,
     "licenseName": "Apache 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "error-prone annotations"
   },
   "com.google.guava:listenablefuture:1.0": {
-    "name": "Guava ListenableFuture only",
     "author": "Kevin Bourrillion",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Guava ListenableFuture only"
   },
   "com.squareup.okhttp3:okhttp:4.12.0": {
-    "name": "okhttp",
     "author": "Square, Inc.",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "okhttp"
   },
   "com.squareup.okio:okio-jvm:3.6.0": {
-    "name": "okio",
     "author": "Square, Inc.",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "okio"
   },
   "com.squareup.okio:okio:3.6.0": {
-    "name": "okio",
     "author": "Square, Inc.",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "okio"
   },
   "junit:junit:4.13.2": {
-    "name": "JUnit",
     "author": "JUnit",
     "licenseName": "Eclipse Public License 1.0",
-    "licenseUrl": "http://www.eclipse.org/legal/epl-v10.html"
+    "licenseUrl": "http://www.eclipse.org/legal/epl-v10.html",
+    "name": "JUnit"
   },
   "org.hamcrest:hamcrest-core:1.3": {
-    "name": "Hamcrest Core",
     "author": "Joe Walnes",
     "licenseName": "New BSD License",
-    "licenseUrl": "http://www.opensource.org/licenses/bsd-license.php"
+    "licenseUrl": "http://www.opensource.org/licenses/bsd-license.php",
+    "name": "Hamcrest Core"
   },
   "org.jetbrains.kotlin:kotlin-bom:1.8.22": {
-    "name": "Kotlin Libraries bill-of-materials",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Libraries bill-of-materials"
   },
   "org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24": {
-    "name": "Kotlin Stdlib Common",
     "author": "Kotlin Team",
     "licenseName": "The Apache License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Stdlib Common"
   },
   "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22": {
-    "name": "Kotlin Stdlib Jdk7",
     "author": "Kotlin Team",
     "licenseName": "The Apache License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Stdlib Jdk7"
   },
   "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10": {
-    "name": "Kotlin Stdlib Jdk7",
     "author": "Kotlin Team",
     "licenseName": "The Apache License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Stdlib Jdk7"
   },
   "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22": {
-    "name": "Kotlin Stdlib Jdk8",
     "author": "Kotlin Team",
     "licenseName": "The Apache License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Stdlib Jdk8"
   },
   "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10": {
-    "name": "Kotlin Stdlib Jdk8",
     "author": "Kotlin Team",
     "licenseName": "The Apache License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Stdlib Jdk8"
   },
   "org.jetbrains.kotlin:kotlin-stdlib:1.9.24": {
-    "name": "Kotlin Stdlib",
     "author": "Kotlin Team",
     "licenseName": "The Apache License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "Kotlin Stdlib"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4": {
-    "name": "kotlinx-coroutines-android",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-android"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1": {
-    "name": "kotlinx-coroutines-android",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-android"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4": {
-    "name": "kotlinx-coroutines-bom",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-bom"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1": {
-    "name": "kotlinx-coroutines-bom",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-bom"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4": {
-    "name": "kotlinx-coroutines-core",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-core"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1": {
-    "name": "kotlinx-coroutines-core",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-core"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4": {
-    "name": "kotlinx-coroutines-core",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-core"
   },
   "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1": {
-    "name": "kotlinx-coroutines-core",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "kotlinx-coroutines-core"
   },
   "org.jetbrains:annotations:13.0": {
-    "name": "IntelliJ IDEA Annotations",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "IntelliJ IDEA Annotations"
   },
   "org.jetbrains:annotations:23.0.0": {
-    "name": "JetBrains Java Annotations",
     "author": "JetBrains Team",
     "licenseName": "The Apache Software License, Version 2.0",
-    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name": "JetBrains Java Annotations"
   },
   "org.json:json:20240303": {
-    "name": "JSON in Java",
     "author": "Douglas Crockford",
     "licenseName": "Public Domain",
-    "licenseUrl": "https://github.com/stleary/JSON-java/blob/master/LICENSE"
+    "licenseUrl": "https://github.com/stleary/JSON-java/blob/master/LICENSE",
+    "name": "JSON in Java"
   }
 }
