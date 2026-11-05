@@ -1,18 +1,18 @@
-# pp APK Builder
+# PP APK BUILDER
 
 This branch combines the pinned WebToApp source with Zip-Bug's visual studio in one standard-flavor Android application. The original Zip-Bug project remains at the repository root.
 
 ## Source
 
 - WebToApp source is under `web-to-app/`, based on commit `a7f5432237f67f691b724c432aa39c33399a8301` from https://github.com/shiaho777/web-to-app. Its Unlicense and third-party notices remain in that directory.
-- The imported source keeps its existing builder and AI-provider implementation. Its launcher label is `pp APK Builder`.
-- Zip-Bug's visual studio assets and Android activity are added to the builder app. The standard-flavor app has two launcher entries: `pp APK Builder` and `pp Studio`.
+- The imported source keeps its existing builder and AI-provider implementation. Its launcher label is `PP APK BUILDER`.
+- Zip-Bug's visual studio assets and Android activity are added to the builder app. The standard-flavor app has two launcher entries: `PP APK BUILDER` and `pp Studio`.
 
 ## Studio to builder
 
 1. Open `pp Studio` and design a screen.
 2. Use `Export HTML` to save the current screen through Android's document picker.
-3. Open `pp APK Builder` and import the saved HTML through its existing HTML import workflow.
+3. Open `PP APK BUILDER` and import the saved HTML through its existing HTML import workflow.
 
 The exported HTML is a static representation of the selected screen; interactive behavior, multi-screen navigation, and automatic project transfer are not implemented by this integration. The combined flow still requires device testing.
 

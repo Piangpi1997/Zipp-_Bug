@@ -45,7 +45,9 @@ jobs:
           apk=web-to-app/app/build/outputs/apk/standard/debug/app-standard-debug.apk
           test -s "$apk"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$apk"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$apk" | head -25
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$apk" > "$RUNNER_TEMP/pp-badging.txt"
+          grep -F "application-label:\u0027PP APK BUILDER\u0027" "$RUNNER_TEMP/pp-badging.txt"
+          head -25 "$RUNNER_TEMP/pp-badging.txt"
           sha256sum "$apk"
       - uses: actions/upload-artifact@v4
         with:
