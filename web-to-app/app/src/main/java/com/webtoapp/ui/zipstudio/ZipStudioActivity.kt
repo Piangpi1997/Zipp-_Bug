@@ -41,6 +41,8 @@ class ZipStudioActivity : Activity() {
                         if (document.getElementById('pp-export-html')) return;
                         const bar = document.querySelector('header');
                         if (!bar) return;
+                        bar.style.overflowX = 'auto';
+                        bar.style.whiteSpace = 'nowrap';
                         const button = document.createElement('button');
                         button.id = 'pp-export-html';
                         button.className = 'btn-export';
@@ -49,7 +51,7 @@ class ZipStudioActivity : Activity() {
                             const doc = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + makePreviewHtml(getActiveScreen()) + '</body></html>';
                             window.ZipBug.exportHtml(doc);
                         };
-                        bar.appendChild(button);
+                        bar.insertBefore(button, bar.firstChild);
                     })();
                 """.trimIndent(), null)
             }
