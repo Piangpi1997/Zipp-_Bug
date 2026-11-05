@@ -1,0 +1,76 @@
+name: Import and build pp APK Builder
+
+on:
+  push:
+    branches: [feat/pp-apk-builder]
+    paths: ['.github/workflows/pp-apk-builder.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pp-apk-builder
+      - uses: actions/checkout@v4
+        with:
+          repository: shiaho777/web-to-app
+          ref: a7f5432237f67f691b724c432aa39c33399a8301
+          path: upstream-checkout
+          persist-credentials: false
+      - name: Import source and set app name
+        run: |
+          test ! -e web-to-app
+          mkdir web-to-app
+          rsync -a --exclude=.git upstream-checkout/ web-to-app/
+          python3 -c 'from pathlib import Path; p=Path("web-to-app/app/src/main/res/values/strings.xml"); p.write_text("<?xml version=\"1.0\" encoding=\"utf-8\"?>\\n<resources>\\n    <string name=\"app_name\" translatable=\"false\">pp APK Builder</string>\\n</resources>\\n", encoding="utf-8")'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web-to-app
+          git diff --cached --quiet && exit 1
+          git commit -m "Import web-to-app source and set app name"
+          git push origin HEAD:feat/pp-apk-builder
+    outputs:
+      ref: feat/pp-apk-builder
+
+  build:
+    needs: import
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pp-apk-builder
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Android build dependencies
+        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" "cmake;3.22.1" "ndk;28.2.13676358"
+      - name: Build debug APK
+        working-directory: web-to-app
+        run: ./gradlew --no-daemon --no-configuration-cache -Dkotlin.compiler.execution.strategy=in-process -PallowDebugSignedRelease=true :app:assembleStandardDebug
+      - name: Verify APK metadata and signature
+        run: |
+          apk=web-to-app/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$apk" | head -25
+          sha256sum "$apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pp-apk-builder-upstream-debug
+          path: web-to-app/app/build/outputs/apk/standard/debug/*.apk
+          if-no-files-found: error
