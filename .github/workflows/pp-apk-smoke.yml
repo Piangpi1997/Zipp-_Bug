@@ -1,0 +1,52 @@
+name: pp APK Builder emulator smoke test
+
+on:
+  push:
+    branches: [feat/pp-apk-builder]
+    paths: ['.github/workflows/pp-apk-smoke.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pp-apk-builder-upstream-debug
+          path: artifact
+          run-id: 42127207177
+          github-token: ${{ github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Launch Android app
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: |
+            adb install artifact/app-standard-debug.apk
+            adb shell am start -W -n com.webtoapp/com.webtoapp.ui.MainActivity
+            sleep 8
+            adb shell pidof com.webtoapp
+            adb shell am start -W -n com.webtoapp/com.webtoapp.ui.zipstudio.ZipStudioActivity
+            sleep 8
+            adb shell pidof com.webtoapp
+            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F 'com.webtoapp.ui.zipstudio.ZipStudioActivity'
