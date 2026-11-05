@@ -86,10 +86,16 @@ class LanguageManager(private val context: Context) {
     }
 
     suspend fun setLanguage(language: AppLanguage) {
+        Strings.setMyanmarEnabled(context, false)
         context.languageDataStore.edit { prefs ->
             prefs[LANGUAGE_KEY] = language.code
             prefs[LANGUAGE_SELECTED_KEY] = "true"
         }
+    }
+
+    suspend fun setMyanmarLanguage() {
+        setLanguage(AppLanguage.ENGLISH)
+        Strings.setMyanmarEnabled(context, true)
     }
 
     suspend fun getCurrentLanguage(): AppLanguage {
@@ -107,3 +113,4 @@ class LanguageManager(private val context: Context) {
         return context.createConfigurationContext(config)
     }
 }
+

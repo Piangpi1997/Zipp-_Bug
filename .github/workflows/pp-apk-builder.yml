@@ -40,6 +40,9 @@ jobs:
       - name: Build debug APK
         working-directory: web-to-app
         run: ./gradlew --no-daemon --no-configuration-cache -Dkotlin.compiler.execution.strategy=in-process -PallowDebugSignedRelease=true :app:assembleStandardDebug
+      - name: Verify Myanmar language settings
+        working-directory: web-to-app
+        run: ./gradlew --no-daemon --no-configuration-cache -Dkotlin.compiler.execution.strategy=in-process -PallowDebugSignedRelease=true :app:testStandardDebugUnitTest --tests com.webtoapp.core.i18n.MyanmarLanguageTest
       - name: Verify APK metadata and signature
         run: |
           apk=web-to-app/app/build/outputs/apk/standard/debug/app-standard-debug.apk

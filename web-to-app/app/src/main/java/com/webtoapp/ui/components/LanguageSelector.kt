@@ -93,6 +93,13 @@ fun LanguageSelectorButton(
                 }
                 showDialog = false
             },
+            onMyanmarSelected = {
+                scope.launch {
+                    languageManager.setMyanmarLanguage()
+                    onLanguageChanged()
+                }
+                showDialog = false
+            },
             onDismiss = { showDialog = false }
         )
     }
@@ -102,6 +109,7 @@ fun LanguageSelectorButton(
 fun LanguageSelectionDialog(
     currentLanguage: AppLanguage,
     onLanguageSelected: (AppLanguage) -> Unit,
+    onMyanmarSelected: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -126,10 +134,14 @@ fun LanguageSelectionDialog(
                 AppLanguage.entries.forEach { language ->
                     LanguageOption(
                         language = language,
-                        isSelected = language == currentLanguage,
+                        isSelected = language == currentLanguage && !Strings.myanmarEnabled.value,
                         onClick = { onLanguageSelected(language) }
                     )
                 }
+                MyanmarLanguageOption(
+                    isSelected = Strings.myanmarEnabled.value,
+                    onClick = onMyanmarSelected
+                )
             }
         },
         confirmButton = {
@@ -138,6 +150,36 @@ fun LanguageSelectionDialog(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MyanmarLanguageOption(isSelected: Boolean, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().focusable(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+            else MaterialTheme.colorScheme.surface
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = if (isSelected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("မြန်မာ", style = MaterialTheme.typography.titleMedium)
+                Text("Myanmar · Beta · English fallback", style = MaterialTheme.typography.bodySmall)
+            }
+            if (isSelected) Icon(Icons.Default.Check, contentDescription = null)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -218,6 +260,7 @@ fun FirstLaunchLanguageScreen(
     val scope = rememberCoroutineScope()
 
     var selectedLanguage by remember { mutableStateOf<AppLanguage?>(null) }
+    var selectedMyanmar by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val isTv = isRunningOnTv()
     val confirmFocusRequester = remember { FocusRequester() }
@@ -275,7 +318,7 @@ fun FirstLaunchLanguageScreen(
                 MaterialTheme.typography.headlineMedium
             }
             Text(
-                text = when (selectedLanguage) {
+                text = if (selectedMyanmar) "ကြိုဆိုပါတယ်" else when (selectedLanguage) {
                     AppLanguage.CHINESE -> "欢迎"
                     AppLanguage.ENGLISH -> "Welcome"
                     AppLanguage.ARABIC -> "مرحبا"
@@ -296,7 +339,7 @@ fun FirstLaunchLanguageScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = when (selectedLanguage) {
+                text = if (selectedMyanmar) "ဘာသာစကား ရွေးချယ်ရန်" else when (selectedLanguage) {
                     AppLanguage.CHINESE -> "选择语言"
                     AppLanguage.ENGLISH -> "Select Language"
                     AppLanguage.ARABIC -> "اختر اللغة"
@@ -324,25 +367,36 @@ fun FirstLaunchLanguageScreen(
                 AppLanguage.entries.forEach { language ->
                     FirstLaunchLanguageOption(
                         language = language,
-                        isSelected = language == selectedLanguage,
-                        onClick = { selectedLanguage = language },
+                        isSelected = language == selectedLanguage && !selectedMyanmar,
+                        onClick = { selectedMyanmar = false; selectedLanguage = language },
                         isTv = isTv
                     )
                 }
+                MyanmarLanguageOption(
+                    isSelected = selectedMyanmar,
+                    onClick = { selectedMyanmar = true; selectedLanguage = null }
+                )
             }
 
             Spacer(modifier = Modifier.height(sectionSpacing))
 
             PremiumButton(
                 onClick = {
-                    selectedLanguage?.let { lang ->
+                    if (selectedMyanmar) {
                         scope.launch {
-                            languageManager.setLanguage(lang)
+                            languageManager.setMyanmarLanguage()
                             onLanguageSelected()
+                        }
+                    } else {
+                        selectedLanguage?.let { lang ->
+                            scope.launch {
+                                languageManager.setLanguage(lang)
+                                onLanguageSelected()
+                            }
                         }
                     }
                 },
-                enabled = selectedLanguage != null,
+                enabled = selectedLanguage != null || selectedMyanmar,
                 modifier = Modifier
                     .then(if (isTv) Modifier.widthIn(max = 500.dp).fillMaxWidth() else Modifier.fillMaxWidth())
                     .height(56.dp)
@@ -350,7 +404,7 @@ fun FirstLaunchLanguageScreen(
                     .focusable()
             ) {
                 Text(
-                    text = when (selectedLanguage) {
+                    text = if (selectedMyanmar) "အတည်ပြုရန်" else when (selectedLanguage) {
                         AppLanguage.CHINESE -> "确认"
                         AppLanguage.ENGLISH -> "Confirm"
                         AppLanguage.ARABIC -> "تأكيد"
@@ -537,3 +591,4 @@ fun LanguageSettingsCard(
         }
     }
 }
+

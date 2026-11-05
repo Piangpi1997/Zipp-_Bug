@@ -72,7 +72,7 @@ class ZipStudioActivity : Activity() {
             insets
         }
         ViewCompat.requestApplyInsets(web)
-        web.loadUrl(prefix + "index.html")
+        web.loadUrl(prefix + "index.html?lang=" + if (Strings.myanmarEnabled.value) "my" else "en")
     }
 
     inner class Bridge {

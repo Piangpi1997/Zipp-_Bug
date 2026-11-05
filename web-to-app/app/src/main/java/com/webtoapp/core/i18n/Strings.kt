@@ -6,6 +6,15 @@ import androidx.compose.ui.platform.LocalContext
 
 object Strings {
 
+    private val _myanmarEnabled = mutableStateOf(false)
+    val myanmarEnabled: State<Boolean> = _myanmarEnabled
+
+    fun setMyanmarEnabled(context: Context, enabled: Boolean) {
+        context.applicationContext.getSharedPreferences("pp_language", Context.MODE_PRIVATE)
+            .edit().putBoolean("myanmar_enabled", enabled).apply()
+        _myanmarEnabled.value = enabled
+    }
+
     private val _currentLanguage = mutableStateOf(AppLanguage.CHINESE)
     val currentLanguage: State<AppLanguage> = _currentLanguage
 
@@ -19,6 +28,8 @@ object Strings {
 
     fun initialize(baseContext: Context) {
         val appContext = baseContext.applicationContext
+        _myanmarEnabled.value = appContext.getSharedPreferences("pp_language", Context.MODE_PRIVATE)
+            .getBoolean("myanmar_enabled", false)
         fallbackContext = appContext
         if (localizedContext == null) {
             localizedContext = appContext
@@ -47,30 +58,30 @@ object Strings {
             return _currentLanguage.value
         }
 
-    val appTitle: String get() = StringsA.appTitle
-    val translationInProgressBadge: String get() = StringsA.translationInProgressBadge
+    val appTitle: String get() = if (_myanmarEnabled.value) "PP APK BUILDER" else StringsA.appTitle
+    val translationInProgressBadge: String get() = if (_myanmarEnabled.value) "ဘာသာပြန်နေဆဲ" else StringsA.translationInProgressBadge
     val typewriterText1: String get() = StringsA.typewriterText1
     val typewriterText2: String get() = StringsA.typewriterText2
     val typewriterText3: String get() = StringsA.typewriterText3
-    val myApps: String get() = StringsA.myApps
-    val createApp: String get() = StringsA.createApp
-    val search: String get() = StringsA.search
-    val more: String get() = StringsA.more
-    val back: String get() = StringsA.back
-    val menuAgent: String get() = StringsA.menuAgent
-    val menuAiSettings: String get() = StringsA.menuAiSettings
-    val menuAppModifier: String get() = StringsA.menuAppModifier
-    val menuExtensionModules: String get() = StringsE.pluginsManageTitle
-    val menuAbout: String get() = StringsA.menuAbout
-    val tabMore: String get() = StringsA.tabMore
-    val moreSectionAiTools: String get() = StringsA.moreSectionAiTools
-    val moreSectionDevTools: String get() = StringsA.moreSectionDevTools
-    val moreSectionBrowser: String get() = StringsA.moreSectionBrowser
-    val moreSectionAppearance: String get() = StringsA.moreSectionAppearance
-    val moreSectionGeneral: String get() = StringsA.moreSectionGeneral
+    val myApps: String get() = if (_myanmarEnabled.value) "ကျွန်ုပ်၏ အက်ပ်များ" else StringsA.myApps
+    val createApp: String get() = if (_myanmarEnabled.value) "အက်ပ်အသစ် ဖန်တီးရန်" else StringsA.createApp
+    val search: String get() = if (_myanmarEnabled.value) "ရှာဖွေရန်" else StringsA.search
+    val more: String get() = if (_myanmarEnabled.value) "အခြားအရာများ" else StringsA.more
+    val back: String get() = if (_myanmarEnabled.value) "နောက်သို့" else StringsA.back
+    val menuAgent: String get() = if (_myanmarEnabled.value) "AI အကူအညီ" else StringsA.menuAgent
+    val menuAiSettings: String get() = if (_myanmarEnabled.value) "AI ဆက်တင်များ" else StringsA.menuAiSettings
+    val menuAppModifier: String get() = if (_myanmarEnabled.value) "အက်ပ်ပြင်ဆင်ရန်" else StringsA.menuAppModifier
+    val menuExtensionModules: String get() = if (_myanmarEnabled.value) "ပလပ်အင်များ" else StringsE.pluginsManageTitle
+    val menuAbout: String get() = if (_myanmarEnabled.value) "အကြောင်း" else StringsA.menuAbout
+    val tabMore: String get() = if (_myanmarEnabled.value) "အခြား" else StringsA.tabMore
+    val moreSectionAiTools: String get() = if (_myanmarEnabled.value) "AI ကိရိယာများ" else StringsA.moreSectionAiTools
+    val moreSectionDevTools: String get() = if (_myanmarEnabled.value) "Developer ကိရိယာများ" else StringsA.moreSectionDevTools
+    val moreSectionBrowser: String get() = if (_myanmarEnabled.value) "ဘရောက်ဇာ" else StringsA.moreSectionBrowser
+    val moreSectionAppearance: String get() = if (_myanmarEnabled.value) "အသွင်အပြင်" else StringsA.moreSectionAppearance
+    val moreSectionGeneral: String get() = if (_myanmarEnabled.value) "အထွေထွေ" else StringsA.moreSectionGeneral
     val rememberCategoryFilter: String get() = StringsA.rememberCategoryFilter
     val rememberCategoryFilterDesc: String get() = StringsA.rememberCategoryFilterDesc
-    val menuStats: String get() = StringsA.menuStats
+    val menuStats: String get() = if (_myanmarEnabled.value) "အသုံးပြုမှု စာရင်း" else StringsA.menuStats
     val statsTitle: String get() = StringsA.statsTitle
     val statsTotalLaunches: String get() = StringsA.statsTotalLaunches
     val statsTotalUsage: String get() = StringsA.statsTotalUsage
@@ -111,9 +122,9 @@ object Strings {
     val healthResponseTime: String get() = StringsA.healthResponseTime
     val healthUptime24h: String get() = StringsA.healthUptime24h
     val menuLinuxEnvironment: String get() = StringsA.menuLinuxEnvironment
-    val createMediaApp: String get() = StringsA.createMediaApp
-    val createHtmlApp: String get() = StringsA.createHtmlApp
-    val createFrontendApp: String get() = StringsA.createFrontendApp
+    val createMediaApp: String get() = if (_myanmarEnabled.value) "Media အက်ပ်ဖန်တီးရန်" else StringsA.createMediaApp
+    val createHtmlApp: String get() = if (_myanmarEnabled.value) "HTML အက်ပ်ဖန်တီးရန်" else StringsA.createHtmlApp
+    val createFrontendApp: String get() = if (_myanmarEnabled.value) "Frontend အက်ပ်ဖန်တီးရန်" else StringsA.createFrontendApp
     val editFrontendApp: String get() = StringsA.editFrontendApp
     val createNodeJsApp: String get() = StringsA.createNodeJsApp
     val createPhpApp: String get() = StringsA.createPhpApp
@@ -298,25 +309,25 @@ object Strings {
     val njsProjectDetected: String get() = StringsA.njsProjectDetected
     val njsFramework: String get() = StringsA.njsFramework
     val njsProjectReady: String get() = StringsA.njsProjectReady
-    val btnCreate: String get() = StringsA.btnCreate
-    val btnPreview: String get() = StringsA.btnPreview
-    val btnExport: String get() = StringsA.btnExport
+    val btnCreate: String get() = if (_myanmarEnabled.value) "ဖန်တီးရန်" else StringsA.btnCreate
+    val btnPreview: String get() = if (_myanmarEnabled.value) "အစမ်းကြည့်ရန်" else StringsA.btnPreview
+    val btnExport: String get() = if (_myanmarEnabled.value) "ထုတ်ယူရန်" else StringsA.btnExport
     val exportAppSource: String get() = StringsA.exportAppSource
     val exportAppSourceFailed: String get() = StringsA.exportAppSourceFailed
     fun sourceBundleReadme(name: String): String = StringsA.sourceBundleReadme(name)
-    val btnSave: String get() = StringsA.btnSave
-    val btnCancel: String get() = StringsA.btnCancel
-    val btnImport: String get() = StringsA.btnImport
-    val btnDelete: String get() = StringsA.btnDelete
-    val btnEdit: String get() = StringsA.btnEdit
+    val btnSave: String get() = if (_myanmarEnabled.value) "သိမ်းရန်" else StringsA.btnSave
+    val btnCancel: String get() = if (_myanmarEnabled.value) "မလုပ်တော့ပါ" else StringsA.btnCancel
+    val btnImport: String get() = if (_myanmarEnabled.value) "ထည့်သွင်းရန်" else StringsA.btnImport
+    val btnDelete: String get() = if (_myanmarEnabled.value) "ဖျက်ရန်" else StringsA.btnDelete
+    val btnEdit: String get() = if (_myanmarEnabled.value) "ပြင်ဆင်ရန်" else StringsA.btnEdit
     val editCoreConfig: String get() = StringsA.editCoreConfig
     val editCommonConfig: String get() = StringsA.editCommonConfig
     val btnShortcut: String get() = StringsA.btnShortcut
-    val btnConfirm: String get() = StringsA.btnConfirm
-    val btnOk: String get() = StringsA.btnOk
-    val btnRetry: String get() = StringsA.btnRetry
-    val btnStartBuild: String get() = StringsA.btnStartBuild
-    val btnReset: String get() = StringsA.btnReset
+    val btnConfirm: String get() = if (_myanmarEnabled.value) "အတည်ပြုရန်" else StringsA.btnConfirm
+    val btnOk: String get() = if (_myanmarEnabled.value) "အိုကေ" else StringsA.btnOk
+    val btnRetry: String get() = if (_myanmarEnabled.value) "ပြန်စမ်းရန်" else StringsA.btnRetry
+    val btnStartBuild: String get() = if (_myanmarEnabled.value) "APK စတင်တည်ဆောက်ရန်" else StringsA.btnStartBuild
+    val btnReset: String get() = if (_myanmarEnabled.value) "ပြန်လည်သတ်မှတ်ရန်" else StringsA.btnReset
     val btnClearCache: String get() = StringsA.btnClearCache
     val labelAppName: String get() = StringsA.labelAppName
     val labelUrl: String get() = StringsA.labelUrl
@@ -332,11 +343,11 @@ object Strings {
     val msgImportSuccess: String get() = StringsA.msgImportSuccess
     fun moduleImportSuccess(name: String): String = StringsA.moduleImportSuccess(name)
     fun moduleImportFailed(message: String): String = StringsA.moduleImportFailed(message)
-    val languageSettings: String get() = StringsA.languageSettings
+    val languageSettings: String get() = if (_myanmarEnabled.value) "ဘာသာစကား" else StringsA.languageSettings
     val sslError: String get() = StringsA.sslError
     val msgCopied: String get() = StringsA.msgCopied
-    val menuRuntimeDeps: String get() = StringsA.menuRuntimeDeps
-    val menuPortManager: String get() = StringsA.menuPortManager
+    val menuRuntimeDeps: String get() = if (_myanmarEnabled.value) "Runtime များ" else StringsA.menuRuntimeDeps
+    val menuPortManager: String get() = if (_myanmarEnabled.value) "Port စီမံရန်" else StringsA.menuPortManager
     val portManagerTitle: String get() = StringsA.portManagerTitle
     val portManagerRunningServices: String get() = StringsA.portManagerRunningServices
     val portManagerNoServices: String get() = StringsA.portManagerNoServices
@@ -506,7 +517,7 @@ object Strings {
     val mediaAppHint: String get() = StringsA.mediaAppHint
     val fullscreenDisplayImage: String get() = StringsA.fullscreenDisplayImage
     val fullscreenPlayVideo: String get() = StringsA.fullscreenPlayVideo
-    val createHtmlAppTitle: String get() = StringsA.createHtmlAppTitle
+    val createHtmlAppTitle: String get() = if (_myanmarEnabled.value) "HTML အက်ပ် ဖန်တီးရန်" else StringsA.createHtmlAppTitle
     val selectFiles: String get() = StringsA.selectFiles
     val selectFilesHint: String get() = StringsA.selectFilesHint
     val htmlFile: String get() = StringsA.htmlFile
@@ -616,7 +627,7 @@ object Strings {
     val folderTip: String get() = StringsA.folderTip
     val folderImportFailed: String get() = StringsA.folderImportFailed
     val htmlAddFiles: String get() = StringsA.htmlAddFiles
-    val editApp: String get() = StringsA.editApp
+    val editApp: String get() = if (_myanmarEnabled.value) "အက်ပ်ပြင်ဆင်ရန်" else StringsA.editApp
     val inputAppName: String get() = StringsA.inputAppName
     val activationCodeVerify: String get() = StringsA.activationCodeVerify
     val activationModeLabel: String get() = StringsA.activationModeLabel
@@ -740,7 +751,7 @@ object Strings {
     val versionHistoryNoApk: String get() = StringsA.versionHistoryNoApk
     val downloadComplete: String get() = StringsA.downloadComplete
     val close: String get() = StringsA.close
-    val cancel: String get() = StringsA.cancel
+    val cancel: String get() = if (_myanmarEnabled.value) "မလုပ်တော့ပါ" else StringsA.cancel
     val copy: String get() = StringsA.copy
     val share: String get() = StringsA.share
     val download: String get() = StringsA.download
@@ -752,7 +763,7 @@ object Strings {
     val disable: String get() = StringsA.disable
     val emptyStateHint: String get() = StringsA.emptyStateHint
     val appIconModifier: String get() = StringsA.appIconModifier
-    val searchApps: String get() = StringsA.searchApps
+    val searchApps: String get() = if (_myanmarEnabled.value) "အက်ပ်များ ရှာရန်" else StringsA.searchApps
     val userApps: String get() = StringsA.userApps
     val systemApps: String get() = StringsA.systemApps
     val modifyApp: String get() = StringsA.modifyApp
@@ -1069,17 +1080,17 @@ object Strings {
     val sourceCode: String get() = StringsA.sourceCode
     val inputJavaScriptExpression: String get() = StringsA.inputJavaScriptExpression
     val preview: String get() = StringsA.preview
-    val exportFailed: String get() = StringsA.exportFailed
+    val exportFailed: String get() = if (_myanmarEnabled.value) "ထုတ်ယူ၍ မရပါ" else StringsA.exportFailed
     val selected: String get() = StringsA.selected
-    val export: String get() = StringsA.export
+    val export: String get() = if (_myanmarEnabled.value) "ထုတ်ယူရန်" else StringsA.export
     val exportModule: String get() = StringsA.exportModule
-    val exportToDownloads: String get() = StringsA.exportToDownloads
+    val exportToDownloads: String get() = if (_myanmarEnabled.value) "Downloads သို့ ထုတ်ယူရန်" else StringsA.exportToDownloads
     val exportToDownloadsHint: String get() = StringsA.exportToDownloadsHint
     val exportToCustomPath: String get() = StringsA.exportToCustomPath
     val exportToCustomPathHint: String get() = StringsA.exportToCustomPathHint
-    val exportSuccess: String get() = StringsA.exportSuccess
-    val save: String get() = StringsA.save
-    val delete: String get() = StringsA.delete
+    val exportSuccess: String get() = if (_myanmarEnabled.value) "ထုတ်ယူပြီးပါပြီ" else StringsA.exportSuccess
+    val save: String get() = if (_myanmarEnabled.value) "သိမ်းရန်" else StringsA.save
+    val delete: String get() = if (_myanmarEnabled.value) "ဖျက်ရန်" else StringsA.delete
     val pleaseEnterModuleName: String get() = StringsA.pleaseEnterModuleName
     val pleaseEnterCodeContent: String get() = StringsA.pleaseEnterCodeContent
     val saveSuccess: String get() = StringsA.saveSuccess
@@ -1154,7 +1165,7 @@ object Strings {
     val runTime: String get() = StringsB.runTime
     val requiredPermissions: String get() = StringsB.requiredPermissions
     val sensitive: String get() = StringsB.sensitive
-    val confirm: String get() = StringsB.confirm
+    val confirm: String get() = if (_myanmarEnabled.value) "အတည်ပြုရန်" else StringsB.confirm
     val category: String get() = StringsB.category
     val moduleInfo: String get() = StringsB.moduleInfo
     val codeSnippets: String get() = StringsB.codeSnippets
@@ -1217,7 +1228,7 @@ object Strings {
     val adBlockInactive: String get() = StringsB.adBlockInactive
     val adBlockNoDownloadedSources: String get() = StringsB.adBlockNoDownloadedSources
     val done: String get() = StringsB.done
-    val edit: String get() = StringsB.edit
+    val edit: String get() = if (_myanmarEnabled.value) "ပြင်ဆင်ရန်" else StringsB.edit
     val loading: String get() = StringsB.loading
     val unknownError: String get() = StringsB.unknownError
     val domStorageSetting: String get() = StringsB.domStorageSetting
@@ -1384,11 +1395,11 @@ object Strings {
     val themeLavender: String get() = StringsB.themeLavender
     val themeKimiNoNawa: String get() = StringsB.themeKimiNoNawa
     val themeKimiNoNawaDesc: String get() = StringsB.themeKimiNoNawaDesc
-    val uiConfig: String get() = StringsB.uiConfig
-    val settingsThemeColor: String get() = StringsB.settingsThemeColor
+    val uiConfig: String get() = if (_myanmarEnabled.value) "အသွင်အပြင် ဆက်တင်များ" else StringsB.uiConfig
+    val settingsThemeColor: String get() = if (_myanmarEnabled.value) "Theme အရောင်" else StringsB.settingsThemeColor
     val settingsThemeColorDesc: String get() = StringsB.settingsThemeColorDesc
-    val settingsDarkMode: String get() = StringsB.settingsDarkMode
-    val settingsAnimation: String get() = StringsB.settingsAnimation
+    val settingsDarkMode: String get() = if (_myanmarEnabled.value) "အမှောင်မုဒ်" else StringsB.settingsDarkMode
+    val settingsAnimation: String get() = if (_myanmarEnabled.value) "လှုပ်ရှားမှု" else StringsB.settingsAnimation
     val animEnableAll: String get() = StringsB.animEnableAll
     val animParticles: String get() = StringsB.animParticles
     val animHaptics: String get() = StringsB.animHaptics
@@ -1406,7 +1417,7 @@ object Strings {
     val accentCamellia: String get() = StringsB.accentCamellia
     val accentFrostCyan: String get() = StringsB.accentFrostCyan
     val accentMochaLatte: String get() = StringsB.accentMochaLatte
-    val settingsInterface: String get() = StringsB.settingsInterface
+    val settingsInterface: String get() = if (_myanmarEnabled.value) "မျက်နှာပြင်" else StringsB.settingsInterface
     val fontSizeTitle: String get() = StringsB.fontSizeTitle
     val fontSizeSmall: String get() = StringsB.fontSizeSmall
     val fontSizeStandard: String get() = StringsB.fontSizeStandard
@@ -3046,7 +3057,7 @@ object Strings {
     val longPressMenuStyleFloatingDesc: String get() = StringsD.longPressMenuStyleFloatingDesc
     val longPressMenuStyleContext: String get() = StringsD.longPressMenuStyleContext
     val longPressMenuStyleContextDesc: String get() = StringsD.longPressMenuStyleContextDesc
-    val menuBrowserKernel: String get() = StringsD.menuBrowserKernel
+    val menuBrowserKernel: String get() = if (_myanmarEnabled.value) "Browser engine" else StringsD.menuBrowserKernel
     val browserKernelTitle: String get() = StringsD.browserKernelTitle
     val currentWebViewInfo: String get() = StringsD.currentWebViewInfo
     val webViewProvider: String get() = StringsD.webViewProvider
@@ -3135,7 +3146,7 @@ object Strings {
     val binaryFile: String get() = StringsD.binaryFile
     val hostsAdBlock: String get() = StringsD.hostsAdBlock
     val hostsAdBlockSubtitle: String get() = StringsD.hostsAdBlockSubtitle
-    val menuHostsAdBlock: String get() = StringsD.menuHostsAdBlock
+    val menuHostsAdBlock: String get() = if (_myanmarEnabled.value) "ကြော်ငြာပိတ်ဆို့မှု" else StringsD.menuHostsAdBlock
     val webAppSeparateTasks: String get() = StringsD.webAppSeparateTasks
     val webAppSeparateTasksDesc: String get() = StringsD.webAppSeparateTasksDesc
     val localMcp: String get() = StringsD.localMcp
@@ -4858,7 +4869,7 @@ object Strings {
     val primeActivationTimingFinished: String get() = StringsE.primeActivationTimingFinished
     val primeActivationTimingVisible: String get() = StringsE.primeActivationTimingVisible
     val menuGooglePlay: String get() = StringsE.menuGooglePlay
-    val menuFileManager: String get() = StringsE.menuFileManager
+    val menuFileManager: String get() = if (_myanmarEnabled.value) "ဖိုင်မန်နေဂျာ" else StringsE.menuFileManager
     val fileManagerTitle: String get() = StringsE.fileManagerTitle
     val fileManagerSubtitle: String get() = StringsE.fileManagerSubtitle
     val fileManagerSectionApk: String get() = StringsE.fileManagerSectionApk
@@ -5123,7 +5134,6 @@ object Strings {
     val appListSortDragHint: String get() = StringsE.appListSortDragHint
     val shareApkReadyMode: String get() = StringsE.shareApkReadyMode
 
-    // Agent UI rework additions
     val agentToolViewFull: String get() = StringsE.agentToolViewFull
     val agentCopyThinkingHeader: String get() = StringsE.agentCopyThinkingHeader
     val agentSessionRename: String get() = StringsE.agentSessionRename
@@ -5135,7 +5145,6 @@ object Strings {
     val agentFileDeleteConfirmTitle: String get() = StringsE.agentFileDeleteConfirmTitle
     val agentFileDeleteConfirmMessage: String get() = StringsE.agentFileDeleteConfirmMessage
 
-    // ---- #945 surfaced-string fixes ----
     val aiIconFallbackName: String get() = StringsE.aiIconFallbackName
     val lrcEmptyLine: String get() = StringsE.lrcEmptyLine
     fun videoTrimSeconds(seconds: Int, tenths: Int): String = StringsE.videoTrimSeconds(seconds, tenths)
@@ -5205,7 +5214,6 @@ object Strings {
     fun downloadFailed(label: String, detail: String): String = StringsE.downloadFailed(label, detail)
     val packageJsonMissing: String get() = StringsE.packageJsonMissing
 
-    // ── Inbound share sheet (issue #943) ────────────────────────────────────────
 
     val receiveShare: String get() = StringsE.receiveShare
     val outboundShareTitle: String get() = StringsE.outboundShareTitle
@@ -5241,7 +5249,6 @@ object Strings {
     val perAppSigningTitle: String get() = StringsE.perAppSigningTitle
     val perAppSigningHint: String get() = StringsE.perAppSigningHint
 
-    // Plugins (unified HCJ / userscript / Chrome surface)
     val pluginsTitle: String get() = StringsE.pluginsTitle
     val pluginsManageTitle: String get() = StringsE.pluginsManageTitle
     val searchPlugins: String get() = StringsE.searchPlugins
@@ -5310,3 +5317,4 @@ fun InitializeLanguage() {
         }
     }
 }
+

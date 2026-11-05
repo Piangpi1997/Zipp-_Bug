@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.webtoapp.core.i18n.Strings
+import com.webtoapp.ui.components.LanguageSelectorButton
 import com.webtoapp.ui.design.WtaChip
 import com.webtoapp.ui.design.WtaScreen
 import com.webtoapp.ui.design.WtaSection
@@ -71,6 +72,18 @@ fun SettingsScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(WtaSpacing.SectionGap)
         ) {
+
+            WtaSection(title = Strings.languageSettings) {
+                WtaSettingCard {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = WtaSpacing.RowHorizontal, vertical = WtaSpacing.RowVertical),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(Strings.languageSettings, modifier = Modifier.weight(1f))
+                        LanguageSelectorButton()
+                    }
+                }
+            }
 
             WtaSection(
                 title = Strings.settingsThemeColor,
@@ -311,3 +324,4 @@ private fun AccentSwatch(
         )
     }
 }
+
