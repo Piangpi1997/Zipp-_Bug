@@ -9,6 +9,8 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.webtoapp.core.i18n.Strings
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -64,6 +66,12 @@ class ZipStudioActivity : Activity() {
         }
         web.addJavascriptInterface(Bridge(), "ZipBug")
         setContentView(web)
+        ViewCompat.setOnApplyWindowInsetsListener(web) { view, insets ->
+            val safeArea = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.setPadding(safeArea.left, safeArea.top, safeArea.right, safeArea.bottom)
+            insets
+        }
+        ViewCompat.requestApplyInsets(web)
         web.loadUrl(prefix + "index.html")
     }
 

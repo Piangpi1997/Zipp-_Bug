@@ -68,7 +68,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#39d98a;font-size:10px;bac
 }
 @media(max-width:520px){
   body{min-height:100vh;height:100dvh}
-  main{grid-template-columns:minmax(240px,1fr) 182px}
+  main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(180px,1fr) minmax(140px,.75fr)}
   #canvas-wrapper{padding:10px}
+  aside{border-left:0;border-top:1px solid #2a2a2a}
   .screen-bar{padding:6px 8px}
 }
