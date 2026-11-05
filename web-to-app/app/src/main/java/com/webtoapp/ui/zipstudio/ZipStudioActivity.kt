@@ -1,12 +1,15 @@
 package com.webtoapp.ui.zipstudio
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
+import com.webtoapp.core.i18n.Strings
 import java.io.ByteArrayInputStream
 import java.io.File
 import org.json.JSONObject
@@ -30,6 +33,26 @@ class ZipStudioActivity : Activity() {
             allowUniversalAccessFromFileURLs = false
         }
         web.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                if (!url.startsWith(prefix)) return
+                val label = JSONObject.quote(Strings.btnExport + " HTML")
+                view.evaluateJavascript("""
+                    (function(){
+                        if (document.getElementById('pp-export-html')) return;
+                        const bar = document.querySelector('header');
+                        if (!bar) return;
+                        const button = document.createElement('button');
+                        button.id = 'pp-export-html';
+                        button.className = 'btn-export';
+                        button.textContent = $label;
+                        button.onclick = function(){
+                            const doc = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>' + makePreviewHtml(getActiveScreen()) + '</body></html>';
+                            window.ZipBug.exportHtml(doc);
+                        };
+                        bar.appendChild(button);
+                    })();
+                """.trimIndent(), null)
+            }
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
                 !request.url.toString().startsWith(prefix)
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -88,6 +111,31 @@ class ZipStudioActivity : Activity() {
         }
         @JavascriptInterface
         fun navigateBack() { runOnUiThread { finish() } }
+        @JavascriptInterface
+        fun exportHtml(value: String) {
+            if (value.length > 2_000_000 || !value.startsWith("<!doctype html>")) return
+            val saved = runCatching { write(File(dir(), "pending_export.html"), value) }.isSuccess
+            if (!saved) return
+            runOnUiThread {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/html"
+                    putExtra(Intent.EXTRA_TITLE, "pp-studio.html")
+                }
+                startActivityForResult(intent, 41)
+            }
+        }
+    }
+
+    @Deprecated("Deprecated in Android")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != 41 || resultCode != RESULT_OK || data?.data == null) return
+        val succeeded = runCatching {
+            val output = requireNotNull(contentResolver.openOutputStream(data.data!!))
+            output.use { stream -> File(filesDir, "zipstudio/pending_export.html").inputStream().use { it.copyTo(stream) } }
+        }.isSuccess
+        Toast.makeText(this, if (succeeded) Strings.exportSuccess else Strings.exportFailed, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
