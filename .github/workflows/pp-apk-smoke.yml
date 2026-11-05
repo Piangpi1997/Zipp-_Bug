@@ -49,4 +49,4 @@ jobs:
             adb shell am start -W -n com.webtoapp/com.webtoapp.ui.zipstudio.ZipStudioActivity
             sleep 8
             adb shell pidof com.webtoapp
-            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F 'com.webtoapp.ui.zipstudio.ZipStudioActivity'
+            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F 'zipstudio.ZipStudioActivity'
