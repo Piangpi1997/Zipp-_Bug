@@ -33,6 +33,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Install Android build dependencies
         run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" "cmake;3.22.1" "ndk;28.2.13676358"
+      - name: Test Zip-Bug Studio logic
+        run: |
+          node scripts/test-studio-core.js
+          node --test app/src/test/js/studio-core.test.js
       - name: Build debug APK
         working-directory: web-to-app
         run: ./gradlew --no-daemon --no-configuration-cache -Dkotlin.compiler.execution.strategy=in-process -PallowDebugSignedRelease=true :app:assembleStandardDebug
