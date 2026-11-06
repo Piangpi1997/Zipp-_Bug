@@ -2924,7 +2924,7 @@ object Strings {
     val webAppNotificationChannelName: String get() = StringsC.webAppNotificationChannelName
     val showAdvanced: String get() = StringsC.showAdvanced
     val hideAdvanced: String get() = StringsC.hideAdvanced
-    val dnsConfigTitle: String get() = StringsC.dnsConfigTitle
+    val dnsConfigTitle: String get() = if (_myanmarEnabled.value) "ကိုယ်ပိုင် DNS" else StringsC.dnsConfigTitle
     val dnsProviderLabel: String get() = StringsC.dnsProviderLabel
     val dnsCustomDohUrl: String get() = StringsC.dnsCustomDohUrl
     val dnsCustomDohUrlPlaceholder: String get() = StringsC.dnsCustomDohUrlPlaceholder
@@ -3148,9 +3148,9 @@ object Strings {
     val hostsAdBlockSubtitle: String get() = StringsD.hostsAdBlockSubtitle
     val menuHostsAdBlock: String get() = if (_myanmarEnabled.value) "ကြော်ငြာပိတ်ဆို့မှု" else StringsD.menuHostsAdBlock
     val webAppSeparateTasks: String get() = if (_myanmarEnabled.value) "Web အက်ပ်များကို သီးခြားဖွင့်ရန်" else StringsD.webAppSeparateTasks
-    val webAppSeparateTasksDesc: String get() = StringsD.webAppSeparateTasksDesc
-    val localMcp: String get() = StringsD.localMcp
-    val localMcpDesc: String get() = StringsD.localMcpDesc
+    val webAppSeparateTasksDesc: String get() = if (_myanmarEnabled.value) "Web အက်ပ်များကို သီးခြား task အဖြစ် ဖွင့်ရန်" else StringsD.webAppSeparateTasksDesc
+    val localMcp: String get() = if (_myanmarEnabled.value) "စက်တွင်း MCP" else StringsD.localMcp
+    val localMcpDesc: String get() = if (_myanmarEnabled.value) "စက်တွင်း AI agent အတွက် MCP ဝန်ဆောင်မှုကို ဖွင့်ရန်" else StringsD.localMcpDesc
     val localMcpCopyConfig: String get() = StringsD.localMcpCopyConfig
     val localMcpCopied: String get() = StringsD.localMcpCopied
     val localMcpAddressCopied: String get() = StringsD.localMcpAddressCopied
@@ -3159,7 +3159,7 @@ object Strings {
     fun localMcpAdb(port: Int): String = StringsD.localMcpAdb(port)
     fun localMcpBindFailed(detail: String): String = StringsD.localMcpBindFailed(detail)
     val advancedFeatures: String get() = if (_myanmarEnabled.value) "အဆင့်မြင့် လုပ်ဆောင်ချက်များ" else StringsD.advancedFeatures
-    val advancedFeaturesDesc: String get() = StringsD.advancedFeaturesDesc
+    val advancedFeaturesDesc: String get() = if (_myanmarEnabled.value) "Node.js၊ PHP၊ Python နှင့် အခြား အဆင့်မြင့် အက်ပ်များကို ဖန်တီးရန်" else StringsD.advancedFeaturesDesc
     val advancedFeaturesOff: String get() = StringsD.advancedFeaturesOff
     val hostsRulesCount: String get() = StringsD.hostsRulesCount
     val importFromUrl: String get() = StringsD.importFromUrl

@@ -541,48 +541,7 @@ private fun AuthorHeroCard(
 
             Spacer(Modifier.height(18.dp))
 
-            VersionPill(
-                versionName = versionName,
-                versionCode = versionCode,
-                onClick = {
-                    showUpdateDialog = true
-                    if (!isCheckingUpdate) {
-                        isCheckingUpdate = true
-                        updateResult = null
-                        scope.launch {
-                            val result = com.webtoapp.core.update.UpdateChecker.check(versionName)
-                            updateResult = result
-                            isCheckingUpdate = false
-                        }
-                    }
-                },
-                onCopy = {
-                    val label = "PP APK BUILDER version"
-                    val text = "PP APK BUILDER v$versionName ($versionCode)"
-                    context.copyToClipboard(label, text)
-                    Toast.makeText(
-                        context,
-                        versionCopied,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                },
-                onHistory = {
-                    showHistorySheet = true
-                    if (historyReleases.isEmpty() && !historyLoading) {
-                        historyLoading = true
-                        historyError = null
-                        scope.launch {
-                            try {
-                                historyReleases = com.webtoapp.core.update.UpdateChecker.fetchAllReleases()
-                            } catch (e: Exception) {
-                                historyError = e.message ?: e.javaClass.simpleName
-                            } finally {
-                                historyLoading = false
-                            }
-                        }
-                    }
-                }
-            )
+            Text(text = "v$versionName ($versionCode)", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
