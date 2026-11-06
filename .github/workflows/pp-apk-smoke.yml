@@ -68,7 +68,11 @@ jobs:
             adb exec-out cat /sdcard/pp-window.xml > /tmp/pp-window.xml
             python3 -c 'import re,xml.etree.ElementTree as E; root=E.parse("/tmp/pp-window.xml"); n=next(x for x in root.iter("node") if "Builder Home" in x.attrib.get("text","")); a=list(map(int,re.findall(r"[0-9]+",n.attrib["bounds"]))); print((a[0]+a[2])//2,(a[1]+a[3])//2)' | xargs adb shell input tap
             sleep 8
-            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F '.ui.MainActivity'
+            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity|MainActivity'
+            adb logcat -d -s AndroidRuntime:E | tail -80
+            adb shell input keyevent BACK
+            sleep 3
+            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity|MainActivity'
             adb exec-out screencap -p > /tmp/pp-studio-branded.png
       - uses: actions/upload-artifact@v4
         with:
