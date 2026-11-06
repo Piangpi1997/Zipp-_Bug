@@ -57,13 +57,7 @@ jobs:
           script: |
             adb install old/app-standard-debug.apk
             adb install previous/app-standard-debug.apk
-            if adb install -r new/app-standard-debug.apk; then
-              echo 'PREVIOUS_APP_UPDATE=success'
-            else
-              echo 'PREVIOUS_APP_UPDATE=signature_conflict_or_other_failure'
-              adb uninstall com.piangpi.ppapkbuilder
-              adb install new/app-standard-debug.apk
-            fi
+            adb install -r new/app-standard-debug.apk && echo PREVIOUS_APP_UPDATE=success || (echo PREVIOUS_APP_UPDATE=failed && adb uninstall com.piangpi.ppapkbuilder && adb install new/app-standard-debug.apk)
             adb shell pm list packages | grep -Fx 'package:com.webtoapp'
             adb shell pm list packages | grep -Fx 'package:com.piangpi.ppapkbuilder'
             adb shell am start -W -n com.piangpi.ppapkbuilder/com.webtoapp.ui.zipstudio.ZipStudioActivity
@@ -72,8 +66,7 @@ jobs:
             adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F 'zipstudio.ZipStudioActivity'
             adb shell uiautomator dump /sdcard/pp-window.xml
             adb exec-out cat /sdcard/pp-window.xml > /tmp/pp-window.xml
-            read -r x y < <(python3 -c 'import re,xml.etree.ElementTree as E; root=E.parse("/tmp/pp-window.xml"); n=next(x for x in root.iter("node") if "Builder Home" in x.attrib.get("text","")); a=list(map(int,re.findall(r"[0-9]+",n.attrib["bounds"]))); print((a[0]+a[2])//2,(a[1]+a[3])//2)')
-            adb shell input tap "$x" "$y"
+            python3 -c 'import re,xml.etree.ElementTree as E; root=E.parse("/tmp/pp-window.xml"); n=next(x for x in root.iter("node") if "Builder Home" in x.attrib.get("text","")); a=list(map(int,re.findall(r"[0-9]+",n.attrib["bounds"]))); print((a[0]+a[2])//2,(a[1]+a[3])//2)' | xargs adb shell input tap
             sleep 8
             adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F '.ui.MainActivity'
             adb exec-out screencap -p > /tmp/pp-studio-branded.png
