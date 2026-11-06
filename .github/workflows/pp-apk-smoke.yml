@@ -59,7 +59,7 @@ jobs:
             adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F 'zipstudio.ZipStudioActivity'
             adb shell uiautomator dump /sdcard/pp-window.xml
             adb exec-out cat /sdcard/pp-window.xml > /tmp/pp-window.xml
-            read -r x y < <(python3 -c 'import re,xml.etree.ElementTree as E; root=E.parse("/tmp/pp-window.xml"); n=next(x for x in root.iter("node") if "Builder Home" in x.attrib.get("text","")); a=list(map(int,re.findall(r"\\d+",n.attrib["bounds"]))); print((a[0]+a[2])//2,(a[1]+a[3])//2)')
+            read -r x y < <(python3 -c 'import re,xml.etree.ElementTree as E; root=E.parse("/tmp/pp-window.xml"); n=next(x for x in root.iter("node") if "Builder Home" in x.attrib.get("text","")); a=list(map(int,re.findall(r"[0-9]+",n.attrib["bounds"]))); print((a[0]+a[2])//2,(a[1]+a[3])//2)')
             adb shell input tap "$x" "$y"
             sleep 8
             adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F '.ui.MainActivity'
