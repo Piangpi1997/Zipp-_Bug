@@ -640,7 +640,7 @@ object Strings {
     val remoteGuideSaved: String get() = StringsA.remoteGuideSaved
     val activationCodeHint: String get() = StringsA.activationCodeHint
     val inputActivationCode: String get() = StringsA.inputActivationCode
-    val popupAnnouncement: String get() = StringsA.popupAnnouncement
+    val popupAnnouncement: String get() = if (_myanmarEnabled.value) "ပေါ်လာမည့် ကြေညာချက်" else StringsA.popupAnnouncement
     val announcementTitle: String get() = StringsA.announcementTitle
     val announcementContent: String get() = StringsA.announcementContent
     val announcementContentHtml: String get() = StringsA.announcementContentHtml
@@ -665,10 +665,10 @@ object Strings {
     val announcementRequireConfirmHint: String get() = StringsA.announcementRequireConfirmHint
     val announcementAllowNeverShowLabel: String get() = StringsA.announcementAllowNeverShowLabel
     val announcementAllowNeverShowHint: String get() = StringsA.announcementAllowNeverShowHint
-    val adBlocking: String get() = StringsA.adBlocking
+    val adBlocking: String get() = if (_myanmarEnabled.value) "ကြော်ငြာ ပိတ်ဆို့ခြင်း" else StringsA.adBlocking
     val fullscreenMode: String get() = StringsA.fullscreenMode
     val splashScreen: String get() = StringsA.splashScreen
-    val autoTranslate: String get() = StringsA.autoTranslate
+    val autoTranslate: String get() = if (_myanmarEnabled.value) "အလိုအလျောက် ဘာသာပြန်ခြင်း" else StringsA.autoTranslate
     val htmlApp: String get() = StringsA.htmlApp
     val frontendApp: String get() = StringsA.frontendApp
     val entryFile: String get() = StringsA.entryFile
@@ -719,8 +719,8 @@ object Strings {
     val speedInstant: String get() = StringsA.speedInstant
     val about: String get() = StringsA.about
     val aboutAppDescription: String get() = StringsA.aboutAppDescription
-    val showDescriptions: String get() = StringsA.showDescriptions
-    val showDescriptionsHint: String get() = StringsA.showDescriptionsHint
+    val showDescriptions: String get() = if (_myanmarEnabled.value) "ရှင်းလင်းချက်များ ပြရန်" else StringsA.showDescriptions
+    val showDescriptionsHint: String get() = if (_myanmarEnabled.value) "လုပ်ဆောင်ချက် ခေါင်းစဉ်အောက်တွင် ရှင်းလင်းချက် ပြရန်" else StringsA.showDescriptionsHint
     val updateCheckTitle: String get() = StringsA.updateCheckTitle
     val updateChecking: String get() = StringsA.updateChecking
     val updateUpToDate: String get() = StringsA.updateUpToDate
@@ -1135,7 +1135,7 @@ object Strings {
     val useTemplate: String get() = StringsB.useTemplate
     val basicInfo: String get() = StringsB.basicInfo
     val code: String get() = StringsB.code
-    val advancedSettings: String get() = StringsB.advancedSettings
+    val advancedSettings: String get() = if (_myanmarEnabled.value) "အဆင့်မြင့် ဆက်တင်များ" else StringsB.advancedSettings
     val configTemplates: String get() = StringsB.configTemplates
     val configTemplatesDesc: String get() = StringsB.configTemplatesDesc
     val templateSaveAs: String get() = StringsB.templateSaveAs
@@ -2494,7 +2494,7 @@ object Strings {
     val splashPreview: String get() = StringsC.splashPreview
     val landscapeDisplay: String get() = StringsC.landscapeDisplay
     val landscapeDisplayHint: String get() = StringsC.landscapeDisplayHint
-    val autoStartSettings: String get() = StringsC.autoStartSettings
+    val autoStartSettings: String get() = if (_myanmarEnabled.value) "အလိုအလျောက် စတင်ရန် ဆက်တင်များ" else StringsC.autoStartSettings
     val configured: String get() = StringsC.configured
     val common: String get() = StringsC.common
     val lab: String get() = StringsC.lab
@@ -2695,7 +2695,7 @@ object Strings {
     val selectedDuration: String get() = StringsC.selectedDuration
     val totalDuration: String get() = StringsC.totalDuration
     val trimRangeHint: String get() = StringsC.trimRangeHint
-    val apkExportConfig: String get() = StringsC.apkExportConfig
+    val apkExportConfig: String get() = if (_myanmarEnabled.value) "APK ထုတ်ယူမှု ဆက်တင်များ" else StringsC.apkExportConfig
     val apkIdentityBuildSection: String get() = StringsC.apkIdentityBuildSection
     val apkBuildOptionsSection: String get() = StringsC.apkBuildOptionsSection
     val signingSectionTitle: String get() = StringsC.signingSectionTitle
@@ -3147,7 +3147,7 @@ object Strings {
     val hostsAdBlock: String get() = StringsD.hostsAdBlock
     val hostsAdBlockSubtitle: String get() = StringsD.hostsAdBlockSubtitle
     val menuHostsAdBlock: String get() = if (_myanmarEnabled.value) "ကြော်ငြာပိတ်ဆို့မှု" else StringsD.menuHostsAdBlock
-    val webAppSeparateTasks: String get() = StringsD.webAppSeparateTasks
+    val webAppSeparateTasks: String get() = if (_myanmarEnabled.value) "Web အက်ပ်များကို သီးခြားဖွင့်ရန်" else StringsD.webAppSeparateTasks
     val webAppSeparateTasksDesc: String get() = StringsD.webAppSeparateTasksDesc
     val localMcp: String get() = StringsD.localMcp
     val localMcpDesc: String get() = StringsD.localMcpDesc
@@ -3158,7 +3158,7 @@ object Strings {
     val localMcpRotateToken: String get() = StringsD.localMcpRotateToken
     fun localMcpAdb(port: Int): String = StringsD.localMcpAdb(port)
     fun localMcpBindFailed(detail: String): String = StringsD.localMcpBindFailed(detail)
-    val advancedFeatures: String get() = StringsD.advancedFeatures
+    val advancedFeatures: String get() = if (_myanmarEnabled.value) "အဆင့်မြင့် လုပ်ဆောင်ချက်များ" else StringsD.advancedFeatures
     val advancedFeaturesDesc: String get() = StringsD.advancedFeaturesDesc
     val advancedFeaturesOff: String get() = StringsD.advancedFeaturesOff
     val hostsRulesCount: String get() = StringsD.hostsRulesCount
@@ -4284,7 +4284,7 @@ object Strings {
     val codeEditorFileTooLarge: String get() = StringsE.codeEditorFileTooLarge
     val codeEditorSoftWrap: String get() = StringsE.codeEditorSoftWrap
     val orWriteDirectly: String get() = StringsE.orWriteDirectly
-    val deviceDisguiseTitle: String get() = StringsE.deviceDisguiseTitle
+    val deviceDisguiseTitle: String get() = if (_myanmarEnabled.value) "စက်ပစ္စည်းပုံစံ ပြောင်းလဲခြင်း" else StringsE.deviceDisguiseTitle
     val deviceDisguiseHint: String get() = StringsE.deviceDisguiseHint
     val deviceTypePhone: String get() = StringsE.deviceTypePhone
     val deviceTypeTablet: String get() = StringsE.deviceTypeTablet
@@ -4693,7 +4693,7 @@ object Strings {
     val runNpmInstall: String get() = StringsE.runNpmInstall
     val openBuildEnvScreen: String get() = StringsE.openBuildEnvScreen
     val noProjectSelected: String get() = StringsE.noProjectSelected
-    val specialSettingsTitle: String get() = StringsE.specialSettingsTitle
+    val specialSettingsTitle: String get() = if (_myanmarEnabled.value) "အထူး ဆက်တင်များ" else StringsE.specialSettingsTitle
     val appReturnTitle: String get() = StringsE.appReturnTitle
     val appReturnDesc: String get() = StringsE.appReturnDesc
     val appReturnCustomSchemesLabel: String get() = StringsE.appReturnCustomSchemesLabel
@@ -5249,7 +5249,7 @@ object Strings {
     val perAppSigningTitle: String get() = StringsE.perAppSigningTitle
     val perAppSigningHint: String get() = StringsE.perAppSigningHint
 
-    val pluginsTitle: String get() = StringsE.pluginsTitle
+    val pluginsTitle: String get() = if (_myanmarEnabled.value) "ပလပ်ဂင်များ" else StringsE.pluginsTitle
     val pluginsManageTitle: String get() = StringsE.pluginsManageTitle
     val searchPlugins: String get() = StringsE.searchPlugins
     val pluginKindHcj: String get() = StringsE.pluginKindHcj

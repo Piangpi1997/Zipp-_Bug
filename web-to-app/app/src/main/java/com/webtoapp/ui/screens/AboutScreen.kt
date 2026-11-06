@@ -141,7 +141,6 @@ fun AboutScreen(onBack: () -> Unit) {
                 versionCode = versionCode
             )
 
-            ContactGrid()
 
             DescriptionsToggleCard()
 
@@ -150,7 +149,6 @@ fun AboutScreen(onBack: () -> Unit) {
 
             LocalMcpCard()
 
-            OtherProjectsSection()
 
             LegalTabContent()
 
@@ -500,7 +498,7 @@ private fun AuthorHeroCard(
             ) {
                 Image(
 
-                    painter = painterResource(id = R.drawable.about_avatar),
+                    painter = painterResource(id = R.drawable.pp_logo),
                     contentDescription = Strings.authorAvatar,
                     modifier = Modifier
                         .size(88.dp)
@@ -512,7 +510,7 @@ private fun AuthorHeroCard(
             Spacer(Modifier.height(18.dp))
 
             Text(
-                text = "WebToApp",
+                text = "PP APK BUILDER",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
@@ -559,8 +557,8 @@ private fun AuthorHeroCard(
                     }
                 },
                 onCopy = {
-                    val label = "WebToApp version"
-                    val text = "WebToApp v$versionName ($versionCode)"
+                    val label = "PP APK BUILDER version"
+                    val text = "PP APK BUILDER v$versionName ($versionCode)"
                     context.copyToClipboard(label, text)
                     Toast.makeText(
                         context,
@@ -1596,7 +1594,7 @@ private fun MadeWithLoveFooter() {
         )
         Spacer(Modifier.width(8.dp))
         Text(
-            text = Strings.madeWithLove,
+            text = if (Strings.myanmarEnabled.value) "ဖန်တီးသူ Thangdeihpiang" else "Made by Thangdeihpiang",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline
         )
@@ -1646,16 +1644,16 @@ private fun Context.openUrl(url: String) {
 
 @Composable
 private fun aboutAuthorByLine(): String = when (Strings.currentLanguage.value) {
-    AppLanguage.CHINESE -> "开发者 Shiaho"
-    AppLanguage.ENGLISH -> "by Shiaho"
-    AppLanguage.ARABIC -> "بواسطة Shiaho"
-    AppLanguage.PORTUGUESE -> "by Shiaho"
-    AppLanguage.SPANISH -> "by Shiaho"
-    AppLanguage.FRENCH -> "by Shiaho"
-    AppLanguage.GERMAN -> "by Shiaho"
-    AppLanguage.RUSSIAN -> "by Shiaho"
-    AppLanguage.JAPANESE -> "by Shiaho"
-    AppLanguage.KOREAN -> "by Shiaho"
+    AppLanguage.CHINESE -> "开发者 Thangdeihpiang"
+    AppLanguage.ENGLISH -> "by Thangdeihpiang"
+    AppLanguage.ARABIC -> "بواسطة Thangdeihpiang"
+    AppLanguage.PORTUGUESE -> "by Thangdeihpiang"
+    AppLanguage.SPANISH -> "by Thangdeihpiang"
+    AppLanguage.FRENCH -> "by Thangdeihpiang"
+    AppLanguage.GERMAN -> "by Thangdeihpiang"
+    AppLanguage.RUSSIAN -> "by Thangdeihpiang"
+    AppLanguage.JAPANESE -> "by Thangdeihpiang"
+    AppLanguage.KOREAN -> "by Thangdeihpiang"
 }
 
 @Composable
