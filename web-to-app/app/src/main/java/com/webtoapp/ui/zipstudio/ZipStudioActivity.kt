@@ -3,6 +3,12 @@ package com.webtoapp.ui.zipstudio
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.graphics.Color
+import android.view.Gravity
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.view.WindowCompat
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -65,14 +71,47 @@ class ZipStudioActivity : Activity() {
             }
         }
         web.addJavascriptInterface(Bridge(), "ZipBug")
-        setContentView(web)
-        ViewCompat.setOnApplyWindowInsetsListener(web) { view, insets ->
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.rgb(16, 22, 42))
+        }
+        val toolbar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val home = Button(this).apply {
+            text = if (Strings.myanmarEnabled.value) "‹ ပင်မစာမျက်နှာ" else "‹ Builder Home"
+            isAllCaps = false
+            setOnClickListener { openBuilderHome() }
+        }
+        val title = TextView(this).apply {
+            text = "PP Studio"
+            setTextColor(Color.WHITE)
+            textSize = 16f
+        }
+        toolbar.addView(home)
+        toolbar.addView(title)
+        root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
+        root.addView(web, LinearLayout.LayoutParams(-1, 0, 1f))
+        setContentView(root)
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val safeArea = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
             view.setPadding(safeArea.left, safeArea.top, safeArea.right, safeArea.bottom)
             insets
         }
-        ViewCompat.requestApplyInsets(web)
+        ViewCompat.requestApplyInsets(root)
         web.loadUrl(prefix + "index.html?lang=" + if (Strings.myanmarEnabled.value) "my" else "en")
+    }
+
+    private fun openBuilderHome() {
+        startActivity(Intent().setClassName(this, "com.webtoapp.ui.MainActivity"))
+        finish()
+    }
+
+    @Deprecated("Deprecated in Android")
+    override fun onBackPressed() {
+        openBuilderHome()
     }
 
     inner class Bridge {
