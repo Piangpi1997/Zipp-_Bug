@@ -1,25 +1,32 @@
-name: pp APK Builder emulator smoke test
-
+name: PP APK Builder installation smoke test
 on:
   push:
     branches: [feat/pp-apk-builder]
     paths: ['.github/workflows/pp-apk-smoke.yml']
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
-
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 55
     steps:
+      - name: Wait for branded APK build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run watch 42139193003 --repo Piangpi1997/Zipp-_Bug --exit-status
       - uses: actions/download-artifact@v4
         with:
           name: pp-apk-builder-upstream-debug
-          path: artifact
-          run-id: 42127207177
+          path: new
+          run-id: 42139193003
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: pp-apk-builder-upstream-debug
+          path: old
+          run-id: 42133503385
           github-token: ${{ github.token }}
       - uses: actions/setup-java@v4
         with:
@@ -33,7 +40,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Launch Android app
+      - name: Install both APKs and launch PP Studio
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -42,21 +49,17 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: |
-            adb install artifact/app-standard-debug.apk
-            adb shell pm grant com.webtoapp android.permission.POST_NOTIFICATIONS
-            adb shell am start -W -n com.webtoapp/com.webtoapp.ui.MainActivity
+            adb install old/app-standard-debug.apk
+            adb install new/app-standard-debug.apk
+            adb shell pm list packages | grep -Fx 'package:com.webtoapp'
+            adb shell pm list packages | grep -Fx 'package:com.piangpi.ppapkbuilder'
+            adb shell am start -W -n com.piangpi.ppapkbuilder/com.webtoapp.ui.zipstudio.ZipStudioActivity
             sleep 8
-            adb shell pidof com.webtoapp
-            for i in 1 2 3 4 5; do adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F '.ui.MainActivity' && break; adb shell input keyevent BACK; sleep 2; done
-            adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F '.ui.MainActivity'
-            adb shell am start -W -n com.webtoapp/com.webtoapp.ui.zipstudio.ZipStudioActivity
-            sleep 8
-            adb shell pidof com.webtoapp
+            adb shell pidof com.piangpi.ppapkbuilder
             adb shell dumpsys activity activities | grep -E 'topResumedActivity|mResumedActivity' | grep -F 'zipstudio.ZipStudioActivity'
-            adb exec-out screencap -p > /tmp/pp-studio.png
-      - name: Capture studio screen
-        uses: actions/upload-artifact@v4
+            adb exec-out screencap -p > /tmp/pp-studio-branded.png
+      - uses: actions/upload-artifact@v4
         with:
-          name: pp-studio-smoke-screen
-          path: /tmp/pp-studio.png
+          name: pp-branded-studio-screen
+          path: /tmp/pp-studio-branded.png
           if-no-files-found: error
