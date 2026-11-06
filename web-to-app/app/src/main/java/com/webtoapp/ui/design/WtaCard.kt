@@ -148,15 +148,15 @@ private fun resolveTone(tone: WtaCardTone): WtaCardSpec {
     }
     return when (tone) {
         WtaCardTone.Surface -> WtaCardSpec(
-            container = colors.surface,
+            container = colors.surface.copy(alpha = 0.94f),
             content = colors.onSurface,
             border = BorderStroke(1.dp, hairline),
             elevation = WtaElevation.Level0
         )
         WtaCardTone.Elevated -> WtaCardSpec(
-            container = colors.surfaceContainer,
+            container = colors.surfaceContainer.copy(alpha = 0.92f),
             content = colors.onSurface,
-            border = null,
+            border = BorderStroke(1.dp, hairline),
             elevation = WtaElevation.Level1
         )
         WtaCardTone.Highlighted -> WtaCardSpec(

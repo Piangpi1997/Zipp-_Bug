@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun WtaBackground(
@@ -15,10 +17,14 @@ fun WtaBackground(
     content: @Composable BoxScope.() -> Unit
 ) {
     val bg = MaterialTheme.colorScheme.background
+    val tint = MaterialTheme.colorScheme.primary
     Box(
         modifier = modifier
             .fillMaxSize()
-            .drawBehind { drawRect(SolidColor(bg)) },
+            .drawBehind {
+                drawRect(SolidColor(bg))
+                drawRect(Brush.linearGradient(listOf(tint.copy(alpha = 0.08f), Color.Transparent, tint.copy(alpha = 0.04f))))
+            },
         content = content
     )
 }

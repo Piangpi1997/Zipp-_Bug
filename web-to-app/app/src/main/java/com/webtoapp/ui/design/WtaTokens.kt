@@ -72,7 +72,7 @@ object WtaSpacing {
 
 object WtaRadius {
     val Pill: Dp = 999.dp
-    val Card: Dp = 14.dp
+    val Card: Dp = 20.dp
     val Button: Dp = 10.dp
     val Control: Dp = 10.dp
     val IconPlate: Dp = 10.dp
