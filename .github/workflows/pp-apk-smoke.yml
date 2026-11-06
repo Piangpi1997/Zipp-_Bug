@@ -15,12 +15,12 @@ jobs:
       - name: Wait for branded APK build
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh run watch 42144011686 --repo Piangpi1997/Zipp-_Bug --exit-status
+        run: gh run watch 42177764179 --repo Piangpi1997/Zipp-_Bug --exit-status
       - uses: actions/download-artifact@v4
         with:
           name: pp-apk-builder-upstream-debug
           path: new
-          run-id: 42144011686
+          run-id: 42177764179
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v4
         with:
