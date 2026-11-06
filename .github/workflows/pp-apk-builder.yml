@@ -1,0 +1,60 @@
+name: Build pp APK Builder
+
+on:
+  push:
+    branches: [feat/pp-apk-builder]
+    paths:
+      - '.github/workflows/pp-apk-builder.yml'
+      - 'web-to-app/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pp-apk-builder-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Android build dependencies
+        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" "cmake;3.22.1" "ndk;28.2.13676358"
+      - name: Test Zip-Bug Studio logic
+        run: |
+          node scripts/test-studio-core.js
+          node --test app/src/test/js/studio-core.test.js
+      - name: Build debug APK
+        working-directory: web-to-app
+        run: ./gradlew --no-daemon --no-configuration-cache -Dkotlin.compiler.execution.strategy=in-process -PallowDebugSignedRelease=true :app:assembleStandardDebug
+      - name: Verify Myanmar language settings
+        working-directory: web-to-app
+        run: ./gradlew --no-daemon --no-configuration-cache -Dkotlin.compiler.execution.strategy=in-process -PallowDebugSignedRelease=true :app:testStandardDebugUnitTest --tests com.webtoapp.core.i18n.MyanmarLanguageTest
+      - name: Verify APK metadata and signature
+        run: |
+          apk=web-to-app/app/build/outputs/apk/standard/debug/app-standard-debug.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$apk" > "$RUNNER_TEMP/pp-badging.txt"
+          grep -F "PP APK BUILDER" "$RUNNER_TEMP/pp-badging.txt"
+          grep -F "package: name='com.piangpi.ppapkbuilder'" "$RUNNER_TEMP/pp-badging.txt"
+          head -25 "$RUNNER_TEMP/pp-badging.txt"
+          sha256sum "$apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pp-apk-builder-upstream-debug
+          path: web-to-app/app/build/outputs/apk/standard/debug/*.apk
+          if-no-files-found: error

@@ -1,0 +1,154 @@
+name: Android CI Build
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Group per ref AND event type: routine pushes to the same branch still cancel
+  # their superseded check runs, but a workflow_dispatch packaging run is never
+  # cancelled by a merge push landing on the same ref mid-build.
+  group: android-ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Download code
+        uses: actions/checkout@v6
+
+      - name: Prepare Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android tools
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ""
+
+      - name: Prepare Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      - name: Install needed tools
+        run: |
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "cmake;3.22.1" \
+            "ndk;28.2.13676358"
+
+      - name: Run checks
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \
+            -Dkotlin.compiler.execution.strategy=in-process \
+            -PskipShellTemplateSync=true \
+            -PallowDebugSignedRelease=true \
+            :app:compileStandardDebugKotlin \
+            :shell:compileDebugKotlin \
+            :app:testStandardDebugUnitTest \
+            :app:checkConfigFieldDrift
+
+      - name: Compile F-Droid variant
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \
+            -Dkotlin.compiler.execution.strategy=in-process \
+            -PskipShellTemplateSync=true \
+            -Pfdroid=true \
+            :app:compileStandardReleaseKotlin \
+            :shell:compileReleaseKotlin \
+            :app:processStandardReleaseManifest \
+            :shell:processReleaseManifest
+
+  package-apks:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Download code
+        uses: actions/checkout@v6
+
+      - name: Prepare Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare Android tools
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ""
+
+      - name: Prepare Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      - name: Install needed tools
+        run: |
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "cmake;3.22.1" \
+            "ndk;28.2.13676358"
+
+      - name: Build APKs
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \
+            -Dkotlin.compiler.execution.strategy=in-process \
+            -PallowDebugSignedRelease=true \
+            :app:assembleStandardDebug \
+            :app:assembleStandardRelease \
+            :app:assembleGplayDebug \
+            :app:assembleGplayRelease \
+            :shell:assembleDebug \
+            :shell:assembleRelease
+
+      # End-to-end proof that the export pipeline produces an installable APK: a real
+      # Robolectric build through ApkBuilder against the freshly built shell template.
+      - name: Build generated demo APK
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache \
+            -Dkotlin.compiler.execution.strategy=in-process \
+            :app:testStandardDebugUnitTest --tests "com.webtoapp.core.apkbuilder.DemoApkExportTest"
+
+      - name: Upload generated demo APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-demo-apk-${{ github.run_number }}
+          path: app/build/outputs/demo/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload standard APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: standard-apks-DEBUG-SIGNED-do-not-distribute-${{ github.run_number }}
+          path: |
+            app/build/outputs/apk/standard/**/*.apk
+            shell/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload gplay APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: gplay-apks-shiaho.webtoapp-DEBUG-SIGNED-do-not-distribute-${{ github.run_number }}
+          path: app/build/outputs/apk/gplay/**/*.apk
+          if-no-files-found: error
+          retention-days: 14

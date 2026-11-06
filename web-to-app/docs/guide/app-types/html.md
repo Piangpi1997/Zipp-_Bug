@@ -1,0 +1,48 @@
+# HTML
+
+Packages local HTML into the APK and serves it from local files — no remote URL required.
+
+## When to use
+
+Static builds and offline web apps where you already have the HTML/CSS/JS files.
+
+## Core config
+
+Backed by `HtmlConfig`.
+
+### Source
+
+- **Project directory** (`projectDir`) — the folder of HTML/CSS/JS, or a `.zip` extracted on import.
+- **Files** (`files`) — the packaged files, typed as HTML/CSS/JS/image/font/other.
+
+### Entry
+
+- **Entry file** (`entryFile`) — defaults to `index.html`.
+
+### Loading
+
+- **Load mode** (`loadMode`) — `AUTO` (the default for a new app), `FILE` (file scheme), or `LOCAL_HTTP` (local server).
+- **Port** (`port`) — the local server port (for `LOCAL_HTTP`).
+- **Port-conflict mode** (`portConflictMode`) — `AUTO_KILL` or `ALERT`.
+
+### Capabilities
+
+- **Enable JavaScript** (`enableJavaScript`).
+- **Enable local storage** (`enableLocalStorage`).
+- **Allow file access** (`allowFileAccess`) — required for pure file-based loads.
+
+### Appearance
+
+- **Background color** (`backgroundColor`).
+
+## Notes
+
+- The generated app gets `allowFileAccess` so pure file-based loads work offline.
+- A Godot web export starts on System WebView. The `Version/4.0` token is removed only when the user agent also contains Chrome, so the engine is not treated as Safari 4. A real Safari version string is left as it is.
+- **Folder access** — in [Special settings](/guide/app-actions/edit-common-config/special-settings), turn on the Native Bridge folder capability. The page picks one directory and can list, read, and write it through `WtaDirectory` on the system WebView. The grant stays on that device, so an exported app asks again. GeckoView does not expose these methods.
+- **Local file** does not request the `INTERNET` permission when the page can stay on disk. Automatic does the same for a plain page. A page that needs a CDN, ES modules, or WASM still uses the local server and keeps the permission, as does **Local server**.
+- `AUTO` uses the file scheme for a plain page. A page that needs a real origin is served from the local HTTP server: a CDN URL, an ES module (`type=module` or a dynamic `import(`), `.mjs`, `.wasm`, a service worker, a web manifest, or cross-origin isolation. A saved `FILE` page stays on the file scheme unless it needs that origin. `fetch` or `localStorage` alone does not force the server. `LOCAL_HTTP` always uses it. The built-in code editor soft-wraps by default, with a toggle, and highlights HTML.
+- **HTML vs Frontend vs Offline Pack:**
+  - **HTML** — you already have static files.
+  - [Frontend](/guide/app-types/frontend) — you have a framework project whose build output you package.
+  - [Offline Pack](/guide/app-types/offline-pack) — you start from a remote URL and scrape it down.
