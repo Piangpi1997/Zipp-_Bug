@@ -1,0 +1,37 @@
+name: Publish single launcher APK to repository
+on:
+  push:
+    branches: [feat/pp-apk-builder]
+    paths: ['.github/workflows/publish-single-launcher.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Wait for verified build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run watch 42421857795 --repo Piangpi1997/Zipp-_Bug --exit-status
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pp-apk-builder
+      - uses: actions/download-artifact@v4
+        with:
+          name: pp-apk-builder-upstream-debug
+          path: /tmp/pp-apk
+          run-id: 42421857795
+          github-token: ${{ github.token }}
+      - name: Commit APK
+        run: |
+          mkdir -p downloads
+          cp /tmp/pp-apk/app-standard-debug.apk downloads/PP_APK_BUILDER_Single_Launcher_Debug.apk
+          sha256sum downloads/PP_APK_BUILDER_Single_Launcher_Debug.apk
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f downloads/PP_APK_BUILDER_Single_Launcher_Debug.apk
+          git rm .github/workflows/publish-single-launcher.yml
+          git commit -m "Add single launcher PP APK Builder debug APK"
+          git push origin HEAD:feat/pp-apk-builder
