@@ -54,6 +54,8 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$apk" > "$RUNNER_TEMP/pp-badging.txt"
           grep -F "PP APK BUILDER" "$RUNNER_TEMP/pp-badging.txt"
           grep -F "package: name='com.piangpi.ppapkbuilder'" "$RUNNER_TEMP/pp-badging.txt"
+          test "$(grep -c '^launchable-activity:' "$RUNNER_TEMP/pp-badging.txt")" -eq 1
+          grep -F "name='com.webtoapp.ui.MainActivity'" "$RUNNER_TEMP/pp-badging.txt"
           head -25 "$RUNNER_TEMP/pp-badging.txt"
           sha256sum "$apk"
       - uses: actions/upload-artifact@v4
