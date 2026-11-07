@@ -1,0 +1,23 @@
+# Manage Plugins
+
+Manage the plugins that run inside your generated apps. Open it from [⋮ → Manage Plugins](/guide/main-screen/more).
+
+## What you can manage
+
+Built-in plugins, custom HCJ packages, userscripts, and MV3 Chrome extensions — all on one unified surface.
+
+## Features
+
+- **List & toggle** — each row has a switch. On means the plugin is enabled. An app that turns plugins on and does not pick its own list runs this enabled set. A picked list on an app still runs only that list. Plugins you add start on. Built-in plugins stay off until you turn them on.
+- **Editor** — create or edit a plugin: manifest, JavaScript, CSS, and a `panel.html` UI. See [HCJ Plugins](/extensions/js-module).
+- **Market** — browse the community plugin market. See [Publish to the Market](/extensions/publish).
+- **Browser extensions** — search the Chrome Web Store live and install MV3 extensions. See [Chrome MV3](/extensions/chrome-mv3).
+- **Host style** — pick how plugin entries appear (toolbar button / floating handle / menu) and how panels are hosted (bottom sheet / floating window / fullscreen). The floating handle fans plugins out from that spot when more than one is enabled (one plugin opens directly; none still opens the sheet).
+- **URL Switcher** — a built-in plugin that stores a list of URLs and switches the current page. Attach it to any app type. The first open is empty; add URLs (or the current page) and tap a row to go there. Long-press a row and drag to reorder. The open page is marked. A duplicate add stays in the list.
+- **Import / export** — `.hcj` packages, `.user.js` userscripts, `.zip`/`.crx` extensions.
+- **AI developer** — jump to [Agent](/guide/more-features/agent) to generate a plugin.
+
+## Related
+
+- [Userscripts](/extensions/userscript) — the `GM_*` / `GM.*` API reference.
+- [API Reference](/extensions/api-reference) — functional/stub status per API.

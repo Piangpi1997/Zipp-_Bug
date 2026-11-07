@@ -1,0 +1,30 @@
+name: PP Studio mobile layout check
+
+on:
+  push:
+    branches: [feat/pp-apk-builder]
+    paths: ['.github/workflows/pp-ui-preview.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Render narrow layout
+        run: |
+          python3 -m http.server 8765 --directory web-to-app/app/src/main/assets/zipstudio >/tmp/pp-http.log 2>&1 &
+          chrome_path="$(command -v google-chrome || command -v chromium)"
+          "$chrome_path" --headless --no-sandbox --disable-gpu --hide-scrollbars --window-size=320,640 --screenshot=/tmp/pp-mobile.png --virtual-time-budget=5000 http://127.0.0.1:8765/index.html
+          test -s /tmp/pp-mobile.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pp-studio-mobile-layout
+          path: /tmp/pp-mobile.png
+          if-no-files-found: error

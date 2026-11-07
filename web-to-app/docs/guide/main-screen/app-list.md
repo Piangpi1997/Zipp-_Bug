@@ -1,0 +1,36 @@
+# App List
+
+The main area of [My Apps](/guide/main-screen/my-apps) is a scrollable list of app cards (filtered by the selected [category](/guide/main-screen/categories) and [search](/guide/main-screen/search)).
+
+## Anatomy of a card
+
+Each card shows:
+
+- **Icon** — your chosen icon, or a type-specific default.
+- **Name** and **URL** (or media path / entry file for non-web types).
+- **Type chip** — Web, Multi-Web, HTML, Frontend, PHP, WordPress, Node.js, Python, Go, Image, Video, or Gallery.
+- **Feature chips** — quick indicators such as activation gating, ad blocking, or announcement (one shown at a time).
+- **Health dot** — a small status dot on the icon from URL health monitoring: green (online), amber (slow), red (offline).
+- **Preview thumbnail** — a captured screenshot of the site; tap it to re-capture.
+
+## Interactions
+
+| Gesture | Result |
+| --- | --- |
+| **Tap the card** | Open the preview activity directly (WebView, gallery player, or media player). One back returns to the list. |
+| **Tap ⋮ on the card** | Open the [action menu](/guide/app-actions/edit-core-config) |
+| **⋮ → Open in browser** | Web and Multi-Web apps open their http(s) URL in the system browser chooser |
+| **Swipe the card left** | Quick [delete](/guide/app-actions/delete) (with confirmation) |
+
+[About → Separate WebApp tasks](/guide/more-features/about) is off by default. When it is on, each home preview gets its own recents entry. Opening the same preview again brings that card forward. Desktop shortcuts always have their own entry, and Back returns to the launcher.
+
+## Sort
+
+**Sort** on My Apps chooses the order. The default is **Recently updated**.
+
+- **Recently updated** — newest edit first.
+- **Recently created**.
+- **By name**.
+- **Custom** — the order saved by dragging. A swipe to the left still deletes. Drag is off while the search box has text. A category filter reorders only the apps you can see; the others keep their places. New and duplicated apps go to the top. Dragging does not change the updated time, so switching back to recently updated still follows real edits.
+
+Long-press a card in any of these sorts, then drag. The first drag from Recently updated, Recently created, or By name saves the list you see as Custom, so the rows stay where you drop them.
