@@ -1641,6 +1641,7 @@ class ApkBuilder(private val context: Context) {
                                 shareReceiveMimeTypes = config.shareReceiveMimeTypes,
                                 openWithEnabled = config.openWithEnabled
                             )
+                            modifiedData = axmlRebuilder.setAppLabel(modifiedData, config.appName)
                             stackBundles.forEach { bundle ->
                                 modifiedData = featureStackGrafter.graftManifest(
                                     modifiedData, bundle, config.packageName,

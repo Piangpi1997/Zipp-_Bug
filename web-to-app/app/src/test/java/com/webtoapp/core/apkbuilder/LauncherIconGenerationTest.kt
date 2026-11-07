@@ -249,6 +249,10 @@ class LauncherIconGenerationTest {
         assertThat(specs.filter { it.kind == ArscRebuilder.LauncherIconKind.ROUND }).isNotEmpty()
 
         ZipFile(outputApk).use { zip ->
+            val manifestBytes = zip.getInputStream(zip.getEntry("AndroidManifest.xml")).readBytes()
+            val root = com.webtoapp.core.playstore.aab.axml.AxmlToProtoXml.convert(manifestBytes).element
+            val application = root.childList.first { it.hasElement() && it.element.name == "application" }.element
+            assertThat(application.attributeList.first { it.name == "label" }.value).isEqualTo("IconFix")
             // The background layer must be a uniform opaque color, not the user image.
             val bgEntry = zip.getEntry(ArscRebuilder.LAUNCHER_BACKGROUND_DRAWABLE_PATH)
             assertThat(bgEntry).isNotNull()
